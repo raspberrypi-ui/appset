@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Appearance Settings
+GenericName=Appearance Settings
+Comment=Configure the appearance of the desktop and windows
+Icon=preferences-desktop-theme
+Exec=pipanel
+NotShowIn=GNOME;XFCE;
+StartupNotify=true
+Categories=Settings;DesktopSettings;GTK;X-LXDE-Settings;
