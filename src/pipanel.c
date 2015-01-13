@@ -118,18 +118,18 @@ static void load_lxsession_settings (void)
 	GError *err;
 
 	// construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = "LXDE";
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
 
 	// read in data from file to a key file structure
-    kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-     	g_free (user_config_file);
-     	return;
-   	}
-    g_free (user_config_file);
+	kf = g_key_file_new ();
+	if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+	{
+		g_free (user_config_file);
+		return;
+	}
+	g_free (user_config_file);
 
 	// get data from the key file
 	err = NULL;
@@ -173,18 +173,18 @@ static void load_pcman_settings (void)
 	GError *err;
 
 	// construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = "LXDE";
-    user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
 
 	// read in data from file to a key file
-    kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-     	g_free (user_config_file);
-     	return;
-   	}
-    g_free (user_config_file);
+	kf = g_key_file_new ();
+	if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+	{
+		g_free (user_config_file);
+		return;
+	}
+	g_free (user_config_file);
 
 	// get data from the key file
 	err = NULL;
@@ -226,17 +226,17 @@ static void load_lxpanel_settings (void)
 	int val;
 
 	// construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = "LXDE";
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
-    
-    // open the file
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
+	
+	// open the file
 	fp = g_fopen (user_config_file, "rb");
-    g_free (user_config_file);
-    if (!fp) return;
-    
-    // read data from the file
-    barpos = 0;
+	g_free (user_config_file);
+	if (!fp) return;
+	
+	// read data from the file
+	barpos = 0;
 	while (1)
 	{
 		if (!fgets (linbuf, 256, fp)) break;
@@ -256,12 +256,12 @@ static void load_obpix_settings (void)
 	FILE *fp;
 
 	// open the file
-    user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
+	user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
 	fp = g_fopen (user_config_file, "rb");
-   	g_free (user_config_file);
+	g_free (user_config_file);
 	if (!fp) return;
- 		
- 	// set defaults in case read fails 	
+		
+	// set defaults in case read fails	
 	gdk_color_parse ("#86ABD9", &theme_colour);
 	gdk_color_parse ("#FFFFFF", &themetext_colour);
 	
@@ -295,11 +295,11 @@ static void save_lxpanel_settings (void)
 	if (icon_size > MAX_ICON || icon_size < MIN_ICON) return;
 	
 	// construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = "LXDE";
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
-    
-    // use sed to write
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
+	
+	// use sed to write
 	sprintf (cmdbuf, "sed -i s/iconsize=../iconsize=%d/g %s", icon_size, user_config_file);
 	system (cmdbuf);
 	sprintf (cmdbuf, "sed -i s/height=../height=%d/g %s", icon_size, user_config_file);
@@ -316,8 +316,8 @@ static void save_obpix_settings (void)
 	char cmdbuf[256];
 
 	// construct the file path
-    user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
-    
+	user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
+	
 	// convert colour to string and use sed to write
 	cstr = gdk_color_to_string (&theme_colour);
 	sprintf (cmdbuf, "sed -i s/'window.active.title.bg.color: #......'/'window.active.title.bg.color: #%c%c%c%c%c%c'/g %s", 
@@ -342,31 +342,31 @@ static void save_lxsession_settings (void)
 	gsize len;
 
 	// construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = "LXDE";
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
 
 	// read in data from file to a key file
-    kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-    	g_free (user_config_file);
-    	return;
-    }
+	kf = g_key_file_new ();
+	if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+	{
+		g_free (user_config_file);
+		return;
+	}
 
 	// update changed values in the key file 
 	sprintf (colbuf, "selected_bg_color:%s\nselected_fg_color:%s\nbar_bg_color:%s\nbar_fg_color:%s\n", 
 		gdk_color_to_string (&theme_colour), gdk_color_to_string (&themetext_colour), 
 		gdk_color_to_string (&bar_colour), gdk_color_to_string (&bartext_colour));
-    g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", colbuf);
-    g_key_file_set_string (kf, "GTK", "sGtk/FontName", desktop_font);
-    
-    // write the modified key file out
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-    
-    g_free (user_config_file);
-    g_free (str);
+	g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", colbuf);
+	g_key_file_set_string (kf, "GTK", "sGtk/FontName", desktop_font);
+	
+	// write the modified key file out
+	str = g_key_file_to_data (kf, &len, NULL);
+	g_file_set_contents (user_config_file, str, len, NULL);
+	
+	g_free (user_config_file);
+	g_free (str);
 }
 
 static void save_pcman_settings (void)
@@ -378,34 +378,34 @@ static void save_pcman_settings (void)
 	gsize len;
 
 	// construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = "LXDE";
-    user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
 
 	// read in data from file to a key file
-    kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-    	g_free (user_config_file);
-    	return;
-    }
+	kf = g_key_file_new ();
+	if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+	{
+		g_free (user_config_file);
+		return;
+	}
 
 	// update changed values in the key file 
 	sprintf (colbuf, "%s", gdk_color_to_string (&desktop_colour));
-    g_key_file_set_string (kf, "*", "desktop_bg", colbuf);
-    g_key_file_set_string (kf, "*", "desktop_shadow", colbuf);
+	g_key_file_set_string (kf, "*", "desktop_bg", colbuf);
+	g_key_file_set_string (kf, "*", "desktop_shadow", colbuf);
 	sprintf (colbuf, "%s", gdk_color_to_string (&desktoptext_colour));
-    g_key_file_set_string (kf, "*", "desktop_fg", colbuf);
-    g_key_file_set_string (kf, "*", "desktop_font", desktop_font);
-    g_key_file_set_string (kf, "*", "wallpaper", desktop_picture);
-    g_key_file_set_string (kf, "*", "wallpaper_mode", desktop_mode);
-    
-    // write the modified key file out
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-    
-    g_free (user_config_file);
-    g_free (str);
+	g_key_file_set_string (kf, "*", "desktop_fg", colbuf);
+	g_key_file_set_string (kf, "*", "desktop_font", desktop_font);
+	g_key_file_set_string (kf, "*", "wallpaper", desktop_picture);
+	g_key_file_set_string (kf, "*", "wallpaper_mode", desktop_mode);
+	
+	// write the modified key file out
+	str = g_key_file_to_data (kf, &len, NULL);
+	g_file_set_contents (user_config_file, str, len, NULL);
+	
+	g_free (user_config_file);
+	g_free (str);
 }
 
 static void save_obconf_settings (void)
@@ -413,30 +413,30 @@ static void save_obconf_settings (void)
 	const char *session_name;
 	char *user_config_file, *c, *font, *fname;
 	int count;
-    const gchar *size = NULL, *bold = NULL, *italic = NULL;
+	const gchar *size = NULL, *bold = NULL, *italic = NULL;
 	
 	// construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = "LXDE";
-    fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml");
-    user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
-    g_free (fname);
-    
-    // set the font description variables for XML from the font name
-    font = g_strdup (desktop_font);
-    while ((c = strrchr (font, ' '))) 
-    {
-        if (!bold && !italic && !size && atoi (c + 1))
-            size = c + 1;
-        else if (!bold && !italic && !g_ascii_strcasecmp (c + 1, "italic"))
-            italic = c + 1;
-        else if (!bold && !g_ascii_strcasecmp (c + 1, "bold"))
-            bold = c + 1;
-        else break;
-        *c = '\0';
-    }
-    if (!bold) bold = "Normal";
-    if (!italic) italic = "Normal";
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml");
+	user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
+	g_free (fname);
+	
+	// set the font description variables for XML from the font name
+	font = g_strdup (desktop_font);
+	while ((c = strrchr (font, ' '))) 
+	{
+		if (!bold && !italic && !size && atoi (c + 1))
+			size = c + 1;
+		else if (!bold && !italic && !g_ascii_strcasecmp (c + 1, "italic"))
+			italic = c + 1;
+		else if (!bold && !g_ascii_strcasecmp (c + 1, "bold"))
+			bold = c + 1;
+		else break;
+		*c = '\0';
+	}
+	if (!bold) bold = "Normal";
+	if (!italic) italic = "Normal";
 
 	// read in data from XML file
 	xmlInitParser ();
@@ -449,7 +449,7 @@ static void save_obconf_settings (void)
 		return;
 	}
 	
-    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+	xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
 	xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
 	
 	// update relevant nodes with new values
@@ -460,19 +460,19 @@ static void save_obconf_settings (void)
 		xmlNode *cur_node = NULL;
 		for (cur_node = node->children; cur_node; cur_node = cur_node->next) 
 		{
-        	if (cur_node->type == XML_ELEMENT_NODE) 
-        	{
-            	if (!strcmp (cur_node->name, "name")) xmlNodeSetContent (cur_node, font);
-             	if (!strcmp (cur_node->name, "size")) xmlNodeSetContent (cur_node, size);
-             	if (!strcmp (cur_node->name, "weight")) xmlNodeSetContent (cur_node, bold);
-             	if (!strcmp (cur_node->name, "slant"))	xmlNodeSetContent (cur_node, italic);
-        	}
-        }
+			if (cur_node->type == XML_ELEMENT_NODE) 
+			{
+				if (!strcmp (cur_node->name, "name")) xmlNodeSetContent (cur_node, font);
+				if (!strcmp (cur_node->name, "size")) xmlNodeSetContent (cur_node, size);
+				if (!strcmp (cur_node->name, "weight")) xmlNodeSetContent (cur_node, bold);
+				if (!strcmp (cur_node->name, "slant"))	xmlNodeSetContent (cur_node, italic);
+			}
+		}
 	}
 	
 	// cleanup XML
-    xmlXPathFreeObject (xpathObj);
-    xmlXPathFreeContext (xpathCtx); 
+	xmlXPathFreeObject (xpathObj);
+	xmlXPathFreeContext (xpathCtx); 
 	xmlSaveFile (user_config_file, xDoc);
 	xmlFreeDoc (xDoc);
 	xmlCleanupParser ();
@@ -486,81 +486,81 @@ static void save_obconf_settings (void)
 
 static void on_icon_size_set (GtkSpinButton* btn, gpointer ptr)
 {
-    double val = gtk_spin_button_get_value (btn);
-    if (val >= MIN_ICON && val <= MAX_ICON) icon_size = val;
-    else gtk_spin_button_set_value (btn, icon_size);
-    save_lxpanel_settings ();
-    system ("lxpanelctl refresh");
+	double val = gtk_spin_button_get_value (btn);
+	if (val >= MIN_ICON && val <= MAX_ICON) icon_size = val;
+	else gtk_spin_button_set_value (btn, icon_size);
+	save_lxpanel_settings ();
+	system ("lxpanelctl refresh");
 }
 
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 {
-   	gtk_color_button_get_color (btn, &theme_colour);
+	gtk_color_button_get_color (btn, &theme_colour);
 	save_lxsession_settings ();
-    save_obpix_settings ();
-    system ("lxsession -r");
-    system ("openbox --reconfigure");
-    system ("pcmanfm --reconfigure");
+	save_obpix_settings ();
+	system ("lxsession -r");
+	system ("openbox --reconfigure");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
-   	gtk_color_button_get_color (btn, &themetext_colour);
+	gtk_color_button_get_color (btn, &themetext_colour);
 	save_lxsession_settings ();
-    save_obpix_settings ();
-    system ("lxsession -r");
-    system ("openbox --reconfigure");
-    system ("pcmanfm --reconfigure");
+	save_obpix_settings ();
+	system ("lxsession -r");
+	system ("openbox --reconfigure");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
 {
-   	gtk_color_button_get_color (btn, &bar_colour);
+	gtk_color_button_get_color (btn, &bar_colour);
 	save_lxsession_settings ();
-    system ("lxsession -r");
-    system ("pcmanfm --reconfigure");
+	system ("lxsession -r");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
-   	gtk_color_button_get_color (btn, &bartext_colour);
+	gtk_color_button_get_color (btn, &bartext_colour);
 	save_lxsession_settings ();
-    system ("lxsession -r");
-    system ("pcmanfm --reconfigure");
+	system ("lxsession -r");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_desktop_colour_set (GtkColorButton* btn, gpointer ptr)
 {
-   	gtk_color_button_get_color (btn, &desktop_colour);
+	gtk_color_button_get_color (btn, &desktop_colour);
 	save_pcman_settings ();
-    system ("pcmanfm --reconfigure");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
-   	gtk_color_button_get_color (btn, &desktoptext_colour);
+	gtk_color_button_get_color (btn, &desktoptext_colour);
 	save_pcman_settings ();
-    system ("pcmanfm --reconfigure");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 {
-    char *picture = gtk_file_chooser_get_filename (btn);
-    if (picture) desktop_picture = picture;
+	char *picture = gtk_file_chooser_get_filename (btn);
+	if (picture) desktop_picture = picture;
 	save_pcman_settings ();
-    system ("pcmanfm --reconfigure");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
 {
-    const char *font = gtk_font_button_get_font_name (btn);
-    if (font) desktop_font = font;
+	const char *font = gtk_font_button_get_font_name (btn);
+	if (font) desktop_font = font;
 	save_lxsession_settings ();
 	save_pcman_settings ();
-    save_obconf_settings ();
-    system ("lxsession -r");
-    system ("openbox --reconfigure");
-    system ("pcmanfm --reconfigure");
+	save_obconf_settings ();
+	system ("lxsession -r");
+	system ("openbox --reconfigure");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
@@ -582,49 +582,49 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
 					break;
 	}
 	
-    if (!strcmp (desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (ptr), FALSE);
-    else gtk_widget_set_sensitive (GTK_WIDGET (ptr), TRUE);
+	if (!strcmp (desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (ptr), FALSE);
+	else gtk_widget_set_sensitive (GTK_WIDGET (ptr), TRUE);
 	save_pcman_settings ();
-    system ("pcmanfm --reconfigure");
+	system ("pcmanfm --reconfigure");
 }
 
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 {
 	// only respond to the button which is now active
-    if (!gtk_toggle_button_get_active (btn)) return;
-    
-    // find out which button in the group is active
-    GSList *group = gtk_radio_button_get_group (btn);
-    if (gtk_toggle_button_get_active (group->data)) barpos = 1;
-    else barpos = 0;
-    save_lxpanel_settings ();
-    system ("lxpanelctl refresh");
+	if (!gtk_toggle_button_get_active (btn)) return;
+	
+	// find out which button in the group is active
+	GSList *group = gtk_radio_button_get_group (btn);
+	if (gtk_toggle_button_get_active (group->data)) barpos = 1;
+	else barpos = 0;
+	save_lxpanel_settings ();
+	system ("lxpanelctl refresh");
 }
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
 	desktop_font = "Roboto Light 12";
-    gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
+	gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
 	desktop_picture = "/usr/share/raspberrypi-artwork/raspberry-pi-logo-small.png";
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
+	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
 	desktop_mode = "center";
-    gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
+	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
 	icon_size = 36;
 	barpos = 0; 
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (barh), icon_size);
 	gdk_color_parse ("#86ABD9", &theme_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
 	gdk_color_parse ("#D6D3DE", &desktop_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
 	gdk_color_parse ("#000000", &desktoptext_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &desktoptext_colour);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &desktoptext_colour);
 	gdk_color_parse ("#000000", &bartext_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &bartext_colour);	
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &bartext_colour); 
 	gdk_color_parse ("#EDECEB", &bar_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
 	gdk_color_parse ("#FFFFFF", &themetext_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);	
-    gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb1), TRUE);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);	
+	gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb1), TRUE);
 	save_lxsession_settings ();
 	save_pcman_settings ();
 	save_obconf_settings ();
@@ -641,104 +641,104 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
 int main (int argc, char *argv[])
 {
-    GtkBuilder *builder;
-    GObject *item;
-    GtkWidget *dlg;
+	GtkBuilder *builder;
+	GObject *item;
+	GtkWidget *dlg;
 
 	// load data from config files 
-    load_lxsession_settings ();
-    load_obpix_settings ();
-    load_pcman_settings ();
-    load_lxpanel_settings ();
-    backup_values ();
+	load_lxsession_settings ();
+	load_obpix_settings ();
+	load_pcman_settings ();
+	load_lxpanel_settings ();
+	backup_values ();
 
 	// GTK setup
-    gtk_init (&argc, &argv);
-    gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
+	gtk_init (&argc, &argv);
+	gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
-    // build the UI
-    builder = gtk_builder_new ();
-    //gtk_builder_add_from_file (builder, "/home/pi/pipanel/data/pipanel.ui", NULL);
-   	gtk_builder_add_from_file (builder, PACKAGE_DATA_DIR "/pipanel.ui", NULL);
-    dlg = (GtkWidget *) gtk_builder_get_object (builder, "dialog1");
-    gtk_dialog_set_alternative_button_order (GTK_DIALOG (dlg), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
-    
-    font = gtk_builder_get_object (builder, "fontbutton1");
-    gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
-    g_signal_connect (font, "font-set", G_CALLBACK (on_desktop_font_set), NULL);
+	// build the UI
+	builder = gtk_builder_new ();
+	//gtk_builder_add_from_file (builder, "/home/pi/pipanel/data/pipanel.ui", NULL);
+	gtk_builder_add_from_file (builder, PACKAGE_DATA_DIR "/pipanel.ui", NULL);
+	dlg = (GtkWidget *) gtk_builder_get_object (builder, "dialog1");
+	gtk_dialog_set_alternative_button_order (GTK_DIALOG (dlg), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
+	
+	font = gtk_builder_get_object (builder, "fontbutton1");
+	gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
+	g_signal_connect (font, "font-set", G_CALLBACK (on_desktop_font_set), NULL);
 
-    dpic = gtk_builder_get_object (builder, "filechooserbutton1");
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
-    g_signal_connect (dpic, "file-set", G_CALLBACK (on_desktop_picture_set), NULL);
-    if (!strcmp (desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic), FALSE);
-    else gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
+	dpic = gtk_builder_get_object (builder, "filechooserbutton1");
+	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
+	g_signal_connect (dpic, "file-set", G_CALLBACK (on_desktop_picture_set), NULL);
+	if (!strcmp (desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic), FALSE);
+	else gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
 
-    hcol = gtk_builder_get_object (builder, "colorbutton1");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
-    g_signal_connect (hcol, "color-set", G_CALLBACK (on_theme_colour_set), NULL);
-    
-    dcol = gtk_builder_get_object (builder, "colorbutton2");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
-    g_signal_connect (dcol, "color-set", G_CALLBACK (on_desktop_colour_set), NULL);
-    
-    bcol = gtk_builder_get_object (builder, "colorbutton3");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
-    g_signal_connect (bcol, "color-set", G_CALLBACK (on_bar_colour_set), NULL);
-    
-    btcol = gtk_builder_get_object (builder, "colorbutton4");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &bartext_colour);
-    g_signal_connect (btcol, "color-set", G_CALLBACK (on_bartext_colour_set), NULL);
-    
-    htcol = gtk_builder_get_object (builder, "colorbutton5");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);
-    g_signal_connect (htcol, "color-set", G_CALLBACK (on_themetext_colour_set), NULL);
-    
-    dtcol = gtk_builder_get_object (builder, "colorbutton6");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &desktoptext_colour);
-    g_signal_connect (dtcol, "color-set", G_CALLBACK (on_desktoptext_colour_set), NULL);
-    
+	hcol = gtk_builder_get_object (builder, "colorbutton1");
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
+	g_signal_connect (hcol, "color-set", G_CALLBACK (on_theme_colour_set), NULL);
+	
+	dcol = gtk_builder_get_object (builder, "colorbutton2");
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
+	g_signal_connect (dcol, "color-set", G_CALLBACK (on_desktop_colour_set), NULL);
+	
+	bcol = gtk_builder_get_object (builder, "colorbutton3");
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
+	g_signal_connect (bcol, "color-set", G_CALLBACK (on_bar_colour_set), NULL);
+	
+	btcol = gtk_builder_get_object (builder, "colorbutton4");
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &bartext_colour);
+	g_signal_connect (btcol, "color-set", G_CALLBACK (on_bartext_colour_set), NULL);
+	
+	htcol = gtk_builder_get_object (builder, "colorbutton5");
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);
+	g_signal_connect (htcol, "color-set", G_CALLBACK (on_themetext_colour_set), NULL);
+	
+	dtcol = gtk_builder_get_object (builder, "colorbutton6");
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &desktoptext_colour);
+	g_signal_connect (dtcol, "color-set", G_CALLBACK (on_desktoptext_colour_set), NULL);
+	
 	GtkObject *adj = gtk_adjustment_new (icon_size, MIN_ICON, MAX_ICON, 2, 0, 0);
-    barh = gtk_builder_get_object (builder, "spinbutton1");
-    gtk_spin_button_set_adjustment (GTK_SPIN_BUTTON (barh), GTK_ADJUSTMENT (adj));
-   	g_signal_connect (barh, "value_changed", G_CALLBACK (on_icon_size_set), NULL);
-   	
-    dmod = gtk_builder_get_object (builder, "comboboxtext1");
-    if (!strcmp (desktop_mode, "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
-    else if (!strcmp (desktop_mode, "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 2);
-    else if (!strcmp (desktop_mode, "crop")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
-    else if (!strcmp (desktop_mode, "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 4);
-    else if (!strcmp (desktop_mode, "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 5);
-    else gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
-    g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
+	barh = gtk_builder_get_object (builder, "spinbutton1");
+	gtk_spin_button_set_adjustment (GTK_SPIN_BUTTON (barh), GTK_ADJUSTMENT (adj));
+	g_signal_connect (barh, "value_changed", G_CALLBACK (on_icon_size_set), NULL);
+	
+	dmod = gtk_builder_get_object (builder, "comboboxtext1");
+	if (!strcmp (desktop_mode, "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
+	else if (!strcmp (desktop_mode, "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 2);
+	else if (!strcmp (desktop_mode, "crop")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
+	else if (!strcmp (desktop_mode, "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 4);
+	else if (!strcmp (desktop_mode, "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 5);
+	else gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
+	g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
 
-    item = gtk_builder_get_object (builder, "button3");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), gtk_builder_get_object (builder, "button3"));
-    
-    rb1 = gtk_builder_get_object (builder, "radiobutton1");
-    g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
-    rb2 = gtk_builder_get_object (builder, "radiobutton2");
-    g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
-    if (barpos) gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb2), TRUE);
-    else gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb1), TRUE);
-    
-    g_object_unref (builder);
+	item = gtk_builder_get_object (builder, "button3");
+	g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), gtk_builder_get_object (builder, "button3"));
+	
+	rb1 = gtk_builder_get_object (builder, "radiobutton1");
+	g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+	rb2 = gtk_builder_get_object (builder, "radiobutton2");
+	g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+	if (barpos) gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb2), TRUE);
+	else gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb1), TRUE);
+	
+	g_object_unref (builder);
 
-    if (gtk_dialog_run (GTK_DIALOG (dlg)) == GTK_RESPONSE_CANCEL)
-    {
-    	if (restore_values ())
-    	{
+	if (gtk_dialog_run (GTK_DIALOG (dlg)) == GTK_RESPONSE_CANCEL)
+	{
+		if (restore_values ())
+		{
 			save_lxsession_settings ();
 			save_pcman_settings ();
-    		save_obconf_settings ();
-    		save_obpix_settings ();
-    		save_lxpanel_settings ();
-    		system ("lxpanelctl refresh");
-    		system ("lxsession -r");
-    		system ("openbox --reconfigure");
-    		system ("pcmanfm --reconfigure");
-    	}
-    }
-    gtk_widget_destroy (dlg);
+			save_obconf_settings ();
+			save_obpix_settings ();
+			save_lxpanel_settings ();
+			system ("lxpanelctl refresh");
+			system ("lxsession -r");
+			system ("openbox --reconfigure");
+			system ("pcmanfm --reconfigure");
+		}
+	}
+	gtk_widget_destroy (dlg);
 
-    return 0;
+	return 0;
 }
