@@ -20,6 +20,8 @@
 static const char *desktop_font, *orig_desktop_font;
 static const char *desktop_picture, *orig_desktop_picture;
 static const char *desktop_mode, *orig_desktop_mode;
+static const char *orig_lxsession_theme;
+static const char *orig_openbox_theme;
 static int icon_size, orig_icon_size;
 static GdkColor theme_colour, orig_theme_colour;
 static GdkColor themetext_colour, orig_themetext_colour;
@@ -31,6 +33,34 @@ static int barpos, orig_barpos;
 
 /* Controls */
 GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2;
+
+static void backup_values (void);
+static int restore_values (void);
+static void check_themes (void);
+static void load_lxsession_settings (void);
+static void load_pcman_settings (void);
+static void load_lxpanel_settings (void);
+static void load_obpix_settings (void);
+static void save_lxpanel_settings (void);
+static void save_obpix_settings (void);
+static void save_lxsession_settings (void);
+static void save_pcman_settings (void);
+static void save_obconf_settings (void);
+static void set_openbox_theme (const char *theme);
+static void set_lxsession_theme (const char *theme);
+static void on_icon_size_set (GtkSpinButton* btn, gpointer ptr);
+static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
+static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr);
+static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr);
+static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr);
+static void on_desktop_colour_set (GtkColorButton* btn, gpointer ptr);
+static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr);
+static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr);
+static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr);
+static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
+static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
+static void on_set_defaults (GtkButton* btn, gpointer ptr);
+
 
 static void backup_values (void)
 {
@@ -105,10 +135,87 @@ static int restore_values (void)
 		barpos = orig_barpos;
 		ret = 1;
 	}
+	if (strcmp ("PiX", orig_lxsession_theme)) 
+	{
+		set_lxsession_theme (orig_lxsession_theme);
+		ret = 1;
+	}
+	if (strcmp ("PiX", orig_openbox_theme)) 
+	{
+		set_openbox_theme (orig_openbox_theme);
+		ret = 1;
+	}
 	return ret;
 }
 
 /* Functions to load required values from user config files */
+
+static void check_themes (void)
+{
+	const char *session_name, *ret;
+	char *user_config_file, *cptr, *nptr, *fname;
+	GKeyFile *kf;
+	GError *err;
+	int count;
+
+	orig_lxsession_theme = "";
+	orig_openbox_theme = "";
+
+	// construct the file path for lxsession settings
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+
+	// read in data from file to a key file structure
+	kf = g_key_file_new ();
+	if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+	{
+		// get data from the key file
+		err = NULL;
+		ret = g_key_file_get_string (kf, "GTK", "sNet/ThemeName", &err);
+		if (err == NULL) orig_lxsession_theme = ret;
+	}
+
+	// construct the file path for openbox settings
+	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml");
+	user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
+	g_free (fname);
+	
+	// read in data from XML file
+	xmlInitParser ();
+	LIBXML_TEST_VERSION
+	xmlDocPtr xDoc = xmlParseFile (user_config_file);
+	if (xDoc)
+	{	
+		xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+		xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+	
+		// find relevant node and read value
+		for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)	
+		{
+			xmlNode *node = xpathObj->nodesetval->nodeTab[count];
+			xmlAttr *attr = node->properties;
+			xmlNode *cur_node = NULL;
+			for (cur_node = node->children; cur_node; cur_node = cur_node->next) 
+			{
+				if (cur_node->type == XML_ELEMENT_NODE) 
+				{
+					if (!strcmp (cur_node->name, "name")) 
+						orig_openbox_theme = xmlNodeGetContent (cur_node);
+				}
+			}
+		}
+	
+		// cleanup XML
+		xmlXPathFreeObject (xpathObj);
+		xmlXPathFreeContext (xpathCtx); 
+		xmlSaveFile (user_config_file, xDoc);
+		xmlFreeDoc (xDoc);
+		xmlCleanupParser ();
+	}
+	
+	g_free (user_config_file);
+}
 
 static void load_lxsession_settings (void)
 {
@@ -481,6 +588,88 @@ static void save_obconf_settings (void)
 	g_free (user_config_file);
 }
 
+static void set_openbox_theme (const char *theme)
+{
+	const char *session_name;
+	char *user_config_file, *fname;
+	int count;
+	
+	// construct the file path
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml");
+	user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
+	g_free (fname);
+	
+	// read in data from XML file
+	xmlInitParser ();
+	LIBXML_TEST_VERSION
+	xmlDocPtr xDoc = xmlParseFile (user_config_file);
+	if (xDoc == NULL)
+	{
+		g_free (user_config_file);
+		return;
+	}
+	
+	xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+	xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+	
+	// update relevant nodes with new values
+	for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)	
+	{
+		xmlNode *node = xpathObj->nodesetval->nodeTab[count];
+		xmlAttr *attr = node->properties;
+		xmlNode *cur_node = NULL;
+		for (cur_node = node->children; cur_node; cur_node = cur_node->next) 
+		{
+			if (cur_node->type == XML_ELEMENT_NODE) 
+			{
+				if (!strcmp (cur_node->name, "name")) xmlNodeSetContent (cur_node, theme);
+			}
+		}
+	}
+	
+	// cleanup XML
+	xmlXPathFreeObject (xpathObj);
+	xmlXPathFreeContext (xpathCtx); 
+	xmlSaveFile (user_config_file, xDoc);
+	xmlFreeDoc (xDoc);
+	xmlCleanupParser ();
+	
+	g_free (user_config_file);
+}
+
+static void set_lxsession_theme (const char *theme)
+{
+	const char *session_name;
+	char *user_config_file, *str;
+	GKeyFile *kf;
+	gsize len;
+
+	// construct the file path
+	session_name = g_getenv ("DESKTOP_SESSION");
+	if (!session_name) session_name = "LXDE";
+	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+
+	// read in data from file to a key file
+	kf = g_key_file_new ();
+	if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+	{
+		g_free (user_config_file);
+		return;
+	}
+
+	// update changed values in the key file 
+	g_key_file_set_string (kf, "GTK", "sNet/ThemeName", theme);
+	
+	// write the modified key file out
+	str = g_key_file_to_data (kf, &len, NULL);
+	g_file_set_contents (user_config_file, str, len, NULL);
+	
+	g_free (user_config_file);
+	g_free (str);
+}
+
 
 /* Dialog box "changed" signal handlers */
 
@@ -496,7 +685,9 @@ static void on_icon_size_set (GtkSpinButton* btn, gpointer ptr)
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &theme_colour);
+	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
+	set_openbox_theme ("PiX");
 	save_obpix_settings ();
 	system ("lxsession -r");
 	system ("openbox --reconfigure");
@@ -506,7 +697,9 @@ static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &themetext_colour);
+	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
+	set_openbox_theme ("PiX");
 	save_obpix_settings ();
 	system ("lxsession -r");
 	system ("openbox --reconfigure");
@@ -516,6 +709,7 @@ static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &bar_colour);
+	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
 	system ("lxsession -r");
 	system ("pcmanfm --reconfigure");
@@ -524,6 +718,7 @@ static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
 static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &bartext_colour);
+	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
 	system ("lxsession -r");
 	system ("pcmanfm --reconfigure");
@@ -591,7 +786,7 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 {
 	// only respond to the button which is now active
-	if (!gtk_toggle_button_get_active (btn)) return;
+	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) return;
 	
 	// find out which button in the group is active
 	GSList *group = gtk_radio_button_get_group (btn);
@@ -624,7 +819,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
 	gdk_color_parse ("#FFFFFF", &themetext_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);	
-	gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb1), TRUE);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
+	set_openbox_theme ("PiX");
+	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
 	save_pcman_settings ();
 	save_obconf_settings ();
@@ -646,6 +843,7 @@ int main (int argc, char *argv[])
 	GtkWidget *dlg;
 
 	// load data from config files 
+	check_themes ();
 	load_lxsession_settings ();
 	load_obpix_settings ();
 	load_pcman_settings ();
@@ -718,8 +916,8 @@ int main (int argc, char *argv[])
 	g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
 	rb2 = gtk_builder_get_object (builder, "radiobutton2");
 	g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
-	if (barpos) gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb2), TRUE);
-	else gtk_toggle_button_set_active (GTK_RADIO_BUTTON (rb1), TRUE);
+	if (barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
+	else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 	
 	g_object_unref (builder);
 
