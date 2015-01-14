@@ -215,6 +215,18 @@ static void check_themes (void)
 	}
 	
 	g_free (user_config_file);
+	
+	// set the new themes if needed
+	if (strcmp ("PiX", orig_lxsession_theme)) 
+	{
+		set_lxsession_theme ("PiX");
+		system ("lxsession -r");
+	}
+	if (strcmp ("PiX", orig_openbox_theme)) 
+	{
+		set_openbox_theme ("PiX");
+		system ("openbox --reconfigure");
+	}
 }
 
 static void load_lxsession_settings (void)
@@ -685,9 +697,7 @@ static void on_icon_size_set (GtkSpinButton* btn, gpointer ptr)
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &theme_colour);
-	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
-	set_openbox_theme ("PiX");
 	save_obpix_settings ();
 	system ("lxsession -r");
 	system ("openbox --reconfigure");
@@ -697,9 +707,7 @@ static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &themetext_colour);
-	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
-	set_openbox_theme ("PiX");
 	save_obpix_settings ();
 	system ("lxsession -r");
 	system ("openbox --reconfigure");
@@ -709,7 +717,6 @@ static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &bar_colour);
-	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
 	system ("lxsession -r");
 	system ("pcmanfm --reconfigure");
@@ -718,7 +725,6 @@ static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
 static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &bartext_colour);
-	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
 	system ("lxsession -r");
 	system ("pcmanfm --reconfigure");
