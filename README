@@ -1,0 +1,4 @@
+This is an application which allows the configuration of the LX Desktop user interface
+from one convenient dialog.
+
+To build, run autogen.sh, then ./configure and make.
