@@ -760,6 +760,7 @@ static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
 	save_pcman_settings ();
 	save_obconf_settings ();
 	system ("lxsession -r");
+	system ("lxpanelctl refresh");
 	system ("openbox --reconfigure");
 	system ("pcmanfm --reconfigure");
 }
@@ -811,7 +812,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	desktop_mode = "center";
 	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
 	icon_size = 36;
-	barpos = 0; 
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (barh), icon_size);
 	gdk_color_parse ("#86ABD9", &theme_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
@@ -825,6 +825,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
 	gdk_color_parse ("#FFFFFF", &themetext_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);	
+	barpos = 0; 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 	set_openbox_theme ("PiX");
 	set_lxsession_theme ("PiX");
@@ -833,8 +834,8 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	save_obconf_settings ();
 	save_obpix_settings ();
 	save_lxpanel_settings ();
-	system ("lxpanelctl refresh");
 	system ("lxsession -r");
+	system ("lxpanelctl refresh");
 	system ("openbox --reconfigure");
 	system ("pcmanfm --reconfigure");
 }
@@ -936,8 +937,8 @@ int main (int argc, char *argv[])
 			save_obconf_settings ();
 			save_obpix_settings ();
 			save_lxpanel_settings ();
-			system ("lxpanelctl refresh");
 			system ("lxsession -r");
+			system ("lxpanelctl refresh");
 			system ("openbox --reconfigure");
 			system ("pcmanfm --reconfigure");
 		}
