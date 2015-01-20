@@ -32,7 +32,7 @@ static GdkColor bartext_colour, orig_bartext_colour;
 static int barpos, orig_barpos;
 
 /* Controls */
-GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2;
+GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5;
 
 static void backup_values (void);
 static int restore_values (void);
@@ -685,11 +685,31 @@ static void set_lxsession_theme (const char *theme)
 
 /* Dialog box "changed" signal handlers */
 
-static void on_icon_size_set (GtkSpinButton* btn, gpointer ptr)
+static void on_menu_size_set (GtkRadioButton* btn, gpointer ptr)
 {
-	double val = gtk_spin_button_get_value (btn);
-	if (val >= MIN_ICON && val <= MAX_ICON) icon_size = val;
-	else gtk_spin_button_set_value (btn, icon_size);
+	// only respond to the button which is now active
+	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) return;
+	
+	// find out which button in the group is active
+	GSList *group = gtk_radio_button_get_group (btn);
+    GtkRadioButton *tbtn;
+    int nbtn = 0;
+    while (group)
+    {
+    	tbtn = group->data;
+    	group = group->next;
+    	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (tbtn))) break;
+    	nbtn++;
+    }
+	switch (nbtn)
+	{
+		case 0: icon_size = 20;
+				break;
+		case 1: icon_size = 28;
+				break;
+		case 2: icon_size = 36;
+				break;
+	}
 	save_lxpanel_settings ();
 	system ("lxpanelctl refresh");
 }
@@ -812,7 +832,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	desktop_mode = "center";
 	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
 	icon_size = 36;
-	gtk_spin_button_set_value (GTK_SPIN_BUTTON (barh), icon_size);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
 	gdk_color_parse ("#86ABD9", &theme_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
 	gdk_color_parse ("#D6D3DE", &desktop_colour);
@@ -863,7 +883,6 @@ int main (int argc, char *argv[])
 
 	// build the UI
 	builder = gtk_builder_new ();
-	//gtk_builder_add_from_file (builder, "/home/pi/pipanel/data/pipanel.ui", NULL);
 	gtk_builder_add_from_file (builder, PACKAGE_DATA_DIR "/pipanel.ui", NULL);
 	dlg = (GtkWidget *) gtk_builder_get_object (builder, "dialog1");
 	gtk_dialog_set_alternative_button_order (GTK_DIALOG (dlg), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
@@ -902,11 +921,6 @@ int main (int argc, char *argv[])
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &desktoptext_colour);
 	g_signal_connect (dtcol, "color-set", G_CALLBACK (on_desktoptext_colour_set), NULL);
 	
-	GtkObject *adj = gtk_adjustment_new (icon_size, MIN_ICON, MAX_ICON, 2, 0, 0);
-	barh = gtk_builder_get_object (builder, "spinbutton1");
-	gtk_spin_button_set_adjustment (GTK_SPIN_BUTTON (barh), GTK_ADJUSTMENT (adj));
-	g_signal_connect (barh, "value_changed", G_CALLBACK (on_icon_size_set), NULL);
-	
 	dmod = gtk_builder_get_object (builder, "comboboxtext1");
 	if (!strcmp (desktop_mode, "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
 	else if (!strcmp (desktop_mode, "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 2);
@@ -925,6 +939,16 @@ int main (int argc, char *argv[])
 	g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
 	if (barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
 	else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
+	
+	rb3 = gtk_builder_get_object (builder, "radiobutton3");
+	g_signal_connect (rb3, "toggled", G_CALLBACK (on_menu_size_set), NULL);
+	rb4 = gtk_builder_get_object (builder, "radiobutton4");
+	g_signal_connect (rb4, "toggled", G_CALLBACK (on_menu_size_set), NULL);
+	rb5 = gtk_builder_get_object (builder, "radiobutton5");
+	g_signal_connect (rb5, "toggled", G_CALLBACK (on_menu_size_set), NULL);
+	if (icon_size <= 20) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
+	else if (icon_size <= 28) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb4), TRUE);
+	else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
 	
 	g_object_unref (builder);
 
