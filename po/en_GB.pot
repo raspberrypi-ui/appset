@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-13 13:55+0000\n"
+"POT-Creation-Date: 2015-02-03 13:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../data/pipanel.ui.h:1
+#: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
 msgid "Appearance Settings"
 msgstr ""
 
@@ -26,15 +26,15 @@ msgid "Defaults"
 msgstr ""
 
 #: ../data/pipanel.ui.h:3
-msgid "Desktop Colour"
+msgid "Colour"
 msgstr ""
 
 #: ../data/pipanel.ui.h:4
-msgid "Desktop Text Colour"
+msgid "Text Colour"
 msgstr ""
 
 #: ../data/pipanel.ui.h:5
-msgid "Desktop Setting"
+msgid "Layout"
 msgstr ""
 
 #: ../data/pipanel.ui.h:6
@@ -62,69 +62,61 @@ msgid "Tile image"
 msgstr ""
 
 #: ../data/pipanel.ui.h:12
-msgid "Desktop Picture"
+msgid "Picture"
 msgstr ""
 
 #: ../data/pipanel.ui.h:13
-msgid "Menu Bar Height"
+msgid "Desktop"
 msgstr ""
 
 #: ../data/pipanel.ui.h:14
-msgid "Menu Bar Colour"
+msgid "Size"
 msgstr ""
 
 #: ../data/pipanel.ui.h:15
-msgid "Menu Bar Text Colour"
+msgid "Position"
 msgstr ""
 
 #: ../data/pipanel.ui.h:16
-msgid "Menu Bar Position"
+msgid "Large    "
 msgstr ""
 
 #: ../data/pipanel.ui.h:17
-msgid "Top"
+msgid "Medium"
 msgstr ""
 
 #: ../data/pipanel.ui.h:18
-msgid "Bottom"
+msgid "Small"
 msgstr ""
 
 #: ../data/pipanel.ui.h:19
-msgid "Highlight Colour"
+msgid "Top"
 msgstr ""
 
 #: ../data/pipanel.ui.h:20
-msgid "Highlight Text Colour"
+msgid "Bottom"
 msgstr ""
 
 #: ../data/pipanel.ui.h:21
-msgid "Font"
+msgid "Menu Bar"
 msgstr ""
 
 #: ../data/pipanel.ui.h:22
-msgid "Fill with background color only"
+msgid "Font"
 msgstr ""
 
 #: ../data/pipanel.ui.h:23
-msgid "Stretch to fill the entire monitor area"
+msgid "Highlight Colour"
 msgstr ""
 
 #: ../data/pipanel.ui.h:24
-msgid "Stretch to fit the monitor area"
+msgid "Highlight Text Colour"
 msgstr ""
 
 #: ../data/pipanel.ui.h:25
-msgid "Center unscaled image on the monitor"
+msgid "System"
 msgstr ""
 
-#: ../data/pipanel.ui.h:26
-msgid "Tile the image to fill the entire monitor area"
-msgstr ""
-
-#: ../data/pipanel.ui.h:27
-msgid "Stretch and crop to fill the monitor area"
-msgstr ""
-
-#: ../data/pipanel.ui.h:28
-msgid "Stretch to fill the complete screen"
+#: ../data/pipanel.desktop.in.h:2
+msgid "Configure the appearance of the desktop and windows"
 msgstr ""

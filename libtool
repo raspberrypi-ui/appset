@@ -66,12 +66,12 @@ PATH_SEPARATOR=":"
 
 # The host system.
 host_alias=
-host=armv6l-unknown-linux-gnueabihf
+host=armv7l-unknown-linux-gnueabihf
 host_os=linux-gnueabihf
 
 # The build system.
 build_alias=
-build=armv6l-unknown-linux-gnueabihf
+build=armv7l-unknown-linux-gnueabihf
 build_os=linux-gnueabihf
 
 # A sed program that does not truncate output.

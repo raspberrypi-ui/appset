@@ -1,3 +1,5 @@
 [encoding: UTF-8]
 src/pipanel.c
-data/pipanel.ui
+[type: gettext/glade] data/pipanel.ui
+# files added by intltool-prepare
+data/pipanel.desktop.in

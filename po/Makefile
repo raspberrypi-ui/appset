@@ -67,7 +67,8 @@ EXTRA_DISTFILES = ChangeLog POTFILES.skip Makevars LINGUAS
 
 POTFILES = \
 	../src/pipanel.c \
-	../data/pipanel.ui
+	../data/pipanel.ui \
+	../data/pipanel.desktop.in
 
 CATALOGS=$(shell LINGUAS="$(USE_LINGUAS)"; for lang in $$LINGUAS; do printf "$$lang.gmo "; done)
 

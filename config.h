@@ -5,7 +5,7 @@
 #define ENABLE_NLS 1
 
 /* Gettext package. */
-#define GETTEXT_PACKAGE "lxpanel"
+#define GETTEXT_PACKAGE "pipanel"
 
 /* Define to 1 if you have the `bind_textdomain_codeset' function. */
 #define HAVE_BIND_TEXTDOMAIN_CODESET 1

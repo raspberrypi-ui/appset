@@ -13587,7 +13587,7 @@ do
     echo $lang >> $srcdir/po/LINGUAS
 done
 
-GETTEXT_PACKAGE=lxpanel
+GETTEXT_PACKAGE=pipanel
 
 
 cat >>confdefs.h <<_ACEOF

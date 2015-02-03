@@ -559,10 +559,10 @@ SHELL='/bin/bash'
 ECHO='printf %s\n'
 PATH_SEPARATOR=':'
 host_alias=''
-host='armv6l-unknown-linux-gnueabihf'
+host='armv7l-unknown-linux-gnueabihf'
 host_os='linux-gnueabihf'
 build_alias=''
-build='armv6l-unknown-linux-gnueabihf'
+build='armv7l-unknown-linux-gnueabihf'
 build_os='linux-gnueabihf'
 SED='/bin/sed'
 Xsed='/bin/sed -e 1s/^X//'
@@ -832,19 +832,19 @@ S["GMOFILES"]=""
 S["CATOBJEXT"]=".gmo"
 S["CATALOGS"]=""
 S["MSGFMT_OPTS"]="-c"
-S["GETTEXT_PACKAGE"]="lxpanel"
+S["GETTEXT_PACKAGE"]="pipanel"
 S["LIBOBJS"]=""
 S["XMKMF"]=""
 S["LXPANEL_MODULE"]="-avoid-version -rpath $(libdir)/lxpanel/plugins -no-undefined -export-symbols-regex \"^[^_].*\""
 S["ADDITIONAL_FLAGS"]=""
 S["X11_LIBS"]="-lX11  "
 S["X11_CFLAGS"]=" "
-S["PACKAGE_LIBS"]="-pthread -Wl,--export-dynamic -L/usr/local/lib -lfm-gtk -lfm -lwnck-1 -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pi"\
-"xbuf-2.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgio-2.0 -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lrt -lglib-2.0 -lxml2  "
-S["PACKAGE_CFLAGS"]="-pthread -I/usr/local/include -I/usr/include/gtk-2.0 -I/usr/lib/arm-linux-gnueabihf/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/u"\
-"sr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/arm-linux-gnueabihf/glib-2.0/incl"\
-"ude -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12 -I/usr/include/harfbuzz -I/usr/include/libxml2 -I/usr/include/libwnck-1"\
-".0 -I/usr/include/startup-notification-1.0   "
+S["PACKAGE_LIBS"]="-pthread -Wl,--export-dynamic -lfm-gtk -lfm -lwnck-1 -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo "\
+"-lpango-1.0 -lfreetype -lfontconfig -lgio-2.0 -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lrt -lglib-2.0 -lxml2  "
+S["PACKAGE_CFLAGS"]="-pthread -I/usr/include/gtk-2.0 -I/usr/lib/arm-linux-gnueabihf/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf"\
+"-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I/usr/include/pi"\
+"xman-1 -I/usr/include/freetype2 -I/usr/include/libpng12 -I/usr/include/harfbuzz -I/usr/include/libxml2 -I/usr/include/libwnck-1.0 -I/usr/include/sta"\
+"rtup-notification-1.0   "
 S["PKG_CONFIG_LIBDIR"]=""
 S["PKG_CONFIG_PATH"]=""
 S["PKG_CONFIG"]="/usr/bin/pkg-config"
@@ -868,12 +868,12 @@ S["GREP"]="/bin/grep"
 S["SED"]="/bin/sed"
 S["host_os"]="linux-gnueabihf"
 S["host_vendor"]="unknown"
-S["host_cpu"]="armv6l"
-S["host"]="armv6l-unknown-linux-gnueabihf"
+S["host_cpu"]="armv7l"
+S["host"]="armv7l-unknown-linux-gnueabihf"
 S["build_os"]="linux-gnueabihf"
 S["build_vendor"]="unknown"
-S["build_cpu"]="armv6l"
-S["build"]="armv6l-unknown-linux-gnueabihf"
+S["build_cpu"]="armv7l"
+S["build"]="armv7l-unknown-linux-gnueabihf"
 S["LIBTOOL"]="$(SHELL) $(top_builddir)/libtool"
 S["ac_ct_AR"]="ar"
 S["AR"]="ar"
@@ -1093,7 +1093,7 @@ D["HAVE_MEMSET"]=" 1"
 D["HAVE_MKDIR"]=" 1"
 D["HAVE_SETLOCALE"]=" 1"
 D["HAVE_STRCHR"]=" 1"
-D["GETTEXT_PACKAGE"]=" \"lxpanel\""
+D["GETTEXT_PACKAGE"]=" \"pipanel\""
 D["HAVE_LOCALE_H"]=" 1"
 D["HAVE_LC_MESSAGES"]=" 1"
 D["HAVE_BIND_TEXTDOMAIN_CODESET"]=" 1"
