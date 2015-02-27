@@ -1,8 +1,11 @@
 [Desktop Entry]
 Type=Application
 Name=Appearance Settings
+Name[en_GB]=Appearance Settings
 GenericName=Appearance Settings
+GenericName[en_GB]=Appearance Settings
 Comment=Configure the appearance of the desktop and windows
+Comment[en_GB]=Configure the appearance of the desktop and windows
 Icon=preferences-desktop-theme
 Exec=pipanel
 NotShowIn=GNOME;XFCE;

@@ -37,7 +37,7 @@ DATADIRNAME = share
 itlocaledir = $(prefix)/$(DATADIRNAME)/locale
 subdir = po
 install_sh = ${SHELL} /home/pi/pipanel/install-sh
-# Automake >= 1.8 provides $(MKDIR_P).
+# Automake >= 1.8 provides /bin/mkdir -p.
 # Until it can be supposed, use the safe fallback:
 mkdir_p = $(install_sh) -d
 

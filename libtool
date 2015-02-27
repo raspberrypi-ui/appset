@@ -275,7 +275,7 @@ hardcode_into_libs=yes
 sys_lib_search_path_spec="/usr/lib/gcc/arm-linux-gnueabihf/4.6 /usr/lib/arm-linux-gnueabihf /usr/lib /lib/arm-linux-gnueabihf /lib "
 
 # Run-time system search path for libraries.
-sys_lib_dlsearch_path_spec="/lib /usr/lib /opt/vc/lib /lib/arm-linux-gnueabihf /usr/lib/arm-linux-gnueabihf /usr/local/lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/local/lib /lib/arm-linux-gnueabihf /usr/lib/arm-linux-gnueabihf /opt/vc/lib "
 
 # Whether dlopen is supported.
 dlopen_support=unknown
