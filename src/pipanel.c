@@ -42,6 +42,7 @@ static void load_pcman_settings (void);
 static void load_lxpanel_settings (void);
 static void load_obpix_settings (void);
 static void save_lxpanel_settings (void);
+static void save_gtk3_settings (void);
 static void save_obpix_settings (void);
 static void save_lxsession_settings (void);
 static void save_pcman_settings (void);
@@ -452,6 +453,33 @@ static void save_obpix_settings (void)
 	g_free (user_config_file);
 }
 
+static void save_gtk3_settings (void)
+{
+	char *user_config_file, *cstr;
+	char cmdbuf[256];
+
+	// construct the file path
+	user_config_file = g_build_filename (g_get_home_dir (), ".config/gtk-3.0/gtk.css", NULL);
+	
+	// convert colour to string and use sed to write
+	cstr = gdk_color_to_string (&theme_colour);
+	sprintf (cmdbuf, "sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s", 
+		cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
+	system (cmdbuf);
+	
+	cstr = gdk_color_to_string (&themetext_colour);
+	sprintf (cmdbuf, "sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s", 
+		cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
+	system (cmdbuf);
+	
+	// write the current font to the file 
+	sprintf (cmdbuf, "sed -i s/'font:[^;]*'/'font:\t%s'/g %s", desktop_font, user_config_file);
+	system (cmdbuf);
+	
+	g_free (cstr);
+	g_free (user_config_file);
+}
+
 static void save_lxsession_settings (void)
 {
 	const char *session_name;
@@ -719,6 +747,7 @@ static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 	gtk_color_button_get_color (btn, &theme_colour);
 	save_lxsession_settings ();
 	save_obpix_settings ();
+	save_gtk3_settings ();
 	system ("lxsession -r");
 	system ("openbox --reconfigure");
 	system ("pcmanfm --reconfigure");
@@ -729,6 +758,7 @@ static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 	gtk_color_button_get_color (btn, &themetext_colour);
 	save_lxsession_settings ();
 	save_obpix_settings ();
+	save_gtk3_settings ();
 	system ("lxsession -r");
 	system ("openbox --reconfigure");
 	system ("pcmanfm --reconfigure");
@@ -779,6 +809,7 @@ static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
 	save_lxsession_settings ();
 	save_pcman_settings ();
 	save_obconf_settings ();
+	save_gtk3_settings ();
 	system ("lxsession -r");
 	system ("lxpanelctl refresh");
 	system ("openbox --reconfigure");
@@ -853,6 +884,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	save_pcman_settings ();
 	save_obconf_settings ();
 	save_obpix_settings ();
+	save_gtk3_settings ();
 	save_lxpanel_settings ();
 	system ("lxsession -r");
 	system ("lxpanelctl refresh");
@@ -960,6 +992,7 @@ int main (int argc, char *argv[])
 			save_pcman_settings ();
 			save_obconf_settings ();
 			save_obpix_settings ();
+			save_gtk3_settings ();
 			save_lxpanel_settings ();
 			system ("lxsession -r");
 			system ("lxpanelctl refresh");
