@@ -207,6 +207,7 @@ AC_CONFIG_FILES([
     Makefile
     src/Makefile
     data/Makefile
+    po/Makefile.in
 ])
 AC_OUTPUT
 
