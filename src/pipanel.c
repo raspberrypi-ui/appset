@@ -565,7 +565,7 @@ static void save_obconf_settings (void)
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
 	if (!session_name) session_name = "LXDE";
-	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml");
+	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
 	user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
 	g_free (fname);
 	
@@ -637,7 +637,7 @@ static void set_openbox_theme (const char *theme)
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
 	if (!session_name) session_name = "LXDE";
-	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml");
+	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
 	user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
 	g_free (fname);
 	
