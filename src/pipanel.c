@@ -302,6 +302,10 @@ static void load_pcman_settings (void)
 	if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
 	{
 		g_free (user_config_file);
+		gdk_color_parse ("#D6D3DE", &desktop_colour);
+		gdk_color_parse ("#000000", &desktoptext_colour);
+		desktop_picture = "<not set>";
+		desktop_mode = "color";
 		return;
 	}
 	g_free (user_config_file);
@@ -327,12 +331,12 @@ static void load_pcman_settings (void)
 
 	err = NULL;
 	ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
-	if (err == NULL) desktop_picture = ret;
+	if (err == NULL && ret) desktop_picture = ret;
 	else desktop_picture = "<not set>";
 
 	err = NULL;
 	ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
-	if (err == NULL) desktop_mode = ret;
+	if (err == NULL && ret) desktop_mode = ret;
 	else desktop_mode = "color";
 }
 
