@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+datadir=@datadir@
+
+Name: pipanel
+Description: Settings panel for Raspberry Pi desktop appearance
+Requires: libgtk2.0 libxml2
+Version: @VERSION@
