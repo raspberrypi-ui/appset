@@ -15,6 +15,8 @@
 #define MAX_ICON 36
 #define MIN_ICON 16
 
+#define DEFAULT_SES "LXDE-pi"
+
 /* Global variables for window values */
 
 static const char *desktop_font, *orig_desktop_font;
@@ -164,7 +166,7 @@ static void check_themes (void)
 
 	// construct the file path for lxsession settings
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
 
 	// read in data from file to a key file structure
@@ -239,7 +241,7 @@ static void load_lxsession_settings (void)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
 
 	// read in data from file to a key file structure
@@ -247,6 +249,9 @@ static void load_lxsession_settings (void)
 	if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
 	{
 		g_free (user_config_file);
+		gdk_color_parse ("#EDECEB", &bar_colour);
+		gdk_color_parse ("#000000", &bartext_colour);
+		desktop_font = "<not set>";
 		return;
 	}
 	g_free (user_config_file);
@@ -294,7 +299,7 @@ static void load_pcman_settings (void)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
 
 	// read in data from file to a key file
@@ -351,14 +356,20 @@ static void load_lxpanel_settings (void)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
 
 	// open the file
 	fp = g_fopen (user_config_file, "rb");
 	g_free (user_config_file);
-	if (!fp) return;
-
+	if (!fp) 
+	{
+	    // set defaults if not read from file
+	    icon_size = MAX_ICON;
+	    barpos = 0;
+	    return;
+    }
+    
 	// read data from the file
 	barpos = 0;
 	while (1)
@@ -420,7 +431,7 @@ static void save_lxpanel_settings (void)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
 
 	// use sed to write
@@ -494,7 +505,7 @@ static void save_lxsession_settings (void)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
 
 	// read in data from file to a key file
@@ -530,7 +541,7 @@ static void save_pcman_settings (void)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
 
 	// read in data from file to a key file
@@ -568,7 +579,7 @@ static void save_obconf_settings (void)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
 	user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
 	g_free (fname);
@@ -640,7 +651,7 @@ static void set_openbox_theme (const char *theme)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
 	user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
 	g_free (fname);
@@ -692,7 +703,7 @@ static void set_lxsession_theme (const char *theme)
 
 	// construct the file path
 	session_name = g_getenv ("DESKTOP_SESSION");
-	if (!session_name) session_name = "LXDE";
+	if (!session_name) session_name = DEFAULT_SES;
 	user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
 
 	// read in data from file to a key file
