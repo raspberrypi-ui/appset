@@ -17,6 +17,12 @@
 
 #define DEFAULT_SES "LXDE-pi"
 
+/* Shell commands to reload data */
+#define RELOAD_LXPANEL "lxpanelctl refresh"
+#define RELOAD_OPENBOX "openbox --reconfigure"
+#define RELOAD_PCMANFM "pcmanfm --reconfigure"
+#define RELOAD_LXSESSION "lxsession -r"
+
 /* Global variables for window values */
 
 static const char *desktop_font, *orig_desktop_font;
@@ -33,8 +39,12 @@ static GdkColor bar_colour, orig_bar_colour;
 static GdkColor bartext_colour, orig_bartext_colour;
 static int barpos, orig_barpos;
 
+/* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
+
+static char needs_refresh;
+
 /* Controls */
-GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5;
+static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5;
 
 static void backup_values (void);
 static int restore_values (void);
@@ -51,7 +61,7 @@ static void save_pcman_settings (void);
 static void save_obconf_settings (void);
 static void set_openbox_theme (const char *theme);
 static void set_lxsession_theme (const char *theme);
-static void on_icon_size_set (GtkSpinButton* btn, gpointer ptr);
+static void on_menu_size_set (GtkRadioButton* btn, gpointer ptr);
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr);
@@ -64,6 +74,21 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
 
+static void read_version (char *package, int *maj, int *min, int *sub)
+{
+    char buf[512];
+    FILE *fp;
+
+    *maj = *min = *sub = 0;
+    sprintf (buf, "dpkg -s %s | grep Version", package);
+    fp = popen (buf, "r");
+    if (fp == NULL) return;
+
+    while (fgets (buf, sizeof (buf) - 1, fp) != NULL)
+        sscanf (buf, "Version: %d.%d.%d.", maj, min, sub);
+
+    pclose (fp);
+}
 
 static void backup_values (void)
 {
@@ -223,12 +248,12 @@ static void check_themes (void)
 	if (strcmp ("PiX", orig_lxsession_theme))
 	{
 		set_lxsession_theme ("PiX");
-		system ("lxsession -r");
+		if (needs_refresh) system (RELOAD_LXSESSION);
 	}
 	if (strcmp ("PiX", orig_openbox_theme))
 	{
 		set_openbox_theme ("PiX");
-		system ("openbox --reconfigure");
+		system (RELOAD_OPENBOX);
 	}
 }
 
@@ -754,7 +779,7 @@ static void on_menu_size_set (GtkRadioButton* btn, gpointer ptr)
 				break;
 	}
 	save_lxpanel_settings ();
-	system ("lxpanelctl refresh");
+	system (RELOAD_LXPANEL);
 }
 
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
@@ -763,9 +788,9 @@ static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 	save_lxsession_settings ();
 	save_obpix_settings ();
 	save_gtk3_settings ();
-	system ("lxsession -r");
-	system ("openbox --reconfigure");
-	system ("pcmanfm --reconfigure");
+	if (needs_refresh) system (RELOAD_LXSESSION);
+	system (RELOAD_OPENBOX);
+	system (RELOAD_PCMANFM);
 }
 
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
@@ -774,39 +799,39 @@ static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 	save_lxsession_settings ();
 	save_obpix_settings ();
 	save_gtk3_settings ();
-	system ("lxsession -r");
-	system ("openbox --reconfigure");
-	system ("pcmanfm --reconfigure");
+	if (needs_refresh) system (RELOAD_LXSESSION);
+	system (RELOAD_OPENBOX);
+	system (RELOAD_PCMANFM);
 }
 
 static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &bar_colour);
 	save_lxsession_settings ();
-	system ("lxsession -r");
-	system ("pcmanfm --reconfigure");
+	if (needs_refresh) system (RELOAD_LXSESSION);
+	system (RELOAD_PCMANFM);
 }
 
 static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &bartext_colour);
 	save_lxsession_settings ();
-	system ("lxsession -r");
-	system ("pcmanfm --reconfigure");
+	if (needs_refresh) system (RELOAD_LXSESSION);
+	system (RELOAD_PCMANFM);
 }
 
 static void on_desktop_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &desktop_colour);
 	save_pcman_settings ();
-	system ("pcmanfm --reconfigure");
+	system (RELOAD_PCMANFM);
 }
 
 static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
 	gtk_color_button_get_color (btn, &desktoptext_colour);
 	save_pcman_settings ();
-	system ("pcmanfm --reconfigure");
+	system (RELOAD_PCMANFM);
 }
 
 static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
@@ -814,7 +839,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 	char *picture = gtk_file_chooser_get_filename (btn);
 	if (picture) desktop_picture = picture;
 	save_pcman_settings ();
-	system ("pcmanfm --reconfigure");
+	system (RELOAD_PCMANFM);
 }
 
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
@@ -825,10 +850,10 @@ static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
 	save_pcman_settings ();
 	save_obconf_settings ();
 	save_gtk3_settings ();
-	system ("lxsession -r");
-	system ("lxpanelctl refresh");
-	system ("openbox --reconfigure");
-	system ("pcmanfm --reconfigure");
+	if (needs_refresh) system (RELOAD_LXSESSION);
+	system (RELOAD_LXPANEL);
+	system (RELOAD_OPENBOX);
+	system (RELOAD_PCMANFM);
 }
 
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
@@ -853,7 +878,7 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
 	if (!strcmp (desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (ptr), FALSE);
 	else gtk_widget_set_sensitive (GTK_WIDGET (ptr), TRUE);
 	save_pcman_settings ();
-	system ("pcmanfm --reconfigure");
+	system (RELOAD_PCMANFM);
 }
 
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
@@ -866,7 +891,7 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 	if (gtk_toggle_button_get_active (group->data)) barpos = 1;
 	else barpos = 0;
 	save_lxpanel_settings ();
-	system ("lxpanelctl refresh");
+	system (RELOAD_LXPANEL);
 }
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
@@ -901,10 +926,10 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	save_obpix_settings ();
 	save_gtk3_settings ();
 	save_lxpanel_settings ();
-	system ("lxsession -r");
-	system ("lxpanelctl refresh");
-	system ("openbox --reconfigure");
-	system ("pcmanfm --reconfigure");
+	if (needs_refresh) system (RELOAD_LXSESSION);
+	system (RELOAD_LXPANEL);
+	system (RELOAD_OPENBOX);
+	system (RELOAD_PCMANFM);
 }
 
 
@@ -915,6 +940,13 @@ int main (int argc, char *argv[])
 	GtkBuilder *builder;
 	GObject *item;
 	GtkWidget *dlg;
+	int maj, min, sub;
+
+	// check to see if lxsession will auto-refresh - version 0.4.9 or later
+	read_version ("lxsession", &maj, &min, &sub);
+	if (min >= 5) needs_refresh = 0;
+	else if (min == 4 && sub == 9) needs_refresh = 0;
+	else needs_refresh = 1;
 
 	// load data from config files
 	check_themes ();
@@ -1009,10 +1041,10 @@ int main (int argc, char *argv[])
 			save_obpix_settings ();
 			save_gtk3_settings ();
 			save_lxpanel_settings ();
-			system ("lxsession -r");
-			system ("lxpanelctl refresh");
-			system ("openbox --reconfigure");
-			system ("pcmanfm --reconfigure");
+			if (needs_refresh) system (RELOAD_LXSESSION);
+			system (RELOAD_LXPANEL);
+			system (RELOAD_OPENBOX);
+			system (RELOAD_PCMANFM);
 		}
 	}
 	gtk_widget_destroy (dlg);
