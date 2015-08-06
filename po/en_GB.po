@@ -22,8 +22,8 @@ msgid "Appearance Settings"
 msgstr "Appearance Settings"
 
 #: ../data/pipanel.ui.h:2
-msgid "Defaults"
-msgstr "Defaults"
+msgid "_Defaults"
+msgstr "_Defaults"
 
 #: ../data/pipanel.ui.h:3
 msgid "Colour"
