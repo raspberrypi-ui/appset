@@ -27,15 +27,15 @@ msgstr "Defaults"
 
 #: ../data/pipanel.ui.h:3
 msgid "Colour"
-msgstr "Colour"
+msgstr "Colour:"
 
 #: ../data/pipanel.ui.h:4
 msgid "Text Colour"
-msgstr "Text Colour"
+msgstr "Text Colour:"
 
 #: ../data/pipanel.ui.h:5
 msgid "Layout"
-msgstr "Layout"
+msgstr "Layout:"
 
 #: ../data/pipanel.ui.h:6
 msgid "No image"
@@ -63,7 +63,7 @@ msgstr "Tile image"
 
 #: ../data/pipanel.ui.h:12
 msgid "Picture"
-msgstr "Picture"
+msgstr "Picture:"
 
 #: ../data/pipanel.ui.h:13
 msgid "Desktop"
@@ -71,11 +71,11 @@ msgstr "Desktop"
 
 #: ../data/pipanel.ui.h:14
 msgid "Size"
-msgstr "Size"
+msgstr "Size:"
 
 #: ../data/pipanel.ui.h:15
 msgid "Position"
-msgstr "Position"
+msgstr "Position:"
 
 #: ../data/pipanel.ui.h:16
 msgid "Large    "
@@ -103,15 +103,15 @@ msgstr "Menu Bar"
 
 #: ../data/pipanel.ui.h:22
 msgid "Font"
-msgstr "Font"
+msgstr "Font:"
 
 #: ../data/pipanel.ui.h:23
 msgid "Highlight Colour"
-msgstr "Highlight Colour"
+msgstr "Highlight Colour:"
 
 #: ../data/pipanel.ui.h:24
 msgid "Highlight Text Colour"
-msgstr "Highlight Text Colour"
+msgstr "Highlight Text Colour:"
 
 #: ../data/pipanel.ui.h:25
 msgid "System"

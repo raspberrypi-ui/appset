@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
@@ -941,6 +945,13 @@ int main (int argc, char *argv[])
 	GObject *item;
 	GtkWidget *dlg;
 	int maj, min, sub;
+
+#ifdef ENABLE_NLS
+    setlocale (LC_ALL, "");
+    bindtextdomain ( GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR );
+    bind_textdomain_codeset ( GETTEXT_PACKAGE, "UTF-8" );
+    textdomain ( GETTEXT_PACKAGE );
+#endif
 
 	// check to see if lxsession will auto-refresh - version 0.4.9 or later
 	read_version ("lxsession", &maj, &min, &sub);
