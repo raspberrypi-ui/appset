@@ -426,7 +426,7 @@ static void load_obpix_settings (void)
 	if (!fp) return;
 
 	// set defaults in case read fails
-	gdk_color_parse ("#86ABD9", &theme_colour);
+	gdk_color_parse ("#4D98F5", &theme_colour);
 	gdk_color_parse ("#FFFFFF", &themetext_colour);
 
 	// read data from the file
@@ -436,7 +436,7 @@ static void load_obpix_settings (void)
 		if (sscanf (linbuf, "window.active.title.bg.color: %s", colstr) == 1)
 		{
 			if (!gdk_color_parse (colstr, &theme_colour))
-				gdk_color_parse ("#86ABD9", &theme_colour);
+				gdk_color_parse ("#4D98F5", &theme_colour);
 		}
 		if (sscanf (linbuf, "window.active.label.text.color: %s", colstr) == 1)
 		{
@@ -908,7 +908,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
 	icon_size = 36;
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
-	gdk_color_parse ("#86ABD9", &theme_colour);
+	gdk_color_parse ("#4D98F5", &theme_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
 	gdk_color_parse ("#D6D3DE", &desktop_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
