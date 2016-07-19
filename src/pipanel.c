@@ -902,9 +902,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
 	desktop_font = "Roboto Light 12";
 	gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
-	desktop_picture = "/usr/share/raspberrypi-artwork/raspberry-pi-logo-small.png";
+	desktop_picture = "/usr/share/wallpaper/aurora1.jpg";
 	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
-	desktop_mode = "center";
+	desktop_mode = "crop";
 	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
 	icon_size = 36;
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
@@ -912,7 +912,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
 	gdk_color_parse ("#D6D3DE", &desktop_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
-	gdk_color_parse ("#000000", &desktoptext_colour);
+	gdk_color_parse ("#E2D2D2", &desktoptext_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &desktoptext_colour);
 	gdk_color_parse ("#000000", &bartext_colour);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &bartext_colour);
