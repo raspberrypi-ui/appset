@@ -8,6 +8,13 @@
 .DS_Store
 pipanel
 config.log
+config.status
 .deps/
 .libs/
+Makefile
+libtool
+po/stamp-it
+po/Makefile.in
+stamp-h1
+debian/pipanel
 

@@ -1,0 +1,30 @@
+pipanel (20160719~175800) jessie; urgency=low
+
+  * Updates to highlight colour and desktop picture
+
+ -- Simon Long <simon@raspberrypi.org>  Tue, 19 Jul 2016 18:00:00 +0100
+
+pipanel (20150806~164047) jessie; urgency=low
+
+  * Internationalisation support enabled
+  * Corrected strings for Defaults button in po file
+
+ -- Serge Schneider <serge@raspberrypi.org>  Fri, 04 Sep 2015 17:27:44 +0100
+
+pipanel (20150514~132051) jessie; urgency=low
+
+  * Jessie rebuild
+  * Add gbp.conf
+  * Use debhelper >=8
+  * Bump standards to 3.9.6
+  * Fix Vcs-Git control field
+  * Change version format
+
+ -- Serge Schneider <serge@raspberrypi.org>  Sun, 31 May 2015 08:05:51 +0100
+
+pipanel (0.1-1) unstable; urgency=low
+
+  * Built from 9d977c94b49f4fdced25b33cc1e92277c761d489
+  * Initial Release.
+
+ -- Serge Schneider <serge@raspberrypi.org>  Wed, 22 Apr 2015 22:49:08 +0100
