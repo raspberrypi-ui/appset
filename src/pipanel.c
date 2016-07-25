@@ -905,7 +905,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	desktop_picture = "/usr/share/wallpaper/aurora1.jpg";
 	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
 	desktop_mode = "crop";
-	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
+	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
 	icon_size = 36;
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
 	gdk_color_parse ("#4D98F5", &theme_colour);
