@@ -1,3 +1,9 @@
+pipanel (20161012~175500) jessie; urgency=medium
+
+  * Modified to update greeter config file
+
+ -- Simon Long <simon@raspberrypi.org>  Wed, 12 Oct 2016 17:54:29 +0100
+
 pipanel (20160719~175800) jessie; urgency=low
 
   * Updates to highlight colour and desktop picture

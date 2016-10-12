@@ -7,6 +7,7 @@ pipanel_CFLAGS = \
 	-DPACKAGE_UI_DIR=\""$(datadir)/pipanel/ui"\" \
 	-DPACKAGE_BIN_DIR=\""$(bindir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
+	-DGREETER_CONFIG_FILE=\""$(sysconfdir)/lightdm/pi-greeter.conf"\" \
 	$(PACKAGE_CFLAGS) \
 	$(G_CAST_CHECKS)
 
