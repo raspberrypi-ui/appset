@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-12 18:04+0100\n"
+"POT-Creation-Date: 2016-10-17 13:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,43 +26,43 @@ msgid "_Defaults"
 msgstr ""
 
 #: ../data/pipanel.ui.h:3
-msgid "Colour"
-msgstr ""
-
-#: ../data/pipanel.ui.h:4
-msgid "Text Colour"
-msgstr ""
-
-#: ../data/pipanel.ui.h:5
 msgid "Layout"
 msgstr ""
 
-#: ../data/pipanel.ui.h:6
+#: ../data/pipanel.ui.h:4
 msgid "No image"
 msgstr ""
 
-#: ../data/pipanel.ui.h:7
+#: ../data/pipanel.ui.h:5
 msgid "Centre image on screen"
 msgstr ""
 
-#: ../data/pipanel.ui.h:8
+#: ../data/pipanel.ui.h:6
 msgid "Fit image onto screen"
 msgstr ""
 
-#: ../data/pipanel.ui.h:9
+#: ../data/pipanel.ui.h:7
 msgid "Fill screen with image"
 msgstr ""
 
-#: ../data/pipanel.ui.h:10
+#: ../data/pipanel.ui.h:8
 msgid "Stretch to cover screen"
 msgstr ""
 
-#: ../data/pipanel.ui.h:11
+#: ../data/pipanel.ui.h:9
 msgid "Tile image"
 msgstr ""
 
-#: ../data/pipanel.ui.h:12
+#: ../data/pipanel.ui.h:10
 msgid "Picture"
+msgstr ""
+
+#: ../data/pipanel.ui.h:11
+msgid "Colour"
+msgstr ""
+
+#: ../data/pipanel.ui.h:12
+msgid "Text Colour"
 msgstr ""
 
 #: ../data/pipanel.ui.h:13
@@ -74,19 +74,19 @@ msgid "Size"
 msgstr ""
 
 #: ../data/pipanel.ui.h:15
-msgid "Position"
-msgstr ""
-
-#: ../data/pipanel.ui.h:16
 msgid "Large    "
 msgstr ""
 
-#: ../data/pipanel.ui.h:17
+#: ../data/pipanel.ui.h:16
 msgid "Medium"
 msgstr ""
 
-#: ../data/pipanel.ui.h:18
+#: ../data/pipanel.ui.h:17
 msgid "Small"
+msgstr ""
+
+#: ../data/pipanel.ui.h:18
+msgid "Position"
 msgstr ""
 
 #: ../data/pipanel.ui.h:19

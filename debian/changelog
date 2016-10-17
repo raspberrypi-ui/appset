@@ -1,3 +1,9 @@
+pipanel (20161017~131745) jessie; urgency=medium
+
+  * UI modified to tabbed dialog
+
+ -- Simon Long <simon@raspberrypi.org>  Mon, 17 Oct 2016 13:17:45 +0100
+
 pipanel (20161012~175500) jessie; urgency=medium
 
   * Modified to update greeter config file
