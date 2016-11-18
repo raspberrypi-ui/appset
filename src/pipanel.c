@@ -42,13 +42,16 @@ static GdkColor desktoptext_colour, orig_desktoptext_colour;
 static GdkColor bar_colour, orig_bar_colour;
 static GdkColor bartext_colour, orig_bartext_colour;
 static int barpos, orig_barpos;
+static int show_docs, orig_show_docs;
+static int show_trash, orig_show_trash;
+static int show_mnts, orig_show_mnts;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
 static char needs_refresh;
 
 /* Controls */
-static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5;
+static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5, *cb1, *cb2, *cb3;
 
 static void backup_values (void);
 static int restore_values (void);
@@ -107,6 +110,9 @@ static void backup_values (void)
 	orig_bar_colour = bar_colour;
 	orig_bartext_colour = bartext_colour;
 	orig_barpos = barpos;
+	orig_show_docs = show_docs;
+	orig_show_trash = show_trash;
+	orig_show_mnts = show_mnts;
 }
 
 static int restore_values (void)
@@ -175,6 +181,21 @@ static int restore_values (void)
 	if (strcmp ("PiX", orig_openbox_theme))
 	{
 		set_openbox_theme (orig_openbox_theme);
+		ret = 1;
+	}
+	if (show_docs != orig_show_docs)
+	{
+		show_docs = orig_show_docs;
+		ret = 1;
+	}
+	if (show_trash != orig_show_trash)
+	{
+		show_trash = orig_show_trash;
+		ret = 1;
+	}
+	if (show_mnts != orig_show_mnts)
+	{
+		show_mnts = orig_show_mnts;
 		ret = 1;
 	}
 	return ret;
@@ -372,6 +393,21 @@ static void load_pcman_settings (void)
 	ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
 	if (err == NULL && ret) desktop_mode = ret;
 	else desktop_mode = "color";
+
+	err = NULL;
+	ret = g_key_file_get_integer (kf, "*", "show_documents", &err);
+	if (err == NULL && ret >= 0 && ret <= 1) show_docs = ret;
+	else show_docs = 0;
+
+	err = NULL;
+	ret = g_key_file_get_integer (kf, "*", "show_trash", &err);
+	if (err == NULL && ret >= 0 && ret <= 1) show_trash = ret;
+	else show_trash = 0;
+
+	err = NULL;
+	ret = g_key_file_get_integer (kf, "*", "show_mounts", &err);
+	if (err == NULL && ret >= 0 && ret <= 1) show_mnts = ret;
+	else show_mnts = 0;
 }
 
 static void load_lxpanel_settings (void)
@@ -590,6 +626,9 @@ static void save_pcman_settings (void)
 	g_key_file_set_string (kf, "*", "desktop_font", desktop_font);
 	g_key_file_set_string (kf, "*", "wallpaper", desktop_picture);
 	g_key_file_set_string (kf, "*", "wallpaper_mode", desktop_mode);
+	g_key_file_set_integer (kf, "*", "show_documents", show_docs);
+	g_key_file_set_integer (kf, "*", "show_trash", show_trash);
+	g_key_file_set_integer (kf, "*", "show_mounts", show_mnts);
 
 	// write the modified key file out
 	str = g_key_file_to_data (kf, &len, NULL);
@@ -932,6 +971,27 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 	system (RELOAD_LXPANEL);
 }
 
+static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
+{
+	show_docs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+	save_pcman_settings ();
+	system (RELOAD_PCMANFM);
+}
+
+static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr)
+{
+	show_trash = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+	save_pcman_settings ();
+	system (RELOAD_PCMANFM);
+}
+
+static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
+{
+	show_mnts = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+	save_pcman_settings ();
+	system (RELOAD_PCMANFM);
+}
+
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
 	desktop_font = "Roboto Light 12";
@@ -956,6 +1016,12 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);
 	barpos = 0;
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
+	show_docs = 0;
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), show_docs);
+	show_trash = 1;
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), show_trash);
+	show_mnts = 0;
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), show_mnts);
 	set_openbox_theme ("PiX");
 	set_lxsession_theme ("PiX");
 	save_lxsession_settings ();
@@ -1073,6 +1139,16 @@ int main (int argc, char *argv[])
 	if (icon_size <= 20) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
 	else if (icon_size <= 28) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb4), TRUE);
 	else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
+
+	cb1 = gtk_builder_get_object (builder, "checkbutton1");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), show_docs);
+	g_signal_connect (cb1, "toggled", G_CALLBACK (on_toggle_docs), NULL);
+	cb2 = gtk_builder_get_object (builder, "checkbutton2");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), show_trash);
+	g_signal_connect (cb2, "toggled", G_CALLBACK (on_toggle_trash), NULL);
+	cb3 = gtk_builder_get_object (builder, "checkbutton3");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), show_mnts);
+	g_signal_connect (cb3, "toggled", G_CALLBACK (on_toggle_mnts), NULL);
 
 	g_object_unref (builder);
 
