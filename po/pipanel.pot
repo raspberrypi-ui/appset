@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-17 13:23+0100\n"
+"POT-Creation-Date: 2016-11-21 13:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,54 +66,66 @@ msgid "Text Colour"
 msgstr ""
 
 #: ../data/pipanel.ui.h:13
-msgid "Desktop"
+msgid "Documents"
 msgstr ""
 
 #: ../data/pipanel.ui.h:14
-msgid "Size"
+msgid "Wastebasket"
 msgstr ""
 
 #: ../data/pipanel.ui.h:15
-msgid "Large    "
+msgid "Mounted Disks"
 msgstr ""
 
 #: ../data/pipanel.ui.h:16
-msgid "Medium"
+msgid "Desktop"
 msgstr ""
 
 #: ../data/pipanel.ui.h:17
-msgid "Small"
+msgid "Size"
 msgstr ""
 
 #: ../data/pipanel.ui.h:18
-msgid "Position"
+msgid "Large    "
 msgstr ""
 
 #: ../data/pipanel.ui.h:19
-msgid "Top"
+msgid "Medium"
 msgstr ""
 
 #: ../data/pipanel.ui.h:20
-msgid "Bottom"
+msgid "Small"
 msgstr ""
 
 #: ../data/pipanel.ui.h:21
-msgid "Menu Bar"
+msgid "Position"
 msgstr ""
 
 #: ../data/pipanel.ui.h:22
-msgid "Font"
+msgid "Top"
 msgstr ""
 
 #: ../data/pipanel.ui.h:23
-msgid "Highlight Colour"
+msgid "Bottom"
 msgstr ""
 
 #: ../data/pipanel.ui.h:24
-msgid "Highlight Text Colour"
+msgid "Menu Bar"
 msgstr ""
 
 #: ../data/pipanel.ui.h:25
+msgid "Font"
+msgstr ""
+
+#: ../data/pipanel.ui.h:26
+msgid "Highlight Colour"
+msgstr ""
+
+#: ../data/pipanel.ui.h:27
+msgid "Highlight Text Colour"
+msgstr ""
+
+#: ../data/pipanel.ui.h:28
 msgid "System"
 msgstr ""
 

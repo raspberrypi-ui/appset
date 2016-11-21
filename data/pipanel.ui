@@ -349,7 +349,7 @@
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="radiobutton3">
-                        <property name="label" translatable="yes">Large    </property>
+                        <property name="label" translatable="yes">Large</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
