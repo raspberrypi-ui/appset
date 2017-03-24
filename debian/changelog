@@ -1,3 +1,9 @@
+pipanel (20170324~170659) jessie; urgency=medium
+
+  * Setting of GTK-3 font modified for compatibility with stretch.
+
+ -- Simon Long <simon@raspberrypi.org>  Fri, 24 Mar 2017 17:06:59 +0000
+
 pipanel (20161017~131745) jessie; urgency=medium
 
   * UI modified to tabbed dialog

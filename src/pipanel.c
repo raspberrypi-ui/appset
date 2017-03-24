@@ -555,6 +555,35 @@ static void save_gtk3_settings (void)
 	// write the current font to the file
 	sprintf (cmdbuf, "sed -i s/'font:[^;]*'/'font:\t%s'/g %s", desktop_font, user_config_file);
 	system (cmdbuf);
+    
+    // for stretch, this needs to be separate family and size entries
+	char *c, *font;
+	const gchar *size = NULL, *bold = NULL, *italic = NULL;
+
+	// set the font description variables for XML from the font name
+	font = g_strdup (desktop_font);
+	while ((c = strrchr (font, ' ')))
+	{
+		if (!bold && !italic && !size && atoi (c + 1))
+			size = c + 1;
+		else if (!bold && !italic && !g_ascii_strcasecmp (c + 1, "italic"))
+			italic = c + 1;
+		else if (!bold && !g_ascii_strcasecmp (c + 1, "bold"))
+			bold = c + 1;
+		else break;
+		*c = '\0';
+	}
+	if (!bold) bold = "Normal";
+	if (!italic) italic = "Normal";
+        
+	sprintf (cmdbuf, "sed -i s/'font-family:[^;]*'/'font-family:\t%s'/g %s", font, user_config_file);
+	system (cmdbuf);
+	sprintf (cmdbuf, "sed -i s/'font-size:[^;]*'/'font-size:\t%spt'/g %s", size, user_config_file);
+	system (cmdbuf);
+	sprintf (cmdbuf, "sed -i s/'font-style:[^;]*'/'font-style:\t%s'/g %s", italic, user_config_file);
+	system (cmdbuf);
+	sprintf (cmdbuf, "sed -i s/'font-weight:[^;]*'/'font-weight:\t%s'/g %s", bold, user_config_file);
+	system (cmdbuf);
 
 	g_free (cstr);
 	g_free (user_config_file);
