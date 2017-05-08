@@ -1,3 +1,9 @@
+pipanel (20170508~082712) jessie; urgency=medium
+
+  * Change path for default wallpaper
+
+ -- Simon Long <simon@raspberrypi.org>  Mon, 08 May 2017 08:27:12 +0100
+
 pipanel (20170324~170659) jessie; urgency=medium
 
   * Setting of GTK-3 font modified for compatibility with stretch.

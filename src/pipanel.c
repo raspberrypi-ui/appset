@@ -1025,7 +1025,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
 	desktop_font = "Roboto Light 12";
 	gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
-	desktop_picture = "/usr/share/pixel-wallpaper/road.jpg";
+	desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
 	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
 	desktop_mode = "crop";
 	gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
