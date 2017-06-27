@@ -1023,7 +1023,7 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
-	desktop_font = "Roboto Light 12";
+	desktop_font = "Piboto Light 12";
 	gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
 	desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
 	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);

@@ -1,3 +1,9 @@
+pipanel (20170627~120340) stretch; urgency=medium
+
+  * Use Piboto as default font
+
+ -- Simon Long <simon@raspberrypi.org>  Tue, 27 Jun 2017 12:03:40 +0100
+
 pipanel (20170508~082712) jessie; urgency=medium
 
   * Change path for default wallpaper
