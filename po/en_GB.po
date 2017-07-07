@@ -1,15 +1,15 @@
 # English translations for pipanel package.
-# Copyright (C) 2016 Raspberry Pi
+# Copyright (C) 2017 Raspberry Pi
 # This file is distributed under the same license as the pipanel package.
-#  <simon@raspberrypi.org>, 2016.
+# Simon Long <simon@raspberrypi.org>, 2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-21 13:23+0000\n"
-"PO-Revision-Date: 2016-11-21 13:23+0000\n"
-"Last-Translator:  <simon@raspberrypi.org>\n"
+"POT-Creation-Date: 2017-07-07 11:49+0100\n"
+"PO-Revision-Date: 2017-07-07 11:50+0100\n"
+"Last-Translator: Simon Long <simon@raspberrypi.org>\n"
 "Language-Team: English (British)\n"
 "Language: en_GB\n"
 "MIME-Version: 1.0\n"
@@ -132,3 +132,7 @@ msgstr "System"
 #: ../data/pipanel.desktop.in.h:2
 msgid "Configure the appearance of the desktop and windows"
 msgstr "Configure the appearance of the desktop and windows"
+
+#: ../data/pwdpip.sh:6
+msgid "Password Required"
+msgstr "Password Required"

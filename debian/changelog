@@ -1,3 +1,9 @@
+pipanel (20170707~125920) stretch; urgency=medium
+
+  * Include prompt for sudo password if greeter settings update is required
+
+ -- Simon Long <simon@raspberrypi.org>  Fri, 07 Jul 2017 12:59:20 +0100
+
 pipanel (20170627~120340) stretch; urgency=medium
 
   * Use Piboto as default font

@@ -10,7 +10,7 @@ Comment=Configure the appearance of the desktop and windows
 Comment[en_GB]=Configure the appearance of the desktop and windows
 Comment[zh_TW]=設定桌面與視窗的外觀
 Icon=preferences-desktop-theme
-Exec=pipanel
+Exec=env SUDO_ASKPASS=/usr/bin/pwdpip.sh pipanel
 NotShowIn=GNOME;XFCE;
 StartupNotify=true
 Categories=Settings;DesktopSettings;GTK;X-LXDE-Settings;

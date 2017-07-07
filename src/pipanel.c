@@ -675,30 +675,34 @@ static void save_greeter_settings (void)
 	gsize len;
 	gint handle;
 
-	// read in data from file to a key file
-	kf = g_key_file_new ();
-	if (!g_key_file_load_from_file (kf, GREETER_CONFIG_FILE, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-		return;
+	if (desktop_font != orig_desktop_font || desktop_picture != orig_desktop_picture ||
+		desktop_mode != orig_desktop_mode || !gdk_color_equal (&desktop_colour, &orig_desktop_colour))
+	{
+		// read in data from file to a key file
+		kf = g_key_file_new ();
+		if (!g_key_file_load_from_file (kf, GREETER_CONFIG_FILE, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+			return;
 
-	// update changed values in the key file
-	sprintf (buffer, "%s", gdk_color_to_string (&desktop_colour));
-	g_key_file_set_string (kf, "greeter", "desktop_bg", buffer);
-	g_key_file_set_string (kf, "greeter", "wallpaper", desktop_picture);
-	g_key_file_set_string (kf, "greeter", "wallpaper_mode", desktop_mode);
-	g_key_file_set_string (kf, "greeter", "gtk-font-name", desktop_font);
-	g_key_file_set_string (kf, "greeter", "gtk-theme-name", "PiX");
-	g_key_file_set_string (kf, "greeter", "gtk-icon-theme-name", "PiX");
+		// update changed values in the key file
+		sprintf (buffer, "%s", gdk_color_to_string (&desktop_colour));
+		g_key_file_set_string (kf, "greeter", "desktop_bg", buffer);
+		g_key_file_set_string (kf, "greeter", "wallpaper", desktop_picture);
+		g_key_file_set_string (kf, "greeter", "wallpaper_mode", desktop_mode);
+		g_key_file_set_string (kf, "greeter", "gtk-font-name", desktop_font);
+		g_key_file_set_string (kf, "greeter", "gtk-theme-name", "PiX");
+		g_key_file_set_string (kf, "greeter", "gtk-icon-theme-name", "PiX");
 
-	// write the modified key file out to a temp file
-	str = g_key_file_to_data (kf, &len, NULL);
-	handle = g_file_open_tmp ("XXXXXX", &tfname, NULL);
-	write (handle, str, len);
-	close (handle);
-	g_free (str);
+		// write the modified key file out to a temp file
+		str = g_key_file_to_data (kf, &len, NULL);
+		handle = g_file_open_tmp ("XXXXXX", &tfname, NULL);
+		write (handle, str, len);
+		close (handle);
+		g_free (str);
 
-	// copy the temp file to the correct place with sudo
-	sprintf (buffer, "sudo cp %s %s", tfname, GREETER_CONFIG_FILE);
-	system (buffer);
+		// copy the temp file to the correct place with sudo
+		sprintf (buffer, "sudo -A cp %s %s", tfname, GREETER_CONFIG_FILE);
+		system (buffer);
+	}
 }
 
 static void save_obconf_settings (void)

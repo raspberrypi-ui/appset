@@ -3,3 +3,4 @@ src/pipanel.c
 [type: gettext/glade] data/pipanel.ui
 # files added by intltool-prepare
 data/pipanel.desktop.in
+data/pwdpip.sh
