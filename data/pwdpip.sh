@@ -1,5 +1,5 @@
 #!/bin/bash
-export TEXTDOMAIN=piclone
+export TEXTDOMAIN=pipanel
 
 . gettext.sh
 
