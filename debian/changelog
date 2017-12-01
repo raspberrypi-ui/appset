@@ -1,3 +1,9 @@
+pipanel (20171201~074441) stretch; urgency=medium
+
+  * Lay out all elements homogenously with padding 
+
+ -- Simon Long <simon@raspberrypi.org>  Fri, 01 Dec 2017 07:44:41 +0000
+
 pipanel (20170707~125920) stretch; urgency=medium
 
   * Include prompt for sudo password if greeter settings update is required
