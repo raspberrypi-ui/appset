@@ -45,6 +45,8 @@ static int barpos, orig_barpos;
 static int show_docs, orig_show_docs;
 static int show_trash, orig_show_trash;
 static int show_mnts, orig_show_mnts;
+static int folder_size, orig_folder_size;
+static int tb_icon_size, orig_tb_icon_size;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
@@ -113,6 +115,8 @@ static void backup_values (void)
     orig_show_docs = show_docs;
     orig_show_trash = show_trash;
     orig_show_mnts = show_mnts;
+    orig_folder_size = folder_size;
+    orig_tb_icon_size = tb_icon_size;
 }
 
 static int restore_values (void)
@@ -198,6 +202,16 @@ static int restore_values (void)
         show_mnts = orig_show_mnts;
         ret = 1;
     }
+    if (folder_size != orig_folder_size)
+    {
+        folder_size = orig_folder_size;
+        ret = 1;
+    }
+    if (tb_icon_size != orig_tb_icon_size)
+    {
+        tb_icon_size = orig_tb_icon_size;
+        ret = 1;
+    }
     return ret;
 }
 
@@ -228,6 +242,8 @@ static void check_themes (void)
         ret = g_key_file_get_string (kf, "GTK", "sNet/ThemeName", &err);
         if (err == NULL) orig_lxsession_theme = ret;
     }
+    g_key_file_free (kf);
+    g_free (user_config_file);
 
     // construct the file path for openbox settings
     fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
@@ -288,6 +304,7 @@ static void load_lxsession_settings (void)
     char *user_config_file, *cptr, *nptr;
     GKeyFile *kf;
     GError *err;
+    int val;
 
     // construct the file path
     session_name = g_getenv ("DESKTOP_SESSION");
@@ -298,13 +315,13 @@ static void load_lxsession_settings (void)
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
+        g_key_file_free (kf);
         g_free (user_config_file);
         gdk_color_parse ("#EDECEB", &bar_colour);
         gdk_color_parse ("#000000", &bartext_colour);
         desktop_font = "<not set>";
         return;
     }
-    g_free (user_config_file);
 
     // get data from the key file
     err = NULL;
@@ -338,6 +355,20 @@ static void load_lxsession_settings (void)
         gdk_color_parse ("#000000", &bartext_colour);
         gdk_color_parse ("#EDECEB", &bar_colour);
     }
+
+    err = NULL;
+    ret = g_key_file_get_string (kf, "GTK", "sGtk/IconSizes", &err);
+    tb_icon_size = 24;
+    if (err == NULL)
+    {
+        if (sscanf (ret, "gtk-large-toolbar=%d,", &val) == 1)
+        {
+            if (val >= 8 && val <= 256) tb_icon_size = val;
+        }
+    }
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
 }
 
 static void load_pcman_settings (void)
@@ -357,6 +388,7 @@ static void load_pcman_settings (void)
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
+        g_key_file_free (kf);
         g_free (user_config_file);
         gdk_color_parse ("#D6D3DE", &desktop_colour);
         gdk_color_parse ("#000000", &desktoptext_colour);
@@ -364,7 +396,6 @@ static void load_pcman_settings (void)
         desktop_mode = "color";
         return;
     }
-    g_free (user_config_file);
 
     // get data from the key file
     err = NULL;
@@ -409,6 +440,28 @@ static void load_pcman_settings (void)
     val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
     if (err == NULL && val >= 0 && val <= 1) show_mnts = val;
     else show_mnts = 0;
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
+
+    // read in data from file manager config file
+    user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", "/libfm.conf", NULL);
+    kf = g_key_file_new ();
+    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        g_key_file_free (kf);
+        g_free (user_config_file);
+        folder_size = 48;
+        return;
+    }
+
+    err = NULL;
+    val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
+    if (err == NULL && val >= 8 && val <= 256) folder_size = val;
+    else folder_size = 48;
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
 }
 
 static void load_lxpanel_settings (void)
@@ -594,9 +647,10 @@ static void save_lxsession_settings (void)
 {
     const char *session_name;
     char *user_config_file, *str;
-    char colbuf[128];
+    char colbuf[256], newbuf[32];
     GKeyFile *kf;
     gsize len;
+    GError *err;
 
     // construct the file path
     session_name = g_getenv ("DESKTOP_SESSION");
@@ -607,6 +661,7 @@ static void save_lxsession_settings (void)
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
+        g_key_file_free (kf);
         g_free (user_config_file);
         return;
     }
@@ -618,12 +673,50 @@ static void save_lxsession_settings (void)
     g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", colbuf);
     g_key_file_set_string (kf, "GTK", "sGtk/FontName", desktop_font);
 
+    err = NULL;
+    str = g_key_file_get_string (kf, "GTK", "sGtk/IconSizes", &err);
+    if (err == NULL && str)
+    {
+        if (strstr (str, "gtk-large-toolbar"))
+        {
+            // replace values in existing string
+            colbuf[0] = 0;
+            char *cptr = strtok (str, ":");
+            while (cptr)
+            {
+                if (colbuf[0] != 0) strcat (colbuf, ":");
+                if (strstr (cptr, "gtk-large-toolbar"))
+                {
+                    sprintf (newbuf, "gtk-large-toolbar=%d,%d", tb_icon_size, tb_icon_size);
+                    strcat (colbuf, newbuf);
+                }
+                else strcat (colbuf, cptr);
+
+                cptr = strtok (NULL, ":");
+            }
+            g_key_file_set_string (kf, "GTK", "sGtk/IconSizes", colbuf);
+        }
+        else
+        {
+            // append this element to existing string
+            sprintf (colbuf, "%s:gtk-large-toolbar=%d,%d", str, tb_icon_size, tb_icon_size);
+            g_key_file_set_string (kf, "GTK", "sGtk/IconSizes", colbuf);
+        }
+    }
+    else
+    {
+        // new string with just this element
+        sprintf (colbuf, "gtk-large-toolbar=%d,%d", tb_icon_size, tb_icon_size);
+        g_key_file_set_string (kf, "GTK", "sGtk/IconSizes", colbuf);
+    }
+
     // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
-    g_free (user_config_file);
     g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
 }
 
 static void save_pcman_settings (void)
@@ -643,6 +736,7 @@ static void save_pcman_settings (void)
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
+        g_key_file_free (kf);
         g_free (user_config_file);
         return;
     }
@@ -664,8 +758,26 @@ static void save_pcman_settings (void)
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
-    g_free (user_config_file);
     g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
+
+    // read in data from file to a key file
+    user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", "/libfm.conf", NULL);
+    kf = g_key_file_new ();
+    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        g_key_file_free (kf);
+        g_free (user_config_file);
+        return;
+    }
+    g_key_file_set_integer (kf, "ui", "big_icon_size", folder_size);
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+
+    g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
 }
 
 static void save_greeter_settings (void)
@@ -682,7 +794,10 @@ static void save_greeter_settings (void)
         // read in data from file to a key file
         kf = g_key_file_new ();
         if (!g_key_file_load_from_file (kf, GREETER_CONFIG_FILE, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+        {
+            g_key_file_free (kf);
             return;
+        }
 
         // update changed values in the key file
         sprintf (buffer, "%s", gdk_color_to_string (&desktop_colour));
@@ -698,7 +813,9 @@ static void save_greeter_settings (void)
         handle = g_file_open_tmp ("XXXXXX", &tfname, NULL);
         write (handle, str, len);
         close (handle);
+
         g_free (str);
+        g_key_file_free (kf);
 
         // copy the temp file to the correct place with sudo
         sprintf (buffer, "sudo -A cp %s %s", tfname, GREETER_CONFIG_FILE);
@@ -846,6 +963,7 @@ static void set_lxsession_theme (const char *theme)
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
+        g_key_file_free (kf);
         g_free (user_config_file);
         return;
     }
@@ -857,8 +975,9 @@ static void set_lxsession_theme (const char *theme)
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
-    g_free (user_config_file);
     g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
 }
 
 
@@ -1028,13 +1147,25 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
-    desktop_font = "Piboto Light 12";
+    if (* (int *) ptr == 1)
+    {
+        desktop_font = "Piboto Light 12";
+        icon_size = 36;
+        folder_size = 48;
+        tb_icon_size = 24;
+    }
+    else
+    {
+        desktop_font = "Piboto Light 8";
+        icon_size = 20;
+        folder_size = 32;
+        tb_icon_size = 16;
+    }
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
     desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
     desktop_mode = "crop";
     gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
-    icon_size = 36;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
     gdk_color_parse ("#4D98F5", &theme_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
@@ -1079,6 +1210,7 @@ int main (int argc, char *argv[])
     GObject *item;
     GtkWidget *dlg;
     int maj, min, sub;
+    int flag1 = 1, flag2 = 2;
 
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -1155,7 +1287,9 @@ int main (int argc, char *argv[])
     g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
 
     item = gtk_builder_get_object (builder, "button3");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), NULL);
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag1);
+    item = gtk_builder_get_object (builder, "button4");
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag2);
 
     rb1 = gtk_builder_get_object (builder, "radiobutton1");
     g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
