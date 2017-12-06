@@ -47,6 +47,7 @@ static int show_docs, orig_show_docs;
 static int show_trash, orig_show_trash;
 static int show_mnts, orig_show_mnts;
 static int folder_size, orig_folder_size;
+static int thumb_size, orig_thumb_size;
 static int tb_icon_size, orig_tb_icon_size;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
@@ -119,6 +120,7 @@ static void backup_values (void)
     orig_show_trash = show_trash;
     orig_show_mnts = show_mnts;
     orig_folder_size = folder_size;
+    orig_thumb_size = thumb_size;
     orig_tb_icon_size = tb_icon_size;
     orig_terminal_font = terminal_font;
 }
@@ -209,6 +211,11 @@ static int restore_values (void)
     if (folder_size != orig_folder_size)
     {
         folder_size = orig_folder_size;
+        ret = 1;
+    }
+    if (thumb_size != orig_thumb_size)
+    {
+        thumb_size = orig_thumb_size;
         ret = 1;
     }
     if (tb_icon_size != orig_tb_icon_size)
@@ -461,6 +468,7 @@ static void load_pcman_settings (void)
         g_key_file_free (kf);
         g_free (user_config_file);
         folder_size = 48;
+        thumb_size = 128;
         return;
     }
 
@@ -468,6 +476,11 @@ static void load_pcman_settings (void)
     val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
     if (err == NULL && val >= 8 && val <= 256) folder_size = val;
     else folder_size = 48;
+
+    err = NULL;
+    val = g_key_file_get_integer (kf, "ui", "thumbnail_size", &err);
+    if (err == NULL && val >= 8 && val <= 256) thumb_size = val;
+    else thumb_size = 128;
 
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -812,6 +825,7 @@ static void save_pcman_settings (void)
         return;
     }
     g_key_file_set_integer (kf, "ui", "big_icon_size", folder_size);
+    g_key_file_set_integer (kf, "ui", "thumbnail_size", thumb_size);
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
@@ -1224,6 +1238,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         terminal_font = "Monospace 10";
         icon_size = 36;
         folder_size = 48;
+        thumb_size = 128;
         tb_icon_size = 24;
     }
     else
@@ -1232,6 +1247,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         terminal_font = "Monospace 8";
         icon_size = 20;
         folder_size = 32;
+        thumb_size = 64;
         tb_icon_size = 16;
     }
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
