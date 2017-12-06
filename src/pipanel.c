@@ -647,7 +647,7 @@ static void save_lxsession_settings (void)
 {
     const char *session_name;
     char *user_config_file, *str;
-    char colbuf[256], newbuf[32];
+    char colbuf[256];
     GKeyFile *kf;
     gsize len;
     GError *err;
@@ -687,8 +687,9 @@ static void save_lxsession_settings (void)
                 if (colbuf[0] != 0) strcat (colbuf, ":");
                 if (strstr (cptr, "gtk-large-toolbar"))
                 {
-                    sprintf (newbuf, "gtk-large-toolbar=%d,%d", tb_icon_size, tb_icon_size);
-                    strcat (colbuf, newbuf);
+                    char *nstr = g_strdup_printf ("gtk-large-toolbar=%d,%d", tb_icon_size, tb_icon_size);
+                    strcat (colbuf, nstr);
+                    g_free (nstr);
                 }
                 else strcat (colbuf, cptr);
 
