@@ -34,6 +34,7 @@ static const char *desktop_picture, *orig_desktop_picture;
 static const char *desktop_mode, *orig_desktop_mode;
 static const char *orig_lxsession_theme;
 static const char *orig_openbox_theme;
+static const char *terminal_font, *orig_terminal_font;
 static int icon_size, orig_icon_size;
 static GdkColor theme_colour, orig_theme_colour;
 static GdkColor themetext_colour, orig_themetext_colour;
@@ -62,12 +63,14 @@ static void load_lxsession_settings (void);
 static void load_pcman_settings (void);
 static void load_lxpanel_settings (void);
 static void load_obpix_settings (void);
+static void load_lxterm_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
 static void save_obpix_settings (void);
 static void save_lxsession_settings (void);
 static void save_pcman_settings (void);
 static void save_obconf_settings (void);
+static void save_lxterm_settings (void);
 static void set_openbox_theme (const char *theme);
 static void set_lxsession_theme (const char *theme);
 static void on_menu_size_set (GtkRadioButton* btn, gpointer ptr);
@@ -117,6 +120,7 @@ static void backup_values (void)
     orig_show_mnts = show_mnts;
     orig_folder_size = folder_size;
     orig_tb_icon_size = tb_icon_size;
+    orig_terminal_font = terminal_font;
 }
 
 static int restore_values (void)
@@ -210,6 +214,11 @@ static int restore_values (void)
     if (tb_icon_size != orig_tb_icon_size)
     {
         tb_icon_size = orig_tb_icon_size;
+        ret = 1;
+    }
+    if (terminal_font != orig_terminal_font)
+    {
+        terminal_font = orig_terminal_font;
         ret = 1;
     }
     return ret;
@@ -537,6 +546,36 @@ static void load_obpix_settings (void)
     fclose (fp);
 }
 
+static void load_lxterm_settings (void)
+{
+    const char *ret;
+    char *user_config_file;
+    GKeyFile *kf;
+    GError *err;
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "lxterminal/lxterminal.conf", NULL);
+
+    // read in data from file to a key file
+    kf = g_key_file_new ();
+    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        g_key_file_free (kf);
+        g_free (user_config_file);
+        terminal_font = "Monospace 10";
+        return;
+    }
+
+    // get data from the key file
+    err = NULL;
+    ret = g_key_file_get_string (kf, "general", "fontname", &err);
+    if (err == NULL) terminal_font = ret;
+    else terminal_font = "Monospace 10";
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
 /* Functions to save settings back to relevant files */
 
 static void save_lxpanel_settings (void)
@@ -773,6 +812,37 @@ static void save_pcman_settings (void)
         return;
     }
     g_key_file_set_integer (kf, "ui", "big_icon_size", folder_size);
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+
+    g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
+static void save_lxterm_settings (void)
+{
+    char *user_config_file, *str;
+    char colbuf[32];
+    GKeyFile *kf;
+    gsize len;
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "lxterminal/lxterminal.conf", NULL);
+
+    // read in data from file to a key file
+    kf = g_key_file_new ();
+    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        g_key_file_free (kf);
+        g_free (user_config_file);
+        return;
+    }
+
+    // update changed values in the key file
+    g_key_file_set_string (kf, "general", "fontname", terminal_font);
+
+    // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
@@ -1151,6 +1221,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     if (* (int *) ptr == 1)
     {
         desktop_font = "Piboto Light 12";
+        terminal_font = "Monospace 10";
         icon_size = 36;
         folder_size = 48;
         tb_icon_size = 24;
@@ -1158,6 +1229,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     else
     {
         desktop_font = "Piboto Light 8";
+        terminal_font = "Monospace 8";
         icon_size = 20;
         folder_size = 32;
         tb_icon_size = 16;
@@ -1196,6 +1268,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     save_obpix_settings ();
     save_gtk3_settings ();
     save_lxpanel_settings ();
+    save_lxterm_settings ();
     if (needs_refresh) system (RELOAD_LXSESSION);
     system (RELOAD_LXPANEL);
     system (RELOAD_OPENBOX);
@@ -1232,6 +1305,7 @@ int main (int argc, char *argv[])
     load_obpix_settings ();
     load_pcman_settings ();
     load_lxpanel_settings ();
+    load_lxterm_settings ();
     backup_values ();
 
     // GTK setup
@@ -1331,6 +1405,7 @@ int main (int argc, char *argv[])
             save_obpix_settings ();
             save_gtk3_settings ();
             save_lxpanel_settings ();
+            save_lxterm_settings ();
             if (needs_refresh) system (RELOAD_LXSESSION);
             system (RELOAD_LXPANEL);
             system (RELOAD_OPENBOX);
