@@ -1089,18 +1089,9 @@ static void save_libreoffice_settings (void)
     {
         // check and create directory tree
         struct stat attr;
-
-        g_free (user_config_file);
-        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/", NULL);
-        if (stat (user_config_file, &attr) == -1) mkdir (user_config_file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-        g_free (user_config_file);
-        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/", NULL);
-        if (stat (user_config_file, &attr) == -1) mkdir (user_config_file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-        g_free (user_config_file);
-        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/", NULL);
-        if (stat (user_config_file, &attr) == -1) mkdir (user_config_file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-        g_free (user_config_file);
-        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
+        gchar *user_config_dir = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/", NULL);
+        if (stat (user_config_dir, &attr) == -1) g_mkdir_with_parents (user_config_dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+        g_free (user_config_dir);
 
         // create XML doc
         FILE *fp = fopen (user_config_file, "wb");
