@@ -49,6 +49,7 @@ static int show_mnts, orig_show_mnts;
 static int folder_size, orig_folder_size;
 static int thumb_size, orig_thumb_size;
 static int tb_icon_size, orig_tb_icon_size;
+static int lo_icon_size, orig_lo_icon_size;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
@@ -65,6 +66,7 @@ static void load_pcman_settings (void);
 static void load_lxpanel_settings (void);
 static void load_obpix_settings (void);
 static void load_lxterm_settings (void);
+static void load_libreoffice_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
 static void save_obpix_settings (void);
@@ -72,6 +74,7 @@ static void save_lxsession_settings (void);
 static void save_pcman_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
+static void save_libreoffice_settings (void);
 static void set_openbox_theme (const char *theme);
 static void set_lxsession_theme (const char *theme);
 static void on_menu_size_set (GtkRadioButton* btn, gpointer ptr);
@@ -123,6 +126,7 @@ static void backup_values (void)
     orig_thumb_size = thumb_size;
     orig_tb_icon_size = tb_icon_size;
     orig_terminal_font = terminal_font;
+    orig_lo_icon_size = lo_icon_size;
 }
 
 static int restore_values (void)
@@ -226,6 +230,11 @@ static int restore_values (void)
     if (terminal_font != orig_terminal_font)
     {
         terminal_font = orig_terminal_font;
+        ret = 1;
+    }
+    if (lo_icon_size != orig_lo_icon_size)
+    {
+        lo_icon_size = orig_lo_icon_size;
         ret = 1;
     }
     return ret;
@@ -587,6 +596,63 @@ static void load_lxterm_settings (void)
 
     g_key_file_free (kf);
     g_free (user_config_file);
+}
+
+static void load_libreoffice_settings (void)
+{
+    char *user_config_file;
+    int res = 2, val;
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
+
+    // read in data from XML file
+    xmlInitParser ();
+    LIBXML_TEST_VERSION
+    xmlDocPtr xDoc = xmlParseFile (user_config_file);
+    if (xDoc == NULL)
+    {
+        // need to create XML doc here, potentially with directory tree...
+        g_free (user_config_file);
+        lo_icon_size = 2;
+        return;
+    }
+
+    xmlNode *rootnode, *itemnode, *propnode, *valnode;
+    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='items']", xpathCtx);
+
+    // search nodes in XML for SymbolSet value
+    rootnode = xpathObj->nodesetval->nodeTab[0];
+    for (itemnode = rootnode->children; itemnode; itemnode = itemnode->next)
+    {
+        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, "item") && !xmlStrcmp (xmlGetProp (itemnode, "path"), "/org.openoffice.Office.Common/Misc"))
+        {
+            xmlNode *propnode = itemnode->children;
+            if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, "prop") && !xmlStrcmp (xmlGetProp (propnode, "name"), "SymbolSet"))
+            {
+                xmlNode *valnode = propnode->children;
+                if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, "value"))
+                {
+                    if (sscanf (xmlNodeGetContent (valnode), "%d", &val) == 1)
+                    {
+                        if (val >= 0 && val <= 2) res = val;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    // cleanup XML
+    xmlXPathFreeObject (xpathObj);
+    xmlXPathFreeContext (xpathCtx);
+    xmlSaveFile (user_config_file, xDoc);
+    xmlFreeDoc (xDoc);
+    xmlCleanupParser ();
+
+    g_free (user_config_file);
+    lo_icon_size = res;
 }
 
 /* Functions to save settings back to relevant files */
@@ -981,6 +1047,75 @@ static void save_obconf_settings (void)
     g_free (user_config_file);
 }
 
+static void save_libreoffice_settings (void)
+{
+    char *user_config_file;
+    char buf[2];
+    gboolean found = FALSE;
+
+    sprintf (buf, "%d", lo_icon_size);
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
+
+    // read in data from XML file
+    xmlInitParser ();
+    LIBXML_TEST_VERSION
+    xmlDocPtr xDoc = xmlParseFile (user_config_file);
+    if (xDoc == NULL)
+    {
+        // need to create XML doc here, potentially with directory tree...
+        g_free (user_config_file);
+        return;
+    }
+
+    xmlNode *rootnode, *itemnode, *propnode, *valnode;
+    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='items']", xpathCtx);
+
+    // search nodes in XML for SymbolSet value and modify it if found
+    rootnode = xpathObj->nodesetval->nodeTab[0];
+    for (itemnode = rootnode->children; itemnode; itemnode = itemnode->next)
+    {
+        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, "item") && !xmlStrcmp (xmlGetProp (itemnode, "path"), "/org.openoffice.Office.Common/Misc"))
+        {
+            xmlNode *propnode = itemnode->children;
+            if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, "prop") && !xmlStrcmp (xmlGetProp (propnode, "name"), "SymbolSet"))
+            {
+                xmlNode *valnode = propnode->children;
+                if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, "value"))
+                    xmlNodeSetContent (valnode, buf);
+                found = TRUE;
+                break;
+            }
+        }
+    }
+
+    // if node not found, add it with desired value
+    if (!found)
+    {
+        itemnode = xmlNewNode (NULL, "item");
+        xmlSetProp (itemnode, "oor:path", "/org.openoffice.Office.Common/Misc");
+        propnode = xmlNewNode (NULL, "prop");
+        xmlSetProp (propnode, "oor:name", "SymbolSet");
+        xmlSetProp (propnode, "oor:op", "fuse");
+        xmlAddChild (itemnode, propnode);
+        valnode = xmlNewNode (NULL, "value");
+        xmlNodeSetContent (valnode, buf);
+        xmlAddChild (propnode, valnode);
+        xmlAddChild (rootnode, itemnode);
+    }
+
+    // cleanup XML
+    xmlXPathFreeObject (xpathObj);
+    xmlXPathFreeContext (xpathCtx);
+    xmlSaveFile (user_config_file, xDoc);
+    xmlFreeDoc (xDoc);
+    xmlCleanupParser ();
+
+    g_free (user_config_file);
+}
+
 static void set_openbox_theme (const char *theme)
 {
     const char *session_name;
@@ -1240,6 +1375,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         folder_size = 48;
         thumb_size = 128;
         tb_icon_size = 24;
+        lo_icon_size = 2;
     }
     else
     {
@@ -1249,6 +1385,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         folder_size = 32;
         thumb_size = 64;
         tb_icon_size = 16;
+        lo_icon_size = 0;
     }
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
     desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
@@ -1285,6 +1422,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     save_gtk3_settings ();
     save_lxpanel_settings ();
     save_lxterm_settings ();
+    save_libreoffice_settings ();
     if (needs_refresh) system (RELOAD_LXSESSION);
     system (RELOAD_LXPANEL);
     system (RELOAD_OPENBOX);
@@ -1322,6 +1460,7 @@ int main (int argc, char *argv[])
     load_pcman_settings ();
     load_lxpanel_settings ();
     load_lxterm_settings ();
+    load_libreoffice_settings ();
     backup_values ();
 
     // GTK setup
@@ -1422,6 +1561,7 @@ int main (int argc, char *argv[])
             save_gtk3_settings ();
             save_lxpanel_settings ();
             save_lxterm_settings ();
+            save_libreoffice_settings ();
             if (needs_refresh) system (RELOAD_LXSESSION);
             system (RELOAD_LXPANEL);
             system (RELOAD_OPENBOX);
