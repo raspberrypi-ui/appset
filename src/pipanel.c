@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#include <sys/stat.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -1064,7 +1065,31 @@ static void save_libreoffice_settings (void)
     xmlDocPtr xDoc = xmlParseFile (user_config_file);
     if (xDoc == NULL)
     {
-        // need to create XML doc here, potentially with directory tree...
+        // check and create directory tree
+        struct stat attr;
+
+        g_free (user_config_file);
+        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/", NULL);
+        if (stat (user_config_file, &attr) == -1) mkdir (user_config_file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+        g_free (user_config_file);
+        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/", NULL);
+        if (stat (user_config_file, &attr) == -1) mkdir (user_config_file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+        g_free (user_config_file);
+        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/", NULL);
+        if (stat (user_config_file, &attr) == -1) mkdir (user_config_file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+        g_free (user_config_file);
+        user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
+
+        // create XML doc
+        FILE *fp = fopen (user_config_file, "wb");
+        if (fp)
+        {
+            fprintf (fp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            fprintf (fp, "<oor:items xmlns:oor=\"http://openoffice.org/2001/registry\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+            fprintf (fp, "<item oor:path=\"/org.openoffice.Office.Common/Misc\"><prop oor:name=\"SymbolSet\" oor:op=\"fuse\"><value>%d</value></prop></item>\n", lo_icon_size);
+            fprintf (fp, "</oor:items>\n");
+            fclose (fp);
+        }
         g_free (user_config_file);
         return;
     }
