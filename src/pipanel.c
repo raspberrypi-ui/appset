@@ -887,9 +887,31 @@ static void save_pcman_settings (void)
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
-        g_key_file_free (kf);
-        g_free (user_config_file);
-        return;
+        // failed to load the key file - there may be no default user copy, so try creating one...
+        struct stat attr;
+        if (stat (user_config_file, &attr) == -1)
+        {
+            g_free (user_config_file);
+            user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", NULL);
+            char *cmd = g_strdup_printf ("mkdir -p %s; cp /etc/xdg/libfm/libfm.conf %s", user_config_file, user_config_file);
+            system (cmd);
+            g_free (cmd);
+            g_free (user_config_file);
+            user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", "/libfm.conf", NULL);
+
+            if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+            {
+                g_key_file_free (kf);
+                g_free (user_config_file);
+                return;
+            }
+        }
+        else
+        {
+            g_key_file_free (kf);
+            g_free (user_config_file);
+            return;
+        }
     }
     g_key_file_set_integer (kf, "ui", "big_icon_size", folder_size);
     g_key_file_set_integer (kf, "ui", "thumbnail_size", thumb_size);
