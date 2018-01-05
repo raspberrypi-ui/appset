@@ -85,6 +85,7 @@
                       <object class="GtkComboBoxText" id="comboboxtext1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Set how the wallpaper should be fitted to the screen</property>
                         <items>
                           <item translatable="yes">No image</item>
                           <item translatable="yes">Centre image on screen</item>
@@ -129,6 +130,7 @@
                       <object class="GtkFileChooserButton" id="filechooserbutton1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Choose image file to use as wallpaper</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -166,6 +168,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="color">#000000000000</property>
+                        <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -203,6 +206,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="color">#000000000000</property>
+                        <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -230,6 +234,7 @@
                         <property name="receives_default">False</property>
                         <property name="relief">none</property>
                         <property name="draw_indicator">True</property>
+                        <property name="tooltip_text" translatable="yes">Show the documents folder on the desktop</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -244,6 +249,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="draw_indicator">True</property>
+                        <property name="tooltip_text" translatable="yes">Show the wastebasket on the desktop</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -258,6 +264,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="draw_indicator">True</property>
+                        <property name="tooltip_text" translatable="yes">Show mounted disks on the desktop</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -319,6 +326,7 @@
                         <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <property name="tooltip_text" translatable="yes">Show large icons on the taskbar and menu</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -335,6 +343,7 @@
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">radiobutton3</property>
+                        <property name="tooltip_text" translatable="yes">Show medium icons on the taskbar and menu</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -351,6 +360,7 @@
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">radiobutton3</property>
+                        <property name="tooltip_text" translatable="yes">Show small icons on the taskbar and menu</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -402,6 +412,7 @@
                         <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <property name="tooltip_text" translatable="yes">Show the taskbar at the top of the screen</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -418,6 +429,7 @@
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">radiobutton1</property>
+                        <property name="tooltip_text" translatable="yes">Show the taskbar at the bottom of the screen</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -455,6 +467,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="color">#000000000000</property>
+                        <property name="tooltip_text" translatable="yes">Choose the colour of the taskbar background</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -492,6 +505,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="color">#000000000000</property>
+                        <property name="tooltip_text" translatable="yes">Choose the colour of text used on the taskbar</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -560,6 +574,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Choose the font used for labels and menus</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -597,6 +612,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="color">#000000000000</property>
+                        <property name="tooltip_text" translatable="yes">Choose the colour used to highlight active elements</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -634,6 +650,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="color">#000000000000</property>
+                        <property name="tooltip_text" translatable="yes">Choose the colour used for text on active elements</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
