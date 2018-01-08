@@ -17,7 +17,7 @@
 #include <X11/XKBlib.h>
 #include <libxml/xpath.h>
 
-#define MAX_ICON 36
+#define MAX_ICON 68
 #define MIN_ICON 16
 
 #define DEFAULT_SES "LXDE-pi"
@@ -791,6 +791,10 @@ static void save_lxsession_settings (void)
         gdk_color_to_string (&bar_colour), gdk_color_to_string (&bartext_colour));
     g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", colbuf);
     g_key_file_set_string (kf, "GTK", "sGtk/FontName", desktop_font);
+    int tbi = 3;
+    if (tb_icon_size == 16) tbi = 1;
+    if (tb_icon_size == 48) tbi = 6;
+    g_key_file_set_integer (kf, "GTK", "iGtk/ToolbarIconSize", tbi);
 
     err = NULL;
     str = g_key_file_get_string (kf, "GTK", "sGtk/IconSizes", &err);
@@ -1405,7 +1409,17 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
-    if (* (int *) ptr == 1)
+    if (* (int *) ptr == 3)
+    {
+        desktop_font = "Piboto Light 16";
+        terminal_font = "Monospace 15";
+        icon_size = 52;
+        folder_size = 80;
+        thumb_size = 128;
+        tb_icon_size = 48;
+        lo_icon_size = 2;
+    }
+    else if (* (int *) ptr == 2)
     {
         desktop_font = "Piboto Light 12";
         terminal_font = "Monospace 10";
@@ -1415,7 +1429,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         tb_icon_size = 24;
         lo_icon_size = 2;
     }
-    else
+    else if (* (int *) ptr == 1)
     {
         desktop_font = "Piboto Light 8";
         terminal_font = "Monospace 8";
@@ -1476,7 +1490,7 @@ int main (int argc, char *argv[])
     GObject *item;
     GtkWidget *dlg;
     int maj, min, sub;
-    int flag1 = 1, flag2 = 2;
+    int flag1 = 1, flag2 = 2, flag3 = 3;
 
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -1554,10 +1568,12 @@ int main (int argc, char *argv[])
     else gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
     g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
 
-    item = gtk_builder_get_object (builder, "button3");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag1);
-    item = gtk_builder_get_object (builder, "button4");
+    item = gtk_builder_get_object (builder, "defs_lg");
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag3);
+    item = gtk_builder_get_object (builder, "defs_med");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag2);
+    item = gtk_builder_get_object (builder, "defs_sml");
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag1);
 
     rb1 = gtk_builder_get_object (builder, "radiobutton1");
     g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
