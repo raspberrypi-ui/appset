@@ -57,7 +57,7 @@ static int lo_icon_size, orig_lo_icon_size;
 static char needs_refresh;
 
 /* Controls */
-static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5, *cb1, *cb2, *cb3;
+static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3;
 
 static void backup_values (void);
 static int restore_values (void);
@@ -78,7 +78,7 @@ static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void set_openbox_theme (const char *theme);
 static void set_lxsession_theme (const char *theme);
-static void on_menu_size_set (GtkRadioButton* btn, gpointer ptr);
+static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr);
@@ -1245,30 +1245,19 @@ static void set_lxsession_theme (const char *theme)
 
 /* Dialog box "changed" signal handlers */
 
-static void on_menu_size_set (GtkRadioButton* btn, gpointer ptr)
+static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
 {
-    // only respond to the button which is now active
-    if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) return;
-
-    // find out which button in the group is active
-    GSList *group = gtk_radio_button_get_group (btn);
-    GtkRadioButton *tbtn;
-    int nbtn = 0;
-    while (group)
+    gint val = gtk_combo_box_get_active (btn);
+    switch (val)
     {
-        tbtn = group->data;
-        group = group->next;
-        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (tbtn))) break;
-        nbtn++;
-    }
-    switch (nbtn)
-    {
-        case 0: icon_size = 20;
-                break;
-        case 1: icon_size = 28;
-                break;
-        case 2: icon_size = 36;
-                break;
+        case 0 :    icon_size = 52;
+                    break;
+        case 1 :    icon_size = 36;
+                    break;
+        case 2 :    icon_size = 28;
+                    break;
+        case 3 :    icon_size = 20;
+                    break;
     }
     save_lxpanel_settings ();
     system (RELOAD_LXPANEL);
@@ -1418,6 +1407,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         thumb_size = 128;
         tb_icon_size = 48;
         lo_icon_size = 2;
+        gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
     }
     else if (* (int *) ptr == 2)
     {
@@ -1428,6 +1418,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         thumb_size = 128;
         tb_icon_size = 24;
         lo_icon_size = 2;
+        gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
     }
     else if (* (int *) ptr == 1)
     {
@@ -1438,13 +1429,13 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         thumb_size = 64;
         tb_icon_size = 16;
         lo_icon_size = 0;
+        gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
     }
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
     desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
     desktop_mode = "crop";
     gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
     gdk_color_parse ("#4D98F5", &theme_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
     gdk_color_parse ("#D6D3DE", &desktop_colour);
@@ -1582,15 +1573,12 @@ int main (int argc, char *argv[])
     if (barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 
-    rb3 = gtk_builder_get_object (builder, "radiobutton3");
-    g_signal_connect (rb3, "toggled", G_CALLBACK (on_menu_size_set), NULL);
-    rb4 = gtk_builder_get_object (builder, "radiobutton4");
-    g_signal_connect (rb4, "toggled", G_CALLBACK (on_menu_size_set), NULL);
-    rb5 = gtk_builder_get_object (builder, "radiobutton5");
-    g_signal_connect (rb5, "toggled", G_CALLBACK (on_menu_size_set), NULL);
-    if (icon_size <= 20) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
-    else if (icon_size <= 28) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb4), TRUE);
-    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
+    isz = gtk_builder_get_object (builder, "comboboxtext2");
+    if (icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
+    else if (icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
+    else if (icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
+    g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
 
     cb1 = gtk_builder_get_object (builder, "checkbutton1");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), show_docs);
