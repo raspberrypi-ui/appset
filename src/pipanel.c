@@ -673,9 +673,9 @@ static void save_lxpanel_settings (void)
     user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
 
     // use sed to write
-    sprintf (cmdbuf, "sed -i s/iconsize=../iconsize=%d/g %s", icon_size, user_config_file);
+    sprintf (cmdbuf, "sed -i s/iconsize=.*/iconsize=%d/g %s", icon_size, user_config_file);
     system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/height=../height=%d/g %s", icon_size, user_config_file);
+    sprintf (cmdbuf, "sed -i s/height=.*/height=%d/g %s", icon_size, user_config_file);
     system (cmdbuf);
     sprintf (cmdbuf, "sed -i s/edge=.*/edge=%s/g %s", barpos ? "bottom" : "top", user_config_file);
     system (cmdbuf);
