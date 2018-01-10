@@ -136,6 +136,12 @@ static int restore_values (void)
     if (desktop_font != orig_desktop_font)
     {
         desktop_font = orig_desktop_font;
+        int fsize;
+        if (sscanf (desktop_font, "%*[^0123456789]%d", &fsize) == 1)
+        {
+            if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
+            else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
+        }
         ret = 1;
     }
     if (desktop_picture != orig_desktop_picture)
@@ -1326,11 +1332,21 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
 {
     const char *font = gtk_font_button_get_font_name (btn);
-    if (font) desktop_font = font;
+    if (font)
+    {
+        desktop_font = font;
+        int fsize;
+        if (sscanf (font, "%*[^0123456789]%d", &fsize) == 1)
+        {
+            if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
+            else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
+        }
+    }
     save_lxsession_settings ();
     save_pcman_settings ();
     save_obconf_settings ();
     save_gtk3_settings ();
+
     if (needs_refresh) system (RELOAD_LXSESSION);
     system (RELOAD_LXPANEL);
     system (RELOAD_OPENBOX);
@@ -1408,6 +1424,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         tb_icon_size = 48;
         lo_icon_size = 2;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
+        system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
     }
     else if (* (int *) ptr == 2)
     {
@@ -1419,6 +1436,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         tb_icon_size = 24;
         lo_icon_size = 2;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
+        system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
     }
     else if (* (int *) ptr == 1)
     {
@@ -1430,6 +1448,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         tb_icon_size = 16;
         lo_icon_size = 0;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
+        system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
     }
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
     desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
