@@ -50,6 +50,7 @@ static int show_mnts, orig_show_mnts;
 static int folder_size, orig_folder_size;
 static int thumb_size, orig_thumb_size;
 static int pane_size, orig_pane_size;
+static int sicon_size, orig_sicon_size;
 static int tb_icon_size, orig_tb_icon_size;
 static int lo_icon_size, orig_lo_icon_size;
 
@@ -127,6 +128,7 @@ static void backup_values (void)
     orig_folder_size = folder_size;
     orig_thumb_size = thumb_size;
     orig_pane_size = pane_size;
+    orig_sicon_size = sicon_size;
     orig_tb_icon_size = tb_icon_size;
     orig_terminal_font = terminal_font;
     orig_lo_icon_size = lo_icon_size;
@@ -234,6 +236,11 @@ static int restore_values (void)
     if (pane_size != orig_pane_size)
     {
         pane_size = orig_pane_size;
+        ret = 1;
+    }
+    if (sicon_size != orig_sicon_size)
+    {
+        sicon_size = orig_sicon_size;
         ret = 1;
     }
     if (tb_icon_size != orig_tb_icon_size)
@@ -492,7 +499,8 @@ static void load_pcman_settings (void)
         g_free (user_config_file);
         folder_size = 48;
         thumb_size = 128;
-        pane_size = 16;
+        pane_size = 24;
+        sicon_size = 24;
         return;
     }
 
@@ -509,7 +517,12 @@ static void load_pcman_settings (void)
     err = NULL;
     val = g_key_file_get_integer (kf, "ui", "pane_icon_size", &err);
     if (err == NULL && val >= 8 && val <= 256) pane_size = val;
-    else pane_size = 16;
+    else pane_size = 24;
+
+    err = NULL;
+    val = g_key_file_get_integer (kf, "ui", "small_icon_size", &err);
+    if (err == NULL && val >= 8 && val <= 256) sicon_size = val;
+    else sicon_size = 24;
 
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -939,6 +952,7 @@ static void save_pcman_settings (void)
     g_key_file_set_integer (kf, "ui", "big_icon_size", folder_size);
     g_key_file_set_integer (kf, "ui", "thumbnail_size", thumb_size);
     g_key_file_set_integer (kf, "ui", "pane_icon_size", pane_size);
+    g_key_file_set_integer (kf, "ui", "small_icon_size", sicon_size);
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
@@ -1434,8 +1448,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         terminal_font = "Monospace 15";
         icon_size = 52;
         folder_size = 80;
-        thumb_size = 128;
+        thumb_size = 160;
         pane_size = 32;
+        sicon_size = 32;
         tb_icon_size = 48;
         lo_icon_size = 2;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
@@ -1448,8 +1463,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         icon_size = 36;
         folder_size = 48;
         thumb_size = 128;
-        tb_icon_size = 24;
         pane_size = 24;
+        sicon_size = 24;
+        tb_icon_size = 24;
         lo_icon_size = 2;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
@@ -1462,6 +1478,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         folder_size = 32;
         thumb_size = 64;
         pane_size = 16;
+        sicon_size = 16;
         tb_icon_size = 16;
         lo_icon_size = 0;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
