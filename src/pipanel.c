@@ -53,13 +53,14 @@ static int pane_size, orig_pane_size;
 static int sicon_size, orig_sicon_size;
 static int tb_icon_size, orig_tb_icon_size;
 static int lo_icon_size, orig_lo_icon_size;
+static int cursor_size, orig_cursor_size;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
 static char needs_refresh;
 
 /* Controls */
-static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3;
+static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
 
 static void backup_values (void);
 static int restore_values (void);
@@ -132,6 +133,7 @@ static void backup_values (void)
     orig_tb_icon_size = tb_icon_size;
     orig_terminal_font = terminal_font;
     orig_lo_icon_size = lo_icon_size;
+    orig_cursor_size = cursor_size;
 }
 
 static int restore_values (void)
@@ -256,6 +258,11 @@ static int restore_values (void)
     if (lo_icon_size != orig_lo_icon_size)
     {
         lo_icon_size = orig_lo_icon_size;
+        ret = 1;
+    }
+    if (cursor_size != orig_cursor_size)
+    {
+        cursor_size = orig_cursor_size;
         ret = 1;
     }
     return ret;
@@ -412,6 +419,11 @@ static void load_lxsession_settings (void)
             if (val >= 8 && val <= 256) tb_icon_size = val;
         }
     }
+
+    err = NULL;
+    val = g_key_file_get_integer (kf, "GTK", "iGtk/CursorThemeSize", &err);
+    if (err == NULL && val >= 24 && val <= 48) cursor_size = val;
+    else cursor_size = 24;
 
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -865,6 +877,8 @@ static void save_lxsession_settings (void)
         sprintf (colbuf, "gtk-large-toolbar=%d,%d", tb_icon_size, tb_icon_size);
         g_key_file_set_string (kf, "GTK", "sGtk/IconSizes", colbuf);
     }
+
+    g_key_file_set_integer (kf, "GTK", "iGtk/CursorThemeSize", cursor_size);
 
     // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
@@ -1440,6 +1454,27 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
     system (RELOAD_PCMANFM);
 }
 
+static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
+{
+    gint val = gtk_combo_box_get_active (btn);
+    switch (val)
+    {
+        case 0 :    cursor_size = 48;
+                    break;
+        case 1 :    cursor_size = 36;
+                    break;
+        case 2 :    cursor_size = 24;
+                    break;
+    }
+    save_lxsession_settings ();
+    if (needs_refresh) system (RELOAD_LXSESSION);
+
+    if (cursor_size != orig_cursor_size)
+        gtk_widget_show (GTK_WIDGET (cmsg));
+    else
+        gtk_widget_hide (GTK_WIDGET (cmsg));
+}
+
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
     if (* (int *) ptr == 3)
@@ -1453,7 +1488,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         sicon_size = 32;
         tb_icon_size = 48;
         lo_icon_size = 2;
+        cursor_size = 36;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
+        gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
         system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
     }
     else if (* (int *) ptr == 2)
@@ -1467,7 +1504,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         sicon_size = 24;
         tb_icon_size = 24;
         lo_icon_size = 2;
+        cursor_size = 24;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
+        gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
     }
     else if (* (int *) ptr == 1)
@@ -1481,9 +1520,15 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         sicon_size = 16;
         tb_icon_size = 16;
         lo_icon_size = 0;
+        cursor_size = 24;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
+        gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
     }
+    if (cursor_size != orig_cursor_size)
+        gtk_widget_show (GTK_WIDGET (cmsg));
+    else
+        gtk_widget_hide (GTK_WIDGET (cmsg));
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), desktop_font);
     desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
@@ -1633,6 +1678,12 @@ int main (int argc, char *argv[])
     else gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
     g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
 
+    csz = gtk_builder_get_object (builder, "comboboxtext3");
+    if (cursor_size >= 48) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 0);
+    else if (cursor_size >= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
+    g_signal_connect (csz, "changed", G_CALLBACK (on_cursor_size_set), NULL);
+
     cb1 = gtk_builder_get_object (builder, "checkbutton1");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), show_docs);
     g_signal_connect (cb1, "toggled", G_CALLBACK (on_toggle_docs), NULL);
@@ -1642,6 +1693,9 @@ int main (int argc, char *argv[])
     cb3 = gtk_builder_get_object (builder, "checkbutton3");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), show_mnts);
     g_signal_connect (cb3, "toggled", G_CALLBACK (on_toggle_mnts), NULL);
+
+    cmsg = gtk_builder_get_object (builder, "label35");
+    gtk_widget_hide (GTK_WIDGET (cmsg));
 
     g_object_unref (builder);
 
