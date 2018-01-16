@@ -54,6 +54,7 @@ static int sicon_size, orig_sicon_size;
 static int tb_icon_size, orig_tb_icon_size;
 static int lo_icon_size, orig_lo_icon_size;
 static int cursor_size, orig_cursor_size;
+static int task_width, orig_task_width;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
@@ -134,6 +135,7 @@ static void backup_values (void)
     orig_terminal_font = terminal_font;
     orig_lo_icon_size = lo_icon_size;
     orig_cursor_size = cursor_size;
+    orig_task_width = task_width;
 }
 
 static int restore_values (void)
@@ -263,6 +265,11 @@ static int restore_values (void)
     if (cursor_size != orig_cursor_size)
     {
         cursor_size = orig_cursor_size;
+        ret = 1;
+    }
+    if (task_width != orig_task_width)
+    {
+        task_width = orig_task_width;
         ret = 1;
     }
     return ret;
@@ -575,6 +582,7 @@ static void load_lxpanel_settings (void)
         {
             if (!strcmp (posbuf, "bottom")) barpos = 1;
         }
+        if (sscanf (linbuf, "%*[ \t]MaxTaskWidth=%d", &val) == 1) task_width = val;
     }
     fclose (fp);
 }
@@ -722,6 +730,8 @@ static void save_lxpanel_settings (void)
     sprintf (cmdbuf, "sed -i s/height=.*/height=%d/g %s", icon_size, user_config_file);
     system (cmdbuf);
     sprintf (cmdbuf, "sed -i s/edge=.*/edge=%s/g %s", barpos ? "bottom" : "top", user_config_file);
+    system (cmdbuf);
+    sprintf (cmdbuf, "sed -i s/MaxTaskWidth=.*/MaxTaskWidth=%d/g %s", task_width, user_config_file);
     system (cmdbuf);
 
     g_free (user_config_file);
@@ -1489,6 +1499,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         tb_icon_size = 48;
         lo_icon_size = 2;
         cursor_size = 36;
+        task_width = 300;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
         system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
@@ -1505,6 +1516,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         tb_icon_size = 24;
         lo_icon_size = 2;
         cursor_size = 24;
+        task_width = 200;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
@@ -1521,6 +1533,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         tb_icon_size = 16;
         lo_icon_size = 0;
         cursor_size = 24;
+        task_width = 150;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
