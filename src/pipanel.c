@@ -55,6 +55,7 @@ static int tb_icon_size, orig_tb_icon_size;
 static int lo_icon_size, orig_lo_icon_size;
 static int cursor_size, orig_cursor_size;
 static int task_width, orig_task_width;
+static int handle_width, orig_handle_width;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
@@ -72,6 +73,7 @@ static void load_lxpanel_settings (void);
 static void load_obpix_settings (void);
 static void load_lxterm_settings (void);
 static void load_libreoffice_settings (void);
+static void load_obconf_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
 static void save_obpix_settings (void);
@@ -136,6 +138,7 @@ static void backup_values (void)
     orig_lo_icon_size = lo_icon_size;
     orig_cursor_size = cursor_size;
     orig_task_width = task_width;
+    orig_handle_width = handle_width;
 }
 
 static int restore_values (void)
@@ -272,6 +275,11 @@ static int restore_values (void)
         task_width = orig_task_width;
         ret = 1;
     }
+    if (handle_width != orig_handle_width)
+    {
+        handle_width = orig_handle_width;
+        ret = 1;
+    }
     return ret;
 }
 
@@ -317,23 +325,9 @@ static void check_themes (void)
     if (xDoc)
     {
         xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
-        xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
-
-        // find relevant node and read value
-        for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
-        {
-            xmlNode *node = xpathObj->nodesetval->nodeTab[count];
-            xmlAttr *attr = node->properties;
-            xmlNode *cur_node = NULL;
-            for (cur_node = node->children; cur_node; cur_node = cur_node->next)
-            {
-                if (cur_node->type == XML_ELEMENT_NODE)
-                {
-                    if (!strcmp (cur_node->name, "name"))
-                        orig_openbox_theme = xmlNodeGetContent (cur_node);
-                }
-            }
-        }
+        xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']", xpathCtx);
+        xmlNode *node = xpathObj->nodesetval->nodeTab[0];
+        if (node) orig_openbox_theme = xmlNodeGetContent (node);
 
         // cleanup XML
         xmlXPathFreeObject (xpathObj);
@@ -708,6 +702,48 @@ static void load_libreoffice_settings (void)
     lo_icon_size = res;
 }
 
+static void load_obconf_settings (void)
+{
+    const char *session_name;
+    char *user_config_file, *fname;
+    int val;
+
+    handle_width = 10;
+
+    // construct the file path
+    session_name = g_getenv ("DESKTOP_SESSION");
+    if (!session_name) session_name = DEFAULT_SES;
+    fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
+    user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
+    g_free (fname);
+
+    // read in data from XML file
+    xmlInitParser ();
+    LIBXML_TEST_VERSION
+    xmlDocPtr xDoc = xmlParseFile (user_config_file);
+    if (xDoc == NULL)
+    {
+        g_free (user_config_file);
+        return;
+    }
+
+    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
+    xmlNode *node = xpathObj->nodesetval->nodeTab[0];
+    if (node)
+    {
+         if (sscanf (xmlNodeGetContent (node), "%d", &val) == 1 && val > 0) handle_width = val;
+    }
+
+    // cleanup XML
+    xmlXPathFreeObject (xpathObj);
+    xmlXPathFreeContext (xpathCtx);
+    xmlFreeDoc (xDoc);
+    xmlCleanupParser ();
+
+    g_free (user_config_file);
+}
+
 /* Functions to save settings back to relevant files */
 
 static void save_lxpanel_settings (void)
@@ -1065,6 +1101,7 @@ static void save_obconf_settings (void)
     char *user_config_file, *c, *font, *fname;
     int count;
     const gchar *size = NULL, *bold = NULL, *italic = NULL;
+    char buf[10];
 
     // construct the file path
     session_name = g_getenv ("DESKTOP_SESSION");
@@ -1100,6 +1137,7 @@ static void save_obconf_settings (void)
         return;
     }
 
+    xmlNode *cur_node;
     xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
     xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
 
@@ -1108,7 +1146,7 @@ static void save_obconf_settings (void)
     {
         xmlNode *node = xpathObj->nodesetval->nodeTab[count];
         xmlAttr *attr = node->properties;
-        xmlNode *cur_node = NULL;
+        cur_node = NULL;
         for (cur_node = node->children; cur_node; cur_node = cur_node->next)
         {
             if (cur_node->type == XML_ELEMENT_NODE)
@@ -1119,6 +1157,19 @@ static void save_obconf_settings (void)
                 if (!strcmp (cur_node->name, "slant"))  xmlNodeSetContent (cur_node, italic);
             }
         }
+    }
+    xmlXPathFreeObject (xpathObj);
+
+    sprintf (buf, "%d", handle_width);
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
+    cur_node = xpathObj->nodesetval->nodeTab[0];
+    if (cur_node) xmlNodeSetContent (cur_node, buf);
+    else
+    {
+        xmlXPathFreeObject (xpathObj);
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNewChild (cur_node, NULL, "invHandleWidth", buf);
     }
 
     // cleanup XML
@@ -1500,6 +1551,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         lo_icon_size = 2;
         cursor_size = 36;
         task_width = 300;
+        handle_width = 20;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
         system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
@@ -1517,6 +1569,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         lo_icon_size = 2;
         cursor_size = 24;
         task_width = 200;
+        handle_width = 10;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
@@ -1534,6 +1587,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         lo_icon_size = 0;
         cursor_size = 24;
         task_width = 150;
+        handle_width = 10;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
@@ -1615,6 +1669,7 @@ int main (int argc, char *argv[])
     load_lxpanel_settings ();
     load_lxterm_settings ();
     load_libreoffice_settings ();
+    load_obconf_settings ();
     backup_values ();
 
     // GTK setup
