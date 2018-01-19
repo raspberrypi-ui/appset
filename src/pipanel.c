@@ -95,6 +95,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr);
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr);
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
+static void on_set_scrollbars (int width);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
 
 static void read_version (char *package, int *maj, int *min, int *sub)
@@ -1536,6 +1537,152 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
         gtk_widget_hide (GTK_WIDGET (cmsg));
 }
 
+static void on_set_scrollbars (int width)
+{
+    char buffer[256];
+    char *conffile;
+    FILE *fp;
+
+    // GTK2 override file
+    conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
+
+    // check if the file exists - if not, create it...
+    fp = fopen (conffile, "rb");
+    if (fp == NULL)
+    {
+        fp = fopen (conffile, "wb");
+        fprintf (fp, "style \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
+        fclose (fp);
+    }
+    else
+    {
+        fclose (fp);
+
+        // check if the scrollbar button entry is in the file - if not, add it...
+        if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*}'"))
+        {
+            fp = fopen (conffile, "ab");
+            fprintf (fp, "\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
+            fclose (fp);
+        }
+        else
+        {
+            // block exists - check for relevant entries in it and add / amend as appropriate
+            if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*GtkRange::slider-width.*}'"))
+            {
+                // entry does not exist - add it
+                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::slider-width = %d\\n}/' ~/.gtkrc-2.0", width);
+            }
+            else
+            {
+                // entry exists - amend it with sed
+                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::slider-width =\\s*[0-9]*/GtkRange::slider-width = %d/' ~/.gtkrc-2.0", width);
+            }
+            system (buffer);
+
+            if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*GtkRange::stepper-size.*}'"))
+            {
+                // entry does not exist - add it
+                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::stepper-size = %d\\n}/' ~/.gtkrc-2.0", width);
+            }
+            else
+            {
+                // entry exists - amend it with sed
+                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::stepper-size =\\s*[0-9]*/GtkRange::stepper-size = %d/' ~/.gtkrc-2.0", width);
+            }
+            system (buffer);
+        }
+    }
+    g_free (conffile);
+
+    // GTK3 override file
+    conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
+
+    // check if the file exists - if not, create it...
+    fp = fopen (conffile, "rb");
+    if (fp == NULL)
+    {
+        fp = fopen (conffile, "wb");
+        fprintf (fp, "scrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n\nscrollbar button {\n min-width: %dpx; min-height: %dpx;\n}\n", width, width, width, width);
+        fclose (fp);
+    }
+    else
+    {
+        fclose (fp);
+
+        // check if the scrollbar button entry is in the file - if not, add it...
+        if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*}'"))
+        {
+            fp = fopen (conffile, "ab");
+            fprintf (fp, "\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
+            fclose (fp);
+        }
+        else
+        {
+            // block exists - check for relevant entries in it and add / amend as appropriate
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*min-width.*}'"))
+            {
+                // entry does not exist - add it
+                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            else
+            {
+                // entry exists - amend it with sed
+                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            system (buffer);
+
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*min-height.*}'"))
+            {
+                // entry does not exist - add it
+                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            else
+            {
+                // entry exists - amend it with sed
+                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            system (buffer);
+        }
+
+        // check if the scrollbar slider entry is in the file - if not, add it...
+        if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*}'"))
+        {
+            fp = fopen (conffile, "ab");
+            fprintf (fp, "\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
+            fclose (fp);
+        }
+        else
+        {
+            // block exists - check for relevant entries in it and add / amend as appropriate
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*min-width.*}'"))
+            {
+                // entry does not exist - add it
+                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            else
+            {
+                // entry exists - amend it with sed
+                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            system (buffer);
+
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*min-height.*}'"))
+            {
+                // entry does not exist - add it
+                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            else
+            {
+                // entry exists - amend it with sed
+                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            system (buffer);
+        }
+    }
+    g_free (conffile);
+}
+
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
     if (* (int *) ptr == 3)
@@ -1555,6 +1702,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
         system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
+        on_set_scrollbars (18);
     }
     else if (* (int *) ptr == 2)
     {
@@ -1573,6 +1721,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
+        on_set_scrollbars (13);
     }
     else if (* (int *) ptr == 1)
     {
@@ -1591,6 +1740,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
         system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
+        on_set_scrollbars (13);
     }
     if (cursor_size != orig_cursor_size)
         gtk_widget_show (GTK_WIDGET (cmsg));
