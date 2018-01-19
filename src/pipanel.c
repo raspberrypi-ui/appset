@@ -1620,7 +1620,7 @@ static void on_set_scrollbars (int width)
         else
         {
             // block exists - check for relevant entries in it and add / amend as appropriate
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*min-width.*}'"))
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*button\\s*{[^{]*?min-width[^}]*?}'"))
             {
                 // entry does not exist - add it
                 sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
@@ -1632,9 +1632,9 @@ static void on_set_scrollbars (int width)
             }
             system (buffer);
 
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*min-height.*}'"))
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*button\\s*{[^{]*?min-height[^}]*?}'"))
             {
-                // entry does not exist - add it
+               // entry does not exist - add it
                 sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
             }
             else
@@ -1655,7 +1655,7 @@ static void on_set_scrollbars (int width)
         else
         {
             // block exists - check for relevant entries in it and add / amend as appropriate
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*min-width.*}'"))
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*slider\\s*{[^{]*?min-width[^}]*?}'"))
             {
                 // entry does not exist - add it
                 sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
@@ -1667,7 +1667,7 @@ static void on_set_scrollbars (int width)
             }
             system (buffer);
 
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*min-height.*}'"))
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*slider\\s*{[^{]*?min-height[^}]*?}'"))
             {
                 // entry does not exist - add it
                 sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
