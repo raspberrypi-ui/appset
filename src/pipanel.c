@@ -1678,6 +1678,18 @@ static void on_set_scrollbars (int width)
                 sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
             }
             system (buffer);
+
+            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*slider\\s*{[^{]*?border-radius[^}]*?}'"))
+            {
+                // entry does not exist - add it
+                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ border-radius: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            else
+            {
+                // entry exists - amend it with sed
+                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/border-radius:\\s*[0-9]*px/border-radius: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+            }
+            system (buffer);
         }
     }
     g_free (conffile);
