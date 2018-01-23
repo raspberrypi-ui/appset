@@ -1596,6 +1596,7 @@ static void on_set_scrollbars (int width)
     g_free (conffile);
 
     // GTK3 override file
+    width -= 6; // GTK3 parameter sets the width of the slider, not the entire bar
     conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
 
     // check if the file exists - if not, create it...
