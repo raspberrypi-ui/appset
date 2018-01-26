@@ -1,8 +1,12 @@
-pipanel (20171201~074441) stretch; urgency=medium
+pipanel (20180126~074441) stretch; urgency=medium
 
+  * New tab with multiple default options for various screen sizes
+  * Use combobox for icon size settings to add more options
+  * Add settings for LibreOffice toolbar, PCManFM, GTK scrollbars, Openbox, mouse cursor etc
   * Lay out all elements homogenously with padding 
+  * Add tooltips
 
- -- Simon Long <simon@raspberrypi.org>  Fri, 01 Dec 2017 07:44:41 +0000
+ -- Simon Long <simon@raspberrypi.org>  Fri, 26 Jan 2018 07:44:41 +0000
 
 pipanel (20170707~125920) stretch; urgency=medium
 
