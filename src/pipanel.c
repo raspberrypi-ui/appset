@@ -830,7 +830,6 @@ static void save_gtk3_settings (void)
     size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
     PangoWeight pweight = pango_font_description_get_weight (pfd);
     PangoStyle pstyle = pango_font_description_get_style (pfd);
-    PangoStretch pstretch = pango_font_description_get_stretch (pfd);
 
     switch (pweight)
     {
@@ -1339,7 +1338,6 @@ static void save_qt_settings (void)
     size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
     PangoWeight pweight = pango_font_description_get_weight (pfd);
     PangoStyle pstyle = pango_font_description_get_style (pfd);
-    PangoStretch pstretch = pango_font_description_get_stretch (pfd);
 
     switch (pweight)
     {
@@ -1982,6 +1980,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     save_lxpanel_settings ();
     save_lxterm_settings ();
     save_libreoffice_settings ();
+    save_qt_settings ();
     if (needs_refresh) system (RELOAD_LXSESSION);
     system (RELOAD_LXPANEL);
     system (RELOAD_OPENBOX);
@@ -2130,6 +2129,7 @@ int main (int argc, char *argv[])
             save_lxpanel_settings ();
             save_lxterm_settings ();
             save_libreoffice_settings ();
+            save_qt_settings ();
             if (needs_refresh) system (RELOAD_LXSESSION);
             system (RELOAD_LXPANEL);
             system (RELOAD_OPENBOX);
