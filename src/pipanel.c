@@ -82,6 +82,7 @@ static void save_pcman_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
+static void save_qt_settings (void);
 static void set_openbox_theme (const char *theme);
 static void set_lxsession_theme (const char *theme);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
@@ -1025,7 +1026,6 @@ static void save_pcman_settings (void)
 static void save_lxterm_settings (void)
 {
     char *user_config_file, *str;
-    char colbuf[32];
     GKeyFile *kf;
     gsize len;
 
@@ -1268,6 +1268,160 @@ static void save_libreoffice_settings (void)
     g_free (user_config_file);
 }
 
+static void save_qt_settings (void)
+{
+    char *user_config_file, *str;
+    GKeyFile *kf;
+    gsize len;
+    char buffer[100], tbuf[400], *c;
+    const char *font;
+    int size, weight, style, nlen, count, index, oind;
+    double sval;
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "qt5ct/qt5ct.conf", NULL);
+
+    // read in data from file to a key file
+    kf = g_key_file_new ();
+    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        g_key_file_free (kf);
+        g_free (user_config_file);
+        return;
+    }
+
+    // create the Qt font representation
+    PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
+    font = pango_font_description_get_family (pfd);
+    size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
+    PangoWeight pweight = pango_font_description_get_weight (pfd);
+    PangoStyle pstyle = pango_font_description_get_style (pfd);
+    PangoStretch pstretch = pango_font_description_get_stretch (pfd);
+
+    switch (pweight)
+    {
+        case PANGO_WEIGHT_THIN :        weight = 0;
+                                        break;
+        case PANGO_WEIGHT_ULTRALIGHT :  weight = 12;
+                                        break;
+        case PANGO_WEIGHT_LIGHT :       weight = 25;
+                                        break;
+        case PANGO_WEIGHT_MEDIUM :      weight = 57;
+                                        break;
+        case PANGO_WEIGHT_SEMIBOLD :    weight = 63;
+                                        break;
+        case PANGO_WEIGHT_BOLD :        weight = 75;
+                                        break;
+        case PANGO_WEIGHT_ULTRABOLD :   weight = 81;
+                                        break;
+        case PANGO_WEIGHT_HEAVY :
+        case PANGO_WEIGHT_ULTRAHEAVY :  weight = 87;
+                                        break;
+        default :                       weight = 50;
+                                        break;
+    }
+
+    switch (pstyle)
+    {
+        case PANGO_STYLE_ITALIC :   style = 1;
+                                    break;
+        case PANGO_STYLE_OBLIQUE :  style = 2;
+                                    break;
+        default :                   style = 0;
+                                    break;
+    }
+
+    memset (buffer, 0, sizeof (buffer));
+
+    // header
+    buffer[3] = '@';
+
+    // font family
+    nlen = strlen (font);
+    buffer[7] = nlen * 2;
+    index = 8;
+    for (count = 0; count < nlen; count++)
+    {
+        buffer[index++] = 0;
+        buffer[index++] = font[count];
+    }
+
+    // font size - need to reverse bytes :(
+    sval = size;
+    c = ((char *) &sval) + 7;
+    for (count = 0; count < sizeof (double); count++)
+        buffer[index++] = *c--;
+
+    // padding
+    sprintf (buffer + index, "\xff\xff\xff\xff\x5\x1");
+    index += 7;
+
+    // weight and style
+    buffer[index++] = weight;
+    buffer[index++] = style + 16;
+
+    // convert to text
+    sprintf (tbuf, "\"@Variant(");
+    oind = 10;
+    for (count = 0; count < index; count++)
+    {
+        switch (buffer[count])
+        {
+            case 0 :    tbuf[oind++] = '\\';
+                        tbuf[oind++] = '0';
+                        break;
+
+            case 0x22 :
+            case 0x27 :
+            case 0x3F :
+            case 0x41 :
+            case 0x42 :
+            case 0x43 :
+            case 0x44 :
+            case 0x45 :
+            case 0x46 :
+            case 0x5C :
+            case 0x61 :
+            case 0x62 :
+            case 0x63 :
+            case 0x64 :
+            case 0x65 :
+            case 0x66 :
+                        tbuf[oind++] = '\\';
+                        tbuf[oind++] = 'x';
+                        sprintf (tbuf + oind, "%02x", buffer[count]);
+                        oind += 2;
+                        break;
+
+            default :   if (buffer[count] >= 32 && buffer[count] <= 126)
+                            tbuf[oind++] = buffer[count];
+                        else
+                        {
+                            tbuf[oind++] = '\\';
+                            tbuf[oind++] = 'x';
+                            sprintf (tbuf + oind, buffer[count] > 9 ? "%02x" : "%x", buffer[count]);
+                            oind += 1 + (buffer[count] > 9);
+                        }
+                        break;
+        }
+    }
+    tbuf[oind++] = ')';
+    tbuf[oind++] = '"';
+    tbuf[oind] = 0;
+
+    // update changed values in the key file
+    g_key_file_set_value (kf, "Fonts", "fixed", tbuf);
+    g_key_file_set_value (kf, "Fonts", "general", tbuf);
+
+    // write the modified key file out
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+
+    g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
 static void set_openbox_theme (const char *theme)
 {
     const char *session_name;
@@ -1450,6 +1604,7 @@ static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
     save_pcman_settings ();
     save_obconf_settings ();
     save_gtk3_settings ();
+    save_qt_settings ();
 
     if (needs_refresh) system (RELOAD_LXSESSION);
     system (RELOAD_LXPANEL);
