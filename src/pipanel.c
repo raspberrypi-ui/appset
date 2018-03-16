@@ -149,12 +149,13 @@ static int restore_values (void)
     if (desktop_font != orig_desktop_font)
     {
         desktop_font = orig_desktop_font;
-        int fsize;
-        if (sscanf (desktop_font, "%*[^0123456789]%d", &fsize) == 1)
-        {
-            if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
-            else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
-        }
+
+        PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
+        int fsize = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
+        pango_font_description_free (pfd);
+
+        if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
+        else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
         ret = 1;
     }
     if (desktop_picture != orig_desktop_picture)
@@ -800,6 +801,8 @@ static void save_obpix_settings (void)
 
 static void save_gtk3_settings (void)
 {
+    const gchar *font, *weight, *style;
+    int size;
     char *user_config_file, *cstr;
     char cmdbuf[256];
 
@@ -822,34 +825,61 @@ static void save_gtk3_settings (void)
     system (cmdbuf);
     
     // for stretch, this needs to be separate family and size entries
-    char *c, *font;
-    const gchar *size = NULL, *bold = NULL, *italic = NULL;
+    PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
+    font = pango_font_description_get_family (pfd);
+    size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
+    PangoWeight pweight = pango_font_description_get_weight (pfd);
+    PangoStyle pstyle = pango_font_description_get_style (pfd);
+    PangoStretch pstretch = pango_font_description_get_stretch (pfd);
 
-    // set the font description variables for XML from the font name
-    font = g_strdup (desktop_font);
-    while ((c = strrchr (font, ' ')))
+    switch (pweight)
     {
-        if (!bold && !italic && !size && atoi (c + 1))
-            size = c + 1;
-        else if (!bold && !italic && !g_ascii_strcasecmp (c + 1, "italic"))
-            italic = c + 1;
-        else if (!bold && !g_ascii_strcasecmp (c + 1, "bold"))
-            bold = c + 1;
-        else break;
-        *c = '\0';
+        case PANGO_WEIGHT_THIN :        weight = "Thin";
+                                        break;
+        case PANGO_WEIGHT_ULTRALIGHT :  weight = "Ultralight";
+                                        break;
+        case PANGO_WEIGHT_LIGHT :       weight = "Light";
+                                        break;
+        case PANGO_WEIGHT_SEMILIGHT :   weight = "Semilight";
+                                        break;
+        case PANGO_WEIGHT_BOOK :        weight = "Book";
+                                        break;
+        case PANGO_WEIGHT_MEDIUM :      weight = "Medium";
+                                        break;
+        case PANGO_WEIGHT_SEMIBOLD :    weight = "Semibold";
+                                        break;
+        case PANGO_WEIGHT_BOLD :        weight = "Bold";
+                                        break;
+        case PANGO_WEIGHT_ULTRABOLD :   weight = "Ultrabold";
+                                        break;
+        case PANGO_WEIGHT_HEAVY :       weight = "Heavy";
+                                        break;
+        case PANGO_WEIGHT_ULTRAHEAVY :  weight = "Ultraheavy";
+                                        break;
+        default :                       weight = "Normal";
+                                        break;
     }
-    if (!bold) bold = "Normal";
-    if (!italic) italic = "Normal";
-        
+
+    switch (pstyle)
+    {
+        case PANGO_STYLE_ITALIC :   style = "Italic";
+                                    break;
+        case PANGO_STYLE_OBLIQUE :  style = "Oblique";
+                                    break;
+        default :                   style = "Normal";
+                                    break;
+    }
+
     sprintf (cmdbuf, "sed -i s/'font-family:[^;]*'/'font-family:\t%s'/g %s", font, user_config_file);
     system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/'font-size:[^;]*'/'font-size:\t%spt'/g %s", size, user_config_file);
+    sprintf (cmdbuf, "sed -i s/'font-size:[^;]*'/'font-size:\t%dpt'/g %s", size, user_config_file);
     system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/'font-style:[^;]*'/'font-style:\t%s'/g %s", italic, user_config_file);
+    sprintf (cmdbuf, "sed -i s/'font-style:[^;]*'/'font-style:\t%s'/g %s", style, user_config_file);
     system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/'font-weight:[^;]*'/'font-weight:\t%s'/g %s", bold, user_config_file);
+    sprintf (cmdbuf, "sed -i s/'font-weight:[^;]*'/'font-weight:\t%s'/g %s", weight, user_config_file);
     system (cmdbuf);
 
+    pango_font_description_free (pfd);
     g_free (cstr);
     g_free (user_config_file);
 }
@@ -1099,9 +1129,9 @@ static void save_greeter_settings (void)
 static void save_obconf_settings (void)
 {
     const char *session_name;
-    char *user_config_file, *c, *font, *fname;
-    int count;
-    const gchar *size = NULL, *bold = NULL, *italic = NULL;
+    char *user_config_file, *fname, *font,*cptr;
+    int count, size;
+    const gchar *weight = NULL, *style = NULL;
     char buf[10];
 
     // construct the file path
@@ -1112,20 +1142,30 @@ static void save_obconf_settings (void)
     g_free (fname);
 
     // set the font description variables for XML from the font name
-    font = g_strdup (desktop_font);
-    while ((c = strrchr (font, ' ')))
+    PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
+    size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
+    PangoWeight pweight = pango_font_description_get_weight (pfd);
+    PangoStyle pstyle = pango_font_description_get_style (pfd);
+
+    if (pweight == PANGO_WEIGHT_BOLD)
     {
-        if (!bold && !italic && !size && atoi (c + 1))
-            size = c + 1;
-        else if (!bold && !italic && !g_ascii_strcasecmp (c + 1, "italic"))
-            italic = c + 1;
-        else if (!bold && !g_ascii_strcasecmp (c + 1, "bold"))
-            bold = c + 1;
-        else break;
-        *c = '\0';
+        weight = "Bold";
+        pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_WEIGHT);
     }
-    if (!bold) bold = "Normal";
-    if (!italic) italic = "Normal";
+    else weight = "Normal";
+
+    if (pstyle == PANGO_STYLE_ITALIC)
+    {
+        style = "Italic";
+        pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STYLE);
+    }
+    else style = "Normal";
+
+    // by this point, Bold and Italic flags will be missing from the font description, so just remove the size...
+    font = g_strdup (pango_font_description_to_string (pfd));
+    cptr = font + strlen (font) - 1;
+    while (*cptr >= '0' && *cptr <= '9') cptr--;
+    *cptr = 0;
 
     // read in data from XML file
     xmlInitParser ();
@@ -1133,6 +1173,7 @@ static void save_obconf_settings (void)
     xmlDocPtr xDoc = xmlParseFile (user_config_file);
     if (xDoc == NULL)
     {
+        pango_font_description_free (pfd);
         g_free (font);
         g_free (user_config_file);
         return;
@@ -1152,10 +1193,11 @@ static void save_obconf_settings (void)
         {
             if (cur_node->type == XML_ELEMENT_NODE)
             {
+                sprintf (buf, "%d", size);
                 if (!strcmp (cur_node->name, "name")) xmlNodeSetContent (cur_node, font);
-                if (!strcmp (cur_node->name, "size")) xmlNodeSetContent (cur_node, size);
-                if (!strcmp (cur_node->name, "weight")) xmlNodeSetContent (cur_node, bold);
-                if (!strcmp (cur_node->name, "slant"))  xmlNodeSetContent (cur_node, italic);
+                if (!strcmp (cur_node->name, "size")) xmlNodeSetContent (cur_node, buf);
+                if (!strcmp (cur_node->name, "weight")) xmlNodeSetContent (cur_node, weight);
+                if (!strcmp (cur_node->name, "slant"))  xmlNodeSetContent (cur_node, style);
             }
         }
     }
@@ -1180,6 +1222,7 @@ static void save_obconf_settings (void)
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
 
+    pango_font_description_free (pfd);
     g_free (font);
     g_free (user_config_file);
 }
@@ -1417,6 +1460,7 @@ static void save_qt_settings (void)
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
+    pango_font_description_free (pfd);
     g_free (str);
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -1593,12 +1637,13 @@ static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
     if (font)
     {
         desktop_font = font;
-        int fsize;
-        if (sscanf (font, "%*[^0123456789]%d", &fsize) == 1)
-        {
-            if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
-            else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
-        }
+
+        PangoFontDescription *pfd = pango_font_description_from_string (font);
+        int fsize = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
+        pango_font_description_free (pfd);
+
+        if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
+        else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
     }
     save_lxsession_settings ();
     save_pcman_settings ();
