@@ -1896,7 +1896,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
     if (* (int *) ptr == 3)
     {
-        desktop_font = "Piboto Light 16";
+        desktop_font = "PibotoLt 16";
         terminal_font = "Monospace 15";
         icon_size = 52;
         folder_size = 80;
@@ -1915,7 +1915,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     }
     else if (* (int *) ptr == 2)
     {
-        desktop_font = "Piboto Light 12";
+        desktop_font = "PibotoLt 12";
         terminal_font = "Monospace 10";
         icon_size = 36;
         folder_size = 48;
@@ -1934,7 +1934,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     }
     else if (* (int *) ptr == 1)
     {
-        desktop_font = "Piboto Light 8";
+        desktop_font = "PibotoLt 8";
         terminal_font = "Monospace 8";
         icon_size = 20;
         folder_size = 32;

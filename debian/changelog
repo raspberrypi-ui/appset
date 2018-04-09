@@ -1,3 +1,9 @@
+pipanel (20180409~075917) stretch; urgency=medium
+
+  * Change default font from Piboto Light to PibotoLt
+
+ -- Simon Long <simon@raspberrypi.org>  Mon, 09 Apr 2018 07:59:17 +0100
+
 pipanel (20180126~074441) stretch; urgency=medium
 
   * New tab with multiple default options for various screen sizes
