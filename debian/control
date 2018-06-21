@@ -10,7 +10,7 @@ Vcs-Browser: https://github.com/raspberrypi/pipanel/tree/debian
 
 Package: pipanel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk2.0-0, libxml2, openbox, lxsession
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk2.0-0, libxml2, openbox, lxsession, zenity
 Description: Settings panel for Raspberry Pi desktop appearance
  pipanel is an application which allows the configuration of the LX Desktop
  user interface from one convenient dialog.

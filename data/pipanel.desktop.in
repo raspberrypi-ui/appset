@@ -4,7 +4,7 @@ _Name=Appearance Settings
 _GenericName=Appearance Settings
 _Comment=Configure the appearance of the desktop and windows
 Icon=preferences-desktop-theme
-Exec=env SUDO_ASKPASS=/usr/bin/pwdpip.sh pipanel
+Exec=env SUDO_ASKPASS=/usr/lib/pwdpip.sh pipanel
 NotShowIn=GNOME;XFCE;
 StartupNotify=true
 Categories=Settings;DesktopSettings;GTK;X-LXDE-Settings;
