@@ -4,6 +4,7 @@
 *.a
 *.gmo
 *.lo
+*.log
 .dirstamp
 .DS_Store
 pipanel

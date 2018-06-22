@@ -1,4 +1,0 @@
-	../src/pipanel.c \
-	../data/pipanel.ui \
-	../data/pipanel.desktop.in \
-	../data/pwdpip.sh
