@@ -59,7 +59,11 @@ static int handle_width, orig_handle_width;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
-static char needs_refresh;
+static gboolean needs_refresh;
+
+/* Version of Libreoffice installed - affects toolbar icon setting */
+
+static char lo_ver;
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
@@ -98,6 +102,24 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_set_scrollbars (int width);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
+
+static char *get_string (char *cmd)
+{
+    char *line = NULL, *res = NULL;
+    int len = 0;
+    FILE *fp = popen (cmd, "r");
+
+    if (fp == NULL) return g_strdup ("");
+    if (getline (&line, &len, fp) > 0)
+    {
+        res = line;
+        while (*res++) if (g_ascii_isspace (*res)) *res = 0;
+        res = g_strdup (line);
+    }
+    pclose (fp);
+    g_free (line);
+    return res ? res : g_strdup ("");
+}
 
 static void read_version (char *package, int *maj, int *min, int *sub)
 {
@@ -664,7 +686,8 @@ static void load_libreoffice_settings (void)
     {
         // need to create XML doc here, potentially with directory tree...
         g_free (user_config_file);
-        lo_icon_size = 2;
+        if (lo_ver == 6) lo_icon_size = 1;
+        else lo_icon_size = 2;
         return;
     }
 
@@ -1904,7 +1927,8 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         pane_size = 32;
         sicon_size = 32;
         tb_icon_size = 48;
-        lo_icon_size = 2;
+        if (lo_ver == 6) lo_icon_size = 3;
+        else lo_icon_size = 2;
         cursor_size = 36;
         task_width = 300;
         handle_width = 20;
@@ -1923,7 +1947,8 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         pane_size = 24;
         sicon_size = 24;
         tb_icon_size = 24;
-        lo_icon_size = 2;
+        if (lo_ver == 6) lo_icon_size = 1;
+        else lo_icon_size = 2;
         cursor_size = 24;
         task_width = 200;
         handle_width = 10;
@@ -2007,6 +2032,7 @@ int main (int argc, char *argv[])
     GtkWidget *dlg;
     int maj, min, sub;
     int flag1 = 1, flag2 = 2, flag3 = 3;
+    char *lov;
 
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -2020,6 +2046,12 @@ int main (int argc, char *argv[])
     if (min >= 5) needs_refresh = 0;
     else if (min == 4 && sub == 9) needs_refresh = 0;
     else needs_refresh = 1;
+
+    // get libreoffice version
+    lov = get_string ("grep BuildVersion /usr/lib/libreoffice/program/versionrc | cut -d : -f 2");
+    if (lov[0] == '6') lo_ver = 6;
+    else lo_ver = 5;
+    g_free (lov);
 
     // load data from config files
     check_themes ();
