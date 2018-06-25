@@ -683,8 +683,7 @@ static void load_libreoffice_settings (void)
     {
         // need to create XML doc here, potentially with directory tree...
         g_free (user_config_file);
-        if (lo_ver == 6) lo_icon_size = 1;
-        else lo_icon_size = 2;
+        lo_icon_size = 1;
         return;
     }
 
@@ -1925,7 +1924,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         sicon_size = 32;
         tb_icon_size = 48;
         if (lo_ver == 6) lo_icon_size = 3;
-        else lo_icon_size = 2;
+        else lo_icon_size = 1;
         cursor_size = 36;
         task_width = 300;
         handle_width = 20;
@@ -1944,8 +1943,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         pane_size = 24;
         sicon_size = 24;
         tb_icon_size = 24;
-        if (lo_ver == 6) lo_icon_size = 1;
-        else lo_icon_size = 2;
+        lo_icon_size = 1;
         cursor_size = 24;
         task_width = 200;
         handle_width = 10;
