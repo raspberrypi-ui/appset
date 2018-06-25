@@ -121,20 +121,17 @@ static char *get_string (char *cmd)
     return res ? res : g_strdup ("");
 }
 
-static void read_version (char *package, int *maj, int *min, int *sub)
+static int read_version (char *package, int *maj, int *min, int *sub)
 {
-    char buf[512];
-    FILE *fp;
+    char *cmd, *res;
+    int val;
 
-    *maj = *min = *sub = 0;
-    sprintf (buf, "dpkg -s %s | grep Version", package);
-    fp = popen (buf, "r");
-    if (fp == NULL) return;
-
-    while (fgets (buf, sizeof (buf) - 1, fp) != NULL)
-        sscanf (buf, "Version: %d.%d.%d.", maj, min, sub);
-
-    pclose (fp);
+    cmd = g_strdup_printf ("dpkg -s %s | grep Version | rev | cut -d : -f 1 | rev", package);
+    res = get_string (cmd);
+    val = sscanf (res, "%d.%d.%d", maj, min, sub);
+    g_free (cmd);
+    g_free (res);
+    return val;
 }
 
 static void backup_values (void)
@@ -2032,7 +2029,6 @@ int main (int argc, char *argv[])
     GtkWidget *dlg;
     int maj, min, sub;
     int flag1 = 1, flag2 = 2, flag3 = 3;
-    char *lov;
 
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -2042,16 +2038,17 @@ int main (int argc, char *argv[])
 #endif
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
-    read_version ("lxsession", &maj, &min, &sub);
-    if (min >= 5) needs_refresh = 0;
-    else if (min == 4 && sub == 9) needs_refresh = 0;
-    else needs_refresh = 1;
+    if (read_version ("lxsession", &maj, &min, &sub) != 3) needs_refresh = 1;
+    else
+    {
+        if (min >= 5) needs_refresh = 0;
+        else if (min == 4 && sub == 9) needs_refresh = 0;
+        else needs_refresh = 1;
+    }
 
     // get libreoffice version
-    lov = get_string ("grep BuildVersion /usr/lib/libreoffice/program/versionrc | cut -d : -f 2");
-    if (lov[0] == '6') lo_ver = 6;
-    else lo_ver = 5;
-    g_free (lov);
+    if (read_version ("libreoffice", &maj, &min, &sub) != 3) lo_ver = 5;
+    else lo_ver = maj;
 
     // load data from config files
     check_themes ();
