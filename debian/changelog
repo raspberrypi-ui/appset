@@ -1,3 +1,9 @@
+pipanel (20180706~092558) stretch; urgency=medium
+
+  * Fixes to LibreOffice icon handling for compatibility with LO6
+
+ -- Simon Long <simon@raspberrypi.org>  Fri, 06 Jul 2018 09:25:58 +0100
+
 pipanel (20180621~152457) stretch; urgency=medium
 
   * Move password prompt into /usr/lib/
