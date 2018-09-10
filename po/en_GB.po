@@ -95,11 +95,11 @@ msgstr "Show the wastebasket on the desktop"
 
 #: ../data/pipanel.ui.h:20
 msgid "Mounted Disks"
-msgstr "Mounted Disks"
+msgstr "External Disks"
 
 #: ../data/pipanel.ui.h:21
 msgid "Show mounted disks on the desktop"
-msgstr "Show mounted disks on the desktop"
+msgstr "Show external disks on the desktop"
 
 #: ../data/pipanel.ui.h:22
 msgid "Desktop"
