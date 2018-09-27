@@ -49,6 +49,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define DEFAULT_SES "LXDE-pi"
 
+#define THEME_COL "#4D98F5"
+#define TEXT_COL "#FFFFFF"
+
 /* Shell commands to reload data */
 #define RELOAD_LXPANEL "lxpanelctl refresh"
 #define RELOAD_OPENBOX "openbox --reconfigure"
@@ -91,6 +94,10 @@ static gboolean needs_refresh;
 /* Version of Libreoffice installed - affects toolbar icon setting */
 
 static char lo_ver;
+
+/* Flag to indicate whether system colours have been read */
+
+static int col_read;
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
@@ -640,28 +647,37 @@ static void load_obpix_settings (void)
     user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
     fp = g_fopen (user_config_file, "rb");
     g_free (user_config_file);
-    if (!fp) return;
-
-    // set defaults in case read fails
-    gdk_color_parse ("#4D98F5", &theme_colour);
-    gdk_color_parse ("#FFFFFF", &themetext_colour);
-
-    // read data from the file
-    while (1)
+    if (fp)
     {
-        if (!fgets (linbuf, 256, fp)) break;
-        if (sscanf (linbuf, "window.active.title.bg.color: %s", colstr) == 1)
+        // read data from the file
+        while (1)
         {
-            if (!gdk_color_parse (colstr, &theme_colour))
-                gdk_color_parse ("#4D98F5", &theme_colour);
+            if (!fgets (linbuf, 256, fp)) break;
+            if (sscanf (linbuf, "window.active.title.bg.color: %s", colstr) == 1)
+            {
+                if (col_read == 0 || col_read == 2)
+                {
+                    if (!gdk_color_parse (colstr, &theme_colour))
+                        gdk_color_parse (THEME_COL, &theme_colour);
+                    col_read += 1;
+                }
+            }
+            if (sscanf (linbuf, "window.active.label.text.color: %s", colstr) == 1)
+            {
+                if (col_read == 0 || col_read == 1)
+                {
+                    if (!gdk_color_parse (colstr, &themetext_colour))
+                        gdk_color_parse (TEXT_COL, &themetext_colour);
+                    col_read += 2;
+                }
+            }
         }
-        if (sscanf (linbuf, "window.active.label.text.color: %s", colstr) == 1)
-        {
-            if (!gdk_color_parse (colstr, &themetext_colour))
-                gdk_color_parse ("#FFFFFF", &themetext_colour);
-        }
+        fclose (fp);
     }
-    fclose (fp);
+
+    // set defaults if read failed
+    if (col_read == 0 || col_read == 2) gdk_color_parse (THEME_COL, &theme_colour);
+    if (col_read == 0 || col_read == 1) gdk_color_parse (TEXT_COL, &themetext_colour);
 }
 
 static void load_lxterm_settings (void)
@@ -784,6 +800,22 @@ static void load_obconf_settings (void)
          if (sscanf (xmlNodeGetContent (node), "%d", &val) == 1 && val > 0) handle_width = val;
     }
 
+    col_read = 0;
+
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
+    node = xpathObj->nodesetval->nodeTab[0];
+    if (node)
+    {
+         if (gdk_color_parse (xmlNodeGetContent (node), &theme_colour)) col_read += 1;
+    }
+
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
+    node = xpathObj->nodesetval->nodeTab[0];
+    if (node)
+    {
+         if (gdk_color_parse (xmlNodeGetContent (node), &themetext_colour)) col_read += 2;
+    }
+
     // cleanup XML
     xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
@@ -791,6 +823,9 @@ static void load_obconf_settings (void)
     xmlCleanupParser ();
 
     g_free (user_config_file);
+
+    // failed to read colours from config file - try a local theme file in case this is an old version...
+    if (col_read != 3) load_obpix_settings ();
 }
 
 /* Functions to save settings back to relevant files */
@@ -1260,6 +1295,30 @@ static void save_obconf_settings (void)
         xmlNewChild (cur_node, NULL, "invHandleWidth", buf);
     }
 
+    sprintf (buf, "#%02x%02x%02x", theme_colour.red >> 8, theme_colour.green >> 8, theme_colour.blue >> 8);
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
+    cur_node = xpathObj->nodesetval->nodeTab[0];
+    if (cur_node) xmlNodeSetContent (cur_node, buf);
+    else
+    {
+        xmlXPathFreeObject (xpathObj);
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNewChild (cur_node, NULL, "titleColor", buf);
+    }
+
+    sprintf (buf, "#%02x%02x%02x", themetext_colour.red >> 8, themetext_colour.green >> 8, themetext_colour.blue >> 8);
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
+    cur_node = xpathObj->nodesetval->nodeTab[0];
+    if (cur_node) xmlNodeSetContent (cur_node, buf);
+    else
+    {
+        xmlXPathFreeObject (xpathObj);
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNewChild (cur_node, NULL, "textColor", buf);
+    }
+
     // cleanup XML
     xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
@@ -1629,7 +1688,7 @@ static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
 {
     gtk_color_button_get_color (btn, &theme_colour);
     save_lxsession_settings ();
-    save_obpix_settings ();
+    save_obconf_settings ();
     save_gtk3_settings ();
     if (needs_refresh) system (RELOAD_LXSESSION);
     system (RELOAD_OPENBOX);
@@ -1640,7 +1699,7 @@ static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
     gtk_color_button_get_color (btn, &themetext_colour);
     save_lxsession_settings ();
-    save_obpix_settings ();
+    save_obconf_settings ();
     save_gtk3_settings ();
     if (needs_refresh) system (RELOAD_LXSESSION);
     system (RELOAD_OPENBOX);
@@ -2007,7 +2066,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), desktop_picture);
     desktop_mode = "crop";
     gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
-    gdk_color_parse ("#4D98F5", &theme_colour);
+    gdk_color_parse (THEME_COL, &theme_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
     gdk_color_parse ("#D6D3DE", &desktop_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
@@ -2017,7 +2076,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &bartext_colour);
     gdk_color_parse ("#EDECEB", &bar_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
-    gdk_color_parse ("#FFFFFF", &themetext_colour);
+    gdk_color_parse (TEXT_COL, &themetext_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);
     barpos = 0;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
@@ -2032,7 +2091,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     save_lxsession_settings ();
     save_pcman_settings ();
     save_obconf_settings ();
-    save_obpix_settings ();
+    //save_obpix_settings ();
     save_gtk3_settings ();
     save_lxpanel_settings ();
     save_lxterm_settings ();
@@ -2078,7 +2137,7 @@ int main (int argc, char *argv[])
     // load data from config files
     check_themes ();
     load_lxsession_settings ();
-    load_obpix_settings ();
+    //load_obpix_settings ();
     load_pcman_settings ();
     load_lxpanel_settings ();
     load_lxterm_settings ();
@@ -2188,7 +2247,7 @@ int main (int argc, char *argv[])
             save_lxsession_settings ();
             save_pcman_settings ();
             save_obconf_settings ();
-            save_obpix_settings ();
+            //save_obpix_settings ();
             save_gtk3_settings ();
             save_lxpanel_settings ();
             save_lxterm_settings ();
