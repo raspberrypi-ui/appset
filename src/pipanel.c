@@ -95,10 +95,6 @@ static gboolean needs_refresh;
 
 static char lo_ver;
 
-/* Flag to indicate whether system colours have been read */
-
-static int col_read;
-
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
 
@@ -108,7 +104,6 @@ static void check_themes (void);
 static void load_lxsession_settings (void);
 static void load_pcman_settings (void);
 static void load_lxpanel_settings (void);
-static void load_obpix_settings (void);
 static void load_lxterm_settings (void);
 static void load_libreoffice_settings (void);
 static void load_obconf_settings (void);
@@ -422,6 +417,8 @@ static void load_lxsession_settings (void)
         g_free (user_config_file);
         gdk_color_parse ("#EDECEB", &bar_colour);
         gdk_color_parse ("#000000", &bartext_colour);
+        gdk_color_parse (THEME_COL, &theme_colour);
+        gdk_color_parse (TEXT_COL, &themetext_colour);
         desktop_font = "<not set>";
         return;
     }
@@ -450,6 +447,16 @@ static void load_lxsession_settings (void)
                 if (!gdk_color_parse (cptr, &bar_colour))
                     gdk_color_parse ("#EDECEB", &bar_colour);
             }
+            else if (!strcmp (nptr, "selected_fg_color"))
+            {
+                if (!gdk_color_parse (cptr, &themetext_colour))
+                    gdk_color_parse (TEXT_COL, &themetext_colour);
+            }
+            else if (!strcmp (nptr, "selected_bg_color"))
+            {
+                if (!gdk_color_parse (cptr, &theme_colour))
+                    gdk_color_parse (THEME_COL, &theme_colour);
+            }
             nptr = strtok (NULL, ":\n");
         }
     }
@@ -457,6 +464,8 @@ static void load_lxsession_settings (void)
     {
         gdk_color_parse ("#000000", &bartext_colour);
         gdk_color_parse ("#EDECEB", &bar_colour);
+        gdk_color_parse (THEME_COL, &theme_colour);
+        gdk_color_parse (TEXT_COL, &themetext_colour);
     }
 
     err = NULL;
@@ -630,49 +639,6 @@ static void load_lxpanel_settings (void)
     fclose (fp);
 }
 
-static void load_obpix_settings (void)
-{
-    char *user_config_file;
-    char linbuf[256], colstr[16];
-    FILE *fp;
-
-    // open the file
-    user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
-    fp = g_fopen (user_config_file, "rb");
-    g_free (user_config_file);
-    if (fp)
-    {
-        // read data from the file
-        while (1)
-        {
-            if (!fgets (linbuf, 256, fp)) break;
-            if (sscanf (linbuf, "window.active.title.bg.color: %s", colstr) == 1)
-            {
-                if (col_read == 0 || col_read == 2)
-                {
-                    if (!gdk_color_parse (colstr, &theme_colour))
-                        gdk_color_parse (THEME_COL, &theme_colour);
-                    col_read += 1;
-                }
-            }
-            if (sscanf (linbuf, "window.active.label.text.color: %s", colstr) == 1)
-            {
-                if (col_read == 0 || col_read == 1)
-                {
-                    if (!gdk_color_parse (colstr, &themetext_colour))
-                        gdk_color_parse (TEXT_COL, &themetext_colour);
-                    col_read += 2;
-                }
-            }
-        }
-        fclose (fp);
-    }
-
-    // set defaults if read failed
-    if (col_read == 0 || col_read == 2) gdk_color_parse (THEME_COL, &theme_colour);
-    if (col_read == 0 || col_read == 1) gdk_color_parse (TEXT_COL, &themetext_colour);
-}
-
 static void load_lxterm_settings (void)
 {
     const char *ret;
@@ -793,22 +759,6 @@ static void load_obconf_settings (void)
          if (sscanf (xmlNodeGetContent (node), "%d", &val) == 1 && val > 0) handle_width = val;
     }
 
-    col_read = 0;
-
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
-    node = xpathObj->nodesetval->nodeTab[0];
-    if (node)
-    {
-         if (gdk_color_parse (xmlNodeGetContent (node), &theme_colour)) col_read += 1;
-    }
-
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
-    node = xpathObj->nodesetval->nodeTab[0];
-    if (node)
-    {
-         if (gdk_color_parse (xmlNodeGetContent (node), &themetext_colour)) col_read += 2;
-    }
-
     // cleanup XML
     xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
@@ -816,9 +766,6 @@ static void load_obconf_settings (void)
     xmlCleanupParser ();
 
     g_free (user_config_file);
-
-    // failed to read colours from config file - try a local theme file in case this is an old version...
-    if (col_read != 3) load_obpix_settings ();
 }
 
 /* Functions to save settings back to relevant files */
