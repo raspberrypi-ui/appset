@@ -202,13 +202,6 @@ static int restore_values (void)
     if (desktop_font != orig_desktop_font)
     {
         desktop_font = orig_desktop_font;
-
-        PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
-        int fsize = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
-        pango_font_description_free (pfd);
-
-        if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
-        else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
         ret = 1;
     }
     if (desktop_picture != orig_desktop_picture)
@@ -1747,17 +1740,8 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
 {
     const char *font = gtk_font_button_get_font_name (btn);
-    if (font)
-    {
-        desktop_font = font;
+    if (font) desktop_font = font;
 
-        PangoFontDescription *pfd = pango_font_description_from_string (font);
-        int fsize = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
-        pango_font_description_free (pfd);
-
-        if (fsize >= 14) system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
-        else system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
-    }
     save_lxsession_settings ();
     save_pcman_settings ();
     save_obconf_settings ();
@@ -2016,7 +2000,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         handle_width = 20;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
-        system ("cp ~/.themes/PiX/openbox-3/large/*.xbm ~/.themes/PiX/openbox-3");
         on_set_scrollbars (18);
     }
     else if (* (int *) ptr == 2)
@@ -2035,7 +2018,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         handle_width = 10;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
-        system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
         on_set_scrollbars (13);
     }
     else if (* (int *) ptr == 1)
@@ -2054,7 +2036,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         handle_width = 10;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
-        system ("cp ~/.themes/PiX/openbox-3/small/*.xbm ~/.themes/PiX/openbox-3");
         on_set_scrollbars (13);
     }
     if (cursor_size != orig_cursor_size)
