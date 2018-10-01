@@ -822,26 +822,63 @@ static void save_obpix_settings (void)
 
 static void save_gtk3_settings (void)
 {
-    const gchar *font, *weight, *style;
-    int size;
-    char *user_config_file, *cstr;
+    FILE *fp;
+    char *user_config_file, *cstrb, *cstrf;
     char cmdbuf[256];
+
+    cstrb = gdk_color_to_string (&theme_colour);
+    cstrf = gdk_color_to_string (&themetext_colour);
 
     // construct the file path
     user_config_file = g_build_filename (g_get_home_dir (), ".config/gtk-3.0/gtk.css", NULL);
 
-    // convert colour to string and use sed to write
-    cstr = gdk_color_to_string (&theme_colour);
-    sprintf (cmdbuf, "sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s",
-        cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
-    system (cmdbuf);
+    // check if the file exists - if not, create it...
+    fp = fopen (user_config_file, "rb");
+    if (fp == NULL)
+    {
+        fp = fopen (user_config_file, "wb");
+        fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
+            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10],
+            cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
+        fclose (fp);
+    }
+    else
+    {
+        fclose (fp);
 
-    cstr = gdk_color_to_string (&themetext_colour);
-    sprintf (cmdbuf, "sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s",
-        cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
-    system (cmdbuf);
+        sprintf (cmdbuf, "grep -q theme_selected_bg_color %s\n", user_config_file);
+        if (system (cmdbuf))
+        {
+            fp = fopen (user_config_file, "ab");
+            fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n",
+                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10]);
+            fclose (fp);
+        }
+        else
+        {
+            sprintf (cmdbuf, "sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s",
+                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
+            system (cmdbuf);
+        }
 
-    g_free (cstr);
+        sprintf (cmdbuf, "grep -q theme_selected_fg_color %s\n", user_config_file);
+        if (system (cmdbuf))
+        {
+            fp = fopen (user_config_file, "ab");
+            fprintf (fp, "@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
+                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
+            fclose (fp);
+        }
+        else
+        {
+            sprintf (cmdbuf, "sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s",
+                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
+            system (cmdbuf);
+        }
+    }
+
+    g_free (cstrf);
+    g_free (cstrb);
     g_free (user_config_file);
 }
 
