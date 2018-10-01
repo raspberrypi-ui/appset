@@ -841,65 +841,6 @@ static void save_gtk3_settings (void)
         cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
     system (cmdbuf);
 
-    // write the current font to the file
-    sprintf (cmdbuf, "sed -i s/'font:[^;]*'/'font:\t%s'/g %s", desktop_font, user_config_file);
-    system (cmdbuf);
-    
-    // for stretch, this needs to be separate family and size entries
-    PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
-    font = pango_font_description_get_family (pfd);
-    size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
-    PangoWeight pweight = pango_font_description_get_weight (pfd);
-    PangoStyle pstyle = pango_font_description_get_style (pfd);
-
-    switch (pweight)
-    {
-        case PANGO_WEIGHT_THIN :        weight = "Thin";
-                                        break;
-        case PANGO_WEIGHT_ULTRALIGHT :  weight = "Ultralight";
-                                        break;
-        case PANGO_WEIGHT_LIGHT :       weight = "Light";
-                                        break;
-        case PANGO_WEIGHT_SEMILIGHT :   weight = "Semilight";
-                                        break;
-        case PANGO_WEIGHT_BOOK :        weight = "Book";
-                                        break;
-        case PANGO_WEIGHT_MEDIUM :      weight = "Medium";
-                                        break;
-        case PANGO_WEIGHT_SEMIBOLD :    weight = "Semibold";
-                                        break;
-        case PANGO_WEIGHT_BOLD :        weight = "Bold";
-                                        break;
-        case PANGO_WEIGHT_ULTRABOLD :   weight = "Ultrabold";
-                                        break;
-        case PANGO_WEIGHT_HEAVY :       weight = "Heavy";
-                                        break;
-        case PANGO_WEIGHT_ULTRAHEAVY :  weight = "Ultraheavy";
-                                        break;
-        default :                       weight = "Normal";
-                                        break;
-    }
-
-    switch (pstyle)
-    {
-        case PANGO_STYLE_ITALIC :   style = "Italic";
-                                    break;
-        case PANGO_STYLE_OBLIQUE :  style = "Oblique";
-                                    break;
-        default :                   style = "Normal";
-                                    break;
-    }
-
-    sprintf (cmdbuf, "sed -i s/'font-family:[^;]*'/'font-family:\t%s'/g %s", font, user_config_file);
-    system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/'font-size:[^;]*'/'font-size:\t%dpt'/g %s", size, user_config_file);
-    system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/'font-style:[^;]*'/'font-style:\t%s'/g %s", style, user_config_file);
-    system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/'font-weight:[^;]*'/'font-weight:\t%s'/g %s", weight, user_config_file);
-    system (cmdbuf);
-
-    pango_font_description_free (pfd);
     g_free (cstr);
     g_free (user_config_file);
 }
