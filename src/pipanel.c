@@ -614,7 +614,7 @@ static void load_lxpanel_settings (void)
     user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
 
     // open the file
-    fp = g_fopen (user_config_file, "rb");
+    fp = fopen (user_config_file, "rb");
     g_free (user_config_file);
     if (!fp) 
     {
@@ -837,10 +837,13 @@ static void save_gtk3_settings (void)
     if (fp == NULL)
     {
         fp = fopen (user_config_file, "wb");
-        fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
-            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10],
-            cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
-        fclose (fp);
+        if (fp)
+        {
+            fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
+                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10],
+                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
+            fclose (fp);
+        }
     }
     else
     {
@@ -850,9 +853,12 @@ static void save_gtk3_settings (void)
         if (system (cmdbuf))
         {
             fp = fopen (user_config_file, "ab");
-            fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n",
-                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10]);
-            fclose (fp);
+            if (fp)
+            {
+                fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n",
+                    cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10]);
+                fclose (fp);
+            }
         }
         else
         {
@@ -865,9 +871,12 @@ static void save_gtk3_settings (void)
         if (system (cmdbuf))
         {
             fp = fopen (user_config_file, "ab");
-            fprintf (fp, "@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
-                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
-            fclose (fp);
+            if (fp)
+            {
+                fprintf (fp, "@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
+                    cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
+                fclose (fp);
+            }
         }
         else
         {
@@ -1773,8 +1782,11 @@ static void on_set_scrollbars (int width)
     if (fp == NULL)
     {
         fp = fopen (conffile, "wb");
-        fprintf (fp, "style \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
-        fclose (fp);
+        if (fp)
+        {
+            fprintf (fp, "style \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
+            fclose (fp);
+        }
     }
     else
     {
@@ -1784,8 +1796,11 @@ static void on_set_scrollbars (int width)
         if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*}'"))
         {
             fp = fopen (conffile, "ab");
-            fprintf (fp, "\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
-            fclose (fp);
+            if (fp)
+            {
+                fprintf (fp, "\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
+                fclose (fp);
+            }
         }
         else
         {
@@ -1826,8 +1841,11 @@ static void on_set_scrollbars (int width)
     if (fp == NULL)
     {
         fp = fopen (conffile, "wb");
-        fprintf (fp, "scrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n\nscrollbar button {\n min-width: %dpx; min-height: %dpx;\n}\n", width, width, width, width);
-        fclose (fp);
+        if (fp)
+        {
+            fprintf (fp, "scrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n\nscrollbar button {\n min-width: %dpx; min-height: %dpx;\n}\n", width, width, width, width);
+            fclose (fp);
+        }
     }
     else
     {
@@ -1837,8 +1855,11 @@ static void on_set_scrollbars (int width)
         if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*}'"))
         {
             fp = fopen (conffile, "ab");
-            fprintf (fp, "\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
-            fclose (fp);
+            if (fp)
+            {
+                fprintf (fp, "\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
+                fclose (fp);
+            }
         }
         else
         {
@@ -1872,8 +1893,11 @@ static void on_set_scrollbars (int width)
         if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*}'"))
         {
             fp = fopen (conffile, "ab");
-            fprintf (fp, "\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
-            fclose (fp);
+            if (fp)
+            {
+                fprintf (fp, "\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
+                fclose (fp);
+            }
         }
         else
         {
