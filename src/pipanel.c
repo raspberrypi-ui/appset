@@ -132,6 +132,20 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_set_scrollbars (int width);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
 
+static int vsystem (const char *fmt, ...)
+{
+    char *cmdline;
+    int res;
+
+    va_list arg;
+    va_start (arg, fmt);
+    g_vasprintf (&cmdline, fmt, arg);
+    va_end (arg);
+    res = system (cmdline);
+    g_free (cmdline);
+    return res;
+}
+
 static char *get_string (char *cmd)
 {
     char *line = NULL, *res = NULL;
@@ -615,28 +629,29 @@ static void load_lxpanel_settings (void)
 
     // open the file
     fp = fopen (user_config_file, "rb");
-    g_free (user_config_file);
-    if (!fp) 
+    if (fp)
+    {
+        // read data from the file
+        barpos = 0;
+        while (1)
+        {
+            if (!fgets (linbuf, 256, fp)) break;
+            if (sscanf (linbuf, "%*[ \t]iconsize=%d", &val) == 1) icon_size = val;
+            if (sscanf (linbuf, "%*[ \t]edge=%s", posbuf) == 1)
+            {
+                if (!strcmp (posbuf, "bottom")) barpos = 1;
+            }
+            if (sscanf (linbuf, "%*[ \t]MaxTaskWidth=%d", &val) == 1) task_width = val;
+        }
+        fclose (fp);
+    }
+    else
     {
         // set defaults if not read from file
         icon_size = MAX_ICON;
         barpos = 0;
-        return;
     }
-    
-    // read data from the file
-    barpos = 0;
-    while (1)
-    {
-        if (!fgets (linbuf, 256, fp)) break;
-        if (sscanf (linbuf, "%*[ \t]iconsize=%d", &val) == 1) icon_size = val;
-        if (sscanf (linbuf, "%*[ \t]edge=%s", posbuf) == 1)
-        {
-            if (!strcmp (posbuf, "bottom")) barpos = 1;
-        }
-        if (sscanf (linbuf, "%*[ \t]MaxTaskWidth=%d", &val) == 1) task_width = val;
-    }
-    fclose (fp);
+    g_free (user_config_file);
 }
 
 static void load_lxterm_settings (void)
@@ -774,7 +789,6 @@ static void save_lxpanel_settings (void)
 {
     const char *session_name;
     char *user_config_file;
-    char cmdbuf[256];
 
     // sanity check
     if (icon_size > MAX_ICON || icon_size < MIN_ICON) return;
@@ -785,14 +799,10 @@ static void save_lxpanel_settings (void)
     user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
 
     // use sed to write
-    sprintf (cmdbuf, "sed -i s/iconsize=.*/iconsize=%d/g %s", icon_size, user_config_file);
-    system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/height=.*/height=%d/g %s", icon_size, user_config_file);
-    system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/edge=.*/edge=%s/g %s", barpos ? "bottom" : "top", user_config_file);
-    system (cmdbuf);
-    sprintf (cmdbuf, "sed -i s/MaxTaskWidth=.*/MaxTaskWidth=%d/g %s", task_width, user_config_file);
-    system (cmdbuf);
+    vsystem ("sed -i s/iconsize=.*/iconsize=%d/g %s", icon_size, user_config_file);
+    vsystem ("sed -i s/height=.*/height=%d/g %s", icon_size, user_config_file);
+    vsystem ("sed -i s/edge=.*/edge=%s/g %s", barpos ? "bottom" : "top", user_config_file);
+    vsystem ("sed -i s/MaxTaskWidth=.*/MaxTaskWidth=%d/g %s", task_width, user_config_file);
 
     g_free (user_config_file);
 }
@@ -800,21 +810,18 @@ static void save_lxpanel_settings (void)
 static void save_obpix_settings (void)
 {
     char *user_config_file, *cstr;
-    char cmdbuf[256];
 
     // construct the file path
     user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
 
     // convert colour to string and use sed to write
     cstr = gdk_color_to_string (&theme_colour);
-    sprintf (cmdbuf, "sed -i s/'window.active.title.bg.color: #......'/'window.active.title.bg.color: #%c%c%c%c%c%c'/g %s",
+    vsystem ("sed -i s/'window.active.title.bg.color: #......'/'window.active.title.bg.color: #%c%c%c%c%c%c'/g %s",
         cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
-    system (cmdbuf);
 
     cstr = gdk_color_to_string (&themetext_colour);
-    sprintf (cmdbuf, "sed -i s/'window.active.label.text.color: #......'/'window.active.label.text.color: #%c%c%c%c%c%c'/g %s",
+    vsystem ("sed -i s/'window.active.label.text.color: #......'/'window.active.label.text.color: #%c%c%c%c%c%c'/g %s",
         cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
-    system (cmdbuf);
 
     g_free (cstr);
     g_free (user_config_file);
@@ -822,9 +829,7 @@ static void save_obpix_settings (void)
 
 static void save_gtk3_settings (void)
 {
-    FILE *fp;
     char *user_config_file, *cstrb, *cstrf;
-    char cmdbuf[256];
 
     cstrb = gdk_color_to_string (&theme_colour);
     cstrf = gdk_color_to_string (&themetext_colour);
@@ -833,56 +838,34 @@ static void save_gtk3_settings (void)
     user_config_file = g_build_filename (g_get_home_dir (), ".config/gtk-3.0/gtk.css", NULL);
 
     // check if the file exists - if not, create it...
-    fp = fopen (user_config_file, "rb");
-    if (fp == NULL)
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        fp = fopen (user_config_file, "wb");
-        if (fp)
-        {
-            fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
-                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10],
-                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
-            fclose (fp);
-        }
+        vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c\n@define-color theme_selected_fg_color #%c%c%c%c%c%c' > %s", 
+            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10],
+            cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
     }
     else
     {
-        fclose (fp);
-
-        sprintf (cmdbuf, "grep -q theme_selected_bg_color %s\n", user_config_file);
-        if (system (cmdbuf))
+        if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
         {
-            fp = fopen (user_config_file, "ab");
-            if (fp)
-            {
-                fprintf (fp, "@define-color theme_selected_bg_color #%c%c%c%c%c%c\n",
-                    cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10]);
-                fclose (fp);
-            }
-        }
-        else
-        {
-            sprintf (cmdbuf, "sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s",
+            vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c' >> %s", 
                 cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
-            system (cmdbuf);
-        }
-
-        sprintf (cmdbuf, "grep -q theme_selected_fg_color %s\n", user_config_file);
-        if (system (cmdbuf))
-        {
-            fp = fopen (user_config_file, "ab");
-            if (fp)
-            {
-                fprintf (fp, "@define-color theme_selected_fg_color #%c%c%c%c%c%c\n",
-                    cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10]);
-                fclose (fp);
-            }
         }
         else
         {
-            sprintf (cmdbuf, "sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s",
+            vsystem ("sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s",
+                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
+        }
+
+        if (vsystem ("grep -q theme_selected_fg_color %s\n", user_config_file))
+        {
+            vsystem ("echo '@define-color theme_selected_fg_color #%c%c%c%c%c%c' >> %s",
                 cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
-            system (cmdbuf);
+        }
+        else
+        {
+            vsystem ("sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s",
+                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
         }
     }
 
@@ -1028,9 +1011,7 @@ static void save_pcman_settings (void)
         {
             g_free (user_config_file);
             user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", NULL);
-            char *cmd = g_strdup_printf ("mkdir -p %s; cp /etc/xdg/libfm/libfm.conf %s", user_config_file, user_config_file);
-            system (cmd);
-            g_free (cmd);
+            vsystem ("mkdir -p %s; cp /etc/xdg/libfm/libfm.conf %s", user_config_file, user_config_file);
             g_free (user_config_file);
             user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", "/libfm.conf", NULL);
 
@@ -1128,8 +1109,7 @@ static void save_greeter_settings (void)
         g_key_file_free (kf);
 
         // copy the temp file to the correct place with sudo
-        sprintf (buffer, "sudo -A cp %s %s", tfname, GREETER_CONFIG_FILE);
-        system (buffer);
+        vsystem ("sudo -A cp %s %s", tfname, GREETER_CONFIG_FILE);
     }
 }
 
@@ -1282,16 +1262,7 @@ static void save_libreoffice_settings (void)
         g_free (user_config_dir);
 
         // create XML doc
-        FILE *fp = fopen (user_config_file, "wb");
-        if (fp)
-        {
-            fprintf (fp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            fprintf (fp, "<oor:items xmlns:oor=\"http://openoffice.org/2001/registry\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
-            fprintf (fp, "<item oor:path=\"/org.openoffice.Office.Common/Misc\"><prop oor:name=\"SymbolSet\" oor:op=\"fuse\"><value>%d</value></prop></item>\n", lo_icon_size);
-            fprintf (fp, "</oor:items>\n");
-            fclose (fp);
-        }
-        g_free (user_config_file);
+        vsystem ("echo '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<oor:items xmlns:oor=\"http://openoffice.org/2001/registry\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n<item oor:path=\"/org.openoffice.Office.Common/Misc\"><prop oor:name=\"SymbolSet\" oor:op=\"fuse\"><value>%d</value></prop></item>\n</oor:items>\n' > %s", lo_icon_size, user_config_file);
         return;
     }
 
@@ -1770,37 +1741,22 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
 
 static void on_set_scrollbars (int width)
 {
-    char buffer[256];
     char *conffile;
-    FILE *fp;
 
     // GTK2 override file
     conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
 
     // check if the file exists - if not, create it...
-    fp = fopen (conffile, "rb");
-    if (fp == NULL)
+    if (!g_file_test (conffile, G_FILE_TEST_IS_REGULAR))
     {
-        fp = fopen (conffile, "wb");
-        if (fp)
-        {
-            fprintf (fp, "style \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
-            fclose (fp);
-        }
+        vsystem ("echo 'style \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n' > %s", width, width, conffile);
     }
     else
     {
-        fclose (fp);
-
         // check if the scrollbar button entry is in the file - if not, add it...
         if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*}'"))
         {
-            fp = fopen (conffile, "ab");
-            if (fp)
-            {
-                fprintf (fp, "\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n", width, width);
-                fclose (fp);
-            }
+            vsystem ("echo '\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n' >> %s", width, width, conffile);
         }
         else
         {
@@ -1808,26 +1764,24 @@ static void on_set_scrollbars (int width)
             if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*GtkRange::slider-width.*}'"))
             {
                 // entry does not exist - add it
-                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::slider-width = %d\\n}/' ~/.gtkrc-2.0", width);
+                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::slider-width = %d\\n}/' ~/.gtkrc-2.0", width);
             }
             else
             {
                 // entry exists - amend it with sed
-                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::slider-width =\\s*[0-9]*/GtkRange::slider-width = %d/' ~/.gtkrc-2.0", width);
+                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::slider-width =\\s*[0-9]*/GtkRange::slider-width = %d/' ~/.gtkrc-2.0", width);
             }
-            system (buffer);
 
             if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*GtkRange::stepper-size.*}'"))
             {
                 // entry does not exist - add it
-                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::stepper-size = %d\\n}/' ~/.gtkrc-2.0", width);
+                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::stepper-size = %d\\n}/' ~/.gtkrc-2.0", width);
             }
             else
             {
                 // entry exists - amend it with sed
-                sprintf (buffer, "sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::stepper-size =\\s*[0-9]*/GtkRange::stepper-size = %d/' ~/.gtkrc-2.0", width);
+                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::stepper-size =\\s*[0-9]*/GtkRange::stepper-size = %d/' ~/.gtkrc-2.0", width);
             }
-            system (buffer);
         }
     }
     g_free (conffile);
@@ -1837,29 +1791,16 @@ static void on_set_scrollbars (int width)
     conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
 
     // check if the file exists - if not, create it...
-    fp = fopen (conffile, "rb");
-    if (fp == NULL)
+    if (!g_file_test (conffile, G_FILE_TEST_IS_REGULAR))
     {
-        fp = fopen (conffile, "wb");
-        if (fp)
-        {
-            fprintf (fp, "scrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n\nscrollbar button {\n min-width: %dpx; min-height: %dpx;\n}\n", width, width, width, width);
-            fclose (fp);
-        }
+        vsystem ("echo 'scrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n\nscrollbar button {\n min-width: %dpx; min-height: %dpx;\n}\n' > %s", width, width, width, width, conffile);
     }
     else
     {
-        fclose (fp);
-
         // check if the scrollbar button entry is in the file - if not, add it...
         if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*}'"))
         {
-            fp = fopen (conffile, "ab");
-            if (fp)
-            {
-                fprintf (fp, "\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
-                fclose (fp);
-            }
+            vsystem ("echo '\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width, width, conffile);
         }
         else
         {
@@ -1867,37 +1808,30 @@ static void on_set_scrollbars (int width)
             if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*button\\s*{[^{]*?min-width[^}]*?}'"))
             {
                 // entry does not exist - add it
-                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
             }
             else
             {
                 // entry exists - amend it with sed
-                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
             }
-            system (buffer);
 
             if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*button\\s*{[^{]*?min-height[^}]*?}'"))
             {
                // entry does not exist - add it
-                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
             }
             else
             {
                 // entry exists - amend it with sed
-                sprintf (buffer, "sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
             }
-            system (buffer);
         }
 
         // check if the scrollbar slider entry is in the file - if not, add it...
         if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*}'"))
         {
-            fp = fopen (conffile, "ab");
-            if (fp)
-            {
-                fprintf (fp, "\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n", width, width);
-                fclose (fp);
-            }
+            vsystem ("echo '\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width, width, conffile);
         }
         else
         {
@@ -1905,26 +1839,24 @@ static void on_set_scrollbars (int width)
             if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*slider\\s*{[^{]*?min-width[^}]*?}'"))
             {
                 // entry does not exist - add it
-                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
             }
             else
             {
                 // entry exists - amend it with sed
-                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
             }
-            system (buffer);
 
             if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*slider\\s*{[^{]*?min-height[^}]*?}'"))
             {
                 // entry does not exist - add it
-                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
             }
             else
             {
                 // entry exists - amend it with sed
-                sprintf (buffer, "sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
+                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
             }
-            system (buffer);
         }
     }
     g_free (conffile);
