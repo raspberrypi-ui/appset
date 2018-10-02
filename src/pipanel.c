@@ -52,12 +52,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define THEME_COL "#4D98F5"
 #define TEXT_COL "#FFFFFF"
 
-/* Shell commands to reload data */
-#define RELOAD_LXPANEL "lxpanelctl refresh"
-#define RELOAD_OPENBOX "openbox --reconfigure"
-#define RELOAD_PCMANFM "pcmanfm --reconfigure"
-#define RELOAD_LXSESSION "lxsession -r"
-
 /* Global variables for window values */
 
 static const char *desktop_font, *orig_desktop_font;
@@ -109,7 +103,6 @@ static void load_libreoffice_settings (void);
 static void load_obconf_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
-static void save_obpix_settings (void);
 static void save_lxsession_settings (void);
 static void save_pcman_settings (void);
 static void save_obconf_settings (void);
@@ -131,6 +124,31 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_set_scrollbars (int width);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
+
+/* Shell commands to reload data */
+
+static void reload_lxpanel (void)
+{
+    int res = system ("lxpanelctl refresh");
+}
+
+static void reload_openbox (void)
+{
+    int res = system ("openbox --reconfigure");
+}
+
+static void reload_pcmanfm (void)
+{
+    int res = system ("pcmanfm --reconfigure");
+}
+
+static void reload_lxsession (void)
+{
+    if (needs_refresh)
+    {
+        int res = system ("lxsession -r");
+    }
+}
 
 static int vsystem (const char *fmt, ...)
 {
@@ -401,12 +419,12 @@ static void check_themes (void)
     if (strcmp ("PiX", orig_lxsession_theme))
     {
         set_lxsession_theme ("PiX");
-        if (needs_refresh) system (RELOAD_LXSESSION);
+        reload_lxsession ();
     }
     if (strcmp ("PiX", orig_openbox_theme))
     {
         set_openbox_theme ("PiX");
-        system (RELOAD_OPENBOX);
+        reload_openbox ();
     }
 }
 
@@ -804,26 +822,6 @@ static void save_lxpanel_settings (void)
     vsystem ("sed -i s/edge=.*/edge=%s/g %s", barpos ? "bottom" : "top", user_config_file);
     vsystem ("sed -i s/MaxTaskWidth=.*/MaxTaskWidth=%d/g %s", task_width, user_config_file);
 
-    g_free (user_config_file);
-}
-
-static void save_obpix_settings (void)
-{
-    char *user_config_file, *cstr;
-
-    // construct the file path
-    user_config_file = g_build_filename (g_get_home_dir (), ".themes/PiX/openbox-3/themerc", NULL);
-
-    // convert colour to string and use sed to write
-    cstr = gdk_color_to_string (&theme_colour);
-    vsystem ("sed -i s/'window.active.title.bg.color: #......'/'window.active.title.bg.color: #%c%c%c%c%c%c'/g %s",
-        cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
-
-    cstr = gdk_color_to_string (&themetext_colour);
-    vsystem ("sed -i s/'window.active.label.text.color: #......'/'window.active.label.text.color: #%c%c%c%c%c%c'/g %s",
-        cstr[1], cstr[2], cstr[5], cstr[6], cstr[9], cstr[10], user_config_file);
-
-    g_free (cstr);
     g_free (user_config_file);
 }
 
@@ -1579,7 +1577,7 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
     save_lxpanel_settings ();
-    system (RELOAD_LXPANEL);
+    reload_lxpanel ();
 }
 
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
@@ -1588,9 +1586,9 @@ static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
     save_lxsession_settings ();
     save_obconf_settings ();
     save_gtk3_settings ();
-    if (needs_refresh) system (RELOAD_LXSESSION);
-    system (RELOAD_OPENBOX);
-    system (RELOAD_PCMANFM);
+    reload_lxsession ();
+    reload_openbox ();
+    reload_pcmanfm ();
 }
 
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
@@ -1599,39 +1597,39 @@ static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
     save_lxsession_settings ();
     save_obconf_settings ();
     save_gtk3_settings ();
-    if (needs_refresh) system (RELOAD_LXSESSION);
-    system (RELOAD_OPENBOX);
-    system (RELOAD_PCMANFM);
+    reload_lxsession ();
+    reload_openbox ();
+    reload_pcmanfm ();
 }
 
 static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
 {
     gtk_color_button_get_color (btn, &bar_colour);
     save_lxsession_settings ();
-    if (needs_refresh) system (RELOAD_LXSESSION);
-    system (RELOAD_PCMANFM);
+    reload_lxsession ();
+    reload_pcmanfm ();
 }
 
 static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
     gtk_color_button_get_color (btn, &bartext_colour);
     save_lxsession_settings ();
-    if (needs_refresh) system (RELOAD_LXSESSION);
-    system (RELOAD_PCMANFM);
+    reload_lxsession ();
+    reload_pcmanfm ();
 }
 
 static void on_desktop_colour_set (GtkColorButton* btn, gpointer ptr)
 {
     gtk_color_button_get_color (btn, &desktop_colour);
     save_pcman_settings ();
-    system (RELOAD_PCMANFM);
+    reload_pcmanfm ();
 }
 
 static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr)
 {
     gtk_color_button_get_color (btn, &desktoptext_colour);
     save_pcman_settings ();
-    system (RELOAD_PCMANFM);
+    reload_pcmanfm ();
 }
 
 static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
@@ -1639,7 +1637,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
     char *picture = gtk_file_chooser_get_filename (btn);
     if (picture) desktop_picture = picture;
     save_pcman_settings ();
-    system (RELOAD_PCMANFM);
+    reload_pcmanfm ();
 }
 
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
@@ -1653,10 +1651,10 @@ static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
     save_gtk3_settings ();
     save_qt_settings ();
 
-    if (needs_refresh) system (RELOAD_LXSESSION);
-    system (RELOAD_LXPANEL);
-    system (RELOAD_OPENBOX);
-    system (RELOAD_PCMANFM);
+    reload_lxsession ();
+    reload_lxpanel ();
+    reload_openbox ();
+    reload_pcmanfm ();
 }
 
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
@@ -1681,7 +1679,7 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
     if (!strcmp (desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (ptr), FALSE);
     else gtk_widget_set_sensitive (GTK_WIDGET (ptr), TRUE);
     save_pcman_settings ();
-    system (RELOAD_PCMANFM);
+    reload_pcmanfm ();
 }
 
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
@@ -1694,28 +1692,28 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     if (gtk_toggle_button_get_active (group->data)) barpos = 1;
     else barpos = 0;
     save_lxpanel_settings ();
-    system (RELOAD_LXPANEL);
+    reload_lxpanel ();
 }
 
 static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
 {
     show_docs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
     save_pcman_settings ();
-    system (RELOAD_PCMANFM);
+    reload_pcmanfm ();
 }
 
 static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr)
 {
     show_trash = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
     save_pcman_settings ();
-    system (RELOAD_PCMANFM);
+    reload_pcmanfm ();
 }
 
 static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
 {
     show_mnts = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
     save_pcman_settings ();
-    system (RELOAD_PCMANFM);
+    reload_pcmanfm ();
 }
 
 static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
@@ -1731,7 +1729,7 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
     save_lxsession_settings ();
-    if (needs_refresh) system (RELOAD_LXSESSION);
+    reload_lxsession ();
 
     if (cursor_size != orig_cursor_size)
         gtk_widget_show (GTK_WIDGET (cmsg));
@@ -1953,16 +1951,15 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     save_lxsession_settings ();
     save_pcman_settings ();
     save_obconf_settings ();
-    //save_obpix_settings ();
     save_gtk3_settings ();
     save_lxpanel_settings ();
     save_lxterm_settings ();
     save_libreoffice_settings ();
     save_qt_settings ();
-    if (needs_refresh) system (RELOAD_LXSESSION);
-    system (RELOAD_LXPANEL);
-    system (RELOAD_OPENBOX);
-    system (RELOAD_PCMANFM);
+    reload_lxsession ();
+    reload_lxpanel ();
+    reload_openbox ();
+    reload_pcmanfm ();
 }
 
 
@@ -2109,16 +2106,15 @@ int main (int argc, char *argv[])
             save_lxsession_settings ();
             save_pcman_settings ();
             save_obconf_settings ();
-            //save_obpix_settings ();
             save_gtk3_settings ();
             save_lxpanel_settings ();
             save_lxterm_settings ();
             save_libreoffice_settings ();
             save_qt_settings ();
-            if (needs_refresh) system (RELOAD_LXSESSION);
-            system (RELOAD_LXPANEL);
-            system (RELOAD_OPENBOX);
-            system (RELOAD_PCMANFM);
+            reload_lxsession ();
+            reload_lxpanel ();
+            reload_openbox ();
+            reload_pcmanfm ();
         }
     }
     else save_greeter_settings ();
