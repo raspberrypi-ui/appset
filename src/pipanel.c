@@ -363,8 +363,8 @@ static int restore_values (void)
 
 static void check_themes (void)
 {
-    const char *session_name, *ret;
-    char *user_config_file, *cptr, *nptr, *fname;
+    const char *session_name;
+    char *user_config_file, *ret, *cptr, *nptr, *fname;
     GKeyFile *kf;
     GError *err;
     int count;
@@ -384,7 +384,8 @@ static void check_themes (void)
         // get data from the key file
         err = NULL;
         ret = g_key_file_get_string (kf, "GTK", "sNet/ThemeName", &err);
-        if (err == NULL) orig_lxsession_theme = ret;
+        if (err == NULL) orig_lxsession_theme = g_strdup (ret);
+        g_free (ret);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -430,8 +431,8 @@ static void check_themes (void)
 
 static void load_lxsession_settings (void)
 {
-    const char *session_name, *ret;
-    char *user_config_file, *cptr, *nptr;
+    const char *session_name;
+    char *user_config_file, *ret, *cptr, *nptr;
     GKeyFile *kf;
     GError *err;
     int val;
@@ -458,8 +459,9 @@ static void load_lxsession_settings (void)
     // get data from the key file
     err = NULL;
     ret = g_key_file_get_string (kf, "GTK", "sGtk/FontName", &err);
-    if (err == NULL) desktop_font = ret;
+    if (err == NULL) desktop_font = g_strdup (ret);
     else desktop_font = "<not set>";
+    g_free (ret);
 
     err = NULL;
     ret = g_key_file_get_string (kf, "GTK", "sGtk/ColorScheme", &err);
@@ -499,6 +501,7 @@ static void load_lxsession_settings (void)
         gdk_color_parse (THEME_COL, &theme_colour);
         gdk_color_parse (TEXT_COL, &themetext_colour);
     }
+    g_free (ret);
 
     err = NULL;
     ret = g_key_file_get_string (kf, "GTK", "sGtk/IconSizes", &err);
@@ -510,6 +513,7 @@ static void load_lxsession_settings (void)
             if (val >= 8 && val <= 256) tb_icon_size = val;
         }
     }
+    g_free (ret);
 
     err = NULL;
     val = g_key_file_get_integer (kf, "GTK", "iGtk/CursorThemeSize", &err);
@@ -522,8 +526,8 @@ static void load_lxsession_settings (void)
 
 static void load_pcman_settings (void)
 {
-    const char *session_name, *ret;
-    char *user_config_file;
+    const char *session_name;
+    char *user_config_file, *ret;
     GKeyFile *kf;
     GError *err;
     gint val;
@@ -555,6 +559,7 @@ static void load_pcman_settings (void)
             gdk_color_parse ("#D6D3DE", &desktop_colour);
     }
     else gdk_color_parse ("#D6D3DE", &desktop_colour);
+    g_free (ret);
 
     err = NULL;
     ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
@@ -564,16 +569,19 @@ static void load_pcman_settings (void)
             gdk_color_parse ("#000000", &desktoptext_colour);
     }
     else gdk_color_parse ("#000000", &desktoptext_colour);
+    g_free (ret);
 
     err = NULL;
     ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
-    if (err == NULL && ret) desktop_picture = ret;
+    if (err == NULL && ret) desktop_picture = g_strdup (ret);
     else desktop_picture = "<not set>";
+    g_free (ret);
 
     err = NULL;
     ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
-    if (err == NULL && ret) desktop_mode = ret;
+    if (err == NULL && ret) desktop_mode = g_strdup (ret);
     else desktop_mode = "color";
+    g_free (ret);
 
     err = NULL;
     val = g_key_file_get_integer (kf, "*", "show_documents", &err);
@@ -664,8 +672,7 @@ static void load_lxpanel_settings (void)
 
 static void load_lxterm_settings (void)
 {
-    const char *ret;
-    char *user_config_file;
+    char *user_config_file, *ret;
     GKeyFile *kf;
     GError *err;
 
@@ -685,8 +692,9 @@ static void load_lxterm_settings (void)
     // get data from the key file
     err = NULL;
     ret = g_key_file_get_string (kf, "general", "fontname", &err);
-    if (err == NULL) terminal_font = ret;
+    if (err == NULL) terminal_font = g_strdup (ret);
     else terminal_font = "Monospace 10";
+    g_free (ret);
 
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -933,6 +941,7 @@ static void save_lxsession_settings (void)
         sprintf (colbuf, "gtk-large-toolbar=%d,%d", tb_icon_size, tb_icon_size);
         g_key_file_set_string (kf, "GTK", "sGtk/IconSizes", colbuf);
     }
+    g_free (str);
 
     g_key_file_set_integer (kf, "GTK", "iGtk/CursorThemeSize", cursor_size);
 
@@ -1066,6 +1075,7 @@ static void save_greeter_settings (void)
     GKeyFile *kf;
     gsize len;
     gint handle;
+    int res;
 
     if (desktop_font != orig_desktop_font || desktop_picture != orig_desktop_picture ||
         desktop_mode != orig_desktop_mode || !gdk_color_equal (&desktop_colour, &orig_desktop_colour))
@@ -1090,14 +1100,14 @@ static void save_greeter_settings (void)
         // write the modified key file out to a temp file
         str = g_key_file_to_data (kf, &len, NULL);
         handle = g_file_open_tmp ("XXXXXX", &tfname, NULL);
-        write (handle, str, len);
+        res = write (handle, str, len);
         close (handle);
 
         g_free (str);
         g_key_file_free (kf);
 
         // copy the temp file to the correct place with sudo
-        vsystem ("sudo -A cp %s %s", tfname, GREETER_CONFIG_FILE);
+        if (res != -1) vsystem ("sudo -A cp %s %s", tfname, GREETER_CONFIG_FILE);
     }
 }
 
