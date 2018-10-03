@@ -634,10 +634,7 @@ static void load_pcman_settings (void)
 static void load_lxpanel_settings (void)
 {
     const char *session_name;
-    const char * const *sys_dirs;
-    char *user_config_file;
-    char linbuf[256], posbuf[16];
-    FILE *fp;
+    char *user_config_file, *cmdbuf, *res;
     int val;
 
     // construct the file path
@@ -645,30 +642,23 @@ static void load_lxpanel_settings (void)
     if (!session_name) session_name = DEFAULT_SES;
     user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
 
-    // open the file
-    fp = fopen (user_config_file, "rb");
-    if (fp)
-    {
-        // read data from the file
-        barpos = 0;
-        while (1)
-        {
-            if (!fgets (linbuf, 256, fp)) break;
-            if (sscanf (linbuf, "%*[ \t]iconsize=%d", &val) == 1) icon_size = val;
-            if (sscanf (linbuf, "%*[ \t]edge=%s", posbuf) == 1)
-            {
-                if (!strcmp (posbuf, "bottom")) barpos = 1;
-            }
-            if (sscanf (linbuf, "%*[ \t]MaxTaskWidth=%d", &val) == 1) task_width = val;
-        }
-        fclose (fp);
-    }
-    else
-    {
-        // set defaults if not read from file
-        icon_size = MAX_ICON;
-        barpos = 0;
-    }
+    if (!vsystem ("grep -q edge=bottom %s", user_config_file)) barpos = 1;
+    else barpos = 0;
+
+    cmdbuf = g_strdup_printf ("grep -Po '(?<=iconsize=)[0-9]+' %s", user_config_file);
+    res = get_string (cmdbuf);
+    if (res[0] && sscanf (res, "%d", &val) == 1) icon_size = val;
+    else icon_size = 36;
+    g_free (res);
+    g_free (cmdbuf);
+
+    cmdbuf = g_strdup_printf ("grep -Po '(?<=MaxTaskWidth=)[0-9]+' %s", user_config_file);
+    res = get_string (cmdbuf);
+    if (res[0] && sscanf (res, "%d", &val) == 1) task_width = val;
+    else task_width = 200;
+    g_free (res);
+    g_free (cmdbuf);
+
     g_free (user_config_file);
 }
 
