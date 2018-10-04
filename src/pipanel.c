@@ -836,7 +836,7 @@ static void save_gtk3_settings (void)
     // check if the file exists - if not, create it...
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c\n@define-color theme_selected_fg_color #%c%c%c%c%c%c' > %s", 
+        vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c;\n@define-color theme_selected_fg_color #%c%c%c%c%c%c;' > %s", 
             cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10],
             cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
     }
@@ -844,7 +844,7 @@ static void save_gtk3_settings (void)
     {
         if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
         {
-            vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c' >> %s", 
+            vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c;' >> %s",
                 cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
         }
         else
@@ -855,7 +855,7 @@ static void save_gtk3_settings (void)
 
         if (vsystem ("grep -q theme_selected_fg_color %s\n", user_config_file))
         {
-            vsystem ("echo '@define-color theme_selected_fg_color #%c%c%c%c%c%c' >> %s",
+            vsystem ("echo '@define-color theme_selected_fg_color #%c%c%c%c%c%c;' >> %s",
                 cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
         }
         else
