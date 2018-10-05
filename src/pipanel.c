@@ -107,6 +107,7 @@ static void save_lxsession_settings (void);
 static void save_pcman_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
+static void save_greeter_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
 static void set_openbox_theme (const char *theme);
@@ -122,6 +123,10 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr);
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr);
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
+static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr);
+static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr);
+static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr);
+static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_set_scrollbars (int width);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
 
@@ -148,6 +153,44 @@ static void reload_lxsession (void)
     {
         int res = system ("lxsession -r");
     }
+}
+
+static char *lxsession_file (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    if (!session_name) session_name = DEFAULT_SES;
+    return g_build_filename (g_get_user_config_dir (), "lxsession", session_name, "desktop.conf", NULL);
+}
+
+static char *openbox_file (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    if (!session_name) session_name = DEFAULT_SES;
+    char *lc_sess = g_ascii_strdown (session_name, -1);
+    char *fname = g_strconcat (lc_sess, "-rc.xml", NULL);
+    char *path = g_build_filename (g_get_user_config_dir (), "openbox", fname, NULL);
+    g_free (lc_sess);
+    g_free (fname);
+    return path;
+}
+
+static char *lxpanel_file (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    if (!session_name) session_name = DEFAULT_SES;
+    return g_build_filename (g_get_user_config_dir (), "lxpanel", session_name, "panels/panel", NULL);
+}
+
+static char *pcmanfm_file (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    if (!session_name) session_name = DEFAULT_SES;
+    return g_build_filename (g_get_user_config_dir (), "pcmanfm", session_name, "desktop-items-0.conf", NULL);
+}
+
+static char *libfm_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "libfm/libfm.conf", NULL);
 }
 
 static int vsystem (const char *fmt, ...)
@@ -363,8 +406,7 @@ static int restore_values (void)
 
 static void check_themes (void)
 {
-    const char *session_name;
-    char *user_config_file, *ret, *cptr, *nptr, *fname;
+    char *user_config_file, *ret, *cptr, *nptr;
     GKeyFile *kf;
     GError *err;
     int count;
@@ -372,10 +414,7 @@ static void check_themes (void)
     orig_lxsession_theme = "";
     orig_openbox_theme = "";
 
-    // construct the file path for lxsession settings
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+    user_config_file = lxsession_file ();
 
     // read in data from file to a key file structure
     kf = g_key_file_new ();
@@ -390,10 +429,7 @@ static void check_themes (void)
     g_key_file_free (kf);
     g_free (user_config_file);
 
-    // construct the file path for openbox settings
-    fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
-    user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
-    g_free (fname);
+    user_config_file = openbox_file ();
 
     // read in data from XML file
     xmlInitParser ();
@@ -431,16 +467,12 @@ static void check_themes (void)
 
 static void load_lxsession_settings (void)
 {
-    const char *session_name;
     char *user_config_file, *ret, *cptr, *nptr;
     GKeyFile *kf;
     GError *err;
     int val;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+    user_config_file = lxsession_file ();
 
     // read in data from file to a key file structure
     kf = g_key_file_new ();
@@ -526,16 +558,12 @@ static void load_lxsession_settings (void)
 
 static void load_pcman_settings (void)
 {
-    const char *session_name;
     char *user_config_file, *ret;
     GKeyFile *kf;
     GError *err;
     gint val;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
+    user_config_file = pcmanfm_file ();
 
     // read in data from file to a key file
     kf = g_key_file_new ();
@@ -602,7 +630,7 @@ static void load_pcman_settings (void)
     g_free (user_config_file);
 
     // read in data from file manager config file
-    user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", "/libfm.conf", NULL);
+    user_config_file = libfm_file ();
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
@@ -641,14 +669,10 @@ static void load_pcman_settings (void)
 
 static void load_lxpanel_settings (void)
 {
-    const char *session_name;
     char *user_config_file, *cmdbuf, *res;
     int val;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
+    user_config_file = lxpanel_file ();
 
     if (!vsystem ("grep -q edge=bottom %s", user_config_file)) barpos = 1;
     else barpos = 0;
@@ -759,18 +783,12 @@ static void load_libreoffice_settings (void)
 
 static void load_obconf_settings (void)
 {
-    const char *session_name;
-    char *user_config_file, *fname;
+    char *user_config_file;
     int val;
 
     handle_width = 10;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
-    user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
-    g_free (fname);
+    user_config_file = openbox_file ();
 
     // read in data from XML file
     xmlInitParser ();
@@ -809,10 +827,7 @@ static void save_lxpanel_settings (void)
     // sanity check
     if (icon_size > MAX_ICON || icon_size < MIN_ICON) return;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxpanel/", session_name, "/panels/panel", NULL);
+    user_config_file = lxpanel_file ();
 
     // use sed to write
     vsystem ("sed -i s/iconsize=.*/iconsize=%d/g %s", icon_size, user_config_file);
@@ -831,7 +846,7 @@ static void save_gtk3_settings (void)
     cstrf = gdk_color_to_string (&themetext_colour);
 
     // construct the file path
-    user_config_file = g_build_filename (g_get_home_dir (), ".config/gtk-3.0/gtk.css", NULL);
+    user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
 
     // check if the file exists - if not, create it...
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -872,17 +887,13 @@ static void save_gtk3_settings (void)
 
 static void save_lxsession_settings (void)
 {
-    const char *session_name;
     char *user_config_file, *str;
     char colbuf[256];
     GKeyFile *kf;
     gsize len;
     GError *err;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+    user_config_file = lxsession_file ();
 
     // read in data from file to a key file
     kf = g_key_file_new ();
@@ -956,16 +967,12 @@ static void save_lxsession_settings (void)
 
 static void save_pcman_settings (void)
 {
-    const char *session_name;
     char *user_config_file, *str;
     char colbuf[32];
     GKeyFile *kf;
     gsize len;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "pcmanfm/", session_name, "/desktop-items-0.conf", NULL);
+    user_config_file = pcmanfm_file ();
 
     // read in data from file to a key file
     kf = g_key_file_new ();
@@ -998,7 +1005,7 @@ static void save_pcman_settings (void)
     g_free (user_config_file);
 
     // read in data from file to a key file
-    user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", "/libfm.conf", NULL);
+    user_config_file = libfm_file ();
     kf = g_key_file_new ();
     if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
@@ -1010,7 +1017,7 @@ static void save_pcman_settings (void)
             user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", NULL);
             vsystem ("mkdir -p %s; cp /etc/xdg/libfm/libfm.conf %s", user_config_file, user_config_file);
             g_free (user_config_file);
-            user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", "/libfm.conf", NULL);
+            user_config_file = libfm_file ();
 
             if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
             {
@@ -1113,18 +1120,12 @@ static void save_greeter_settings (void)
 
 static void save_obconf_settings (void)
 {
-    const char *session_name;
-    char *user_config_file, *fname, *font,*cptr;
+    char *user_config_file, *font, *cptr;
     int count, size;
     const gchar *weight = NULL, *style = NULL;
     char buf[10];
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
-    user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
-    g_free (fname);
+    user_config_file = openbox_file ();
 
     // set the font description variables for XML from the font name
     PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
@@ -1477,16 +1478,10 @@ static void save_qt_settings (void)
 
 static void set_openbox_theme (const char *theme)
 {
-    const char *session_name;
-    char *user_config_file, *fname;
+    char *user_config_file;
     int count;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    fname = g_strconcat (g_ascii_strdown (session_name, -1), "-rc.xml", NULL);
-    user_config_file = g_build_filename (g_get_user_config_dir (), "openbox/", fname, NULL);
-    g_free (fname);
+    user_config_file = openbox_file ();
 
     // read in data from XML file
     xmlInitParser ();
@@ -1533,10 +1528,7 @@ static void set_lxsession_theme (const char *theme)
     GKeyFile *kf;
     gsize len;
 
-    // construct the file path
-    session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxsession/", session_name, "/desktop.conf", NULL);
+    user_config_file = lxsession_file ();
 
     // read in data from file to a key file
     kf = g_key_file_new ();
@@ -1996,7 +1988,6 @@ int main (int argc, char *argv[])
     // load data from config files
     check_themes ();
     load_lxsession_settings ();
-    //load_obpix_settings ();
     load_pcman_settings ();
     load_lxpanel_settings ();
     load_lxterm_settings ();
