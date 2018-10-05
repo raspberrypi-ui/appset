@@ -155,13 +155,6 @@ static void reload_lxsession (void)
     }
 }
 
-static char *lxsession_file (void)
-{
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (g_get_user_config_dir (), "lxsession", session_name, "desktop.conf", NULL);
-}
-
 static char *openbox_file (void)
 {
     const char *session_name = g_getenv ("DESKTOP_SESSION");
@@ -172,6 +165,13 @@ static char *openbox_file (void)
     g_free (lc_sess);
     g_free (fname);
     return path;
+}
+
+static char *lxsession_file (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    if (!session_name) session_name = DEFAULT_SES;
+    return g_build_filename (g_get_user_config_dir (), "lxsession", session_name, "desktop.conf", NULL);
 }
 
 static char *lxpanel_file (void)
@@ -191,6 +191,13 @@ static char *pcmanfm_file (void)
 static char *libfm_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "libfm/libfm.conf", NULL);
+}
+
+static void check_directory (char *path)
+{
+    char *dir = g_path_get_dirname (path);
+    g_mkdir_with_parents (dir, S_IRUSR | S_IWUSR | S_IXUSR);
+    g_free (dir);
 }
 
 static int vsystem (const char *fmt, ...)
@@ -894,15 +901,11 @@ static void save_lxsession_settings (void)
     GError *err;
 
     user_config_file = lxsession_file ();
+    check_directory (user_config_file);
 
     // read in data from file to a key file
     kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        g_key_file_free (kf);
-        g_free (user_config_file);
-        return;
-    }
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     // update changed values in the key file
     sprintf (colbuf, "selected_bg_color:%s\nselected_fg_color:%s\nbar_bg_color:%s\nbar_fg_color:%s\n",
@@ -973,17 +976,12 @@ static void save_pcman_settings (void)
     gsize len;
 
     user_config_file = pcmanfm_file ();
+    check_directory (user_config_file);
 
-    // read in data from file to a key file
+    // process pcmanfm config data
     kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        g_key_file_free (kf);
-        g_free (user_config_file);
-        return;
-    }
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    // update changed values in the key file
     sprintf (colbuf, "%s", gdk_color_to_string (&desktop_colour));
     g_key_file_set_string (kf, "*", "desktop_bg", colbuf);
     g_key_file_set_string (kf, "*", "desktop_shadow", colbuf);
@@ -996,7 +994,6 @@ static void save_pcman_settings (void)
     g_key_file_set_integer (kf, "*", "show_trash", show_trash);
     g_key_file_set_integer (kf, "*", "show_mounts", show_mnts);
 
-    // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
@@ -1004,39 +1001,18 @@ static void save_pcman_settings (void)
     g_key_file_free (kf);
     g_free (user_config_file);
 
-    // read in data from file to a key file
+    // process libfm config data
     user_config_file = libfm_file ();
-    kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        // failed to load the key file - there may be no default user copy, so try creating one...
-        struct stat attr;
-        if (stat (user_config_file, &attr) == -1)
-        {
-            g_free (user_config_file);
-            user_config_file = g_build_filename (g_get_user_config_dir (), "libfm/", NULL);
-            vsystem ("mkdir -p %s; cp /etc/xdg/libfm/libfm.conf %s", user_config_file, user_config_file);
-            g_free (user_config_file);
-            user_config_file = libfm_file ();
+    check_directory (user_config_file);
 
-            if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-            {
-                g_key_file_free (kf);
-                g_free (user_config_file);
-                return;
-            }
-        }
-        else
-        {
-            g_key_file_free (kf);
-            g_free (user_config_file);
-            return;
-        }
-    }
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
     g_key_file_set_integer (kf, "ui", "big_icon_size", folder_size);
     g_key_file_set_integer (kf, "ui", "thumbnail_size", thumb_size);
     g_key_file_set_integer (kf, "ui", "pane_icon_size", pane_size);
     g_key_file_set_integer (kf, "ui", "small_icon_size", sicon_size);
+
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
 
@@ -1126,6 +1102,7 @@ static void save_obconf_settings (void)
     char buf[10];
 
     user_config_file = openbox_file ();
+    check_directory (user_config_file);
 
     // set the font description variables for XML from the font name
     PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
