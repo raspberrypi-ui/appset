@@ -1162,33 +1162,17 @@ static void save_obconf_settings (void)
     {
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, "font", NULL);
+        for (count = 0; count < 2; count ++)
+        {
+            cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, "font", NULL);
 
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlSetProp (cur_node, "place", "ActiveWindow");
-        sprintf (buf, "%d", size);
-        xmlNewChild (cur_node, NULL, "name", font);
-        xmlNewChild (cur_node, NULL, "size", buf);
-        xmlNewChild (cur_node, NULL, "weight", weight);
-        xmlNewChild (cur_node, NULL, "slant", style);
-
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, "font", NULL);
-
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[1];
-        xmlSetProp (cur_node, "place", "InactiveWindow");
-        sprintf (buf, "%d", size);
-        xmlNewChild (cur_node, NULL, "name", font);
-        xmlNewChild (cur_node, NULL, "size", buf);
-        xmlNewChild (cur_node, NULL, "weight", weight);
-        xmlNewChild (cur_node, NULL, "slant", style);
+            xmlSetProp (cur_node, "place", count == 0 ? "ActiveWindow" : "InactiveWindow");
+            sprintf (buf, "%d", size);
+            xmlNewChild (cur_node, NULL, "name", font);
+            xmlNewChild (cur_node, NULL, "size", buf);
+            xmlNewChild (cur_node, NULL, "weight", weight);
+            xmlNewChild (cur_node, NULL, "slant", style);
+        }
     }
     else
     {
