@@ -492,6 +492,8 @@ static void load_lxsession_settings (void)
         gdk_color_parse (THEME_COL, &theme_colour);
         gdk_color_parse (TEXT_COL, &themetext_colour);
         desktop_font = "PibotoLt 12";
+        tb_icon_size = 24;
+        cursor_size = 24;
         return;
     }
 
