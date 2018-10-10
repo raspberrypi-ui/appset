@@ -491,7 +491,7 @@ static void load_lxsession_settings (void)
         gdk_color_parse ("#000000", &bartext_colour);
         gdk_color_parse (THEME_COL, &theme_colour);
         gdk_color_parse (TEXT_COL, &themetext_colour);
-        desktop_font = "<not set>";
+        desktop_font = "PibotoLt 12";
         return;
     }
 
@@ -499,7 +499,7 @@ static void load_lxsession_settings (void)
     err = NULL;
     ret = g_key_file_get_string (kf, "GTK", "sGtk/FontName", &err);
     if (err == NULL) desktop_font = g_strdup (ret);
-    else desktop_font = "<not set>";
+    else desktop_font = "PibotoLt 12";
     g_free (ret);
 
     err = NULL;
@@ -580,8 +580,8 @@ static void load_pcman_settings (void)
         g_free (user_config_file);
         gdk_color_parse ("#D6D3DE", &desktop_colour);
         gdk_color_parse ("#000000", &desktoptext_colour);
-        desktop_picture = "<not set>";
-        desktop_mode = "color";
+        desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
+        desktop_mode = "crop";
         return;
     }
 
@@ -609,13 +609,13 @@ static void load_pcman_settings (void)
     err = NULL;
     ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
     if (err == NULL && ret) desktop_picture = g_strdup (ret);
-    else desktop_picture = "<not set>";
+    else desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
     g_free (ret);
 
     err = NULL;
     ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
     if (err == NULL && ret) desktop_mode = g_strdup (ret);
-    else desktop_mode = "color";
+    else desktop_mode = "crop";
     g_free (ret);
 
     err = NULL;
@@ -626,7 +626,7 @@ static void load_pcman_settings (void)
     err = NULL;
     val = g_key_file_get_integer (kf, "*", "show_trash", &err);
     if (err == NULL && val >= 0 && val <= 1) show_trash = val;
-    else show_trash = 0;
+    else show_trash = 1;
 
     err = NULL;
     val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
