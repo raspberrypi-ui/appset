@@ -1553,15 +1553,18 @@ static void set_lxsession_theme (const char *theme)
 
     // read in data from file to a key file
     kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        g_key_file_free (kf);
-        g_free (user_config_file);
-        return;
-    }
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    // update changed values in the key file
+    // set up basics of theme
+    g_key_file_set_string (kf, "Session", "window_manager", "openbox");
+    g_key_file_set_string (kf, "Environment", "menu_prefix", "lxde-pi-");
     g_key_file_set_string (kf, "GTK", "sNet/ThemeName", theme);
+    g_key_file_set_string (kf, "GTK", "sNet/IconThemeName", theme);
+    g_key_file_set_string (kf, "GTK", "sGtk/CursorThemeName", theme);
+    g_key_file_set_integer (kf, "GTK", "iGtk/ButtonImages", 0);
+    g_key_file_set_integer (kf, "GTK", "iGtk/MenuImages", 0);
+    g_key_file_set_integer (kf, "GTK", "iGtk/AutoMnemonics", 1);
+    g_key_file_set_integer (kf, "GTK", "iGtk/EnableMnemonics", 1);
 
     // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
