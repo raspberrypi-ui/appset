@@ -582,6 +582,9 @@ static void load_pcman_settings (void)
         gdk_color_parse ("#000000", &desktoptext_colour);
         desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
         desktop_mode = "crop";
+        show_docs = 0;
+        show_trash = 1;
+        show_mnts = 0;
         return;
     }
 
