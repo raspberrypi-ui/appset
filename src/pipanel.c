@@ -1753,126 +1753,93 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
         gtk_widget_hide (GTK_WIDGET (cmsg));
 }
 
+static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl)
+{
+    // grep - use tr to convert file to single line then search for -
+    // start of first line of block - block
+    // followed by any whitespace and a { - \s*{
+    // followed by any number (including zero) of non { characters - [^{]*
+    // followed by the parameter string - param
+    // followed by any number (including zero) of non } characters - [^}]*
+    // followed by a } to close the block - }
+
+    // sed - use a range to restrict changes - syntax is '/range_start/,/range_end/ s/find_string/replace_string/'
+    // range_start is block start string
+    // range_end is }
+    // in add case, replace } with tab, replace string, newline and replacement }
+
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q -P '%s\\s*{[^{]*%s[^}]*}'", conffile, block, param))
+    {
+        // entry does not exist - add it
+        vsystem ("sed -i '/%s/,/}/ s/}/\t%s\\n}/' %s", block, repl, conffile);
+    }
+    else
+    {
+        // entry exists - amend it
+        vsystem ("sed -i '/%s/,/}/ s/%s/%s/' %s", block, param, repl, conffile);
+    }
+}
+
 static void on_set_scrollbars (int width)
 {
-    char *conffile;
+    char *conffile, *repl;
 
     // GTK2 override file
     conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
 
-    // check if the file exists - if not, create it...
-    if (!g_file_test (conffile, G_FILE_TEST_IS_REGULAR))
+    // check if the scrollbar button entry is in the file - if not, add it...
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q 'style \"scrollbar\".*{.*}'", conffile))
     {
-        vsystem ("echo 'style \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n' > %s", width, width, conffile);
+        vsystem ("echo '\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n' >> %s", width, width, conffile);
     }
     else
     {
-        // check if the scrollbar button entry is in the file - if not, add it...
-        if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*}'"))
-        {
-            vsystem ("echo '\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n' >> %s", width, width, conffile);
-        }
-        else
-        {
-            // block exists - check for relevant entries in it and add / amend as appropriate
-            if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*GtkRange::slider-width.*}'"))
-            {
-                // entry does not exist - add it
-                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::slider-width = %d\\n}/' ~/.gtkrc-2.0", width);
-            }
-            else
-            {
-                // entry exists - amend it with sed
-                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::slider-width =\\s*[0-9]*/GtkRange::slider-width = %d/' ~/.gtkrc-2.0", width);
-            }
+        repl = g_strdup_printf ("GtkRange::slider-width = %d", width);
+        add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::slider-width\\s*=\\s*[0-9]*", repl);
+        g_free (repl);
 
-            if (system ("cat ~/.gtkrc-2.0 | tr '\\n' '\\a' | grep -q 'style \"scrollbar\".*{.*GtkRange::stepper-size.*}'"))
-            {
-                // entry does not exist - add it
-                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/}/\tGtkRange::stepper-size = %d\\n}/' ~/.gtkrc-2.0", width);
-            }
-            else
-            {
-                // entry exists - amend it with sed
-                vsystem ("sed -i '/style \"scrollbar\"/,/}/ s/GtkRange::stepper-size =\\s*[0-9]*/GtkRange::stepper-size = %d/' ~/.gtkrc-2.0", width);
-            }
-        }
+        repl = g_strdup_printf ("GtkRange::stepper-size = %d", width);
+        add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::stepper-size\\s*=\\s*[0-9]*", repl);
+        g_free (repl);
     }
+
     g_free (conffile);
 
     // GTK3 override file
-    width -= 6; // GTK3 parameter sets the width of the slider, not the entire bar
     conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
 
-    // check if the file exists - if not, create it...
-    if (!g_file_test (conffile, G_FILE_TEST_IS_REGULAR))
+    // check if the scrollbar button entry is in the file - if not, add it...
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar\\s*button\\s*{.*}'", conffile))
     {
-        vsystem ("echo 'scrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n\nscrollbar button {\n min-width: %dpx; min-height: %dpx;\n}\n' > %s", width, width, width, width, conffile);
+        vsystem ("echo '\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width - 6, width - 6, conffile);
     }
     else
     {
-        // check if the scrollbar button entry is in the file - if not, add it...
-        if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*button\\s*{.*}'"))
-        {
-            vsystem ("echo '\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width, width, conffile);
-        }
-        else
-        {
-            // block exists - check for relevant entries in it and add / amend as appropriate
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*button\\s*{[^{]*?min-width[^}]*?}'"))
-            {
-                // entry does not exist - add it
-                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
-            }
-            else
-            {
-                // entry exists - amend it with sed
-                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
-            }
+        repl = g_strdup_printf ("min-width: %dpx;", width - 6);
+        add_or_amend (conffile, "scrollbar\\s*button", "min-width:\\s*[0-9]*px;", repl);
+        g_free (repl);
 
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*button\\s*{[^{]*?min-height[^}]*?}'"))
-            {
-               // entry does not exist - add it
-                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
-            }
-            else
-            {
-                // entry exists - amend it with sed
-                vsystem ("sed -i '/scrollbar\\s*button\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
-            }
-        }
-
-        // check if the scrollbar slider entry is in the file - if not, add it...
-        if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q 'scrollbar\\s*slider\\s*{.*}'"))
-        {
-            vsystem ("echo '\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width, width, conffile);
-        }
-        else
-        {
-            // block exists - check for relevant entries in it and add / amend as appropriate
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*slider\\s*{[^{]*?min-width[^}]*?}'"))
-            {
-                // entry does not exist - add it
-                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-width: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
-            }
-            else
-            {
-                // entry exists - amend it with sed
-                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-width:\\s*[0-9]*px/min-width: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
-            }
-
-            if (system ("cat ~/.config/gtk-3.0/gtk.css | tr '\\n' '\\a' | grep -q -P 'scrollbar\\s*slider\\s*{[^{]*?min-height[^}]*?}'"))
-            {
-                // entry does not exist - add it
-                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/}/ min-height: %dpx;\\n}/' ~/.config/gtk-3.0/gtk.css", width);
-            }
-            else
-            {
-                // entry exists - amend it with sed
-                vsystem ("sed -i '/scrollbar\\s*slider\\s*{/,/}/ s/min-height:\\s*[0-9]*px/min-height: %dpx/' ~/.config/gtk-3.0/gtk.css", width);
-            }
-        }
+        repl = g_strdup_printf ("min-height: %dpx;", width - 6);
+        add_or_amend (conffile, "scrollbar\\s*button", "min-height:\\s*[0-9]*px;", repl);
+        g_free (repl);
     }
+
+    // check if the scrollbar slider entry is in the file - if not, add it...
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar\\s*slider\\s*{.*}'", conffile))
+    {
+        vsystem ("echo '\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width - 6, width - 6, conffile);
+    }
+    else
+    {
+        repl = g_strdup_printf ("min-width: %dpx;", width - 6);
+        add_or_amend (conffile, "scrollbar\\s*slider", "min-width:\\s*[0-9]*px;", repl);
+        g_free (repl);
+
+        repl = g_strdup_printf ("min-height: %dpx;", width - 6);
+        add_or_amend (conffile, "scrollbar\\s*slider", "min-height:\\s*[0-9]*px;", repl);
+        g_free (repl);
+    }
+
     g_free (conffile);
 }
 
