@@ -1779,6 +1779,7 @@ static void add_or_amend (const char *conffile, const char *block, const char *p
         vsystem ("echo '\n%s\n{\n}' >> %s", block, conffile);
     }
 
+    // check if the block contains the entry
     if (vsystem ("cat %s | tr -d '\\n' | grep -q -P '%s\\s*{[^{]*%s[^}]*}'", conffile, block_ws, param))
     {
         // entry does not exist - add it
@@ -1794,7 +1795,7 @@ static void add_or_amend (const char *conffile, const char *block, const char *p
 
 static void on_set_scrollbars (int width)
 {
-    char *conffile, *repl;
+    char *conffile, *repl, *block;
 
     // GTK2 override file
     conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
@@ -1832,38 +1833,27 @@ static void on_set_scrollbars (int width)
     g_free (repl);
 
     // process active scrollbar button icons
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_d\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.vertical button.down", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
+    int i;
+    const char *dl[4] = { "d", "u", "r", "l" };
+    for (i = 0; i < 4; i++)
+    {
+        block = g_strdup_printf ("scrollbar.%s button.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
+        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s\");", width >= 18 ? "l" : "", dl[i]);
 
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_u\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.vertical button.up", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
+        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
+        g_free (repl);
+        g_free (block);
+    }
 
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_r\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.horizontal button.down", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
+    for (i = 0; i < 4; i++)
+    {
+        block = g_strdup_printf ("scrollbar.%s button:disabled.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
+        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s_d\");", width >= 18 ? "l" : "", dl[i]);
 
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_l\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.horizontal button.up", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
-
-    // process inactive scrollbar button icons
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_d_d\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.vertical button:disabled.down", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_u_d\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.vertical button:disabled.up", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_r_d\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.horizontal button:disabled.down", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_l_d\");", width >= 18 ? "l" : "");
-    add_or_amend (conffile, "scrollbar.horizontal button:disabled.up", "-gtk-icon-source:.*;", repl);
-    g_free (repl);
+        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
+        g_free (repl);
+        g_free (block);
+    }
 
     g_free (conffile);
 }
