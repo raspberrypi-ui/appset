@@ -409,6 +409,165 @@ static int restore_values (void)
     return ret;
 }
 
+static void backup_file (char *filepath)
+{
+    // filepath must be relative to current user's home directory
+    char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
+    char *backup = g_build_filename (g_get_home_dir (), ".pp_backup", filepath, NULL);
+    char *dir = g_path_get_dirname (backup);
+
+    if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("mkdir -p %s", dir);
+        vsystem ("cp %s %s", orig, backup);
+    }
+    g_free (dir);
+    g_free (backup);
+    g_free (orig);
+}
+
+static void backup_config_files (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    char *backupd, *path, *lc_sess, *fname;
+
+    if (!session_name) session_name = DEFAULT_SES;
+    backupd = g_build_filename (g_get_home_dir (), ".pp_backup", NULL);
+
+    // delete any old backups
+    if (g_file_test (backupd, G_FILE_TEST_IS_DIR)) vsystem ("rm -rf %s", backupd);
+
+    // create the backup directory
+    vsystem ("mkdir -p %s", backupd);
+
+    lc_sess = g_ascii_strdown (session_name, -1);
+    fname = g_strconcat (lc_sess, "-rc.xml", NULL);
+    path = g_build_filename (".config/openbox", fname, NULL);
+    backup_file (path);
+    g_free (path);
+    g_free (fname);
+    g_free (lc_sess);
+
+    path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
+    backup_file (path);
+    g_free (path);
+
+    path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
+    backup_file (path);
+    g_free (path);
+
+    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-0.conf", NULL);
+    backup_file (path);
+    g_free (path);
+
+    backup_file (".config/libfm/libfm.conf");
+    backup_file (".config/gtk-3.0/gtk.css");
+    backup_file (".config/qt5ct/qt5ct.conf");
+    backup_file (".config/lxterminal/lxterminal.conf");
+    backup_file (".config/libreoffice/4/user/registrymodifications.xcu");
+    backup_file (".gtkrc-2.0");
+}
+
+static void restore_file (char *filepath)
+{
+    // filepath must be relative to current user's home directory
+    char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
+    char *backup = g_build_filename (g_get_home_dir (), ".pp_backup", filepath, NULL);
+
+    if (g_file_test (backup, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("cp %s %s", backup, orig);
+    }
+    else if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("rm %s", orig);
+    }
+    g_free (backup);
+    g_free (orig);
+}
+
+static void restore_config_files (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    char *path, *lc_sess, *fname;
+
+    if (!session_name) session_name = DEFAULT_SES;
+
+    lc_sess = g_ascii_strdown (session_name, -1);
+    fname = g_strconcat (lc_sess, "-rc.xml", NULL);
+    path = g_build_filename (".config/openbox", fname, NULL);
+    restore_file (path);
+    g_free (path);
+    g_free (fname);
+    g_free (lc_sess);
+
+    path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
+    restore_file (path);
+    g_free (path);
+
+    path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
+    restore_file (path);
+    g_free (path);
+
+    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-0.conf", NULL);
+    restore_file (path);
+    g_free (path);
+
+    restore_file (".config/libfm/libfm.conf");
+    restore_file (".config/gtk-3.0/gtk.css");
+    restore_file (".config/qt5ct/qt5ct.conf");
+    restore_file (".config/lxterminal/lxterminal.conf");
+    restore_file (".config/libreoffice/4/user/registrymodifications.xcu");
+    restore_file (".gtkrc-2.0");
+}
+
+void delete_file (char *filepath)
+{
+    char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
+
+    if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("rm %s", orig);
+    }
+    g_free (orig);
+}
+
+static void reset_to_defaults (void)
+{
+    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    char *path, *lc_sess, *fname;
+
+    if (!session_name) session_name = DEFAULT_SES;
+
+    lc_sess = g_ascii_strdown (session_name, -1);
+    fname = g_strconcat (lc_sess, "-rc.xml", NULL);
+    path = g_build_filename (".config/openbox", fname, NULL);
+    delete_file (path);
+    g_free (path);
+    g_free (fname);
+    g_free (lc_sess);
+
+    path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
+    delete_file (path);
+    g_free (path);
+
+    path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
+    delete_file (path);
+    g_free (path);
+
+    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-0.conf", NULL);
+    delete_file (path);
+    g_free (path);
+
+    delete_file (".config/libfm/libfm.conf");
+    delete_file (".config/gtk-3.0/gtk.css");
+    delete_file (".config/qt5ct/qt5ct.conf");
+    delete_file (".config/lxterminal/lxterminal.conf");
+    delete_file (".config/libreoffice/4/user/registrymodifications.xcu");
+    delete_file (".gtkrc-2.0");
+}
+
+
 /* Functions to load required values from user config files */
 
 static void check_themes (void)
@@ -840,6 +999,14 @@ static void save_lxpanel_settings (void)
     if (icon_size > MAX_ICON || icon_size < MIN_ICON) return;
 
     user_config_file = lxpanel_file ();
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        // need a local copy to take the changes
+        check_directory (user_config_file);
+        const char *session_name = g_getenv ("DESKTOP_SESSION");
+        if (!session_name) session_name = DEFAULT_SES;
+        vsystem ("cp /usr/share/lxpanel/profile/%s/panels/panel %s", session_name, user_config_file);
+    }
 
     // use sed to write
     vsystem ("sed -i s/iconsize=.*/iconsize=%d/g %s", icon_size, user_config_file);
@@ -859,6 +1026,7 @@ static void save_gtk3_settings (void)
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
+    check_directory (user_config_file);
 
     // check if the file exists - if not, create it...
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -1565,6 +1733,7 @@ static void set_lxsession_theme (const char *theme)
     g_key_file_set_integer (kf, "GTK", "iGtk/MenuImages", 0);
     g_key_file_set_integer (kf, "GTK", "iGtk/AutoMnemonics", 1);
     g_key_file_set_integer (kf, "GTK", "iGtk/EnableMnemonics", 1);
+    g_key_file_set_string (kf, "GTK", "sGtk/FontName", "PibotoLt 12");
 
     // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
@@ -1860,6 +2029,16 @@ static void on_set_scrollbars (int width)
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
+    if (* (int *) ptr == 2)
+    {
+        reset_to_defaults ();
+        reload_lxsession ();
+        reload_lxpanel ();
+        reload_openbox ();
+        reload_pcmanfm ();
+        return;
+    }
+
     if (* (int *) ptr == 3)
     {
         desktop_font = "PibotoLt 16";
@@ -1999,7 +2178,7 @@ int main (int argc, char *argv[])
     load_lxterm_settings ();
     load_libreoffice_settings ();
     load_obconf_settings ();
-    backup_values ();
+    backup_config_files ();
 
     // GTK setup
     gtk_init (&argc, &argv);
@@ -2098,21 +2277,11 @@ int main (int argc, char *argv[])
 
     if (gtk_dialog_run (GTK_DIALOG (dlg)) == GTK_RESPONSE_CANCEL)
     {
-        if (restore_values ())
-        {
-            save_lxsession_settings ();
-            save_pcman_settings ();
-            save_obconf_settings ();
-            save_gtk3_settings ();
-            save_lxpanel_settings ();
-            save_lxterm_settings ();
-            save_libreoffice_settings ();
-            save_qt_settings ();
-            reload_lxsession ();
-            reload_lxpanel ();
-            reload_openbox ();
-            reload_pcmanfm ();
-        }
+        restore_config_files ();
+        reload_lxsession ();
+        reload_lxpanel ();
+        reload_openbox ();
+        reload_pcmanfm ();
     }
     else save_greeter_settings ();
     gtk_widget_destroy (dlg);
