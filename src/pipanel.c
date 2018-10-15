@@ -1768,16 +1768,28 @@ static void add_or_amend (const char *conffile, const char *block, const char *p
     // range_end is }
     // in add case, replace } with tab, replace string, newline and replacement }
 
-    if (vsystem ("cat %s | tr -d '\\n' | grep -q -P '%s\\s*{[^{]*%s[^}]*}'", conffile, block, param))
+    // process block string to add grep whitespace characters
+    gchar **tokens = g_strsplit (block, " ", 0);
+    gchar *block_ws = g_strjoinv ("\\s*", tokens);
+    g_strfreev (tokens);
+
+    // check the block exists - add an empty block if not
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q '%s\\s*{.*}'", conffile, block_ws))
+    {
+        vsystem ("echo '\n%s\n{\n}' >> %s", block, conffile);
+    }
+
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q -P '%s\\s*{[^{]*%s[^}]*}'", conffile, block_ws, param))
     {
         // entry does not exist - add it
-        vsystem ("sed -i '/%s/,/}/ s/}/\t%s\\n}/' %s", block, repl, conffile);
+        vsystem ("sed -i '/%s/,/}/ s/}/\t%s\\n}/' %s", block_ws, repl, conffile);
     }
     else
     {
         // entry exists - amend it
-        vsystem ("sed -i '/%s/,/}/ s/%s/%s/' %s", block, param, repl, conffile);
+        vsystem ("sed -i '/%s/,/}/ s/%s/%s/' %s", block_ws, param, repl, conffile);
     }
+    g_free (block_ws);
 }
 
 static void on_set_scrollbars (int width)
@@ -1788,17 +1800,13 @@ static void on_set_scrollbars (int width)
     conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
 
     // check if the scrollbar button entry is in the file - if not, add it...
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'style \"scrollbar\"\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("GtkRange::slider-width = %d", width);
-        add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::slider-width\\s*=\\s*[0-9]*", repl);
-        g_free (repl);
+    repl = g_strdup_printf ("GtkRange::slider-width = %d", width);
+    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::slider-width\\s*=\\s*[0-9]*", repl);
+    g_free (repl);
 
-        repl = g_strdup_printf ("GtkRange::stepper-size = %d", width);
-        add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::stepper-size\\s*=\\s*[0-9]*", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nstyle \"scrollbar\"\n{\n\tGtkRange::slider-width = %d\n\tGtkRange::stepper-size = %d\n}\n' >> %s", width, width, conffile);
+    repl = g_strdup_printf ("GtkRange::stepper-size = %d", width);
+    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::stepper-size\\s*=\\s*[0-9]*", repl);
+    g_free (repl);
 
     g_free (conffile);
 
@@ -1806,96 +1814,56 @@ static void on_set_scrollbars (int width)
     conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
 
     // check if the scrollbar button entry is in the file - if not, add it...
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar\\s*button\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("min-width: %dpx;", width - 6);
-        add_or_amend (conffile, "scrollbar\\s*button", "min-width:\\s*[0-9]*px;", repl);
-        g_free (repl);
+    repl = g_strdup_printf ("min-width: %dpx;", width - 6);
+    add_or_amend (conffile, "scrollbar button", "min-width:\\s*[0-9]*px;", repl);
+    g_free (repl);
 
-        repl = g_strdup_printf ("min-height: %dpx;", width - 6);
-        add_or_amend (conffile, "scrollbar\\s*button", "min-height:\\s*[0-9]*px;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar button {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width - 6, width - 6, conffile);
+    repl = g_strdup_printf ("min-height: %dpx;", width - 6);
+    add_or_amend (conffile, "scrollbar button", "min-height:\\s*[0-9]*px;", repl);
+    g_free (repl);
 
     // check if the scrollbar slider entry is in the file - if not, add it...
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar\\s*slider\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("min-width: %dpx;", width - 6);
-        add_or_amend (conffile, "scrollbar\\s*slider", "min-width:\\s*[0-9]*px;", repl);
-        g_free (repl);
+    repl = g_strdup_printf ("min-width: %dpx;", width - 6);
+    add_or_amend (conffile, "scrollbar slider", "min-width:\\s*[0-9]*px;", repl);
+    g_free (repl);
 
-        repl = g_strdup_printf ("min-height: %dpx;", width - 6);
-        add_or_amend (conffile, "scrollbar\\s*slider", "min-height:\\s*[0-9]*px;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar slider {\n min-width: %dpx;\n min-height: %dpx;\n}\n' >> %s", width - 6, width - 6, conffile);
+    repl = g_strdup_printf ("min-height: %dpx;", width - 6);
+    add_or_amend (conffile, "scrollbar slider", "min-height:\\s*[0-9]*px;", repl);
+    g_free (repl);
 
     // process active scrollbar button icons
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.vertical\\s*button.down\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_d\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.vertical\\s*button.down", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.vertical button.down {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_d\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_d\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.vertical button.down", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.vertical\\s*button.up\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_u\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.vertical\\s*button.up", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.vertical button.up {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_u\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_u\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.vertical button.up", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.horizontal\\s*button.down\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_r\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.horizontal\\s*button.down", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.horizontal button.down {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_r\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_r\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.horizontal button.down", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.horizontal\\s*button.up\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_l\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.horizontal\\s*button.up", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.horizontal button.up {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_l\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_l\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.horizontal button.up", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
     // process inactive scrollbar button icons
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.vertical\\s*button:disabled.down\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_d_d\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.vertical\\s*button:disabled.down", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.vertical button:disabled.down {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_d_d\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_d_d\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.vertical button:disabled.down", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.vertical\\s*button:disabled.up\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_u_d\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.vertical\\s*button:disabled.up", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.vertical button:disabled.up {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_u_d\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_u_d\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.vertical button:disabled.up", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.horizontal\\s*button:disabled.down\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_r_d\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.horizontal\\s*button:disabled.down", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.horizontal button:disabled.down {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_r_d\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_r_d\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.horizontal button:disabled.down", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
-    if (!vsystem ("cat %s | tr -d '\\n' | grep -q 'scrollbar.horizontal\\s*button:disabled.up\\s*{.*}'", conffile))
-    {
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_l_d\");", width >= 18 ? "l" : "");
-        add_or_amend (conffile, "scrollbar.horizontal\\s*button:disabled.up", "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-    }
-    else vsystem ("echo '\n\nscrollbar.horizontal button:disabled.up {\n -gtk-icon-source: -gtk-icontheme(\"%sscroll_l_d\"); }\n' >> %s", width >= 18 ? "l" : "", conffile);
+    repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_l_d\");", width >= 18 ? "l" : "");
+    add_or_amend (conffile, "scrollbar.horizontal button:disabled.up", "-gtk-icon-source:.*;", repl);
+    g_free (repl);
 
     g_free (conffile);
 }
