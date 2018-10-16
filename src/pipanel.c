@@ -59,27 +59,28 @@ static const char *desktop_picture, *orig_desktop_picture;
 static const char *desktop_mode, *orig_desktop_mode;
 static const char *orig_lxsession_theme;
 static const char *orig_openbox_theme;
-static const char *terminal_font, *orig_terminal_font;
-static int icon_size, orig_icon_size;
-static GdkColor theme_colour, orig_theme_colour;
-static GdkColor themetext_colour, orig_themetext_colour;
+static const char *terminal_font;
+static int icon_size;
+static GdkColor theme_colour;
+static GdkColor themetext_colour;
 static GdkColor desktop_colour, orig_desktop_colour;
 static GdkColor desktoptext_colour, orig_desktoptext_colour;
-static GdkColor bar_colour, orig_bar_colour;
-static GdkColor bartext_colour, orig_bartext_colour;
-static int barpos, orig_barpos;
-static int show_docs, orig_show_docs;
-static int show_trash, orig_show_trash;
-static int show_mnts, orig_show_mnts;
-static int folder_size, orig_folder_size;
-static int thumb_size, orig_thumb_size;
-static int pane_size, orig_pane_size;
-static int sicon_size, orig_sicon_size;
-static int tb_icon_size, orig_tb_icon_size;
-static int lo_icon_size, orig_lo_icon_size;
+static GdkColor bar_colour;
+static GdkColor bartext_colour;
+static int barpos;
+static int show_docs;
+static int show_trash;
+static int show_mnts;
+static int folder_size;
+static int thumb_size;
+static int pane_size;
+static int sicon_size;
+static int tb_icon_size;
+static int lo_icon_size;
 static int cursor_size, orig_cursor_size;
-static int task_width, orig_task_width;
-static int handle_width, orig_handle_width;
+static int task_width;
+static int handle_width;
+static int scrollbar_width;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
@@ -92,8 +93,6 @@ static char lo_ver;
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
 
-static void backup_values (void);
-static int restore_values (void);
 static void check_themes (void);
 static void load_lxsession_settings (void);
 static void load_pcman_settings (void);
@@ -110,6 +109,7 @@ static void save_lxterm_settings (void);
 static void save_greeter_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
+static void save_scrollbar_settings (void);
 static void set_openbox_theme (const char *theme);
 static void set_lxsession_theme (const char *theme);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
@@ -127,7 +127,6 @@ static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr);
 static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr);
-static void on_set_scrollbars (int width);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
 
 /* Shell commands to reload data */
@@ -243,170 +242,6 @@ static int read_version (char *package, int *maj, int *min, int *sub)
     g_free (cmd);
     g_free (res);
     return val;
-}
-
-static void backup_values (void)
-{
-    orig_desktop_font = desktop_font;
-    orig_desktop_picture = desktop_picture;
-    orig_desktop_mode = desktop_mode;
-    orig_icon_size = icon_size;
-    orig_theme_colour = theme_colour;
-    orig_themetext_colour = themetext_colour;
-    orig_desktop_colour = desktop_colour;
-    orig_desktoptext_colour = desktoptext_colour;
-    orig_bar_colour = bar_colour;
-    orig_bartext_colour = bartext_colour;
-    orig_barpos = barpos;
-    orig_show_docs = show_docs;
-    orig_show_trash = show_trash;
-    orig_show_mnts = show_mnts;
-    orig_folder_size = folder_size;
-    orig_thumb_size = thumb_size;
-    orig_pane_size = pane_size;
-    orig_sicon_size = sicon_size;
-    orig_tb_icon_size = tb_icon_size;
-    orig_terminal_font = terminal_font;
-    orig_lo_icon_size = lo_icon_size;
-    orig_cursor_size = cursor_size;
-    orig_task_width = task_width;
-    orig_handle_width = handle_width;
-}
-
-static int restore_values (void)
-{
-    int ret = 0;
-    if (desktop_font != orig_desktop_font)
-    {
-        desktop_font = orig_desktop_font;
-        ret = 1;
-    }
-    if (desktop_picture != orig_desktop_picture)
-    {
-        desktop_picture = orig_desktop_picture;
-        ret = 1;
-    }
-    if (desktop_mode != orig_desktop_mode)
-    {
-        desktop_mode = orig_desktop_mode;
-        ret = 1;
-    }
-    if (icon_size != orig_icon_size)
-    {
-        icon_size = orig_icon_size;
-        ret = 1;
-    }
-    if (!gdk_color_equal (&theme_colour, &orig_theme_colour))
-    {
-        theme_colour = orig_theme_colour;
-        ret = 1;
-    }
-    if (!gdk_color_equal (&themetext_colour, &orig_themetext_colour))
-    {
-        themetext_colour = orig_themetext_colour;
-        ret = 1;
-    }
-    if (!gdk_color_equal (&desktop_colour, &orig_desktop_colour))
-    {
-        desktop_colour = orig_desktop_colour;
-        ret = 1;
-    }
-    if (!gdk_color_equal (&desktoptext_colour, &orig_desktoptext_colour))
-    {
-        desktoptext_colour = orig_desktoptext_colour;
-        ret = 1;
-    }
-    if (!gdk_color_equal (&bar_colour, &orig_bar_colour))
-    {
-        bar_colour = orig_bar_colour;
-        ret = 1;
-    }
-    if (!gdk_color_equal (&bartext_colour, &orig_bartext_colour))
-    {
-        bartext_colour = orig_bartext_colour;
-        ret = 1;
-    }
-    if (barpos != orig_barpos)
-    {
-        barpos = orig_barpos;
-        ret = 1;
-    }
-    if (strcmp ("PiX", orig_lxsession_theme))
-    {
-        set_lxsession_theme (orig_lxsession_theme);
-        ret = 1;
-    }
-    if (strcmp ("PiX", orig_openbox_theme))
-    {
-        set_openbox_theme (orig_openbox_theme);
-        ret = 1;
-    }
-    if (show_docs != orig_show_docs)
-    {
-        show_docs = orig_show_docs;
-        ret = 1;
-    }
-    if (show_trash != orig_show_trash)
-    {
-        show_trash = orig_show_trash;
-        ret = 1;
-    }
-    if (show_mnts != orig_show_mnts)
-    {
-        show_mnts = orig_show_mnts;
-        ret = 1;
-    }
-    if (folder_size != orig_folder_size)
-    {
-        folder_size = orig_folder_size;
-        ret = 1;
-    }
-    if (thumb_size != orig_thumb_size)
-    {
-        thumb_size = orig_thumb_size;
-        ret = 1;
-    }
-    if (pane_size != orig_pane_size)
-    {
-        pane_size = orig_pane_size;
-        ret = 1;
-    }
-    if (sicon_size != orig_sicon_size)
-    {
-        sicon_size = orig_sicon_size;
-        ret = 1;
-    }
-    if (tb_icon_size != orig_tb_icon_size)
-    {
-        tb_icon_size = orig_tb_icon_size;
-        ret = 1;
-    }
-    if (terminal_font != orig_terminal_font)
-    {
-        terminal_font = orig_terminal_font;
-        ret = 1;
-    }
-    if (lo_icon_size != orig_lo_icon_size)
-    {
-        lo_icon_size = orig_lo_icon_size;
-        ret = 1;
-    }
-    if (cursor_size != orig_cursor_size)
-    {
-        cursor_size = orig_cursor_size;
-        ret = 1;
-    }
-    if (task_width != orig_task_width)
-    {
-        task_width = orig_task_width;
-        ret = 1;
-    }
-    if (handle_width != orig_handle_width)
-    {
-        handle_width = orig_handle_width;
-        ret = 1;
-    }
-    return ret;
 }
 
 static void backup_file (char *filepath)
@@ -561,10 +396,12 @@ static void reset_to_defaults (void)
 
     delete_file (".config/libfm/libfm.conf");
     delete_file (".config/gtk-3.0/gtk.css");
-    delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".config/lxterminal/lxterminal.conf");
     delete_file (".config/libreoffice/4/user/registrymodifications.xcu");
     delete_file (".gtkrc-2.0");
+
+    // copy in a clean version of the QT config file, which annoyingly has no global version...
+    vsystem ("cp /usr/share/raspi-ui-overrides/qt5ct.conf %s/.config/qt5ct/qt5ct.conf", g_get_home_dir ());
 }
 
 
@@ -1665,6 +1502,111 @@ static void save_qt_settings (void)
     g_free (user_config_file);
 }
 
+static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl)
+{
+    // grep - use tr to convert file to single line then search for -
+    // start of first line of block - block
+    // followed by any whitespace and a { - \s*{
+    // followed by any number (including zero) of non { characters - [^{]*
+    // followed by the parameter string - param
+    // followed by any number (including zero) of non } characters - [^}]*
+    // followed by a } to close the block - }
+
+    // sed - use a range to restrict changes - syntax is '/range_start/,/range_end/ s/find_string/replace_string/'
+    // range_start is block start string
+    // range_end is }
+    // in add case, replace } with tab, replace string, newline and replacement }
+
+    // process block string to add grep whitespace characters
+    gchar **tokens = g_strsplit (block, " ", 0);
+    gchar *block_ws = g_strjoinv ("\\s*", tokens);
+    g_strfreev (tokens);
+
+    // check the block exists - add an empty block if not
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q '%s\\s*{.*}'", conffile, block_ws))
+    {
+        vsystem ("echo '\n%s\n{\n}' >> %s", block, conffile);
+    }
+
+    // check if the block contains the entry
+    if (vsystem ("cat %s | tr -d '\\n' | grep -q -P '%s\\s*{[^{]*%s[^}]*}'", conffile, block_ws, param))
+    {
+        // entry does not exist - add it
+        vsystem ("sed -i '/%s/,/}/ s/}/\t%s\\n}/' %s", block_ws, repl, conffile);
+    }
+    else
+    {
+        // entry exists - amend it
+        vsystem ("sed -i '/%s/,/}/ s/%s/%s/' %s", block_ws, param, repl, conffile);
+    }
+    g_free (block_ws);
+}
+
+static void save_scrollbar_settings (void)
+{
+    char *conffile, *repl, *block;
+
+    // GTK2 override file
+    conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
+
+    // check if the scrollbar button entry is in the file - if not, add it...
+    repl = g_strdup_printf ("GtkRange::slider-width = %d", scrollbar_width);
+    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::slider-width\\s*=\\s*[0-9]*", repl);
+    g_free (repl);
+
+    repl = g_strdup_printf ("GtkRange::stepper-size = %d", scrollbar_width);
+    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::stepper-size\\s*=\\s*[0-9]*", repl);
+    g_free (repl);
+
+    g_free (conffile);
+
+    // GTK3 override file
+    conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
+
+    // check if the scrollbar button entry is in the file - if not, add it...
+    repl = g_strdup_printf ("min-width: %dpx;", scrollbar_width - 6);
+    add_or_amend (conffile, "scrollbar button", "min-width:\\s*[0-9]*px;", repl);
+    g_free (repl);
+
+    repl = g_strdup_printf ("min-height: %dpx;", scrollbar_width - 6);
+    add_or_amend (conffile, "scrollbar button", "min-height:\\s*[0-9]*px;", repl);
+    g_free (repl);
+
+    // check if the scrollbar slider entry is in the file - if not, add it...
+    repl = g_strdup_printf ("min-width: %dpx;", scrollbar_width - 6);
+    add_or_amend (conffile, "scrollbar slider", "min-width:\\s*[0-9]*px;", repl);
+    g_free (repl);
+
+    repl = g_strdup_printf ("min-height: %dpx;", scrollbar_width - 6);
+    add_or_amend (conffile, "scrollbar slider", "min-height:\\s*[0-9]*px;", repl);
+    g_free (repl);
+
+    // process active scrollbar button icons
+    int i;
+    const char *dl[4] = { "d", "u", "r", "l" };
+    for (i = 0; i < 4; i++)
+    {
+        block = g_strdup_printf ("scrollbar.%s button.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
+        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s\");", scrollbar_width >= 18 ? "l" : "", dl[i]);
+
+        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
+        g_free (repl);
+        g_free (block);
+    }
+
+    for (i = 0; i < 4; i++)
+    {
+        block = g_strdup_printf ("scrollbar.%s button:disabled.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
+        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s_d\");", scrollbar_width >= 18 ? "l" : "", dl[i]);
+
+        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
+        g_free (repl);
+        g_free (block);
+    }
+
+    g_free (conffile);
+}
+
 static void set_openbox_theme (const char *theme)
 {
     char *user_config_file;
@@ -1922,123 +1864,12 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
         gtk_widget_hide (GTK_WIDGET (cmsg));
 }
 
-static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl)
-{
-    // grep - use tr to convert file to single line then search for -
-    // start of first line of block - block
-    // followed by any whitespace and a { - \s*{
-    // followed by any number (including zero) of non { characters - [^{]*
-    // followed by the parameter string - param
-    // followed by any number (including zero) of non } characters - [^}]*
-    // followed by a } to close the block - }
-
-    // sed - use a range to restrict changes - syntax is '/range_start/,/range_end/ s/find_string/replace_string/'
-    // range_start is block start string
-    // range_end is }
-    // in add case, replace } with tab, replace string, newline and replacement }
-
-    // process block string to add grep whitespace characters
-    gchar **tokens = g_strsplit (block, " ", 0);
-    gchar *block_ws = g_strjoinv ("\\s*", tokens);
-    g_strfreev (tokens);
-
-    // check the block exists - add an empty block if not
-    if (vsystem ("cat %s | tr -d '\\n' | grep -q '%s\\s*{.*}'", conffile, block_ws))
-    {
-        vsystem ("echo '\n%s\n{\n}' >> %s", block, conffile);
-    }
-
-    // check if the block contains the entry
-    if (vsystem ("cat %s | tr -d '\\n' | grep -q -P '%s\\s*{[^{]*%s[^}]*}'", conffile, block_ws, param))
-    {
-        // entry does not exist - add it
-        vsystem ("sed -i '/%s/,/}/ s/}/\t%s\\n}/' %s", block_ws, repl, conffile);
-    }
-    else
-    {
-        // entry exists - amend it
-        vsystem ("sed -i '/%s/,/}/ s/%s/%s/' %s", block_ws, param, repl, conffile);
-    }
-    g_free (block_ws);
-}
-
-static void on_set_scrollbars (int width)
-{
-    char *conffile, *repl, *block;
-
-    // GTK2 override file
-    conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
-
-    // check if the scrollbar button entry is in the file - if not, add it...
-    repl = g_strdup_printf ("GtkRange::slider-width = %d", width);
-    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::slider-width\\s*=\\s*[0-9]*", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("GtkRange::stepper-size = %d", width);
-    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::stepper-size\\s*=\\s*[0-9]*", repl);
-    g_free (repl);
-
-    g_free (conffile);
-
-    // GTK3 override file
-    conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
-
-    // check if the scrollbar button entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", width - 6);
-    add_or_amend (conffile, "scrollbar button", "min-width:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("min-height: %dpx;", width - 6);
-    add_or_amend (conffile, "scrollbar button", "min-height:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    // check if the scrollbar slider entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", width - 6);
-    add_or_amend (conffile, "scrollbar slider", "min-width:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("min-height: %dpx;", width - 6);
-    add_or_amend (conffile, "scrollbar slider", "min-height:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    // process active scrollbar button icons
-    int i;
-    const char *dl[4] = { "d", "u", "r", "l" };
-    for (i = 0; i < 4; i++)
-    {
-        block = g_strdup_printf ("scrollbar.%s button.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s\");", width >= 18 ? "l" : "", dl[i]);
-
-        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-        g_free (block);
-    }
-
-    for (i = 0; i < 4; i++)
-    {
-        block = g_strdup_printf ("scrollbar.%s button:disabled.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s_d\");", width >= 18 ? "l" : "", dl[i]);
-
-        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-        g_free (block);
-    }
-
-    g_free (conffile);
-}
-
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
-    if (* (int *) ptr == 2)
-    {
-        reset_to_defaults ();
-        reload_lxsession ();
-        reload_lxpanel ();
-        reload_openbox ();
-        reload_pcmanfm ();
-        return;
-    }
+    // clear all the config files
+    reset_to_defaults ();
 
+    // reset all the variables for current values
     if (* (int *) ptr == 3)
     {
         desktop_font = "PibotoLt 16";
@@ -2054,9 +1885,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         cursor_size = 36;
         task_width = 300;
         handle_width = 20;
+        scrollbar_width = 18;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
-        on_set_scrollbars (18);
     }
     else if (* (int *) ptr == 2)
     {
@@ -2072,9 +1903,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         cursor_size = 24;
         task_width = 200;
         handle_width = 10;
+        scrollbar_width = 13;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
-        on_set_scrollbars (13);
     }
     else if (* (int *) ptr == 1)
     {
@@ -2090,10 +1921,12 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         cursor_size = 24;
         task_width = 150;
         handle_width = 10;
+        scrollbar_width = 13;
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
-        on_set_scrollbars (13);
     }
+
+    // reset the GUI controls to match the variables
     if (cursor_size != orig_cursor_size)
         gtk_widget_show (GTK_WIDGET (cmsg));
     else
@@ -2123,16 +1956,24 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), show_trash);
     show_mnts = 0;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), show_mnts);
-    set_openbox_theme ("PiX");
-    set_lxsession_theme ("PiX");
-    save_lxsession_settings ();
-    save_pcman_settings ();
-    save_obconf_settings ();
-    save_gtk3_settings ();
-    save_lxpanel_settings ();
-    save_lxterm_settings ();
-    save_libreoffice_settings ();
-    save_qt_settings ();
+
+    // save changes to files if not using medium (the global default)
+    if (* (int *) ptr != 2)
+    {
+        set_openbox_theme ("PiX");
+        set_lxsession_theme ("PiX");
+        save_lxsession_settings ();
+        save_pcman_settings ();
+        save_obconf_settings ();
+        save_gtk3_settings ();
+        save_lxpanel_settings ();
+        save_lxterm_settings ();
+        save_libreoffice_settings ();
+        save_qt_settings ();
+        save_scrollbar_settings ();
+    }
+
+    // reload everything to reflect the current state
     reload_lxsession ();
     reload_lxpanel ();
     reload_openbox ();
@@ -2171,7 +2012,7 @@ int main (int argc, char *argv[])
     else lo_ver = maj;
 
     // load data from config files
-    check_themes ();
+    //check_themes ();
     load_lxsession_settings ();
     load_pcman_settings ();
     load_lxpanel_settings ();
@@ -2179,6 +2020,12 @@ int main (int argc, char *argv[])
     load_libreoffice_settings ();
     load_obconf_settings ();
     backup_config_files ();
+    orig_desktop_font = desktop_font;
+    orig_desktop_picture = desktop_picture;
+    orig_desktop_mode = desktop_mode;
+    orig_desktop_colour = desktop_colour;
+    orig_desktoptext_colour = desktoptext_colour;
+    orig_cursor_size = cursor_size;
 
     // GTK setup
     gtk_init (&argc, &argv);
