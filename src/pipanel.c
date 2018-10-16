@@ -402,8 +402,6 @@ static void reset_to_defaults (void)
 
     delete_file (".config/libfm/libfm.conf");
     delete_file (".config/gtk-3.0/gtk.css");
-    delete_file (".config/lxterminal/lxterminal.conf");
-    delete_file (".config/libreoffice/4/user/registrymodifications.xcu");
     delete_file (".gtkrc-2.0");
 
     // copy in a clean version of the QT config file, which annoyingly has no global version...
@@ -993,12 +991,7 @@ static void save_lxterm_settings (void)
 
     // read in data from file to a key file
     kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        g_key_file_free (kf);
-        g_free (user_config_file);
-        return;
-    }
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     // update changed values in the key file
     g_key_file_set_string (kf, "general", "fontname", terminal_font);
@@ -1063,8 +1056,7 @@ static void save_obconf_settings (void)
     char buf[10];
 
     xmlDocPtr xDoc;
-    xmlNode *cur_node;
-    xmlNodePtr root, theme;
+    xmlNodePtr root, theme, cur_node;
     xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
 
@@ -1220,34 +1212,36 @@ static void save_libreoffice_settings (void)
     char buf[2];
     gboolean found = FALSE;
 
+    xmlDocPtr xDoc;
+    xmlNodePtr rootnode, itemnode, propnode, valnode;
+    xmlXPathObjectPtr xpathObj;
+    xmlXPathContextPtr xpathCtx;
+
     sprintf (buf, "%d", lo_icon_size);
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
+    check_directory (user_config_file);
 
     // read in data from XML file
     xmlInitParser ();
     LIBXML_TEST_VERSION
-    xmlDocPtr xDoc = xmlParseFile (user_config_file);
-    if (xDoc == NULL)
+    xDoc = xmlParseFile (user_config_file);
+    if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    xpathCtx = xmlXPathNewContext (xDoc);
+
+    // check that the oor:items node exists in the document - create it if not
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[name()='oor:items']", xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
-        // check and create directory tree
-        struct stat attr;
-        gchar *user_config_dir = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/", NULL);
-        if (stat (user_config_dir, &attr) == -1) g_mkdir_with_parents (user_config_dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-        g_free (user_config_dir);
-
-        // create XML doc
-        vsystem ("echo '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<oor:items xmlns:oor=\"http://openoffice.org/2001/registry\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n<item oor:path=\"/org.openoffice.Office.Common/Misc\"><prop oor:name=\"SymbolSet\" oor:op=\"fuse\"><value>%d</value></prop></item>\n</oor:items>\n' > %s", lo_icon_size, user_config_file);
-        return;
+        rootnode = xmlNewNode (NULL, (xmlChar *) "oor:items");
+        xmlSetProp (rootnode, "xmlns:oor", "http://openoffice.org/2001/registry");
+        xmlSetProp (rootnode, "xmlns:xs", "http://www.w3.org/2001/XMLSchema");
+        xmlSetProp (rootnode, "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        xmlDocSetRootElement (xDoc, rootnode);
     }
+    else rootnode = xpathObj->nodesetval->nodeTab[0];
 
-    xmlNode *rootnode, *itemnode, *propnode, *valnode;
-    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
-    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='items']", xpathCtx);
-
-    // search nodes in XML for SymbolSet value and modify it if found
-    rootnode = xpathObj->nodesetval->nodeTab[0];
     for (itemnode = rootnode->children; itemnode; itemnode = itemnode->next)
     {
         if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, "item") && !xmlStrcmp (xmlGetProp (itemnode, "path"), "/org.openoffice.Office.Common/Misc"))
@@ -1304,12 +1298,7 @@ static void save_qt_settings (void)
 
     // read in data from file to a key file
     kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        g_key_file_free (kf);
-        g_free (user_config_file);
-        return;
-    }
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     // create the Qt font representation
     PangoFontDescription *pfd = pango_font_description_from_string (desktop_font);
@@ -1836,11 +1825,13 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_obconf_settings ();
         save_gtk3_settings ();
         save_lxpanel_settings ();
-        save_lxterm_settings ();
-        save_libreoffice_settings ();
         save_qt_settings ();
         save_scrollbar_settings ();
     }
+
+    // save application-specific config - we don't delete these files first...
+    save_lxterm_settings ();
+    save_libreoffice_settings ();
 
     // reload everything to reflect the current state
     reload_lxsession ();
