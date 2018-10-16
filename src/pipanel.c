@@ -93,7 +93,12 @@ static char lo_ver;
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
 
-static void check_themes (void);
+static void backup_file (char *filepath);
+static void backup_config_files (void);
+static void restore_file (char *filepath);
+static void restore_config_files (void);
+static void delete_file (char *filepath);
+static void reset_to_defaults (void);
 static void load_lxsession_settings (void);
 static void load_pcman_settings (void);
 static void load_lxpanel_settings (void);
@@ -109,9 +114,8 @@ static void save_lxterm_settings (void);
 static void save_greeter_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
+static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
 static void save_scrollbar_settings (void);
-static void set_openbox_theme (const char *theme);
-static void set_lxsession_theme (const char *theme);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr);
@@ -244,6 +248,8 @@ static int read_version (char *package, int *maj, int *min, int *sub)
     return val;
 }
 
+// File handling for backing up, restoring and resetting config
+
 static void backup_file (char *filepath)
 {
     // filepath must be relative to current user's home directory
@@ -356,7 +362,7 @@ static void restore_config_files (void)
     restore_file (".gtkrc-2.0");
 }
 
-void delete_file (char *filepath)
+static void delete_file (char *filepath)
 {
     char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
 
@@ -406,67 +412,6 @@ static void reset_to_defaults (void)
 
 
 /* Functions to load required values from user config files */
-
-static void check_themes (void)
-{
-    char *user_config_file, *ret, *cptr, *nptr;
-    GKeyFile *kf;
-    GError *err;
-    int count;
-
-    orig_lxsession_theme = "";
-    orig_openbox_theme = "";
-
-    user_config_file = lxsession_file ();
-
-    // read in data from file to a key file structure
-    kf = g_key_file_new ();
-    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        // get data from the key file
-        err = NULL;
-        ret = g_key_file_get_string (kf, "GTK", "sNet/ThemeName", &err);
-        if (err == NULL) orig_lxsession_theme = g_strdup (ret);
-        g_free (ret);
-    }
-    g_key_file_free (kf);
-    g_free (user_config_file);
-
-    user_config_file = openbox_file ();
-
-    // read in data from XML file
-    xmlInitParser ();
-    LIBXML_TEST_VERSION
-    xmlDocPtr xDoc = xmlParseFile (user_config_file);
-    if (xDoc)
-    {
-        xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
-        xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']", xpathCtx);
-        xmlNode *node = xpathObj->nodesetval->nodeTab[0];
-        if (node) orig_openbox_theme = xmlNodeGetContent (node);
-
-        // cleanup XML
-        xmlXPathFreeObject (xpathObj);
-        xmlXPathFreeContext (xpathCtx);
-        xmlSaveFile (user_config_file, xDoc);
-        xmlFreeDoc (xDoc);
-        xmlCleanupParser ();
-    }
-
-    g_free (user_config_file);
-
-    // set the new themes if needed
-    if (strcmp ("PiX", orig_lxsession_theme))
-    {
-        set_lxsession_theme ("PiX");
-        reload_lxsession ();
-    }
-    if (strcmp ("PiX", orig_openbox_theme))
-    {
-        set_openbox_theme ("PiX");
-        reload_openbox ();
-    }
-}
 
 static void load_lxsession_settings (void)
 {
@@ -568,14 +513,61 @@ static void load_pcman_settings (void)
     GError *err;
     gint val;
 
-    user_config_file = pcmanfm_file ();
-
     // read in data from file to a key file
+    user_config_file = pcmanfm_file ();
     kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
-        g_key_file_free (kf);
-        g_free (user_config_file);
+        // get data from the key file
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "desktop_bg", &err);
+        if (err == NULL)
+        {
+            if (!gdk_color_parse (ret, &desktop_colour))
+                gdk_color_parse ("#D6D3DE", &desktop_colour);
+        }
+        else gdk_color_parse ("#D6D3DE", &desktop_colour);
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
+        if (err == NULL)
+        {
+            if (!gdk_color_parse (ret, &desktoptext_colour))
+                gdk_color_parse ("#000000", &desktoptext_colour);
+        }
+        else gdk_color_parse ("#000000", &desktoptext_colour);
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
+        if (err == NULL && ret) desktop_picture = g_strdup (ret);
+        else desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
+        if (err == NULL && ret) desktop_mode = g_strdup (ret);
+        else desktop_mode = "crop";
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "show_documents", &err);
+        if (err == NULL && val >= 0 && val <= 1) show_docs = val;
+        else show_docs = 0;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "show_trash", &err);
+        if (err == NULL && val >= 0 && val <= 1) show_trash = val;
+        else show_trash = 1;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
+        if (err == NULL && val >= 0 && val <= 1) show_mnts = val;
+        else show_mnts = 0;
+    }
+    else
+    {
         gdk_color_parse ("#D6D3DE", &desktop_colour);
         gdk_color_parse ("#000000", &desktoptext_colour);
         desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
@@ -583,94 +575,42 @@ static void load_pcman_settings (void)
         show_docs = 0;
         show_trash = 1;
         show_mnts = 0;
-        return;
     }
-
-    // get data from the key file
-    err = NULL;
-    ret = g_key_file_get_string (kf, "*", "desktop_bg", &err);
-    if (err == NULL)
-    {
-        if (!gdk_color_parse (ret, &desktop_colour))
-            gdk_color_parse ("#D6D3DE", &desktop_colour);
-    }
-    else gdk_color_parse ("#D6D3DE", &desktop_colour);
-    g_free (ret);
-
-    err = NULL;
-    ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
-    if (err == NULL)
-    {
-        if (!gdk_color_parse (ret, &desktoptext_colour))
-            gdk_color_parse ("#000000", &desktoptext_colour);
-    }
-    else gdk_color_parse ("#000000", &desktoptext_colour);
-    g_free (ret);
-
-    err = NULL;
-    ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
-    if (err == NULL && ret) desktop_picture = g_strdup (ret);
-    else desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
-    g_free (ret);
-
-    err = NULL;
-    ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
-    if (err == NULL && ret) desktop_mode = g_strdup (ret);
-    else desktop_mode = "crop";
-    g_free (ret);
-
-    err = NULL;
-    val = g_key_file_get_integer (kf, "*", "show_documents", &err);
-    if (err == NULL && val >= 0 && val <= 1) show_docs = val;
-    else show_docs = 0;
-
-    err = NULL;
-    val = g_key_file_get_integer (kf, "*", "show_trash", &err);
-    if (err == NULL && val >= 0 && val <= 1) show_trash = val;
-    else show_trash = 1;
-
-    err = NULL;
-    val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
-    if (err == NULL && val >= 0 && val <= 1) show_mnts = val;
-    else show_mnts = 0;
-
     g_key_file_free (kf);
     g_free (user_config_file);
 
     // read in data from file manager config file
     user_config_file = libfm_file ();
     kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
-        g_key_file_free (kf);
-        g_free (user_config_file);
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
+        if (err == NULL && val >= 8 && val <= 256) folder_size = val;
+        else folder_size = 48;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "thumbnail_size", &err);
+        if (err == NULL && val >= 8 && val <= 256) thumb_size = val;
+        else thumb_size = 128;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "pane_icon_size", &err);
+        if (err == NULL && val >= 8 && val <= 256) pane_size = val;
+        else pane_size = 24;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "small_icon_size", &err);
+        if (err == NULL && val >= 8 && val <= 256) sicon_size = val;
+        else sicon_size = 24;
+    }
+    else
+    {
         folder_size = 48;
         thumb_size = 128;
         pane_size = 24;
         sicon_size = 24;
-        return;
     }
-
-    err = NULL;
-    val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
-    if (err == NULL && val >= 8 && val <= 256) folder_size = val;
-    else folder_size = 48;
-
-    err = NULL;
-    val = g_key_file_get_integer (kf, "ui", "thumbnail_size", &err);
-    if (err == NULL && val >= 8 && val <= 256) thumb_size = val;
-    else thumb_size = 128;
-
-    err = NULL;
-    val = g_key_file_get_integer (kf, "ui", "pane_icon_size", &err);
-    if (err == NULL && val >= 8 && val <= 256) pane_size = val;
-    else pane_size = 24;
-
-    err = NULL;
-    val = g_key_file_get_integer (kf, "ui", "small_icon_size", &err);
-    if (err == NULL && val >= 8 && val <= 256) sicon_size = val;
-    else sicon_size = 24;
-
     g_key_file_free (kf);
     g_free (user_config_file);
 }
@@ -968,6 +908,17 @@ static void save_lxsession_settings (void)
     g_free (str);
 
     g_key_file_set_integer (kf, "GTK", "iGtk/CursorThemeSize", cursor_size);
+
+    // set the lxsession defaults - needed if this is a new file
+    g_key_file_set_string (kf, "Session", "window_manager", "openbox");
+    g_key_file_set_string (kf, "Environment", "menu_prefix", "lxde-pi-");
+    g_key_file_set_string (kf, "GTK", "sNet/ThemeName", "PiX");
+    g_key_file_set_string (kf, "GTK", "sNet/IconThemeName", "PiX");
+    g_key_file_set_string (kf, "GTK", "sGtk/CursorThemeName", "PiX");
+    g_key_file_set_integer (kf, "GTK", "iGtk/ButtonImages", 0);
+    g_key_file_set_integer (kf, "GTK", "iGtk/MenuImages", 0);
+    g_key_file_set_integer (kf, "GTK", "iGtk/AutoMnemonics", 1);
+    g_key_file_set_integer (kf, "GTK", "iGtk/EnableMnemonics", 1);
 
     // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
@@ -1607,86 +1558,6 @@ static void save_scrollbar_settings (void)
     g_free (conffile);
 }
 
-static void set_openbox_theme (const char *theme)
-{
-    char *user_config_file;
-    int count;
-
-    user_config_file = openbox_file ();
-
-    // read in data from XML file
-    xmlInitParser ();
-    LIBXML_TEST_VERSION
-    xmlDocPtr xDoc = xmlParseFile (user_config_file);
-    if (xDoc == NULL)
-    {
-        g_free (user_config_file);
-        return;
-    }
-
-    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
-    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
-
-    // update relevant nodes with new values
-    for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
-    {
-        xmlNode *node = xpathObj->nodesetval->nodeTab[count];
-        xmlAttr *attr = node->properties;
-        xmlNode *cur_node = NULL;
-        for (cur_node = node->children; cur_node; cur_node = cur_node->next)
-        {
-            if (cur_node->type == XML_ELEMENT_NODE)
-            {
-                if (!strcmp (cur_node->name, "name")) xmlNodeSetContent (cur_node, theme);
-            }
-        }
-    }
-
-    // cleanup XML
-    xmlXPathFreeObject (xpathObj);
-    xmlXPathFreeContext (xpathCtx);
-    xmlSaveFile (user_config_file, xDoc);
-    xmlFreeDoc (xDoc);
-    xmlCleanupParser ();
-
-    g_free (user_config_file);
-}
-
-static void set_lxsession_theme (const char *theme)
-{
-    const char *session_name;
-    char *user_config_file, *str;
-    GKeyFile *kf;
-    gsize len;
-
-    user_config_file = lxsession_file ();
-
-    // read in data from file to a key file
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-
-    // set up basics of theme
-    g_key_file_set_string (kf, "Session", "window_manager", "openbox");
-    g_key_file_set_string (kf, "Environment", "menu_prefix", "lxde-pi-");
-    g_key_file_set_string (kf, "GTK", "sNet/ThemeName", theme);
-    g_key_file_set_string (kf, "GTK", "sNet/IconThemeName", theme);
-    g_key_file_set_string (kf, "GTK", "sGtk/CursorThemeName", theme);
-    g_key_file_set_integer (kf, "GTK", "iGtk/ButtonImages", 0);
-    g_key_file_set_integer (kf, "GTK", "iGtk/MenuImages", 0);
-    g_key_file_set_integer (kf, "GTK", "iGtk/AutoMnemonics", 1);
-    g_key_file_set_integer (kf, "GTK", "iGtk/EnableMnemonics", 1);
-    g_key_file_set_string (kf, "GTK", "sGtk/FontName", "PibotoLt 12");
-
-    // write the modified key file out
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-
-    g_free (str);
-    g_key_file_free (kf);
-    g_free (user_config_file);
-}
-
-
 /* Dialog box "changed" signal handlers */
 
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
@@ -1960,8 +1831,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     // save changes to files if not using medium (the global default)
     if (* (int *) ptr != 2)
     {
-        set_openbox_theme ("PiX");
-        set_lxsession_theme ("PiX");
         save_lxsession_settings ();
         save_pcman_settings ();
         save_obconf_settings ();
@@ -2012,7 +1881,6 @@ int main (int argc, char *argv[])
     else lo_ver = maj;
 
     // load data from config files
-    //check_themes ();
     load_lxsession_settings ();
     load_pcman_settings ();
     load_lxpanel_settings ();
