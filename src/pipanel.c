@@ -907,17 +907,6 @@ static void save_lxsession_settings (void)
 
     g_key_file_set_integer (kf, "GTK", "iGtk/CursorThemeSize", cursor_size);
 
-    // set the lxsession defaults - needed if this is a new file
-    g_key_file_set_string (kf, "Session", "window_manager", "openbox");
-    g_key_file_set_string (kf, "Environment", "menu_prefix", "lxde-pi-");
-    g_key_file_set_string (kf, "GTK", "sNet/ThemeName", "PiX");
-    g_key_file_set_string (kf, "GTK", "sNet/IconThemeName", "PiX");
-    g_key_file_set_string (kf, "GTK", "sGtk/CursorThemeName", "PiX");
-    g_key_file_set_integer (kf, "GTK", "iGtk/ButtonImages", 0);
-    g_key_file_set_integer (kf, "GTK", "iGtk/MenuImages", 0);
-    g_key_file_set_integer (kf, "GTK", "iGtk/AutoMnemonics", 1);
-    g_key_file_set_integer (kf, "GTK", "iGtk/EnableMnemonics", 1);
-
     // write the modified key file out
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
