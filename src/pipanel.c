@@ -304,9 +304,11 @@ static void backup_config_files (void)
     backup_file (".config/libfm/libfm.conf");
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
+    backup_file (".gtkrc-2.0");
+
+    // app-specific
     backup_file (".config/lxterminal/lxterminal.conf");
     backup_file (".config/libreoffice/4/user/registrymodifications.xcu");
-    backup_file (".gtkrc-2.0");
 }
 
 static void restore_file (char *filepath)
@@ -357,9 +359,11 @@ static void restore_config_files (void)
     restore_file (".config/libfm/libfm.conf");
     restore_file (".config/gtk-3.0/gtk.css");
     restore_file (".config/qt5ct/qt5ct.conf");
+    restore_file (".gtkrc-2.0");
+
+    // app-specific
     restore_file (".config/lxterminal/lxterminal.conf");
     restore_file (".config/libreoffice/4/user/registrymodifications.xcu");
-    restore_file (".gtkrc-2.0");
 }
 
 static void delete_file (char *filepath)
@@ -402,10 +406,8 @@ static void reset_to_defaults (void)
 
     delete_file (".config/libfm/libfm.conf");
     delete_file (".config/gtk-3.0/gtk.css");
+    delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".gtkrc-2.0");
-
-    // copy in a clean version of the QT config file, which annoyingly has no global version...
-    vsystem ("cp /usr/share/raspi-ui-overrides/qt5ct.conf %s/.config/qt5ct/qt5ct.conf", g_get_home_dir ());
 }
 
 
