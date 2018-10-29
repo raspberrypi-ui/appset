@@ -782,7 +782,7 @@ static void save_lxpanel_settings (void)
         check_directory (user_config_file);
         const char *session_name = g_getenv ("DESKTOP_SESSION");
         if (!session_name) session_name = DEFAULT_SES;
-        vsystem ("cp /usr/share/lxpanel/profile/%s/panels/panel %s", session_name, user_config_file);
+        vsystem ("cp /etc/xdg/lxpanel/%s/panels/panel %s", session_name, user_config_file);
     }
 
     // use sed to write
