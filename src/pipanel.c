@@ -979,6 +979,7 @@ static void save_lxterm_settings (void)
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "lxterminal/lxterminal.conf", NULL);
+    check_directory (user_config_file);
 
     // read in data from file to a key file
     kf = g_key_file_new ();
@@ -1286,6 +1287,7 @@ static void save_qt_settings (void)
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "qt5ct/qt5ct.conf", NULL);
+    check_directory (user_config_file);
 
     // read in data from file to a key file
     kf = g_key_file_new ();
@@ -1493,6 +1495,7 @@ static void save_scrollbar_settings (void)
 
     // GTK3 override file
     conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
+    check_directory (user_config_file);
 
     // check if the scrollbar button entry is in the file - if not, add it...
     repl = g_strdup_printf ("min-width: %dpx;", scrollbar_width - 6);
