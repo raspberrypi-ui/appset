@@ -90,13 +90,17 @@ static gboolean needs_refresh;
 
 static char lo_ver;
 
+/* Handler IDs for cursor and icon sizes so they can be blocked when needed */
+
+static gulong cid, iid;
+
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
 
 static void backup_file (char *filepath);
 static void backup_config_files (void);
-static void restore_file (char *filepath);
-static void restore_config_files (void);
+static int restore_file (char *filepath);
+static int restore_config_files (void);
 static void delete_file (char *filepath);
 static void reset_to_defaults (void);
 static void load_lxsession_settings (void);
@@ -255,14 +259,12 @@ static void backup_file (char *filepath)
     // filepath must be relative to current user's home directory
     char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
     char *backup = g_build_filename (g_get_home_dir (), ".pp_backup", filepath, NULL);
-    char *dir = g_path_get_dirname (backup);
 
     if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
     {
-        vsystem ("mkdir -p %s", dir);
+        check_directory (backup);
         vsystem ("cp %s %s", orig, backup);
     }
-    g_free (dir);
     g_free (backup);
     g_free (orig);
 }
@@ -270,16 +272,15 @@ static void backup_file (char *filepath)
 static void backup_config_files (void)
 {
     const char *session_name = g_getenv ("DESKTOP_SESSION");
-    char *backupd, *path, *lc_sess, *fname;
+    char *path, *lc_sess, *fname;
 
     if (!session_name) session_name = DEFAULT_SES;
-    backupd = g_build_filename (g_get_home_dir (), ".pp_backup", NULL);
 
-    // delete any old backups
-    if (g_file_test (backupd, G_FILE_TEST_IS_DIR)) vsystem ("rm -rf %s", backupd);
-
-    // create the backup directory
-    vsystem ("mkdir -p %s", backupd);
+    // delete any old backups and create a new backup directory
+    path = g_build_filename (g_get_home_dir (), ".pp_backup", NULL);
+    if (g_file_test (path, G_FILE_TEST_IS_DIR)) vsystem ("rm -rf %s", path);
+    g_mkdir_with_parents (path, S_IRUSR | S_IWUSR | S_IXUSR);
+    g_free (path);
 
     lc_sess = g_ascii_strdown (session_name, -1);
     fname = g_strconcat (lc_sess, "-rc.xml", NULL);
@@ -311,28 +312,34 @@ static void backup_config_files (void)
     backup_file (".config/libreoffice/4/user/registrymodifications.xcu");
 }
 
-static void restore_file (char *filepath)
+static int restore_file (char *filepath)
 {
     // filepath must be relative to current user's home directory
     char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
     char *backup = g_build_filename (g_get_home_dir (), ".pp_backup", filepath, NULL);
+    int changed = 1;
 
     if (g_file_test (backup, G_FILE_TEST_IS_REGULAR))
     {
+        if (vsystem ("diff %s %s > /dev/null", backup, orig) == 0) changed = 0;
         vsystem ("cp %s %s", backup, orig);
     }
     else if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
     {
-        vsystem ("rm %s", orig);
+        g_remove (orig);
     }
+    else changed = 0;
     g_free (backup);
     g_free (orig);
+
+    return changed;
 }
 
-static void restore_config_files (void)
+static int restore_config_files (void)
 {
     const char *session_name = g_getenv ("DESKTOP_SESSION");
     char *path, *lc_sess, *fname;
+    int changed = 0;
 
     if (!session_name) session_name = DEFAULT_SES;
 
@@ -345,25 +352,27 @@ static void restore_config_files (void)
     g_free (lc_sess);
 
     path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
-    restore_file (path);
+    if (restore_file (path)) changed = 1;
     g_free (path);
 
     path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
-    restore_file (path);
+    if (restore_file (path)) changed = 1;
     g_free (path);
 
     path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-0.conf", NULL);
-    restore_file (path);
+    if (restore_file (path)) changed = 1;
     g_free (path);
 
-    restore_file (".config/libfm/libfm.conf");
-    restore_file (".config/gtk-3.0/gtk.css");
-    restore_file (".config/qt5ct/qt5ct.conf");
-    restore_file (".gtkrc-2.0");
+    if (restore_file (".config/libfm/libfm.conf")) changed = 1;
+    if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
+    if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
+    if (restore_file (".gtkrc-2.0")) changed = 1;
 
     // app-specific
-    restore_file (".config/lxterminal/lxterminal.conf");
-    restore_file (".config/libreoffice/4/user/registrymodifications.xcu");
+    if (restore_file (".config/lxterminal/lxterminal.conf")) changed = 1;
+    if (restore_file (".config/libreoffice/4/user/registrymodifications.xcu")) changed = 1;
+
+    return changed;
 }
 
 static void delete_file (char *filepath)
@@ -372,7 +381,7 @@ static void delete_file (char *filepath)
 
     if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
     {
-        vsystem ("rm %s", orig);
+        g_remove (orig);
     }
     g_free (orig);
 }
@@ -1103,8 +1112,12 @@ static void save_obconf_settings (void)
     // read in data from XML file
     xmlInitParser ();
     LIBXML_TEST_VERSION
-    xDoc = xmlParseFile (user_config_file);
-    if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        xDoc = xmlParseFile (user_config_file);
+        if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    }
+    else xDoc = xmlNewDoc ((xmlChar *) "1.0");
     xpathCtx = xmlXPathNewContext (xDoc);
 
     // check that the config and theme nodes exist in the document - create them if not
@@ -1237,8 +1250,12 @@ static void save_libreoffice_settings (void)
     // read in data from XML file
     xmlInitParser ();
     LIBXML_TEST_VERSION
-    xDoc = xmlParseFile (user_config_file);
-    if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        xDoc = xmlParseFile (user_config_file);
+        if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    }
+    else xDoc = xmlNewDoc ((xmlChar *) "1.0");
     xpathCtx = xmlXPathNewContext (xDoc);
 
     // check that the oor:items node exists in the document - create it if not
@@ -1474,8 +1491,8 @@ static void add_or_amend (const char *conffile, const char *block, const char *p
     gchar *block_ws = g_strjoinv ("\\s*", tokens);
     g_strfreev (tokens);
 
-    // check the block exists - add an empty block if not
-    if (vsystem ("cat %s | tr -d '\\n' | grep -q '%s\\s*{.*}'", conffile, block_ws))
+    // check the file and block exist - add an empty block if not
+    if (!g_file_test (conffile, G_FILE_TEST_IS_REGULAR) || vsystem ("cat %s | tr -d '\\n' | grep -q '%s\\s*{.*}'", conffile, block_ws))
     {
         vsystem ("echo '\n%s\n{\n}' >> %s", block, conffile);
     }
@@ -1742,6 +1759,10 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     // clear all the config files
     reset_to_defaults ();
 
+    // block changed handlers for icon and cursor size combos
+    g_signal_handler_block (isz, iid);
+    g_signal_handler_block (csz, cid);
+
     // reset all the variables for current values
     if (* (int *) ptr == 3)
     {
@@ -1798,6 +1819,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
     }
+
+    g_signal_handler_unblock (isz, iid);
+    g_signal_handler_unblock (csz, cid);
 
     // reset the GUI controls to match the variables
     if (cursor_size != orig_cursor_size)
@@ -1971,13 +1995,13 @@ int main (int argc, char *argv[])
     else if (icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
     else if (icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
     else gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
-    g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
+    iid = g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
 
     csz = gtk_builder_get_object (builder, "comboboxtext3");
     if (cursor_size >= 48) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 0);
     else if (cursor_size >= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
     else gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
-    g_signal_connect (csz, "changed", G_CALLBACK (on_cursor_size_set), NULL);
+    cid = g_signal_connect (csz, "changed", G_CALLBACK (on_cursor_size_set), NULL);
 
     cb1 = gtk_builder_get_object (builder, "checkbutton1");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), show_docs);
@@ -1996,11 +2020,13 @@ int main (int argc, char *argv[])
 
     if (gtk_dialog_run (GTK_DIALOG (dlg)) == GTK_RESPONSE_CANCEL)
     {
-        restore_config_files ();
-        reload_lxsession ();
-        reload_lxpanel ();
-        reload_openbox ();
-        reload_pcmanfm ();
+        if (restore_config_files ())
+        {
+            reload_lxsession ();
+            reload_lxpanel ();
+            reload_openbox ();
+            reload_pcmanfm ();
+        }
     }
     else save_greeter_settings ();
     gtk_widget_destroy (dlg);
