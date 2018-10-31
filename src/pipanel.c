@@ -90,9 +90,9 @@ static gboolean needs_refresh;
 
 static char lo_ver;
 
-/* Handler IDs for cursor and icon sizes so they can be blocked when needed */
+/* Handler IDs so they can be blocked when needed */
 
-static gulong cid, iid;
+static gulong cid, iid, bpid1, bpid2, dmid, tdid, ttid, tmid;
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1, *cb2, *cb3, *csz, *cmsg;
@@ -1759,9 +1759,15 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     // clear all the config files
     reset_to_defaults ();
 
-    // block changed handlers for icon and cursor size combos
+    // block widget handlers
     g_signal_handler_block (isz, iid);
     g_signal_handler_block (csz, cid);
+    g_signal_handler_block (dmod, dmid);
+    g_signal_handler_block (rb1, bpid1);
+    g_signal_handler_block (rb2, bpid2);
+    g_signal_handler_block (cb1, tdid);
+    g_signal_handler_block (cb2, ttid);
+    g_signal_handler_block (cb3, tmid);
 
     // reset all the variables for current values
     if (* (int *) ptr == 3)
@@ -1820,9 +1826,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
     }
 
-    g_signal_handler_unblock (isz, iid);
-    g_signal_handler_unblock (csz, cid);
-
     // reset the GUI controls to match the variables
     if (cursor_size != orig_cursor_size)
         gtk_widget_show (GTK_WIDGET (cmsg));
@@ -1853,6 +1856,15 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), show_trash);
     show_mnts = 0;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), show_mnts);
+
+    g_signal_handler_unblock (isz, iid);
+    g_signal_handler_unblock (csz, cid);
+    g_signal_handler_unblock (dmod, dmid);
+    g_signal_handler_unblock (rb1, bpid1);
+    g_signal_handler_unblock (rb2, bpid2);
+    g_signal_handler_unblock (cb1, tdid);
+    g_signal_handler_unblock (cb2, ttid);
+    g_signal_handler_unblock (cb3, tmid);
 
     // save changes to files if not using medium (the global default)
     if (* (int *) ptr != 2)
@@ -1974,7 +1986,7 @@ int main (int argc, char *argv[])
     else if (!strcmp (desktop_mode, "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 4);
     else if (!strcmp (desktop_mode, "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 5);
     else gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
-    g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
+    dmid = g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
 
     item = gtk_builder_get_object (builder, "defs_lg");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag3);
@@ -1984,9 +1996,9 @@ int main (int argc, char *argv[])
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag1);
 
     rb1 = gtk_builder_get_object (builder, "radiobutton1");
-    g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+    bpid1 = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
-    g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+    bpid2 = g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
     if (barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 
@@ -2005,13 +2017,13 @@ int main (int argc, char *argv[])
 
     cb1 = gtk_builder_get_object (builder, "checkbutton1");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), show_docs);
-    g_signal_connect (cb1, "toggled", G_CALLBACK (on_toggle_docs), NULL);
+    tdid = g_signal_connect (cb1, "toggled", G_CALLBACK (on_toggle_docs), NULL);
     cb2 = gtk_builder_get_object (builder, "checkbutton2");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), show_trash);
-    g_signal_connect (cb2, "toggled", G_CALLBACK (on_toggle_trash), NULL);
+    ttid = g_signal_connect (cb2, "toggled", G_CALLBACK (on_toggle_trash), NULL);
     cb3 = gtk_builder_get_object (builder, "checkbutton3");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), show_mnts);
-    g_signal_connect (cb3, "toggled", G_CALLBACK (on_toggle_mnts), NULL);
+    tmid = g_signal_connect (cb3, "toggled", G_CALLBACK (on_toggle_mnts), NULL);
 
     cmsg = gtk_builder_get_object (builder, "label35");
     gtk_widget_hide (GTK_WIDGET (cmsg));
