@@ -621,6 +621,14 @@ static void load_lxpanel_settings (void)
     int val;
 
     user_config_file = lxpanel_file ();
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        barpos = 0;
+        icon_size = 36;
+        task_width = 200;
+        g_free (user_config_file);
+        return;
+    }
 
     if (!vsystem ("grep -q edge=bottom %s", user_config_file)) barpos = 1;
     else barpos = 0;
@@ -677,8 +685,15 @@ static void load_libreoffice_settings (void)
     char *user_config_file;
     int res = 2, val;
 
+    lo_icon_size = 1;
+
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        g_free (user_config_file);
+        return;
+    }
 
     // read in data from XML file
     xmlInitParser ();
@@ -688,7 +703,6 @@ static void load_libreoffice_settings (void)
     {
         // need to create XML doc here, potentially with directory tree...
         g_free (user_config_file);
-        lo_icon_size = 1;
         return;
     }
 
@@ -737,6 +751,11 @@ static void load_obconf_settings (void)
     handle_width = 10;
 
     user_config_file = openbox_file ();
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        g_free (user_config_file);
+        return;
+    }
 
     // read in data from XML file
     xmlInitParser ();
