@@ -321,8 +321,8 @@ static int restore_file (char *filepath)
 
     if (g_file_test (backup, G_FILE_TEST_IS_REGULAR))
     {
-        if (vsystem ("diff %s %s > /dev/null", backup, orig) == 0) changed = 0;
-        vsystem ("cp %s %s", backup, orig);
+        if (vsystem ("diff %s %s > /dev/null 2>&1", backup, orig) == 0) changed = 0;
+        else vsystem ("cp %s %s", backup, orig);
     }
     else if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
     {
