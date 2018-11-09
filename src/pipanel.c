@@ -1027,30 +1027,59 @@ static void save_lxterm_settings (void)
 
 static void save_greeter_settings (void)
 {
-    char *str, *tfname;
-    char buffer[256];
+    char *str, *tfname, *col;
     GKeyFile *kf;
+    GError *err;
     gsize len;
     gint handle;
     int res;
+    gboolean changed = FALSE;
 
-    if (desktop_font != orig_desktop_font || desktop_picture != orig_desktop_picture ||
-        desktop_mode != orig_desktop_mode || !gdk_color_equal (&desktop_colour, &orig_desktop_colour))
+    // read the current config
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, GREETER_CONFIG_FILE, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    err = NULL;
+    str = g_key_file_get_string (kf, "greeter", "wallpaper", &err);
+    if (err != NULL || g_strcmp0 (str, desktop_picture) != 0)
     {
-        // read in data from file to a key file
-        kf = g_key_file_new ();
-        if (!g_key_file_load_from_file (kf, GREETER_CONFIG_FILE, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-        {
-            g_key_file_free (kf);
-            return;
-        }
-
-        // update changed values in the key file
-        sprintf (buffer, "%s", gdk_color_to_string (&desktop_colour));
-        g_key_file_set_string (kf, "greeter", "desktop_bg", buffer);
         g_key_file_set_string (kf, "greeter", "wallpaper", desktop_picture);
+        changed = TRUE;
+    }
+    g_free (str);
+
+    err = NULL;
+    str = g_key_file_get_string (kf, "greeter", "wallpaper_mode", &err);
+    if (err != NULL || g_strcmp0 (str, desktop_mode) != 0)
+    {
         g_key_file_set_string (kf, "greeter", "wallpaper_mode", desktop_mode);
+        changed = TRUE;
+    }
+    g_free (str);
+
+    err = NULL;
+    str = g_key_file_get_string (kf, "greeter", "gtk-font-name", &err);
+    if (err != NULL || g_strcmp0 (str, desktop_font) != 0)
+    {
         g_key_file_set_string (kf, "greeter", "gtk-font-name", desktop_font);
+        changed = TRUE;
+    }
+    g_free (str);
+
+    col = gdk_color_to_string (&desktop_colour);
+    err = NULL;
+    str = g_key_file_get_string (kf, "greeter", "desktop_bg", &err);
+    if (err != NULL || g_strcmp0 (str, col) != 0)
+    {
+        g_key_file_set_string (kf, "greeter", "desktop_bg", col);
+        changed = TRUE;
+    }
+    g_free (str);
+    g_free (col);
+
+    if (changed)
+    {
+        // just in case...
         g_key_file_set_string (kf, "greeter", "gtk-theme-name", "PiX");
         g_key_file_set_string (kf, "greeter", "gtk-icon-theme-name", "PiX");
 
