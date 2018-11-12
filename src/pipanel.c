@@ -543,9 +543,9 @@ static void load_pcman_settings (void)
         if (err == NULL)
         {
             if (!gdk_color_parse (ret, &desktoptext_colour))
-                gdk_color_parse ("#000000", &desktoptext_colour);
+                gdk_color_parse ("#E8E8E8", &desktoptext_colour);
         }
-        else gdk_color_parse ("#000000", &desktoptext_colour);
+        else gdk_color_parse ("#E8E8E8", &desktoptext_colour);
         g_free (ret);
 
         err = NULL;
@@ -578,7 +578,7 @@ static void load_pcman_settings (void)
     else
     {
         gdk_color_parse ("#D6D3DE", &desktop_colour);
-        gdk_color_parse ("#000000", &desktoptext_colour);
+        gdk_color_parse ("#E8E8E8", &desktoptext_colour);
         desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
         desktop_mode = "crop";
         show_docs = 0;
