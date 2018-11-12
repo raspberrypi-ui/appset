@@ -50,7 +50,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DEFAULT_SES "LXDE-pi"
 
 #define THEME_COL "#4D98F5"
-#define TEXT_COL "#FFFFFF"
+#define THEMETEXT_COL "#FFFFFF"
+#define DESK_COL "#D6D3DE"
+#define DESKTEXT_COL "#E8E8E8"
+#define BAR_COL "#EDECEB"
+#define BARTEXT_COL "#000000"
 
 /* Global variables for window values */
 
@@ -437,10 +441,10 @@ static void load_lxsession_settings (void)
     {
         g_key_file_free (kf);
         g_free (user_config_file);
-        gdk_color_parse ("#EDECEB", &bar_colour);
-        gdk_color_parse ("#000000", &bartext_colour);
+        gdk_color_parse (BAR_COL, &bar_colour);
+        gdk_color_parse (BARTEXT_COL, &bartext_colour);
         gdk_color_parse (THEME_COL, &theme_colour);
-        gdk_color_parse (TEXT_COL, &themetext_colour);
+        gdk_color_parse (THEMETEXT_COL, &themetext_colour);
         desktop_font = "PibotoLt 12";
         tb_icon_size = 24;
         cursor_size = 24;
@@ -465,17 +469,17 @@ static void load_lxsession_settings (void)
             if (!strcmp (nptr, "bar_fg_color"))
             {
                 if (!gdk_color_parse (cptr, &bartext_colour))
-                    gdk_color_parse ("#000000", &bartext_colour);
+                    gdk_color_parse (BARTEXT_COL, &bartext_colour);
             }
             else if (!strcmp (nptr, "bar_bg_color"))
             {
                 if (!gdk_color_parse (cptr, &bar_colour))
-                    gdk_color_parse ("#EDECEB", &bar_colour);
+                    gdk_color_parse (BAR_COL, &bar_colour);
             }
             else if (!strcmp (nptr, "selected_fg_color"))
             {
                 if (!gdk_color_parse (cptr, &themetext_colour))
-                    gdk_color_parse (TEXT_COL, &themetext_colour);
+                    gdk_color_parse (THEMETEXT_COL, &themetext_colour);
             }
             else if (!strcmp (nptr, "selected_bg_color"))
             {
@@ -487,10 +491,10 @@ static void load_lxsession_settings (void)
     }
     else
     {
-        gdk_color_parse ("#000000", &bartext_colour);
-        gdk_color_parse ("#EDECEB", &bar_colour);
+        gdk_color_parse (BARTEXT_COL, &bartext_colour);
+        gdk_color_parse (BAR_COL, &bar_colour);
         gdk_color_parse (THEME_COL, &theme_colour);
-        gdk_color_parse (TEXT_COL, &themetext_colour);
+        gdk_color_parse (THEMETEXT_COL, &themetext_colour);
     }
     g_free (ret);
 
@@ -533,9 +537,9 @@ static void load_pcman_settings (void)
         if (err == NULL)
         {
             if (!gdk_color_parse (ret, &desktop_colour))
-                gdk_color_parse ("#D6D3DE", &desktop_colour);
+                gdk_color_parse (DESK_COL, &desktop_colour);
         }
-        else gdk_color_parse ("#D6D3DE", &desktop_colour);
+        else gdk_color_parse (DESK_COL, &desktop_colour);
         g_free (ret);
 
         err = NULL;
@@ -543,9 +547,9 @@ static void load_pcman_settings (void)
         if (err == NULL)
         {
             if (!gdk_color_parse (ret, &desktoptext_colour))
-                gdk_color_parse ("#E8E8E8", &desktoptext_colour);
+                gdk_color_parse (DESKTEXT_COL, &desktoptext_colour);
         }
-        else gdk_color_parse ("#E8E8E8", &desktoptext_colour);
+        else gdk_color_parse (DESKTEXT_COL, &desktoptext_colour);
         g_free (ret);
 
         err = NULL;
@@ -577,8 +581,8 @@ static void load_pcman_settings (void)
     }
     else
     {
-        gdk_color_parse ("#D6D3DE", &desktop_colour);
-        gdk_color_parse ("#E8E8E8", &desktoptext_colour);
+        gdk_color_parse (DESK_COL, &desktop_colour);
+        gdk_color_parse (DESKTEXT_COL, &desktoptext_colour);
         desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
         desktop_mode = "crop";
         show_docs = 0;
@@ -1867,15 +1871,15 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
     gdk_color_parse (THEME_COL, &theme_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &theme_colour);
-    gdk_color_parse ("#D6D3DE", &desktop_colour);
+    gdk_color_parse (DESK_COL, &desktop_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &desktop_colour);
-    gdk_color_parse ("#E8E8E8", &desktoptext_colour);
+    gdk_color_parse (DESKTEXT_COL, &desktoptext_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &desktoptext_colour);
-    gdk_color_parse ("#000000", &bartext_colour);
+    gdk_color_parse (BARTEXT_COL, &bartext_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &bartext_colour);
-    gdk_color_parse ("#EDECEB", &bar_colour);
+    gdk_color_parse (BAR_COL, &bar_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &bar_colour);
-    gdk_color_parse (TEXT_COL, &themetext_colour);
+    gdk_color_parse (THEMETEXT_COL, &themetext_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &themetext_colour);
     barpos = 0;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
