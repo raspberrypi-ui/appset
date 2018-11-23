@@ -135,6 +135,7 @@ static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
 static void save_scrollbar_settings (void);
+static void set_controls (void);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr);
@@ -1798,11 +1799,9 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
         gtk_widget_hide (GTK_WIDGET (cmsg));
 }
 
-static void on_set_defaults (GtkButton* btn, gpointer ptr)
-{
-    // clear all the config files
-    reset_to_defaults ();
 
+static void set_controls (void)
+{
     // block widget handlers
     g_signal_handler_block (isz, iid);
     g_signal_handler_block (csz, cid);
@@ -1812,6 +1811,58 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     g_signal_handler_block (cb1, tdid);
     g_signal_handler_block (cb2, ttid);
     g_signal_handler_block (cb3, tmid);
+
+    gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), cur_conf.desktop_font);
+    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), cur_conf.desktop_picture);
+    if (!strcmp (cur_conf.desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic), FALSE);
+    else gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
+    if (!strcmp (cur_conf.desktop_mode, "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
+    else if (!strcmp (cur_conf.desktop_mode, "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 2);
+    else if (!strcmp (cur_conf.desktop_mode, "crop")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
+    else if (!strcmp (cur_conf.desktop_mode, "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 4);
+    else if (!strcmp (cur_conf.desktop_mode, "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 5);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
+    gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &cur_conf.theme_colour);
+    gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &cur_conf.desktop_colour);
+    gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &cur_conf.desktoptext_colour);
+    gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &cur_conf.bartext_colour);
+    gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &cur_conf.bar_colour);
+    gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &cur_conf.themetext_colour);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), cur_conf.show_docs);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), cur_conf.show_trash);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), cur_conf.show_mnts);
+
+    if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
+    else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
+    else if (cur_conf.icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
+
+    if (cur_conf.cursor_size >= 48) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 0);
+    else if (cur_conf.cursor_size >= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
+
+    if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
+    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
+
+    if (cur_conf.cursor_size != orig_cursor_size)
+        gtk_widget_show (GTK_WIDGET (cmsg));
+    else
+        gtk_widget_hide (GTK_WIDGET (cmsg));
+
+    g_signal_handler_unblock (isz, iid);
+    g_signal_handler_unblock (csz, cid);
+    g_signal_handler_unblock (dmod, dmid);
+    g_signal_handler_unblock (rb1, bpid1);
+    g_signal_handler_unblock (rb2, bpid2);
+    g_signal_handler_unblock (cb1, tdid);
+    g_signal_handler_unblock (cb2, ttid);
+    g_signal_handler_unblock (cb3, tmid);
+}
+
+static void on_set_defaults (GtkButton* btn, gpointer ptr)
+{
+    // clear all the config files
+    reset_to_defaults ();
 
     // reset all the variables for current values
     if (* (int *) ptr == 3)
@@ -1830,8 +1881,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         cur_conf.task_width = 300;
         cur_conf.handle_width = 20;
         cur_conf.scrollbar_width = 18;
-        gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
-        gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
     }
     else if (* (int *) ptr == 2)
     {
@@ -1848,8 +1897,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         cur_conf.task_width = 200;
         cur_conf.handle_width = 10;
         cur_conf.scrollbar_width = 13;
-        gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
-        gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
     }
     else if (* (int *) ptr == 1)
     {
@@ -1866,49 +1913,23 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         cur_conf.task_width = 150;
         cur_conf.handle_width = 10;
         cur_conf.scrollbar_width = 13;
-        gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
-        gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
     }
 
-    // reset the GUI controls to match the variables
-    if (cur_conf.cursor_size != orig_cursor_size)
-        gtk_widget_show (GTK_WIDGET (cmsg));
-    else
-        gtk_widget_hide (GTK_WIDGET (cmsg));
-    gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), cur_conf.desktop_font);
     cur_conf.desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), cur_conf.desktop_picture);
     cur_conf.desktop_mode = "crop";
-    gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
     gdk_color_parse (THEME_COL, &cur_conf.theme_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &cur_conf.theme_colour);
     gdk_color_parse (DESK_COL, &cur_conf.desktop_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &cur_conf.desktop_colour);
     gdk_color_parse (DESKTEXT_COL, &cur_conf.desktoptext_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &cur_conf.desktoptext_colour);
     gdk_color_parse (BARTEXT_COL, &cur_conf.bartext_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &cur_conf.bartext_colour);
     gdk_color_parse (BAR_COL, &cur_conf.bar_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &cur_conf.bar_colour);
     gdk_color_parse (THEMETEXT_COL, &cur_conf.themetext_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &cur_conf.themetext_colour);
     cur_conf.barpos = 0;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
     cur_conf.show_docs = 0;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), cur_conf.show_docs);
     cur_conf.show_trash = 1;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), cur_conf.show_trash);
     cur_conf.show_mnts = 0;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), cur_conf.show_mnts);
 
-    g_signal_handler_unblock (isz, iid);
-    g_signal_handler_unblock (csz, cid);
-    g_signal_handler_unblock (dmod, dmid);
-    g_signal_handler_unblock (rb1, bpid1);
-    g_signal_handler_unblock (rb2, bpid2);
-    g_signal_handler_unblock (cb1, tdid);
-    g_signal_handler_unblock (cb2, ttid);
-    g_signal_handler_unblock (cb3, tmid);
+    // reset the GUI controls to match the variables
+    set_controls ();
 
     // save changes to files if not using medium (the global default)
     if (* (int *) ptr != 2)
@@ -1990,89 +2011,67 @@ int main (int argc, char *argv[])
     gtk_dialog_set_alternative_button_order (GTK_DIALOG (dlg), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
 
     font = gtk_builder_get_object (builder, "fontbutton1");
-    gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), cur_conf.desktop_font);
     g_signal_connect (font, "font-set", G_CALLBACK (on_desktop_font_set), NULL);
 
     dpic = gtk_builder_get_object (builder, "filechooserbutton1");
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), cur_conf.desktop_picture);
     g_signal_connect (dpic, "file-set", G_CALLBACK (on_desktop_picture_set), NULL);
-    if (!strcmp (cur_conf.desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic), FALSE);
-    else gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
 
     hcol = gtk_builder_get_object (builder, "colorbutton1");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &cur_conf.theme_colour);
     g_signal_connect (hcol, "color-set", G_CALLBACK (on_theme_colour_set), NULL);
 
     dcol = gtk_builder_get_object (builder, "colorbutton2");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &cur_conf.desktop_colour);
     g_signal_connect (dcol, "color-set", G_CALLBACK (on_desktop_colour_set), NULL);
 
     bcol = gtk_builder_get_object (builder, "colorbutton3");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &cur_conf.bar_colour);
     g_signal_connect (bcol, "color-set", G_CALLBACK (on_bar_colour_set), NULL);
 
     btcol = gtk_builder_get_object (builder, "colorbutton4");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &cur_conf.bartext_colour);
     g_signal_connect (btcol, "color-set", G_CALLBACK (on_bartext_colour_set), NULL);
 
     htcol = gtk_builder_get_object (builder, "colorbutton5");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &cur_conf.themetext_colour);
     g_signal_connect (htcol, "color-set", G_CALLBACK (on_themetext_colour_set), NULL);
 
     dtcol = gtk_builder_get_object (builder, "colorbutton6");
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &cur_conf.desktoptext_colour);
     g_signal_connect (dtcol, "color-set", G_CALLBACK (on_desktoptext_colour_set), NULL);
 
     dmod = gtk_builder_get_object (builder, "comboboxtext1");
-    if (!strcmp (cur_conf.desktop_mode, "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
-    else if (!strcmp (cur_conf.desktop_mode, "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 2);
-    else if (!strcmp (cur_conf.desktop_mode, "crop")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
-    else if (!strcmp (cur_conf.desktop_mode, "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 4);
-    else if (!strcmp (cur_conf.desktop_mode, "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 5);
-    else gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
     dmid = g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
 
     item = gtk_builder_get_object (builder, "defs_lg");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag3);
+
     item = gtk_builder_get_object (builder, "defs_med");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag2);
+
     item = gtk_builder_get_object (builder, "defs_sml");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag1);
 
     rb1 = gtk_builder_get_object (builder, "radiobutton1");
     bpid1 = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
     bpid2 = g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
-    if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
-    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 
     isz = gtk_builder_get_object (builder, "comboboxtext2");
-    if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
-    else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
-    else if (cur_conf.icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
-    else gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
     iid = g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
 
     csz = gtk_builder_get_object (builder, "comboboxtext3");
-    if (cur_conf.cursor_size >= 48) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 0);
-    else if (cur_conf.cursor_size >= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
-    else gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
     cid = g_signal_connect (csz, "changed", G_CALLBACK (on_cursor_size_set), NULL);
 
     cb1 = gtk_builder_get_object (builder, "checkbutton1");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1), cur_conf.show_docs);
     tdid = g_signal_connect (cb1, "toggled", G_CALLBACK (on_toggle_docs), NULL);
+
     cb2 = gtk_builder_get_object (builder, "checkbutton2");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2), cur_conf.show_trash);
     ttid = g_signal_connect (cb2, "toggled", G_CALLBACK (on_toggle_trash), NULL);
+
     cb3 = gtk_builder_get_object (builder, "checkbutton3");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3), cur_conf.show_mnts);
     tmid = g_signal_connect (cb3, "toggled", G_CALLBACK (on_toggle_mnts), NULL);
 
     cmsg = gtk_builder_get_object (builder, "label35");
-    gtk_widget_hide (GTK_WIDGET (cmsg));
 
     g_object_unref (builder);
+
+    set_controls ();
 
     if (gtk_dialog_run (GTK_DIALOG (dlg)) == GTK_RESPONSE_CANCEL)
     {
