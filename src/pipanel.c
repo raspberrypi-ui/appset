@@ -1738,8 +1738,8 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
 
-    if (!strcmp (cur_conf.desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (ptr), FALSE);
-    else gtk_widget_set_sensitive (GTK_WIDGET (ptr), TRUE);
+    if (!strcmp (cur_conf.desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic), FALSE);
+    else gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
     save_pcman_settings ();
     reload_pcmanfm ();
 }
@@ -2035,7 +2035,7 @@ int main (int argc, char *argv[])
     g_signal_connect (dtcol, "color-set", G_CALLBACK (on_desktoptext_colour_set), NULL);
 
     dmod = gtk_builder_get_object (builder, "comboboxtext1");
-    dmid = g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), gtk_builder_get_object (builder, "filechooserbutton1"));
+    dmid = g_signal_connect (dmod, "changed", G_CALLBACK (on_desktop_mode_set), NULL);
 
     item = gtk_builder_get_object (builder, "defs_lg");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag3);
