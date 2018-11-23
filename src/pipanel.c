@@ -49,12 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define DEFAULT_SES "LXDE-pi"
 
-#define THEME_COL "#4D98F5"
-#define THEMETEXT_COL "#FFFFFF"
-#define DESK_COL "#D6D3DE"
-#define DESKTEXT_COL "#E8E8E8"
-#define BAR_COL "#EDECEB"
-#define BARTEXT_COL "#000000"
+#define DEFAULT(x) cur_conf.x=def_med.x
 
 /* Global variables for window values */
 
@@ -86,7 +81,7 @@ typedef struct {
     int scrollbar_width;
 } DesktopConfig;
 
-static DesktopConfig cur_conf;
+static DesktopConfig cur_conf, def_lg, def_med, def_sm;
 
 static const char *orig_desktop_font;
 static const char *orig_desktop_picture;
@@ -136,6 +131,7 @@ static void save_qt_settings (void);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
 static void save_scrollbar_settings (void);
 static void set_controls (void);
+static void create_defaults (void);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr);
@@ -453,13 +449,13 @@ static void load_lxsession_settings (void)
     {
         g_key_file_free (kf);
         g_free (user_config_file);
-        gdk_color_parse (BAR_COL, &cur_conf.bar_colour);
-        gdk_color_parse (BARTEXT_COL, &cur_conf.bartext_colour);
-        gdk_color_parse (THEME_COL, &cur_conf.theme_colour);
-        gdk_color_parse (THEMETEXT_COL, &cur_conf.themetext_colour);
-        cur_conf.desktop_font = "PibotoLt 12";
-        cur_conf.tb_icon_size = 24;
-        cur_conf.cursor_size = 24;
+        DEFAULT (bar_colour);
+        DEFAULT (bartext_colour);
+        DEFAULT (theme_colour);
+        DEFAULT (themetext_colour);
+        DEFAULT (desktop_font);
+        DEFAULT (tb_icon_size);
+        DEFAULT (cursor_size);
         return;
     }
 
@@ -467,7 +463,7 @@ static void load_lxsession_settings (void)
     err = NULL;
     ret = g_key_file_get_string (kf, "GTK", "sGtk/FontName", &err);
     if (err == NULL) cur_conf.desktop_font = g_strdup (ret);
-    else cur_conf.desktop_font = "PibotoLt 12";
+    else DEFAULT (desktop_font);
     g_free (ret);
 
     err = NULL;
@@ -481,38 +477,38 @@ static void load_lxsession_settings (void)
             if (!strcmp (nptr, "bar_fg_color"))
             {
                 if (!gdk_color_parse (cptr, &cur_conf.bartext_colour))
-                    gdk_color_parse (BARTEXT_COL, &cur_conf.bartext_colour);
+                    DEFAULT (bartext_colour);
             }
             else if (!strcmp (nptr, "bar_bg_color"))
             {
                 if (!gdk_color_parse (cptr, &cur_conf.bar_colour))
-                    gdk_color_parse (BAR_COL, &cur_conf.bar_colour);
+                    DEFAULT (bar_colour);
             }
             else if (!strcmp (nptr, "selected_fg_color"))
             {
                 if (!gdk_color_parse (cptr, &cur_conf.themetext_colour))
-                    gdk_color_parse (THEMETEXT_COL, &cur_conf.themetext_colour);
+                    DEFAULT (themetext_colour);
             }
             else if (!strcmp (nptr, "selected_bg_color"))
             {
                 if (!gdk_color_parse (cptr, &cur_conf.theme_colour))
-                    gdk_color_parse (THEME_COL, &cur_conf.theme_colour);
+                    DEFAULT (theme_colour);
             }
             nptr = strtok (NULL, ":\n");
         }
     }
     else
     {
-        gdk_color_parse (BARTEXT_COL, &cur_conf.bartext_colour);
-        gdk_color_parse (BAR_COL, &cur_conf.bar_colour);
-        gdk_color_parse (THEME_COL, &cur_conf.theme_colour);
-        gdk_color_parse (THEMETEXT_COL, &cur_conf.themetext_colour);
+        DEFAULT (bar_colour);
+        DEFAULT (bartext_colour);
+        DEFAULT (theme_colour);
+        DEFAULT (themetext_colour);
     }
     g_free (ret);
 
     err = NULL;
     ret = g_key_file_get_string (kf, "GTK", "sGtk/IconSizes", &err);
-    cur_conf.tb_icon_size = 24;
+    DEFAULT (tb_icon_size);
     if (err == NULL)
     {
         if (sscanf (ret, "gtk-large-toolbar=%d,", &val) == 1)
@@ -525,7 +521,7 @@ static void load_lxsession_settings (void)
     err = NULL;
     val = g_key_file_get_integer (kf, "GTK", "iGtk/CursorThemeSize", &err);
     if (err == NULL && val >= 24 && val <= 48) cur_conf.cursor_size = val;
-    else cur_conf.cursor_size = 24;
+    else DEFAULT (cursor_size);
 
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -549,9 +545,9 @@ static void load_pcman_settings (void)
         if (err == NULL)
         {
             if (!gdk_color_parse (ret, &cur_conf.desktop_colour))
-                gdk_color_parse (DESK_COL, &cur_conf.desktop_colour);
+                DEFAULT (desktop_colour);
         }
-        else gdk_color_parse (DESK_COL, &cur_conf.desktop_colour);
+        else DEFAULT (desktop_colour);
         g_free (ret);
 
         err = NULL;
@@ -559,47 +555,47 @@ static void load_pcman_settings (void)
         if (err == NULL)
         {
             if (!gdk_color_parse (ret, &cur_conf.desktoptext_colour))
-                gdk_color_parse (DESKTEXT_COL, &cur_conf.desktoptext_colour);
+                DEFAULT (desktoptext_colour);
         }
-        else gdk_color_parse (DESKTEXT_COL, &cur_conf.desktoptext_colour);
+        else DEFAULT (desktoptext_colour);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
         if (err == NULL && ret) cur_conf.desktop_picture = g_strdup (ret);
-        else cur_conf.desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
+        else DEFAULT (desktop_picture);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
         if (err == NULL && ret) cur_conf.desktop_mode = g_strdup (ret);
-        else cur_conf.desktop_mode = "crop";
+        else DEFAULT (desktop_mode);
         g_free (ret);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_documents", &err);
         if (err == NULL && val >= 0 && val <= 1) cur_conf.show_docs = val;
-        else cur_conf.show_docs = 0;
+        else DEFAULT (show_docs);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_trash", &err);
         if (err == NULL && val >= 0 && val <= 1) cur_conf.show_trash = val;
-        else cur_conf.show_trash = 1;
+        else DEFAULT (show_trash);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
         if (err == NULL && val >= 0 && val <= 1) cur_conf.show_mnts = val;
-        else cur_conf.show_mnts = 0;
+        else DEFAULT (show_mnts);
     }
     else
     {
-        gdk_color_parse (DESK_COL, &cur_conf.desktop_colour);
-        gdk_color_parse (DESKTEXT_COL, &cur_conf.desktoptext_colour);
-        cur_conf.desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
-        cur_conf.desktop_mode = "crop";
-        cur_conf.show_docs = 0;
-        cur_conf.show_trash = 1;
-        cur_conf.show_mnts = 0;
+        DEFAULT (desktop_colour);
+        DEFAULT (desktoptext_colour);
+        DEFAULT (desktop_picture);
+        DEFAULT (desktop_mode);
+        DEFAULT (show_docs);
+        DEFAULT (show_trash);
+        DEFAULT (show_mnts);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -612,29 +608,29 @@ static void load_pcman_settings (void)
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
         if (err == NULL && val >= 8 && val <= 256) cur_conf.folder_size = val;
-        else cur_conf.folder_size = 48;
+        else DEFAULT (folder_size);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "thumbnail_size", &err);
         if (err == NULL && val >= 8 && val <= 256) cur_conf.thumb_size = val;
-        else cur_conf.thumb_size = 128;
+        else DEFAULT (thumb_size);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "pane_icon_size", &err);
         if (err == NULL && val >= 8 && val <= 256) cur_conf.pane_size = val;
-        else cur_conf.pane_size = 24;
+        else DEFAULT (pane_size);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "small_icon_size", &err);
         if (err == NULL && val >= 8 && val <= 256) cur_conf.sicon_size = val;
-        else cur_conf.sicon_size = 24;
+        else DEFAULT (sicon_size);
     }
     else
     {
-        cur_conf.folder_size = 48;
-        cur_conf.thumb_size = 128;
-        cur_conf.pane_size = 24;
-        cur_conf.sicon_size = 24;
+        DEFAULT (folder_size);
+        DEFAULT (thumb_size);
+        DEFAULT (pane_size);
+        DEFAULT (sicon_size);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -648,27 +644,27 @@ static void load_lxpanel_settings (void)
     user_config_file = lxpanel_file ();
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        cur_conf.barpos = 0;
-        cur_conf.icon_size = 36;
-        cur_conf.task_width = 200;
+        DEFAULT (barpos);
+        DEFAULT (icon_size);
+        DEFAULT (task_width);
         g_free (user_config_file);
         return;
     }
 
     if (!vsystem ("grep -q edge=bottom %s", user_config_file)) cur_conf.barpos = 1;
-    else cur_conf.barpos = 0;
+    else DEFAULT (barpos);
 
     cmdbuf = g_strdup_printf ("grep -Po '(?<=iconsize=)[0-9]+' %s", user_config_file);
     res = get_string (cmdbuf);
     if (res[0] && sscanf (res, "%d", &val) == 1) cur_conf.icon_size = val;
-    else cur_conf.icon_size = 36;
+    else DEFAULT (icon_size);
     g_free (res);
     g_free (cmdbuf);
 
     cmdbuf = g_strdup_printf ("grep -Po '(?<=MaxTaskWidth=)[0-9]+' %s", user_config_file);
     res = get_string (cmdbuf);
     if (res[0] && sscanf (res, "%d", &val) == 1) cur_conf.task_width = val;
-    else cur_conf.task_width = 200;
+    else DEFAULT (task_width);
     g_free (res);
     g_free (cmdbuf);
 
@@ -690,7 +686,7 @@ static void load_lxterm_settings (void)
     {
         g_key_file_free (kf);
         g_free (user_config_file);
-        cur_conf.terminal_font = "Monospace 10";
+        DEFAULT (terminal_font);
         return;
     }
 
@@ -698,7 +694,7 @@ static void load_lxterm_settings (void)
     err = NULL;
     ret = g_key_file_get_string (kf, "general", "fontname", &err);
     if (err == NULL) cur_conf.terminal_font = g_strdup (ret);
-    else cur_conf.terminal_font = "Monospace 10";
+    else DEFAULT (terminal_font);
     g_free (ret);
 
     g_key_file_free (kf);
@@ -710,7 +706,7 @@ static void load_libreoffice_settings (void)
     char *user_config_file;
     int res = 2, val;
 
-    cur_conf.lo_icon_size = 1;
+    DEFAULT (lo_icon_size);
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
@@ -773,7 +769,7 @@ static void load_obconf_settings (void)
     char *user_config_file;
     int val;
 
-    cur_conf.handle_width = 10;
+    DEFAULT (handle_width);
 
     user_config_file = openbox_file ();
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -1814,14 +1810,17 @@ static void set_controls (void)
 
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), cur_conf.desktop_font);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic), cur_conf.desktop_picture);
-    if (!strcmp (cur_conf.desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic), FALSE);
-    else gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
+    gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
     if (!strcmp (cur_conf.desktop_mode, "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 1);
     else if (!strcmp (cur_conf.desktop_mode, "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 2);
     else if (!strcmp (cur_conf.desktop_mode, "crop")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 3);
     else if (!strcmp (cur_conf.desktop_mode, "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 4);
     else if (!strcmp (cur_conf.desktop_mode, "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 5);
-    else gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
+    else
+    {
+        gtk_combo_box_set_active (GTK_COMBO_BOX (dmod), 0);
+        gtk_widget_set_sensitive (GTK_WIDGET (dpic), FALSE);
+    }
     gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &cur_conf.theme_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol), &cur_conf.desktop_colour);
     gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol), &cur_conf.desktoptext_colour);
@@ -1849,6 +1848,7 @@ static void set_controls (void)
     else
         gtk_widget_hide (GTK_WIDGET (cmsg));
 
+    // unblock widget handlers
     g_signal_handler_unblock (isz, iid);
     g_signal_handler_unblock (csz, cid);
     g_signal_handler_unblock (dmod, dmid);
@@ -1864,69 +1864,12 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     // clear all the config files
     reset_to_defaults ();
 
-    // reset all the variables for current values
+    // set config structure to a default
     if (* (int *) ptr == 3)
-    {
-        cur_conf.desktop_font = "PibotoLt 16";
-        cur_conf.terminal_font = "Monospace 15";
-        cur_conf.icon_size = 52;
-        cur_conf.folder_size = 80;
-        cur_conf.thumb_size = 160;
-        cur_conf.pane_size = 32;
-        cur_conf.sicon_size = 32;
-        cur_conf.tb_icon_size = 48;
-        if (lo_ver == 6) cur_conf.lo_icon_size = 3;
-        else cur_conf.lo_icon_size = 1;
-        cur_conf.cursor_size = 36;
-        cur_conf.task_width = 300;
-        cur_conf.handle_width = 20;
-        cur_conf.scrollbar_width = 18;
-    }
-    else if (* (int *) ptr == 2)
-    {
-        cur_conf.desktop_font = "PibotoLt 12";
-        cur_conf.terminal_font = "Monospace 10";
-        cur_conf.icon_size = 36;
-        cur_conf.folder_size = 48;
-        cur_conf.thumb_size = 128;
-        cur_conf.pane_size = 24;
-        cur_conf.sicon_size = 24;
-        cur_conf.tb_icon_size = 24;
-        cur_conf.lo_icon_size = 1;
-        cur_conf.cursor_size = 24;
-        cur_conf.task_width = 200;
-        cur_conf.handle_width = 10;
-        cur_conf.scrollbar_width = 13;
-    }
+        cur_conf = def_lg;
     else if (* (int *) ptr == 1)
-    {
-        cur_conf.desktop_font = "PibotoLt 8";
-        cur_conf.terminal_font = "Monospace 8";
-        cur_conf.icon_size = 20;
-        cur_conf.folder_size = 32;
-        cur_conf.thumb_size = 64;
-        cur_conf.pane_size = 16;
-        cur_conf.sicon_size = 16;
-        cur_conf.tb_icon_size = 16;
-        cur_conf.lo_icon_size = 0;
-        cur_conf.cursor_size = 24;
-        cur_conf.task_width = 150;
-        cur_conf.handle_width = 10;
-        cur_conf.scrollbar_width = 13;
-    }
-
-    cur_conf.desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
-    cur_conf.desktop_mode = "crop";
-    gdk_color_parse (THEME_COL, &cur_conf.theme_colour);
-    gdk_color_parse (DESK_COL, &cur_conf.desktop_colour);
-    gdk_color_parse (DESKTEXT_COL, &cur_conf.desktoptext_colour);
-    gdk_color_parse (BARTEXT_COL, &cur_conf.bartext_colour);
-    gdk_color_parse (BAR_COL, &cur_conf.bar_colour);
-    gdk_color_parse (THEMETEXT_COL, &cur_conf.themetext_colour);
-    cur_conf.barpos = 0;
-    cur_conf.show_docs = 0;
-    cur_conf.show_trash = 1;
-    cur_conf.show_mnts = 0;
+        cur_conf = def_sm;
+    else cur_conf = def_med;
 
     // reset the GUI controls to match the variables
     set_controls ();
@@ -1952,6 +1895,66 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_lxpanel ();
     reload_openbox ();
     reload_pcmanfm ();
+}
+
+static void create_defaults (void)
+{
+    def_med.desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
+    def_med.desktop_mode = "crop";
+    gdk_color_parse ("#4D98F5", &def_med.theme_colour);
+    gdk_color_parse ("#D6D3DE", &def_med.desktop_colour);
+    gdk_color_parse ("#E8E8E8", &def_med.desktoptext_colour);
+    gdk_color_parse ("#000000", &def_med.bartext_colour);
+    gdk_color_parse ("#EDECEB", &def_med.bar_colour);
+    gdk_color_parse ("#FFFFFF", &def_med.themetext_colour);
+    def_med.barpos = 0;
+    def_med.show_docs = 0;
+    def_med.show_trash = 1;
+    def_med.show_mnts = 0;
+    def_med.desktop_font = "PibotoLt 12";
+    def_med.terminal_font = "Monospace 10";
+    def_med.icon_size = 36;
+    def_med.folder_size = 48;
+    def_med.thumb_size = 128;
+    def_med.pane_size = 24;
+    def_med.sicon_size = 24;
+    def_med.tb_icon_size = 24;
+    def_med.lo_icon_size = 1;
+    def_med.cursor_size = 24;
+    def_med.task_width = 200;
+    def_med.handle_width = 10;
+    def_med.scrollbar_width = 13;
+
+    def_lg = def_sm = def_med;
+
+    def_lg.desktop_font = "PibotoLt 16";
+    def_lg.terminal_font = "Monospace 15";
+    def_lg.icon_size = 52;
+    def_lg.folder_size = 80;
+    def_lg.thumb_size = 160;
+    def_lg.pane_size = 32;
+    def_lg.sicon_size = 32;
+    def_lg.tb_icon_size = 48;
+    if (lo_ver == 6) def_lg.lo_icon_size = 3;
+    else def_lg.lo_icon_size = 1;
+    def_lg.cursor_size = 36;
+    def_lg.task_width = 300;
+    def_lg.handle_width = 20;
+    def_lg.scrollbar_width = 18;
+
+    def_sm.desktop_font = "PibotoLt 8";
+    def_sm.terminal_font = "Monospace 8";
+    def_sm.icon_size = 20;
+    def_sm.folder_size = 32;
+    def_sm.thumb_size = 64;
+    def_sm.pane_size = 16;
+    def_sm.sicon_size = 16;
+    def_sm.tb_icon_size = 16;
+    def_sm.lo_icon_size = 0;
+    def_sm.cursor_size = 24;
+    def_sm.task_width = 150;
+    def_sm.handle_width = 10;
+    def_sm.scrollbar_width = 13;
 }
 
 
@@ -1986,13 +1989,17 @@ int main (int argc, char *argv[])
     else lo_ver = maj;
 
     // load data from config files
+    create_defaults ();
+
     load_lxsession_settings ();
     load_pcman_settings ();
     load_lxpanel_settings ();
     load_lxterm_settings ();
     load_libreoffice_settings ();
     load_obconf_settings ();
+
     backup_config_files ();
+
     orig_desktop_font = cur_conf.desktop_font;
     orig_desktop_picture = cur_conf.desktop_picture;
     orig_desktop_mode = cur_conf.desktop_mode;
