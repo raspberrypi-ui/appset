@@ -1,3 +1,9 @@
+pipanel (20181126~094616) stretch; urgency=medium
+
+  * Rationalise setting of defaults
+
+ -- Simon Long <simon@raspberrypi.org>  Mon, 26 Nov 2018 09:46:16 +0000
+
 pipanel (20180927~140725) stretch; urgency=medium
 
   * Major changes to support use of fewer local copies of config files
