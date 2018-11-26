@@ -115,6 +115,7 @@ static void delete_file (char *filepath);
 static void reset_to_defaults (void);
 static void load_lxsession_settings (void);
 static void load_pcman_settings (void);
+static void load_libfm_settings (void);
 static void load_lxpanel_settings (void);
 static void load_lxterm_settings (void);
 static void load_libreoffice_settings (void);
@@ -123,6 +124,7 @@ static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
 static void save_lxsession_settings (void);
 static void save_pcman_settings (void);
+static void save_libfm_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
 static void save_greeter_settings (void);
@@ -599,6 +601,14 @@ static void load_pcman_settings (void)
     }
     g_key_file_free (kf);
     g_free (user_config_file);
+}
+
+static void load_libfm_settings (void)
+{
+    char *user_config_file, *ret;
+    GKeyFile *kf;
+    GError *err;
+    gint val;
 
     // read in data from file manager config file
     user_config_file = libfm_file ();
@@ -990,6 +1000,13 @@ static void save_pcman_settings (void)
 
     g_key_file_free (kf);
     g_free (user_config_file);
+}
+
+static void save_libfm_settings (void)
+{
+    char *user_config_file, *str;
+    GKeyFile *kf;
+    gsize len;
 
     // process libfm config data
     user_config_file = libfm_file ();
@@ -1879,6 +1896,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     {
         save_lxsession_settings ();
         save_pcman_settings ();
+        save_libfm_settings ();
         save_obconf_settings ();
         save_gtk3_settings ();
         save_lxpanel_settings ();
@@ -1899,28 +1917,38 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
 static void create_defaults (void)
 {
+    // defaults for controls - medium values must match those in global config files
+    // /etc/xdg/lxpanel/LXDE-pi/panels/panel
+    def_med.barpos = 0;
+    def_med.icon_size = 36;
+
+    // /etc/xdg/lxsession/LXDE-pi/desktop.conf
+    def_med.desktop_font = "PibotoLt 12";
+    gdk_color_parse ("#4D98F5", &def_med.theme_colour);
+    gdk_color_parse ("#FFFFFF", &def_med.themetext_colour);
+    gdk_color_parse ("#EDECEB", &def_med.bar_colour);
+    gdk_color_parse ("#000000", &def_med.bartext_colour);
+    def_med.cursor_size = 24;
+
+    // /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
     def_med.desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
     def_med.desktop_mode = "crop";
-    gdk_color_parse ("#4D98F5", &def_med.theme_colour);
     gdk_color_parse ("#D6D3DE", &def_med.desktop_colour);
     gdk_color_parse ("#E8E8E8", &def_med.desktoptext_colour);
-    gdk_color_parse ("#000000", &def_med.bartext_colour);
-    gdk_color_parse ("#EDECEB", &def_med.bar_colour);
-    gdk_color_parse ("#FFFFFF", &def_med.themetext_colour);
-    def_med.barpos = 0;
     def_med.show_docs = 0;
     def_med.show_trash = 1;
     def_med.show_mnts = 0;
-    def_med.desktop_font = "PibotoLt 12";
+
+    // defaults with no dedicated controls - set on defaults buttons only,
+    // so the values set in these are only used in the large and small cases
+    // medium values provided for reference only...
     def_med.terminal_font = "Monospace 10";
-    def_med.icon_size = 36;
     def_med.folder_size = 48;
     def_med.thumb_size = 128;
     def_med.pane_size = 24;
     def_med.sicon_size = 24;
     def_med.tb_icon_size = 24;
     def_med.lo_icon_size = 1;
-    def_med.cursor_size = 24;
     def_med.task_width = 200;
     def_med.handle_width = 10;
     def_med.scrollbar_width = 13;
@@ -1928,30 +1956,31 @@ static void create_defaults (void)
     def_lg = def_sm = def_med;
 
     def_lg.desktop_font = "PibotoLt 16";
-    def_lg.terminal_font = "Monospace 15";
     def_lg.icon_size = 52;
+    def_lg.cursor_size = 36;
+
+    def_lg.terminal_font = "Monospace 15";
     def_lg.folder_size = 80;
     def_lg.thumb_size = 160;
     def_lg.pane_size = 32;
     def_lg.sicon_size = 32;
     def_lg.tb_icon_size = 48;
-    if (lo_ver == 6) def_lg.lo_icon_size = 3;
-    else def_lg.lo_icon_size = 1;
-    def_lg.cursor_size = 36;
+    def_lg.lo_icon_size = (lo_ver == 6 ? 3 : 1);
     def_lg.task_width = 300;
     def_lg.handle_width = 20;
     def_lg.scrollbar_width = 18;
 
     def_sm.desktop_font = "PibotoLt 8";
-    def_sm.terminal_font = "Monospace 8";
     def_sm.icon_size = 20;
+    def_sm.cursor_size = 24;
+
+    def_sm.terminal_font = "Monospace 8";
     def_sm.folder_size = 32;
     def_sm.thumb_size = 64;
     def_sm.pane_size = 16;
     def_sm.sicon_size = 16;
     def_sm.tb_icon_size = 16;
     def_sm.lo_icon_size = 0;
-    def_sm.cursor_size = 24;
     def_sm.task_width = 150;
     def_sm.handle_width = 10;
     def_sm.scrollbar_width = 13;
@@ -1994,8 +2023,6 @@ int main (int argc, char *argv[])
     load_lxsession_settings ();
     load_pcman_settings ();
     load_lxpanel_settings ();
-    load_lxterm_settings ();
-    load_libreoffice_settings ();
     load_obconf_settings ();
 
     backup_config_files ();
