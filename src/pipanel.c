@@ -855,36 +855,27 @@ static void save_gtk3_settings (void)
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
     check_directory (user_config_file);
 
-    // check if the file exists - if not, create it...
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    // amend entries already in file, or add if not present
+    if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
     {
-        vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c;\n@define-color theme_selected_fg_color #%c%c%c%c%c%c;' > %s", 
-            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10],
+        vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c;' >> %s",
+            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
+    }
+    else
+    {
+        vsystem ("sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s",
+            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
+    }
+
+    if (vsystem ("grep -q theme_selected_fg_color %s\n", user_config_file))
+    {
+        vsystem ("echo '@define-color theme_selected_fg_color #%c%c%c%c%c%c;' >> %s",
             cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
     }
     else
     {
-        if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
-        {
-            vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c;' >> %s",
-                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
-        }
-        else
-        {
-            vsystem ("sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s",
-                cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
-        }
-
-        if (vsystem ("grep -q theme_selected_fg_color %s\n", user_config_file))
-        {
-            vsystem ("echo '@define-color theme_selected_fg_color #%c%c%c%c%c%c;' >> %s",
-                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
-        }
-        else
-        {
-            vsystem ("sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s",
-                cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
-        }
+        vsystem ("sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s",
+            cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
     }
 
     g_free (cstrf);
