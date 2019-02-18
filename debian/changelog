@@ -1,3 +1,9 @@
+pipanel (20190218~130623) stretch; urgency=medium
+
+  * Increase vertical spacing between items
+
+ -- Simon Long <simon@raspberrypi.org>  Mon, 18 Feb 2019 13:06:23 +0000
+
 pipanel (20181126~094616) stretch; urgency=medium
 
   * Rationalise setting of defaults
