@@ -1928,7 +1928,7 @@ static void create_defaults (void)
     gdk_color_parse ("#E8E8E8", &def_med.desktoptext_colour);
     def_med.show_docs = 0;
     def_med.show_trash = 1;
-    def_med.show_mnts = 0;
+    def_med.show_mnts = 1;
 
     // defaults with no dedicated controls - set on defaults buttons only,
     // so the values set in these are only used in the large and small cases

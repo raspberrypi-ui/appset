@@ -1,3 +1,9 @@
+pipanel (20190402~082427) stretch; urgency=medium
+
+  * Set default to show mounted drives on desktop
+
+ -- Simon Long <simon@raspberrypi.org>  Tue, 02 Apr 2019 08:24:27 +0100
+
 pipanel (20190218~130623) stretch; urgency=medium
 
   * Increase vertical spacing between items
