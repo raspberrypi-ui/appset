@@ -1,3 +1,9 @@
+pipanel (20190426~102348) unstable; urgency=medium
+
+  * Read defaults from relevant files in /etc/xdg
+
+ -- Simon Long <simon@raspberrypi.org>  Fri, 26 Apr 2019 10:23:48 +0100
+
 pipanel (20190402~082427) stretch; urgency=medium
 
   * Set default to show mounted drives on desktop

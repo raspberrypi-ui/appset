@@ -49,6 +49,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define DEFAULT_SES "LXDE-pi"
 
+#define GREY    "#808080"
+
 #define DEFAULT(x) cur_conf.x=def_med.x
 
 /* Global variables for window values */
@@ -133,6 +135,9 @@ static void save_qt_settings (void);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
 static void save_scrollbar_settings (void);
 static void set_controls (void);
+static void defaults_lxpanel (void);
+static void defaults_lxsession (void);
+static void defaults_pcman (void);
 static void create_defaults (void);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
@@ -188,25 +193,25 @@ static char *openbox_file (void)
     return path;
 }
 
-static char *lxsession_file (void)
+static char *lxsession_file (gboolean global)
 {
     const char *session_name = g_getenv ("DESKTOP_SESSION");
     if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (g_get_user_config_dir (), "lxsession", session_name, "desktop.conf", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxsession", session_name, "desktop.conf", NULL);
 }
 
-static char *lxpanel_file (void)
+static char *lxpanel_file (gboolean global)
 {
     const char *session_name = g_getenv ("DESKTOP_SESSION");
     if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (g_get_user_config_dir (), "lxpanel", session_name, "panels/panel", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel", session_name, "panels/panel", NULL);
 }
 
-static char *pcmanfm_file (void)
+static char *pcmanfm_file (gboolean global)
 {
     const char *session_name = g_getenv ("DESKTOP_SESSION");
     if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (g_get_user_config_dir (), "pcmanfm", session_name, "desktop-items-0.conf", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session_name, "desktop-items-0.conf", NULL);
 }
 
 static char *libfm_file (void)
@@ -443,7 +448,7 @@ static void load_lxsession_settings (void)
     GError *err;
     int val;
 
-    user_config_file = lxsession_file ();
+    user_config_file = lxsession_file (FALSE);
 
     // read in data from file to a key file structure
     kf = g_key_file_new ();
@@ -537,7 +542,7 @@ static void load_pcman_settings (void)
     gint val;
 
     // read in data from file to a key file
-    user_config_file = pcmanfm_file ();
+    user_config_file = pcmanfm_file (FALSE);
     kf = g_key_file_new ();
     if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
@@ -651,7 +656,7 @@ static void load_lxpanel_settings (void)
     char *user_config_file, *cmdbuf, *res;
     int val;
 
-    user_config_file = lxpanel_file ();
+    user_config_file = lxpanel_file (FALSE);
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
         DEFAULT (barpos);
@@ -825,7 +830,7 @@ static void save_lxpanel_settings (void)
     // sanity check
     if (cur_conf.icon_size > MAX_ICON || cur_conf.icon_size < MIN_ICON) return;
 
-    user_config_file = lxpanel_file ();
+    user_config_file = lxpanel_file (FALSE);
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
         // need a local copy to take the changes
@@ -890,7 +895,7 @@ static void save_lxsession_settings (void)
     gsize len;
     GError *err;
 
-    user_config_file = lxsession_file ();
+    user_config_file = lxsession_file (FALSE);
     check_directory (user_config_file);
 
     // read in data from file to a key file
@@ -962,7 +967,7 @@ static void save_pcman_settings (void)
     GKeyFile *kf;
     gsize len;
 
-    user_config_file = pcmanfm_file ();
+    user_config_file = pcmanfm_file (FALSE);
     check_directory (user_config_file);
 
     // process pcmanfm config data
@@ -1906,29 +1911,197 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_pcmanfm ();
 }
 
+static void defaults_lxpanel (void)
+{
+    char *user_config_file, *cmdbuf, *res;
+    int val;
+
+    user_config_file = lxpanel_file (TRUE);
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        def_med.barpos = 0;
+        def_med.icon_size = 36;
+        g_free (user_config_file);
+        return;
+    }
+
+    if (!vsystem ("grep -q edge=bottom %s", user_config_file)) def_med.barpos = 1;
+    else def_med.barpos = 0;
+
+    cmdbuf = g_strdup_printf ("grep -Po '(?<=iconsize=)[0-9]+' %s", user_config_file);
+    res = get_string (cmdbuf);
+    if (res[0] && sscanf (res, "%d", &val) == 1) def_med.icon_size = val;
+    else def_med.icon_size = 36;
+    g_free (res);
+    g_free (cmdbuf);
+
+    g_free (user_config_file);
+}
+
+static void defaults_lxsession ()
+{
+    char *user_config_file, *ret, *cptr, *nptr;
+    GKeyFile *kf;
+    GError *err;
+    int val;
+
+    // read in data from system default file to a key file structure
+    user_config_file = lxsession_file (TRUE);
+    kf = g_key_file_new ();
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        // get data from the key file
+        err = NULL;
+        ret = g_key_file_get_string (kf, "GTK", "sGtk/FontName", &err);
+        if (err == NULL) def_med.desktop_font = g_strdup (ret);
+        else def_med.desktop_font = "";
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "GTK", "iGtk/CursorThemeSize", &err);
+        if (err == NULL && val >= 24 && val <= 48) def_med.cursor_size = val;
+        else def_med.cursor_size = 0;
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "GTK", "sGtk/ColorScheme", &err);
+        if (err == NULL)
+        {
+            nptr = strtok (ret, ":\n");
+            while (nptr)
+            {
+                cptr = strtok (NULL, ":\n");
+                if (!strcmp (nptr, "bar_fg_color"))
+                {
+                    if (!gdk_color_parse (cptr, &def_med.bartext_colour))
+                        gdk_color_parse (GREY, &def_med.bartext_colour);
+                }
+                else if (!strcmp (nptr, "bar_bg_color"))
+                {
+                    if (!gdk_color_parse (cptr, &def_med.bar_colour))
+                        gdk_color_parse (GREY, &def_med.bar_colour);
+                }
+                else if (!strcmp (nptr, "selected_fg_color"))
+                {
+                    if (!gdk_color_parse (cptr, &def_med.themetext_colour))
+                        gdk_color_parse (GREY, &def_med.themetext_colour);
+                }
+                else if (!strcmp (nptr, "selected_bg_color"))
+                {
+                    if (!gdk_color_parse (cptr, &def_med.theme_colour))
+                        gdk_color_parse (GREY, &def_med.theme_colour);
+                }
+                nptr = strtok (NULL, ":\n");
+            }
+        }
+        else
+        {
+            gdk_color_parse (GREY, &def_med.theme_colour);
+            gdk_color_parse (GREY, &def_med.themetext_colour);
+            gdk_color_parse (GREY, &def_med.bar_colour);
+            gdk_color_parse (GREY, &def_med.bartext_colour);
+        }
+        g_free (ret);
+    }
+    else
+    {
+        def_med.desktop_font = "";
+        gdk_color_parse (GREY, &def_med.theme_colour);
+        gdk_color_parse (GREY, &def_med.themetext_colour);
+        gdk_color_parse (GREY, &def_med.bar_colour);
+        gdk_color_parse (GREY, &def_med.bartext_colour);
+        def_med.cursor_size = 0;
+    }
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
+static void defaults_pcman (void)
+{
+    char *user_config_file, *ret;
+    GKeyFile *kf;
+    GError *err;
+    gint val;
+
+    // read in data from system default file to a key file structure
+    user_config_file = pcmanfm_file (TRUE);
+    kf = g_key_file_new ();
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        // get data from the key file
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "desktop_bg", &err);
+        if (err == NULL)
+        {
+            if (!gdk_color_parse (ret, &def_med.desktop_colour))
+                gdk_color_parse (GREY, &def_med.desktop_colour);
+        }
+        else gdk_color_parse (GREY, &def_med.desktop_colour);
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
+        if (err == NULL)
+        {
+            if (!gdk_color_parse (ret, &def_med.desktoptext_colour))
+                gdk_color_parse (GREY, &def_med.desktoptext_colour);
+        }
+        else gdk_color_parse (GREY, &def_med.desktoptext_colour);
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
+        if (err == NULL && ret) def_med.desktop_picture = g_strdup (ret);
+        else def_med.desktop_picture = "";
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
+        if (err == NULL && ret) def_med.desktop_mode = g_strdup (ret);
+        else def_med.desktop_mode = "color";
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "show_documents", &err);
+        if (err == NULL && val >= 0 && val <= 1) def_med.show_docs = val;
+        else def_med.show_docs = 0;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "show_trash", &err);
+        if (err == NULL && val >= 0 && val <= 1) def_med.show_trash = val;
+        else def_med.show_trash = 0;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
+        if (err == NULL && val >= 0 && val <= 1) def_med.show_mnts = val;
+        else def_med.show_mnts = 0;
+    }
+    else
+    {
+        def_med.desktop_picture = "";
+        def_med.desktop_mode = "color";
+        gdk_color_parse (GREY, &def_med.desktop_colour);
+        gdk_color_parse (GREY, &def_med.desktoptext_colour);
+        def_med.show_docs = 0;
+        def_med.show_trash = 0;
+        def_med.show_mnts = 0;
+    }
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
+
 static void create_defaults (void)
 {
-    // defaults for controls - medium values must match those in global config files
+    // defaults for controls
+
     // /etc/xdg/lxpanel/LXDE-pi/panels/panel
-    def_med.barpos = 0;
-    def_med.icon_size = 36;
+    defaults_lxpanel ();
 
     // /etc/xdg/lxsession/LXDE-pi/desktop.conf
-    def_med.desktop_font = "PibotoLt 12";
-    gdk_color_parse ("#4D98F5", &def_med.theme_colour);
-    gdk_color_parse ("#FFFFFF", &def_med.themetext_colour);
-    gdk_color_parse ("#EDECEB", &def_med.bar_colour);
-    gdk_color_parse ("#000000", &def_med.bartext_colour);
-    def_med.cursor_size = 24;
+    defaults_lxsession ();
 
     // /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
-    def_med.desktop_picture = "/usr/share/rpd-wallpaper/road.jpg";
-    def_med.desktop_mode = "crop";
-    gdk_color_parse ("#D6D3DE", &def_med.desktop_colour);
-    gdk_color_parse ("#E8E8E8", &def_med.desktoptext_colour);
-    def_med.show_docs = 0;
-    def_med.show_trash = 1;
-    def_med.show_mnts = 1;
+    defaults_pcman ();
 
     // defaults with no dedicated controls - set on defaults buttons only,
     // so the values set in these are only used in the large and small cases
