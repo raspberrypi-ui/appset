@@ -1,3 +1,9 @@
+pipanel (20190503~131001) unstable; urgency=medium
+
+  * Handle settings for multiple desktops
+
+ -- Simon Long <simon@raspberrypi.org>  Fri, 03 May 2019 13:10:01 +0100
+
 pipanel (20190426~102348) unstable; urgency=medium
 
   * Read defaults from relevant files in /etc/xdg
