@@ -1842,9 +1842,9 @@ static void set_controls (void)
     }
 
     gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), cur_conf.desktop_font);
-    gtk_widget_set_sensitive (GTK_WIDGET (dpic), TRUE);
     for (i = 0; i < 2; i++)
     {
+        gtk_widget_set_sensitive (GTK_WIDGET (dpic[i]), TRUE);
         gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic[i]), cur_conf.desktop_picture[i]);
         if (!strcmp (cur_conf.desktop_mode[i], "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 1);
         else if (!strcmp (cur_conf.desktop_mode[i], "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 2);
@@ -2215,7 +2215,7 @@ int n_desktops (void)
     /* unless common_bg is set to 0, then always 1...*/
     n = get_common_bg (FALSE);
     if (n == 1) return 1;
-    if (n == -1 && get_common_bg (TRUE) != 0) return 1;
+    if (n == -1 && get_common_bg (TRUE) == 1) return 1;
 
     /* otherwise check xrandr for connected monitors */
     char *res = get_string ("xrandr -q | grep -c connected");
