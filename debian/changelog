@@ -1,3 +1,9 @@
+pipanel (20190507~140903) unstable; urgency=medium
+
+  * Update translations
+
+ -- Simon Long <simon@raspberrypi.org>  Tue, 07 May 2019 14:09:03 +0100
+
 pipanel (20190503~131001) unstable; urgency=medium
 
   * Handle settings for multiple desktops
