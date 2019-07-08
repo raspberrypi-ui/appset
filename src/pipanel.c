@@ -81,6 +81,7 @@ typedef struct {
     int task_width;
     int handle_width;
     int scrollbar_width;
+    int monitor;
 } DesktopConfig;
 
 static DesktopConfig cur_conf, def_lg, def_med, def_sm;
@@ -99,10 +100,10 @@ static char lo_ver;
 
 /* Handler IDs so they can be blocked when needed */
 
-static gulong cid, iid, bpid1, bpid2, dmid[2], tdid[2], ttid[2], tmid[2];
+static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2];
 
 /* Controls */
-static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *barh, *bcol, *btcol, *rb1, *rb2, *isz, *cb1[2], *cb2[2], *cb3[2], *csz, *cmsg, *tlab, *nb;
+static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *isz, *cb1[2], *cb2[2], *cb3[2], *csz, *cmsg, *tlab, *nb;
 
 static void backup_file (char *filepath);
 static void backup_config_files (void);
@@ -144,6 +145,7 @@ static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr);
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr);
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
+static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr);
@@ -669,12 +671,16 @@ static void load_lxpanel_settings (void)
         DEFAULT (barpos);
         DEFAULT (icon_size);
         DEFAULT (task_width);
+        DEFAULT (monitor);
         g_free (user_config_file);
         return;
     }
 
     if (!vsystem ("grep -q edge=bottom %s", user_config_file)) cur_conf.barpos = 1;
     else DEFAULT (barpos);
+
+    if (!vsystem ("grep -q monitor=1 %s", user_config_file)) cur_conf.monitor = 1;
+    else DEFAULT (monitor);
 
     cmdbuf = g_strdup_printf ("grep -Po '(?<=iconsize=)[0-9]+' %s", user_config_file);
     res = get_string (cmdbuf);
@@ -852,6 +858,7 @@ static void save_lxpanel_settings (void)
     vsystem ("sed -i s/height=.*/height=%d/g %s", cur_conf.icon_size, user_config_file);
     vsystem ("sed -i s/edge=.*/edge=%s/g %s", cur_conf.barpos ? "bottom" : "top", user_config_file);
     vsystem ("sed -i s/MaxTaskWidth=.*/MaxTaskWidth=%d/g %s", cur_conf.task_width, user_config_file);
+    vsystem ("sed -i s/monitor=.*/monitor=%d/g %s", cur_conf.monitor, user_config_file);
 
     g_free (user_config_file);
 }
@@ -1767,13 +1774,16 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
 
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 {
-    // only respond to the button which is now active
-    if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) return;
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
+    else cur_conf.barpos = 1;
+    save_lxpanel_settings ();
+    reload_lxpanel ();
+}
 
-    // find out which button in the group is active
-    GSList *group = gtk_radio_button_get_group (btn);
-    if (gtk_toggle_button_get_active (group->data)) cur_conf.barpos = 1;
-    else cur_conf.barpos = 0;
+static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
+{
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.monitor = 0;
+    else cur_conf.monitor = 1;
     save_lxpanel_settings ();
     reload_lxpanel ();
 }
@@ -1831,8 +1841,8 @@ static void set_controls (void)
     // block widget handlers
     g_signal_handler_block (isz, iid);
     g_signal_handler_block (csz, cid);
-    g_signal_handler_block (rb1, bpid1);
-    g_signal_handler_block (rb2, bpid2);
+    g_signal_handler_block (rb1, bpid);
+    g_signal_handler_block (rb3, blid);
     for (i = 0; i < 2; i++)
     {
         g_signal_handler_block (dmod[i], dmid[i]);
@@ -1879,6 +1889,9 @@ static void set_controls (void)
     if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 
+    if (cur_conf.monitor) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb4), TRUE);
+    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
+
     if (cur_conf.cursor_size != orig_cursor_size)
         gtk_widget_show (GTK_WIDGET (cmsg));
     else
@@ -1887,8 +1900,8 @@ static void set_controls (void)
     // unblock widget handlers
     g_signal_handler_unblock (isz, iid);
     g_signal_handler_unblock (csz, cid);
-    g_signal_handler_unblock (rb1, bpid1);
-    g_signal_handler_unblock (rb2, bpid2);
+    g_signal_handler_unblock (rb1, bpid);
+    g_signal_handler_unblock (rb3, blid);
     for (i = 0; i < 2; i++)
     {
         g_signal_handler_unblock (dmod[i], dmid[i]);
@@ -1948,12 +1961,16 @@ static void defaults_lxpanel (void)
     {
         def_med.barpos = 0;
         def_med.icon_size = 36;
+        def_med.monitor = 0;
         g_free (user_config_file);
         return;
     }
 
     if (!vsystem ("grep -q edge=bottom %s", user_config_file)) def_med.barpos = 1;
     else def_med.barpos = 0;
+
+    if (!vsystem ("grep -q monitor=1 %s", user_config_file)) def_med.monitor = 1;
+    else def_med.monitor = 0;
 
     cmdbuf = g_strdup_printf ("grep -Po '(?<=iconsize=)[0-9]+' %s", user_config_file);
     res = get_string (cmdbuf);
@@ -2304,10 +2321,8 @@ int main (int argc, char *argv[])
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag1);
 
     rb1 = gtk_builder_get_object (builder, "radiobutton1");
-    bpid1 = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
-
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
-    bpid2 = g_signal_connect (rb2, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+    bpid = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
 
     isz = gtk_builder_get_object (builder, "comboboxtext2");
     iid = g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
@@ -2318,25 +2333,25 @@ int main (int argc, char *argv[])
     for (i = 0; i < 2; i++)
     {
         dcol[i] = gtk_builder_get_object (builder, i ? "colorbutton2_" : "colorbutton2");
-        g_signal_connect (dcol[i], "color-set", G_CALLBACK (on_desktop_colour_set), i);
+        g_signal_connect (dcol[i], "color-set", G_CALLBACK (on_desktop_colour_set), (void *) i);
 
         dtcol[i] = gtk_builder_get_object (builder, i ? "colorbutton6_" : "colorbutton6");
-        g_signal_connect (dtcol[i], "color-set", G_CALLBACK (on_desktoptext_colour_set), i);
+        g_signal_connect (dtcol[i], "color-set", G_CALLBACK (on_desktoptext_colour_set), (void *) i);
 
         dpic[i] = gtk_builder_get_object (builder, i ? "filechooserbutton1_" : "filechooserbutton1");
-        g_signal_connect (dpic[i], "file-set", G_CALLBACK (on_desktop_picture_set), i);
+        g_signal_connect (dpic[i], "file-set", G_CALLBACK (on_desktop_picture_set), (void *) i);
 
         dmod[i] = gtk_builder_get_object (builder, i ? "comboboxtext1_" : "comboboxtext1");
-        dmid[i] = g_signal_connect (dmod[i], "changed", G_CALLBACK (on_desktop_mode_set), i);
+        dmid[i] = g_signal_connect (dmod[i], "changed", G_CALLBACK (on_desktop_mode_set), (void *) i);
 
         cb1[i] = gtk_builder_get_object (builder, i ? "checkbutton1_" : "checkbutton1");
-        tdid[i] = g_signal_connect (cb1[i], "toggled", G_CALLBACK (on_toggle_docs), i);
+        tdid[i] = g_signal_connect (cb1[i], "toggled", G_CALLBACK (on_toggle_docs), (void *) i);
 
         cb2[i] = gtk_builder_get_object (builder, i ? "checkbutton2_" : "checkbutton2");
-        ttid[i] = g_signal_connect (cb2[i], "toggled", G_CALLBACK (on_toggle_trash), i);
+        ttid[i] = g_signal_connect (cb2[i], "toggled", G_CALLBACK (on_toggle_trash), (void *) i);
 
         cb3[i] = gtk_builder_get_object (builder, i ? "checkbutton3_" : "checkbutton3");
-        tmid[i] = g_signal_connect (cb3[i], "toggled", G_CALLBACK (on_toggle_mnts), i);
+        tmid[i] = g_signal_connect (cb3[i], "toggled", G_CALLBACK (on_toggle_mnts), (void *) i);
     }
 
     cmsg = gtk_builder_get_object (builder, "label35");
@@ -2348,11 +2363,18 @@ int main (int argc, char *argv[])
     {
         gtk_widget_show (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
         gtk_label_set_text (GTK_LABEL (tlab), _("Desktop 1"));
+        gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
+        gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox26")));
+        rb3 = gtk_builder_get_object (builder, "radiobutton3");
+        rb4 = gtk_builder_get_object (builder, "radiobutton4");
+        blid = g_signal_connect (rb3, "toggled", G_CALLBACK (on_bar_loc_set), NULL);
     }
     else
     {
         gtk_widget_hide (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
         gtk_label_set_text (GTK_LABEL (tlab), _("Desktop"));
+        gtk_widget_hide_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
+        gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox26")));
     }
 
     g_object_unref (builder);

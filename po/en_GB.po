@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-07 14:06+0100\n"
+"POT-Creation-Date: 2019-07-08 08:10+0100\n"
 "PO-Revision-Date: 2018-01-10 12:36+0000\n"
 "Last-Translator: Simon Long <simon@raspberrypi.org>\n"
 "Language-Team: English (British)\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../src/pipanel.c:2350 ../data/pipanel.ui.h:22
+#: ../src/pipanel.c:2353 ../data/pipanel.ui.h:22
 msgid "Desktop 1"
 msgstr "Desktop 1"
 
-#: ../src/pipanel.c:2355
+#: ../src/pipanel.c:2363
 msgid "Desktop"
 msgstr "Desktop"
 
@@ -166,90 +166,102 @@ msgid "Choose the colour of text used on the taskbar"
 msgstr "Choose the colour of text used on the taskbar"
 
 #: ../data/pipanel.ui.h:37
+msgid "Location"
+msgstr "Location:"
+
+#: ../data/pipanel.ui.h:38
+msgid "Show the taskbar on screen 1"
+msgstr "Show the taskbar on screen 1"
+
+#: ../data/pipanel.ui.h:39
+msgid "Show the taskbar on screen 2"
+msgstr "Show the taskbar on screen 2"
+
+#: ../data/pipanel.ui.h:40
 msgid "Menu Bar"
 msgstr "Taskbar"
 
-#: ../data/pipanel.ui.h:38
+#: ../data/pipanel.ui.h:41
 msgid "Font"
 msgstr "Font:"
 
-#: ../data/pipanel.ui.h:39
+#: ../data/pipanel.ui.h:42
 msgid "Choose the font used for labels and menus"
 msgstr "Choose the font used for labels and menus"
 
-#: ../data/pipanel.ui.h:40
+#: ../data/pipanel.ui.h:43
 msgid "Highlight Colour"
 msgstr "Highlight Colour:"
 
-#: ../data/pipanel.ui.h:41
+#: ../data/pipanel.ui.h:44
 msgid "Choose the colour used to highlight active elements"
 msgstr "Choose the colour used to highlight active elements"
 
-#: ../data/pipanel.ui.h:42
+#: ../data/pipanel.ui.h:45
 msgid "Highlight Text Colour"
 msgstr "Highlight Text Colour:"
 
-#: ../data/pipanel.ui.h:43
+#: ../data/pipanel.ui.h:46
 msgid "Choose the colour used for text on active elements"
 msgstr "Choose the colour used for text on active elements"
 
-#: ../data/pipanel.ui.h:44
+#: ../data/pipanel.ui.h:47
 msgid "Mouse Cursor"
 msgstr "Mouse Cursor:"
 
-#: ../data/pipanel.ui.h:45
+#: ../data/pipanel.ui.h:48
 msgid "Set the size of the mouse cursor"
 msgstr "Set the size of the mouse cursor"
 
-#: ../data/pipanel.ui.h:46
+#: ../data/pipanel.ui.h:49
 msgid "Large"
 msgstr "Large"
 
-#: ../data/pipanel.ui.h:47
+#: ../data/pipanel.ui.h:50
 msgid "Medium"
 msgstr "Medium"
 
-#: ../data/pipanel.ui.h:48
+#: ../data/pipanel.ui.h:51
 msgid "Small"
 msgstr "Small"
 
-#: ../data/pipanel.ui.h:49
+#: ../data/pipanel.ui.h:52
 msgid "New mouse cursor size will take effect at reboot"
 msgstr "New mouse cursor size will take effect at reboot"
 
-#: ../data/pipanel.ui.h:50
+#: ../data/pipanel.ui.h:53
 msgid "System"
 msgstr "System"
 
-#: ../data/pipanel.ui.h:51
+#: ../data/pipanel.ui.h:54
 msgid "For large screens:"
 msgstr "For large screens:"
 
-#: ../data/pipanel.ui.h:52
+#: ../data/pipanel.ui.h:55
 msgid "Set Defaults"
 msgstr "Set Defaults"
 
-#: ../data/pipanel.ui.h:53
+#: ../data/pipanel.ui.h:56
 msgid "Set to default values for high-resolution displays"
 msgstr "Set to default values for high-resolution displays"
 
-#: ../data/pipanel.ui.h:54
+#: ../data/pipanel.ui.h:57
 msgid "For medium screens:"
 msgstr "For medium screens:"
 
-#: ../data/pipanel.ui.h:55
+#: ../data/pipanel.ui.h:58
 msgid "Set to default values for medium-resolution displays"
 msgstr "Set to default values for medium-resolution displays"
 
-#: ../data/pipanel.ui.h:56
+#: ../data/pipanel.ui.h:59
 msgid "For small screens:"
 msgstr "For small screens:"
 
-#: ../data/pipanel.ui.h:57
+#: ../data/pipanel.ui.h:60
 msgid "Set to default values for low-resolution displays"
 msgstr "Set to default values for low-resolution displays"
 
-#: ../data/pipanel.ui.h:58
+#: ../data/pipanel.ui.h:61
 msgid "Defaults"
 msgstr "Defaults"
 
