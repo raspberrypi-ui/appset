@@ -2324,6 +2324,10 @@ int main (int argc, char *argv[])
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
     bpid = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
 
+    rb3 = gtk_builder_get_object (builder, "radiobutton3");
+    rb4 = gtk_builder_get_object (builder, "radiobutton4");
+    blid = g_signal_connect (rb3, "toggled", G_CALLBACK (on_bar_loc_set), NULL);
+
     isz = gtk_builder_get_object (builder, "comboboxtext2");
     iid = g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
 
@@ -2365,9 +2369,6 @@ int main (int argc, char *argv[])
         gtk_label_set_text (GTK_LABEL (tlab), _("Desktop 1"));
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox26")));
-        rb3 = gtk_builder_get_object (builder, "radiobutton3");
-        rb4 = gtk_builder_get_object (builder, "radiobutton4");
-        blid = g_signal_connect (rb3, "toggled", G_CALLBACK (on_bar_loc_set), NULL);
     }
     else
     {
