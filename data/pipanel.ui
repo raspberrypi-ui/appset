@@ -63,8 +63,8 @@
               <object class="GtkVBox" id="vbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="homogeneous">True</property>
                 <property name="spacing">5</property>
+                <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkHBox" id="hbox11">
                     <property name="visible">True</property>
@@ -168,8 +168,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -206,8 +206,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -233,9 +233,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="tooltip_text" translatable="yes">Show the documents folder on the desktop</property>
                         <property name="relief">none</property>
                         <property name="draw_indicator">True</property>
-                        <property name="tooltip_text" translatable="yes">Show the documents folder on the desktop</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -249,8 +249,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
                         <property name="tooltip_text" translatable="yes">Show the wastebasket on the desktop</property>
+                        <property name="draw_indicator">True</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -264,8 +264,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
                         <property name="tooltip_text" translatable="yes">Show mounted disks on the desktop</property>
+                        <property name="draw_indicator">True</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -280,10 +280,21 @@
                     <property name="position">4</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton4">
+                    <property name="label" translatable="yes">Show identical desktop on second monitor</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
               </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child type="tab">
               <object class="GtkLabel" id="tablabel1">
@@ -292,7 +303,6 @@
                 <property name="label" translatable="yes">Desktop 1</property>
               </object>
               <packing>
-                <property name="position">0</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -300,8 +310,8 @@
               <object class="GtkVBox" id="vbox1_">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="homogeneous">True</property>
                 <property name="spacing">5</property>
+                <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkHBox" id="hbox11_">
                     <property name="visible">True</property>
@@ -405,8 +415,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -443,8 +453,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -470,9 +480,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="tooltip_text" translatable="yes">Show the documents folder on the desktop</property>
                         <property name="relief">none</property>
                         <property name="draw_indicator">True</property>
-                        <property name="tooltip_text" translatable="yes">Show the documents folder on the desktop</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -486,8 +496,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
                         <property name="tooltip_text" translatable="yes">Show the wastebasket on the desktop</property>
+                        <property name="draw_indicator">True</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -501,8 +511,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
                         <property name="tooltip_text" translatable="yes">Show mounted disks on the desktop</property>
+                        <property name="draw_indicator">True</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -515,6 +525,42 @@
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox16_">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkLabel" id="label16_">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Desktop Folder</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFileChooserButton" id="filechooserbutton4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action">select-folder</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>
@@ -537,8 +583,8 @@
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="homogeneous">True</property>
                 <property name="spacing">5</property>
+                <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkHBox" id="hbox21">
                     <property name="visible">True</property>
@@ -617,9 +663,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="tooltip_text" translatable="yes">Show the taskbar at the top of the screen</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
-                        <property name="tooltip_text" translatable="yes">Show the taskbar at the top of the screen</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -633,10 +679,10 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="tooltip_text" translatable="yes">Show the taskbar at the bottom of the screen</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">radiobutton1</property>
-                        <property name="tooltip_text" translatable="yes">Show the taskbar at the bottom of the screen</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -673,8 +719,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the taskbar background</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -711,8 +757,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of text used on the taskbar</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -762,9 +808,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="tooltip_text" translatable="yes">Show the taskbar on screen 1</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
-                        <property name="tooltip_text" translatable="yes">Show the taskbar on screen 1</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -778,10 +824,10 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="tooltip_text" translatable="yes">Show the taskbar on screen 2</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">radiobutton3</property>
-                        <property name="tooltip_text" translatable="yes">Show the taskbar on screen 2</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -827,8 +873,8 @@
               <object class="GtkVBox" id="vbox3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="homogeneous">True</property>
                 <property name="spacing">5</property>
+                <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkHBox" id="hbox31">
                     <property name="visible">True</property>
@@ -888,8 +934,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour used to highlight active elements</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -926,8 +972,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="color">#000000000000</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour used for text on active elements</property>
+                        <property name="color">#000000000000</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1008,6 +1054,17 @@
                     <property name="position">4</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkHBox" id="hbox36">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="position">3</property>
@@ -1028,8 +1085,8 @@
               <object class="GtkVBox" id="vbox4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="homogeneous">True</property>
                 <property name="spacing">5</property>
+                <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkHBox" id="hbox41">
                     <property name="visible">True</property>
@@ -1066,7 +1123,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
@@ -1167,6 +1224,17 @@
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox46">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>
