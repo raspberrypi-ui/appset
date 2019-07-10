@@ -151,6 +151,7 @@ static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr);
 static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr);
 static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr);
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
+static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr);
 static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr);
@@ -1862,9 +1863,15 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
 static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr)
 {
     char *folder = gtk_file_chooser_get_filename (btn);
-    if (folder) cur_conf.desktop_folder = folder;
-    save_pcman_settings (1);
-    reload_pcmanfm ();
+    if (folder)
+    {
+        if (g_strcmp0 (cur_conf.desktop_folder, folder))
+        {
+            cur_conf.desktop_folder = folder;
+            save_pcman_settings (1);
+            reload_pcmanfm ();
+        }
+    }
 }
 
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
@@ -2518,7 +2525,7 @@ int main (int argc, char *argv[])
     cbid = g_signal_connect (cb4, "toggled", G_CALLBACK (on_toggle_desktop), NULL);
 
     dfold = gtk_builder_get_object (builder, "filechooserbutton4");
-    dfid = g_signal_connect (dfold, "file-set", G_CALLBACK (on_desktop_folder_set), NULL);
+    dfid = g_signal_connect (dfold, "selection-changed", G_CALLBACK (on_desktop_folder_set), NULL);
 
     cmsg = gtk_builder_get_object (builder, "label35");
 
