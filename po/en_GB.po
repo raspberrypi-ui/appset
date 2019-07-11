@@ -115,7 +115,7 @@ msgstr "Show identical desktop on second monitor"
 
 #: ../data/pipanel.ui.h:24
 msgid "Desktop Folder"
-msgstr "Desktop Folder:"
+msgstr "Desktop 2 Folder:"
 
 #: ../data/pipanel.ui.h:25
 msgid "Desktop 2"
