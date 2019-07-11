@@ -1,3 +1,9 @@
+pipanel (1:1.0) buster; urgency=medium
+
+  * Multiple desktop support improved; new version numbering scheme
+
+ -- Simon Long <simon@raspberrypi.org>  Thu, 11 Jul 2019 07:50:28 +0100
+
 pipanel (20190708~110948) buster; urgency=medium
 
   * Add switch to move taskbar between monitors
