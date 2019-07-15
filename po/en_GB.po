@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-09 15:30+0100\n"
+"POT-Creation-Date: 2019-07-15 14:22+0100\n"
 "PO-Revision-Date: 2018-01-10 12:36+0000\n"
 "Last-Translator: Simon Long <simon@raspberrypi.org>\n"
 "Language-Team: English (British)\n"
@@ -17,13 +17,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../src/pipanel.c:1915 ../src/pipanel.c:2554
+#: ../src/pipanel.c:1929 ../src/pipanel.c:1933
+#, c-format
+msgid ""
+"Desktop\n"
+"%s"
+msgstr ""
+"Desktop\n"
+"%s"
+
+#: ../src/pipanel.c:1941
 msgid "Desktop"
 msgstr "Desktop"
-
-#: ../src/pipanel.c:1921 ../src/pipanel.c:2549 ../data/pipanel.ui.h:23
-msgid "Desktop 1"
-msgstr "Desktop 1"
 
 #: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
 msgid "Appearance Settings"
@@ -113,163 +118,177 @@ msgstr "Show external disks on the desktop"
 msgid "Show identical desktop on second monitor"
 msgstr "Show identical desktop on second monitor"
 
+#: ../data/pipanel.ui.h:23
+msgid ""
+"Check this box to show the same desktop image and icons on both monitors"
+msgstr ""
+"Check this box to show the same desktop image and icons on both monitors"
+
 #: ../data/pipanel.ui.h:24
-msgid "Desktop Folder"
-msgstr "Desktop 2 Folder:"
+msgid "Desktop 1"
+msgstr "Desktop 1"
 
 #: ../data/pipanel.ui.h:25
+msgid "Desktop Folder"
+msgstr "Second Desktop Folder:"
+
+#: ../data/pipanel.ui.h:26
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "Choose the folder containing files to be shown on the second desktop"
+
+#: ../data/pipanel.ui.h:27
 msgid "Desktop 2"
 msgstr "Desktop 2"
 
-#: ../data/pipanel.ui.h:26
+#: ../data/pipanel.ui.h:28
 msgid "Size"
 msgstr "Size:"
 
-#: ../data/pipanel.ui.h:27
+#: ../data/pipanel.ui.h:29
 msgid "Set the size of icons used on the toolbar and menu"
 msgstr "Set the size of icons used on the toolbar and menu"
 
-#: ../data/pipanel.ui.h:28
+#: ../data/pipanel.ui.h:30
 msgid "Very large (48x48)"
 msgstr "Very large (48x48)"
 
-#: ../data/pipanel.ui.h:29
+#: ../data/pipanel.ui.h:31
 msgid "Large (32x32)"
 msgstr "Large (32x32)"
 
-#: ../data/pipanel.ui.h:30
+#: ../data/pipanel.ui.h:32
 msgid "Medium (24x24)"
 msgstr "Medium (24x24)"
 
-#: ../data/pipanel.ui.h:31
+#: ../data/pipanel.ui.h:33
 msgid "Small (16x16)"
 msgstr "Small (16x16)"
 
-#: ../data/pipanel.ui.h:32
+#: ../data/pipanel.ui.h:34
 msgid "Position"
 msgstr "Position:"
 
-#: ../data/pipanel.ui.h:33
+#: ../data/pipanel.ui.h:35
 msgid "Top"
 msgstr "Top"
 
-#: ../data/pipanel.ui.h:34
+#: ../data/pipanel.ui.h:36
 msgid "Show the taskbar at the top of the screen"
 msgstr "Show the taskbar at the top of the screen"
 
-#: ../data/pipanel.ui.h:35
+#: ../data/pipanel.ui.h:37
 msgid "Bottom"
 msgstr "Bottom"
 
-#: ../data/pipanel.ui.h:36
+#: ../data/pipanel.ui.h:38
 msgid "Show the taskbar at the bottom of the screen"
 msgstr "Show the taskbar at the bottom of the screen"
 
-#: ../data/pipanel.ui.h:37
+#: ../data/pipanel.ui.h:39
 msgid "Choose the colour of the taskbar background"
 msgstr "Choose the colour of the taskbar background"
 
-#: ../data/pipanel.ui.h:38
+#: ../data/pipanel.ui.h:40
 msgid "Choose the colour of text used on the taskbar"
 msgstr "Choose the colour of text used on the taskbar"
 
-#: ../data/pipanel.ui.h:39
+#: ../data/pipanel.ui.h:41
 msgid "Location"
 msgstr "Location:"
 
-#: ../data/pipanel.ui.h:40
-msgid "Show the taskbar on screen 1"
-msgstr "Show the taskbar on screen 1"
-
-#: ../data/pipanel.ui.h:41
-msgid "Show the taskbar on screen 2"
-msgstr "Show the taskbar on screen 2"
-
 #: ../data/pipanel.ui.h:42
+msgid "Show the taskbar on screen 1"
+msgstr "Show the taskbar on monitor 1"
+
+#: ../data/pipanel.ui.h:43
+msgid "Show the taskbar on screen 2"
+msgstr "Show the taskbar on monitor 2"
+
+#: ../data/pipanel.ui.h:44
 msgid "Menu Bar"
 msgstr "Taskbar"
 
-#: ../data/pipanel.ui.h:43
+#: ../data/pipanel.ui.h:45
 msgid "Font"
 msgstr "Font:"
 
-#: ../data/pipanel.ui.h:44
+#: ../data/pipanel.ui.h:46
 msgid "Choose the font used for labels and menus"
 msgstr "Choose the font used for labels and menus"
 
-#: ../data/pipanel.ui.h:45
+#: ../data/pipanel.ui.h:47
 msgid "Highlight Colour"
 msgstr "Highlight Colour:"
 
-#: ../data/pipanel.ui.h:46
+#: ../data/pipanel.ui.h:48
 msgid "Choose the colour used to highlight active elements"
 msgstr "Choose the colour used to highlight active elements"
 
-#: ../data/pipanel.ui.h:47
+#: ../data/pipanel.ui.h:49
 msgid "Highlight Text Colour"
 msgstr "Highlight Text Colour:"
 
-#: ../data/pipanel.ui.h:48
+#: ../data/pipanel.ui.h:50
 msgid "Choose the colour used for text on active elements"
 msgstr "Choose the colour used for text on active elements"
 
-#: ../data/pipanel.ui.h:49
+#: ../data/pipanel.ui.h:51
 msgid "Mouse Cursor"
 msgstr "Mouse Cursor:"
 
-#: ../data/pipanel.ui.h:50
+#: ../data/pipanel.ui.h:52
 msgid "Set the size of the mouse cursor"
 msgstr "Set the size of the mouse cursor"
 
-#: ../data/pipanel.ui.h:51
+#: ../data/pipanel.ui.h:53
 msgid "Large"
 msgstr "Large"
 
-#: ../data/pipanel.ui.h:52
+#: ../data/pipanel.ui.h:54
 msgid "Medium"
 msgstr "Medium"
 
-#: ../data/pipanel.ui.h:53
+#: ../data/pipanel.ui.h:55
 msgid "Small"
 msgstr "Small"
 
-#: ../data/pipanel.ui.h:54
+#: ../data/pipanel.ui.h:56
 msgid "New mouse cursor size will take effect at reboot"
 msgstr "New mouse cursor size will take effect at reboot"
 
-#: ../data/pipanel.ui.h:55
+#: ../data/pipanel.ui.h:57
 msgid "System"
 msgstr "System"
 
-#: ../data/pipanel.ui.h:56
+#: ../data/pipanel.ui.h:58
 msgid "For large screens:"
 msgstr "For large screens:"
 
-#: ../data/pipanel.ui.h:57
+#: ../data/pipanel.ui.h:59
 msgid "Set Defaults"
 msgstr "Set Defaults"
 
-#: ../data/pipanel.ui.h:58
+#: ../data/pipanel.ui.h:60
 msgid "Set to default values for high-resolution displays"
 msgstr "Set to default values for high-resolution displays"
 
-#: ../data/pipanel.ui.h:59
+#: ../data/pipanel.ui.h:61
 msgid "For medium screens:"
 msgstr "For medium screens:"
 
-#: ../data/pipanel.ui.h:60
+#: ../data/pipanel.ui.h:62
 msgid "Set to default values for medium-resolution displays"
 msgstr "Set to default values for medium-resolution displays"
 
-#: ../data/pipanel.ui.h:61
+#: ../data/pipanel.ui.h:63
 msgid "For small screens:"
 msgstr "For small screens:"
 
-#: ../data/pipanel.ui.h:62
+#: ../data/pipanel.ui.h:64
 msgid "Set to default values for low-resolution displays"
 msgstr "Set to default values for low-resolution displays"
 
-#: ../data/pipanel.ui.h:63
+#: ../data/pipanel.ui.h:65
 msgid "Defaults"
 msgstr "Defaults"
 

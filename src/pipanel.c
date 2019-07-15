@@ -104,9 +104,12 @@ static char lo_ver;
 
 static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid;
 
+/* Monitor names from xrandr */
+static char *mon_names[2];
+
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
-static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *tlab, *nb, *dfold;
+static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold;
 
 static void backup_file (char *filepath);
 static void backup_config_files (void);
@@ -160,6 +163,8 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr);
 static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
+static void set_tabs (int n_desk);
+static int n_desktops (void);
 
 /* Shell commands to reload data */
 
@@ -1914,19 +1919,40 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
     reload_pcmanfm ();
 }
 
+static void set_tabs (int n_desk)
+{
+    char *buf;
+
+    if (n_desk > 1)
+    {
+        gtk_widget_show (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
+        buf = g_strdup_printf (_("Desktop\n%s"), mon_names[0]);
+        gtk_label_set_text (GTK_LABEL (t1lab), buf);
+        gtk_label_set_justify (GTK_LABEL (t1lab), GTK_JUSTIFY_CENTER);
+        g_free (buf);
+        buf = g_strdup_printf (_("Desktop\n%s"), mon_names[1]);
+        gtk_label_set_text (GTK_LABEL (t2lab), buf);
+        gtk_label_set_justify (GTK_LABEL (t2lab), GTK_JUSTIFY_CENTER);
+        g_free (buf);
+    }
+    else
+    {
+        gtk_widget_hide (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
+        gtk_label_set_text (GTK_LABEL (t1lab), _("Desktop"));
+    }
+}
+
 static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn)))
     {
-        gtk_widget_hide (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
-        gtk_label_set_text (GTK_LABEL (tlab), _("Desktop"));
         cur_conf.common_bg = 1;
+        set_tabs (1);
     }
     else
     {
-        gtk_widget_show (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
-        gtk_label_set_text (GTK_LABEL (tlab), _("Desktop 1"));
         cur_conf.common_bg = 0;
+        set_tabs (2);
     }
     save_pcman_g_settings ();
     reload_pcmanfm ();
@@ -2392,16 +2418,26 @@ int get_common_bg (gboolean global)
     return -1;
 }
 
-int n_desktops (void)
+static int n_desktops (void)
 {
-    int n, m;
+    int i, n, m;
+    char *res;
 
     /* check xrandr for connected monitors */
-    char *res = get_string ("xrandr -q | grep -c connected");
+    res = get_string ("xrandr -q | grep -c connected");
     n = sscanf (res, "%d", &m);
     g_free (res);
-    if (n == 1 && m > 0) return m;
-    return 1;
+    if (n != 1 || m <= 0) m = 1;
+    if (m > 2) m = 2;
+
+    /* get the names */
+    for (i = 0; i < m; i++)
+    {
+        res = g_strdup_printf (" xrandr --listmonitors | grep %d: | cut -d ' ' -f 6", i);
+        mon_names[i] = get_string (res);
+        g_free (res);
+    }
+    return m;
 }
 
 
@@ -2412,6 +2448,7 @@ int main (int argc, char *argv[])
     GtkBuilder *builder;
     GObject *item;
     GtkWidget *dlg;
+    GdkScreen *screen;
     int maj, min, sub, i;
     int flag1 = 1, flag2 = 2, flag3 = 3;
 
@@ -2529,7 +2566,8 @@ int main (int argc, char *argv[])
 
     cmsg = gtk_builder_get_object (builder, "label35");
 
-    tlab = gtk_builder_get_object (builder, "tablabel1");
+    t1lab = gtk_builder_get_object (builder, "tablabel1");
+    t2lab = gtk_builder_get_object (builder, "tablabel1_");
     nb = gtk_builder_get_object (builder, "notebook1");
 
     i = n_desktops ();
@@ -2540,6 +2578,8 @@ int main (int argc, char *argv[])
         gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox26")));
         gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox36")));
         gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox46")));
+        gtk_button_set_label (GTK_BUTTON (rb3), mon_names[0]);
+        gtk_button_set_label (GTK_BUTTON (rb4), mon_names[1]);
     }
     else
     {
@@ -2550,16 +2590,8 @@ int main (int argc, char *argv[])
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox46")));
     }
 
-    if (i > 1 && cur_conf.common_bg == 0)
-    {
-        gtk_widget_show (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
-        gtk_label_set_text (GTK_LABEL (tlab), _("Desktop 1"));
-    }
-    else
-    {
-        gtk_widget_hide (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
-        gtk_label_set_text (GTK_LABEL (tlab), _("Desktop"));
-    }
+    if (i > 1 && cur_conf.common_bg == 0) set_tabs (2);
+    else set_tabs (1);
 
     g_object_unref (builder);
 
