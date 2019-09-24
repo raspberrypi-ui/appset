@@ -2424,7 +2424,7 @@ static int n_desktops (void)
     char *res;
 
     /* check xrandr for connected monitors */
-    res = get_string ("xrandr -q | grep -c connected");
+    res = get_string ("xrandr -q | grep -cw connected");
     n = sscanf (res, "%d", &m);
     g_free (res);
     if (n != 1 || m <= 0) m = 1;
