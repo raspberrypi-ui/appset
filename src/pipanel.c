@@ -275,17 +275,18 @@ static char *get_string (char *cmd)
     return res ? res : g_strdup ("");
 }
 
-static int read_version (char *package, int *maj, int *min, int *sub)
+static gboolean read_version (char *package, int *maj, int *min, int *sub)
 {
     char *cmd, *res;
     int val;
 
-    cmd = g_strdup_printf ("dpkg -s %s | grep Version | rev | cut -d : -f 1 | rev", package);
+    cmd = g_strdup_printf ("dpkg -s %s 2> /dev/null | grep Version | rev | cut -d : -f 1 | rev", package);
     res = get_string (cmd);
     val = sscanf (res, "%d.%d.%d", maj, min, sub);
     g_free (cmd);
     g_free (res);
-    return val;
+    if (val == 3) return TRUE;
+    else return FALSE;
 }
 
 // File handling for backing up, restoring and resetting config
@@ -2424,7 +2425,7 @@ static int n_desktops (void)
     char *res;
 
     /* check xrandr for connected monitors */
-    res = get_string ("xrandr -q | grep -cw connected");
+    res = get_string ("xrandr --listmonitors | grep Monitors: | cut -d ' ' -f 2");
     n = sscanf (res, "%d", &m);
     g_free (res);
     if (n != 1 || m <= 0) m = 1;
@@ -2460,17 +2461,17 @@ int main (int argc, char *argv[])
 #endif
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
-    if (read_version ("lxsession", &maj, &min, &sub) != 3) needs_refresh = 1;
-    else
+    if (read_version ("lxsession", &maj, &min, &sub))
     {
         if (min >= 5) needs_refresh = 0;
         else if (min == 4 && sub == 9) needs_refresh = 0;
         else needs_refresh = 1;
     }
+    else needs_refresh = 1;
 
     // get libreoffice version
-    if (read_version ("libreoffice", &maj, &min, &sub) != 3) lo_ver = 5;
-    else lo_ver = maj;
+    if (read_version ("libreoffice", &maj, &min, &sub)) lo_ver = maj;
+    else lo_ver = 5;
 
     // load data from config files
     create_defaults ();
