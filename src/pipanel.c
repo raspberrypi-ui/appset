@@ -2434,7 +2434,7 @@ static int n_desktops (void)
     /* get the names */
     for (i = 0; i < m; i++)
     {
-        res = g_strdup_printf (" xrandr --listmonitors | grep %d: | cut -d ' ' -f 6", i);
+        res = g_strdup_printf ("xrandr --listmonitors | grep %d: | cut -d ' ' -f 6", i);
         mon_names[i] = get_string (res);
         g_free (res);
     }
@@ -2450,7 +2450,7 @@ int main (int argc, char *argv[])
     GObject *item;
     GtkWidget *dlg;
     GdkScreen *screen;
-    int maj, min, sub, i;
+    int maj, min, sub, i, st_tab = 0;
     int flag1 = 1, flag2 = 2, flag3 = 3;
 
 #ifdef ENABLE_NLS
@@ -2486,6 +2486,12 @@ int main (int argc, char *argv[])
     backup_config_files ();
 
     orig_cursor_size = cur_conf.cursor_size;
+
+    // read starting tab if there is one
+    if (argc > 1)
+    {
+        if (sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
+    }
 
     // GTK setup
     gtk_init (&argc, &argv);
@@ -2591,7 +2597,11 @@ int main (int argc, char *argv[])
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox46")));
     }
 
-    if (i > 1 && cur_conf.common_bg == 0) set_tabs (2);
+    if (i > 1 && cur_conf.common_bg == 0)
+    {
+        set_tabs (2);
+        if (st_tab == 1) gtk_notebook_set_current_page (GTK_NOTEBOOK (nb), 1);
+    }
     else set_tabs (1);
 
     g_object_unref (builder);
