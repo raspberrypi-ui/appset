@@ -260,7 +260,7 @@ static int vsystem (const char *fmt, ...)
 static char *get_string (char *cmd)
 {
     char *line = NULL, *res = NULL;
-    int len = 0;
+    size_t len = 0;
     FILE *fp = popen (cmd, "r");
 
     if (fp == NULL) return g_strdup ("");
