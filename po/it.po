@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-07-15 14:22+0100\n"
-"PO-Revision-Date: 2020-05-26 20:30+0200\n"
+"PO-Revision-Date: 2020-05-26 20:39+0200\n"
 "Last-Translator: Emanuele Goldoni <emanuele.goldoni@gmail.com>\n"
 "Language-Team: Italian\n"
 "Language: it\n"
@@ -148,7 +148,7 @@ msgstr "Scrivania 2"
 # ends with ":"
 #: ../data/pipanel.ui.h:28
 msgid "Size"
-msgstr "Dimensione"
+msgstr "Dimensione:"
 
 #: ../data/pipanel.ui.h:29
 msgid "Set the size of icons used on the toolbar and menu"
