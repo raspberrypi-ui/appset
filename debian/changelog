@@ -1,5 +1,11 @@
 pipanel (1:1.4) buster; urgency=medium
 
+  * Italian translation added.
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 01 Jun 2020 10:07:28 +0100
+
+pipanel (1:1.4) buster; urgency=medium
+
   * Use size_t for all getline calls
 
  -- Simon Long <simon@raspberrypi.org>  Fri, 28 Feb 2020 07:00:06 +0000
