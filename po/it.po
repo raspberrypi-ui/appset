@@ -1,0 +1,313 @@
+# English translations for pipanel package.
+# Copyright (C) 2018 Raspberry Pi
+# This file is distributed under the same license as the pipanel package.
+# Emanuele Goldoni <emanuele.goldoni@gmail.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pipanel 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-07-15 14:22+0100\n"
+"PO-Revision-Date: 2020-05-26 20:39+0200\n"
+"Last-Translator: Emanuele Goldoni <emanuele.goldoni@gmail.com>\n"
+"Language-Team: Italian\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.3\n"
+
+#: ../src/pipanel.c:1930 ../src/pipanel.c:1934
+#, c-format
+msgid ""
+"Desktop\n"
+"%s"
+msgstr ""
+"Scrivania\n"
+"%s"
+
+#: ../src/pipanel.c:1942
+msgid "Desktop"
+msgstr "Scrivania"
+
+# App name
+#: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
+msgid "Appearance Settings"
+msgstr "Impostazioni dell'aspetto"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:2
+msgid "Layout"
+msgstr "Stile:"
+
+#: ../data/pipanel.ui.h:3
+msgid "Set how the wallpaper should be fitted to the screen"
+msgstr "Definisce come l'immagine di sfondo deve adattarsi allo schermo"
+
+#: ../data/pipanel.ui.h:4
+msgid "No image"
+msgstr "Nessuna immagine"
+
+#: ../data/pipanel.ui.h:5
+msgid "Centre image on screen"
+msgstr "Immagine centrata"
+
+#: ../data/pipanel.ui.h:6
+msgid "Fit image onto screen"
+msgstr "Immagine scalata"
+
+#: ../data/pipanel.ui.h:7
+msgid "Fill screen with image"
+msgstr "Immagine ingrandita"
+
+#: ../data/pipanel.ui.h:8
+msgid "Stretch to cover screen"
+msgstr "Immagine allungata"
+
+#: ../data/pipanel.ui.h:9
+msgid "Tile image"
+msgstr "Immagine ripetuta"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:10
+msgid "Picture"
+msgstr "Immagine:"
+
+#: ../data/pipanel.ui.h:11
+msgid "Choose image file to use as wallpaper"
+msgstr "Seleziona l'immagine da utilizzare come sfondo"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:12
+msgid "Colour"
+msgstr "Colore:"
+
+#: ../data/pipanel.ui.h:13
+msgid "Choose the colour of the desktop background"
+msgstr "Seleziona il colore di sfondo della scrivania"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:14
+msgid "Text Colour"
+msgstr "Colore del testo:"
+
+#: ../data/pipanel.ui.h:15
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr "Seleziona il colore del testo utilizzato per le etichette delle icone sulla scrivania"
+
+#: ../data/pipanel.ui.h:16
+msgid "Documents"
+msgstr "Documenti"
+
+#: ../data/pipanel.ui.h:17
+msgid "Show the documents folder on the desktop"
+msgstr "Mostra sulla scrivania la cartella dei documenti"
+
+#: ../data/pipanel.ui.h:18
+msgid "Wastebasket"
+msgstr "Cestino"
+
+#: ../data/pipanel.ui.h:19
+msgid "Show the wastebasket on the desktop"
+msgstr "Mostra sulla scrivania il cestino"
+
+#: ../data/pipanel.ui.h:20
+msgid "Mounted Disks"
+msgstr "Dispositivi rimovibili"
+
+#: ../data/pipanel.ui.h:21
+msgid "Show mounted disks on the desktop"
+msgstr "Mostra sulla scrivania i dispositivi rimovibili"
+
+#: ../data/pipanel.ui.h:22
+msgid "Show identical desktop on second monitor"
+msgstr "Mostra una scrivania identica sul secondo monitor"
+
+#: ../data/pipanel.ui.h:23
+msgid "Check this box to show the same desktop image and icons on both monitors"
+msgstr "Mostra la stessa immagine di sfondo e le icone su entrambi i monitor"
+
+#: ../data/pipanel.ui.h:24
+msgid "Desktop 1"
+msgstr "Scrivania 1"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:25
+msgid "Desktop Folder"
+msgstr "Cartella del desktop"
+
+#: ../data/pipanel.ui.h:26
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "Seleziona la cartella contenente i file da mostrare sulla seconda scrivania"
+
+#: ../data/pipanel.ui.h:27
+msgid "Desktop 2"
+msgstr "Scrivania 2"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:28
+msgid "Size"
+msgstr "Dimensione:"
+
+#: ../data/pipanel.ui.h:29
+msgid "Set the size of icons used on the toolbar and menu"
+msgstr "Imposta la dimensione delle icone della barra degli strumenti e del menu"
+
+#: ../data/pipanel.ui.h:30
+msgid "Very large (48x48)"
+msgstr "Molto grande (48x48)"
+
+#: ../data/pipanel.ui.h:31
+msgid "Large (32x32)"
+msgstr "Grande (32x32)"
+
+#: ../data/pipanel.ui.h:32
+msgid "Medium (24x24)"
+msgstr "Media (24x24)"
+
+#: ../data/pipanel.ui.h:33
+msgid "Small (16x16)"
+msgstr "Piccola (16x16)"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:34
+msgid "Position"
+msgstr "Posizione:"
+
+#: ../data/pipanel.ui.h:35
+msgid "Top"
+msgstr "In alto"
+
+#: ../data/pipanel.ui.h:36
+msgid "Show the taskbar at the top of the screen"
+msgstr "Mostra la barra delle attività nel bordo superiore dello schermo"
+
+#: ../data/pipanel.ui.h:37
+msgid "Bottom"
+msgstr "In basso"
+
+#: ../data/pipanel.ui.h:38
+msgid "Show the taskbar at the bottom of the screen"
+msgstr "Mostra la barra delle attività nel bordo inferiore dello schermo"
+
+#: ../data/pipanel.ui.h:39
+msgid "Choose the colour of the taskbar background"
+msgstr "Seleziona il colore di sfondo della barra delle attività"
+
+#: ../data/pipanel.ui.h:40
+msgid "Choose the colour of text used on the taskbar"
+msgstr "Sceglie il colore del testo usato nella barra delle attività"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:41
+msgid "Location"
+msgstr "Posizione"
+
+#: ../data/pipanel.ui.h:42
+msgid "Show the taskbar on screen 1"
+msgstr "Mostra la barra delle attività sullo schermo 1"
+
+#: ../data/pipanel.ui.h:43
+msgid "Show the taskbar on screen 2"
+msgstr "Mostra la barra delle attività sullo schermo 2"
+
+#: ../data/pipanel.ui.h:44
+msgid "Menu Bar"
+msgstr "Barra del menu"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:45
+msgid "Font"
+msgstr "Carattere:"
+
+#: ../data/pipanel.ui.h:46
+msgid "Choose the font used for labels and menus"
+msgstr "Seleziona il carattere utilizzato per etichette e menu"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:47
+msgid "Highlight Colour"
+msgstr "Colore in evidenza:"
+
+#: ../data/pipanel.ui.h:48
+msgid "Choose the colour used to highlight active elements"
+msgstr "Seleziona il colore utilizzato per evidenziare gli elementi attivi"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:49
+msgid "Highlight Text Colour"
+msgstr "Colore del testo in evidenza:"
+
+#: ../data/pipanel.ui.h:50
+msgid "Choose the colour used for text on active elements"
+msgstr "Seleziona il colore utilizzato per il testo degli elementi attivi"
+
+# ends with ":"
+#: ../data/pipanel.ui.h:51
+msgid "Mouse Cursor"
+msgstr "Cursore del mouse:"
+
+#: ../data/pipanel.ui.h:52
+msgid "Set the size of the mouse cursor"
+msgstr "Imposta la dimensione del cursore del mouse"
+
+#: ../data/pipanel.ui.h:53
+msgid "Large"
+msgstr "Grande"
+
+#: ../data/pipanel.ui.h:54
+msgid "Medium"
+msgstr "Medio"
+
+#: ../data/pipanel.ui.h:55
+msgid "Small"
+msgstr "Piccolo"
+
+#: ../data/pipanel.ui.h:56
+msgid "New mouse cursor size will take effect at reboot"
+msgstr "Le nuove dimensioni del cursore del mouse avranno effetto al riavvio"
+
+#: ../data/pipanel.ui.h:57
+msgid "System"
+msgstr "Sistema"
+
+#: ../data/pipanel.ui.h:58
+msgid "For large screens:"
+msgstr "Per schermi grandi:"
+
+#: ../data/pipanel.ui.h:59
+msgid "Set Defaults"
+msgstr "Imposta valori predefiniti"
+
+#: ../data/pipanel.ui.h:60
+msgid "Set to default values for high-resolution displays"
+msgstr "Imposta i valori predefiniti per monitor ad alta risoluzione"
+
+#: ../data/pipanel.ui.h:61
+msgid "For medium screens:"
+msgstr "Per schermi medi:"
+
+#: ../data/pipanel.ui.h:62
+msgid "Set to default values for medium-resolution displays"
+msgstr "Imposta i valori predefiniti per monitor a media risoluzione"
+
+#: ../data/pipanel.ui.h:63
+msgid "For small screens:"
+msgstr "Per schermi piccoli:"
+
+#: ../data/pipanel.ui.h:64
+msgid "Set to default values for low-resolution displays"
+msgstr "Imposta i valori predefiniti per monitor a bassa risoluzione"
+
+#: ../data/pipanel.ui.h:65
+msgid "Defaults"
+msgstr "Predefiniti"
+
+#: ../data/pipanel.desktop.in.h:2
+msgid "Configure the appearance of the desktop and windows"
+msgstr "Configura l'aspetto della scrivania e delle finestre"
+
+#: ../data/pwdpip.sh:6
+msgid "Password Required"
+msgstr "Password necessaria"
