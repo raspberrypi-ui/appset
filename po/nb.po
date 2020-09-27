@@ -1,4 +1,4 @@
-# English translations for pipanel package.
+# Norwegian Bokmål translations for pipanel package.
 # Copyright (C) 2018 Raspberry Pi
 # This file is distributed under the same license as the pipanel package.
 # Simon Long <simon@raspberrypi.org>, 2018.
