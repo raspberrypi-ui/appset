@@ -1,3 +1,9 @@
+pipanel (1:1.6) buster; urgency=medium
+
+  * Norwegian translation added
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 05 Oct 2020 10:44:53 +0100
+
 pipanel (1:1.5) buster; urgency=medium
 
   * Italian translation added.
