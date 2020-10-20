@@ -87,6 +87,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set how the wallpaper should be fitted to the screen</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label11"/>
+                        </accessibility>
                         <items>
                           <item translatable="yes">No image</item>
                           <item translatable="yes">Centre image on screen</item>
@@ -132,6 +135,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Choose image file to use as wallpaper</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label12"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -170,6 +176,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label13"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -208,6 +217,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label14"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -335,6 +347,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set how the wallpaper should be fitted to the screen</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label11_"/>
+                        </accessibility>
                         <items>
                           <item translatable="yes">No image</item>
                           <item translatable="yes">Centre image on screen</item>
@@ -380,6 +395,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Choose image file to use as wallpaper</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label12_"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -418,6 +436,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label13_"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -456,6 +477,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label14_"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -551,6 +575,9 @@
                         <property name="can_focus">False</property>
                         <property name="action">select-folder</property>
                         <property name="tooltip_text" translatable="yes">Choose the folder containing files to be shown on the second desktop</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label16_"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -609,6 +636,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set the size of icons used on the toolbar and menu</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label21"/>
+                        </accessibility>
                         <items>
                           <item translatable="yes">Very large (48x48)</item>
                           <item translatable="yes">Large (32x32)</item>
@@ -723,6 +753,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the taskbar background</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label23"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -761,6 +794,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of text used on the taskbar</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label24"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -900,6 +936,9 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the font used for labels and menus</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label31"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -938,6 +977,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour used to highlight active elements</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label32"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -976,6 +1018,9 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour used for text on active elements</property>
                         <property name="color">#000000000000</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label33"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1012,6 +1057,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set the size of the mouse cursor</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label34"/>
+                        </accessibility>
                         <items>
                           <item translatable="yes">Large</item>
                           <item translatable="yes">Medium</item>
@@ -1114,6 +1162,9 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Set to default values for high-resolution displays</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label41"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1153,6 +1204,9 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Set to default values for medium-resolution displays</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label42"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1192,6 +1246,9 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Set to default values for low-resolution displays</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label43"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
