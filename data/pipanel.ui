@@ -698,6 +698,9 @@
                         <property name="tooltip_text" translatable="yes">Show the taskbar at the top of the screen</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label22"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -715,6 +718,9 @@
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">radiobutton1</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label22"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -849,6 +855,9 @@
                         <property name="tooltip_text" translatable="yes">Show the taskbar on screen 1</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label25"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -866,6 +875,9 @@
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">radiobutton3</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label25"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
