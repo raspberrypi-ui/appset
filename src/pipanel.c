@@ -2607,6 +2607,21 @@ int main (int argc, char *argv[])
     dfold = gtk_builder_get_object (builder, "filechooserbutton4");
     dfid = g_signal_connect (dfold, "selection-changed", G_CALLBACK (on_desktop_folder_set), NULL);
 
+    // add accessibility label to combo box child of file chooser (yes, I know the previous one attached to a button...)
+    lbl = GTK_LABEL (gtk_builder_get_object (builder, "label16_"));
+    children = gtk_container_get_children (GTK_CONTAINER (dfold));
+    child = children;
+    do
+    {
+        wid = GTK_WIDGET (child->data);
+        if (GTK_IS_COMBO_BOX (wid))
+        {
+            atk_label (wid, lbl);
+            gtk_widget_set_tooltip_text (wid, gtk_widget_get_tooltip_text (GTK_WIDGET (dfold)));
+        }
+    } while ((child = g_list_next (child)) != NULL);
+    g_list_free (children);
+
     cmsg = gtk_builder_get_object (builder, "label35");
 
     t1lab = gtk_builder_get_object (builder, "tablabel1");
