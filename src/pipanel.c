@@ -166,6 +166,25 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr);
 static void set_tabs (int n_desk);
 static int n_desktops (void);
 
+
+/* Create a labelled-by relationship between a widget and a label */
+
+static void atk_label (GtkWidget *widget, GtkLabel *label)
+{
+    AtkObject *atk_widget, *atk_label;
+    AtkRelationSet *relation_set;
+    AtkRelation *relation;
+    AtkObject *targets[1];
+
+    atk_widget = gtk_widget_get_accessible (widget);
+    atk_label = gtk_widget_get_accessible (GTK_WIDGET (label));
+    relation_set = atk_object_ref_relation_set (atk_widget);
+    targets[0] = atk_label;
+    relation = atk_relation_new (targets, 1, ATK_RELATION_LABELLED_BY);
+    atk_relation_set_add (relation_set, relation);
+    g_object_unref (G_OBJECT (relation));
+}
+
 /* Shell commands to reload data */
 
 static void reload_lxpanel (void)
@@ -2448,7 +2467,9 @@ int main (int argc, char *argv[])
 {
     GtkBuilder *builder;
     GObject *item;
-    GtkWidget *dlg;
+    GtkWidget *dlg, *wid;
+    GtkLabel *lbl;
+    GList *children, *child;
     GdkScreen *screen;
     int maj, min, sub, i, st_tab = 0;
     int flag1 = 1, flag2 = 2, flag3 = 3;
@@ -2551,6 +2572,17 @@ int main (int argc, char *argv[])
 
         dpic[i] = gtk_builder_get_object (builder, i ? "filechooserbutton1_" : "filechooserbutton1");
         g_signal_connect (dpic[i], "file-set", G_CALLBACK (on_desktop_picture_set), (void *) i);
+
+        // add accessibility label to button child of file chooser
+        lbl = GTK_LABEL (gtk_builder_get_object (builder, i ? "label12_" : "label12"));
+        children = gtk_container_get_children (GTK_CONTAINER (dpic[i]));
+        child = children;
+        do
+        {
+            wid = GTK_WIDGET (child->data);
+            if (GTK_IS_BUTTON (wid)) atk_label (wid, lbl);
+        } while ((child = g_list_next (child)) != NULL);
+        g_list_free (children);
 
         dmod[i] = gtk_builder_get_object (builder, i ? "comboboxtext1_" : "comboboxtext1");
         dmid[i] = g_signal_connect (dmod[i], "changed", G_CALLBACK (on_desktop_mode_set), (void *) i);

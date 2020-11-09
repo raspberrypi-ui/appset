@@ -135,9 +135,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Choose image file to use as wallpaper</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label12"/>
-                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -395,9 +392,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Choose image file to use as wallpaper</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label12_"/>
-                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">True</property>
