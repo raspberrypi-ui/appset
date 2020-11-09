@@ -2580,7 +2580,11 @@ int main (int argc, char *argv[])
         do
         {
             wid = GTK_WIDGET (child->data);
-            if (GTK_IS_BUTTON (wid)) atk_label (wid, lbl);
+            if (GTK_IS_BUTTON (wid))
+            {
+                atk_label (wid, lbl);
+                gtk_widget_set_tooltip_text (wid, gtk_widget_get_tooltip_text (GTK_WIDGET (dpic[i])));
+            }
         } while ((child = g_list_next (child)) != NULL);
         g_list_free (children);
 
