@@ -1,3 +1,9 @@
+pipanel (1:1.7) buster; urgency=medium
+
+  * Screen reader labels added
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 10 Nov 2020 12:00:01 +0000
+
 pipanel (1:1.6) buster; urgency=medium
 
   * Norwegian translation added
