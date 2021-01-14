@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.24"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.20"/>
   <object class="GtkDialog" id="dialog1">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -9,13 +9,17 @@
     <property name="resizable">False</property>
     <property name="icon_name">preferences-desktop-theme</property>
     <property name="type_hint">dialog</property>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -58,23 +62,26 @@
           <object class="GtkNotebook" id="notebook1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="homogeneous">True</property>
             <child>
-              <object class="GtkVBox" id="vbox1">
+              <object class="GtkBox" id="vbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
-                <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkHBox" id="hbox11">
+                  <object class="GtkBox" id="hbox11">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label11">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Layout</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -87,9 +94,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set how the wallpaper should be fitted to the screen</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label11"/>
-                        </accessibility>
                         <items>
                           <item translatable="yes">No image</item>
                           <item translatable="yes">Centre image on screen</item>
@@ -98,10 +102,13 @@
                           <item translatable="yes">Stretch to cover screen</item>
                           <item translatable="yes">Tile image</item>
                         </items>
+                        <accessibility>
+                          <relation type="labelled-by" target="label11"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="pack_type">end</property>
                         <property name="position">1</property>
                       </packing>
@@ -114,15 +121,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox12">
+                  <object class="GtkBox" id="hbox12">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label12">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Picture</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -137,7 +144,7 @@
                         <property name="tooltip_text" translatable="yes">Choose image file to use as wallpaper</property>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
@@ -150,15 +157,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox13">
+                  <object class="GtkBox" id="hbox13">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label13">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -172,14 +179,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label13"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -191,15 +197,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox14">
+                  <object class="GtkBox" id="hbox14">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label14">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Text Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -213,14 +219,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label14"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -232,7 +237,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox15">
+                  <object class="GtkBox" id="hbox15">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -295,8 +300,8 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
                     <property name="tooltip_text" translatable="yes">Check this box to show the same desktop image and icons on both monitors</property>
+                    <property name="draw_indicator">True</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -317,21 +322,25 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox1_">
+              <object class="GtkBox" id="vbox1_">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
-                <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkHBox" id="hbox11_">
+                  <object class="GtkBox" id="hbox11_">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label11_">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Layout</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -344,9 +353,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set how the wallpaper should be fitted to the screen</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label11_"/>
-                        </accessibility>
                         <items>
                           <item translatable="yes">No image</item>
                           <item translatable="yes">Centre image on screen</item>
@@ -355,10 +361,13 @@
                           <item translatable="yes">Stretch to cover screen</item>
                           <item translatable="yes">Tile image</item>
                         </items>
+                        <accessibility>
+                          <relation type="labelled-by" target="label11_"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="pack_type">end</property>
                         <property name="position">1</property>
                       </packing>
@@ -371,15 +380,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox12_">
+                  <object class="GtkBox" id="hbox12_">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label12_">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Picture</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -394,7 +403,7 @@
                         <property name="tooltip_text" translatable="yes">Choose image file to use as wallpaper</property>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
@@ -407,15 +416,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox13_">
+                  <object class="GtkBox" id="hbox13_">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label13_">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -429,14 +438,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label13_"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -448,15 +456,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox14_">
+                  <object class="GtkBox" id="hbox14_">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label14_">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Text Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -470,14 +478,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label14_"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -489,7 +496,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox15_">
+                  <object class="GtkBox" id="hbox15_">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -547,15 +554,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox16_">
+                  <object class="GtkBox" id="hbox16_">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label16_">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Desktop Folder</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -567,14 +574,14 @@
                       <object class="GtkFileChooserButton" id="filechooserbutton4">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="action">select-folder</property>
                         <property name="tooltip_text" translatable="yes">Choose the folder containing files to be shown on the second desktop</property>
+                        <property name="action">select-folder</property>
                         <accessibility>
                           <relation type="labelled-by" target="label16_"/>
                         </accessibility>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
@@ -603,21 +610,25 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox2">
+              <object class="GtkBox" id="vbox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
-                <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkHBox" id="hbox21">
+                  <object class="GtkBox" id="hbox21">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label21">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Size</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -630,19 +641,19 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set the size of icons used on the toolbar and menu</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label21"/>
-                        </accessibility>
                         <items>
                           <item translatable="yes">Very large (48x48)</item>
                           <item translatable="yes">Large (32x32)</item>
                           <item translatable="yes">Medium (24x24)</item>
                           <item translatable="yes">Small (16x16)</item>
                         </items>
+                        <accessibility>
+                          <relation type="labelled-by" target="label21"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="pack_type">end</property>
                         <property name="position">1</property>
                       </packing>
@@ -655,7 +666,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox22">
+                  <object class="GtkBox" id="hbox22">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -663,24 +674,13 @@
                       <object class="GtkLabel" id="label22">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Position</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHBox" id="null22">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -697,7 +697,7 @@
                         </accessibility>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">2</property>
                       </packing>
@@ -717,7 +717,7 @@
                         </accessibility>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">3</property>
                       </packing>
@@ -730,15 +730,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox23">
+                  <object class="GtkBox" id="hbox23">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label23">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -752,14 +752,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of the taskbar background</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label23"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -771,15 +770,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox24">
+                  <object class="GtkBox" id="hbox24">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label24">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Text Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -793,14 +792,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour of text used on the taskbar</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label24"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -812,7 +810,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox25">
+                  <object class="GtkBox" id="hbox25">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -820,24 +818,13 @@
                       <object class="GtkLabel" id="label25">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Location</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHBox" id="null25">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -854,7 +841,7 @@
                         </accessibility>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">2</property>
                       </packing>
@@ -874,7 +861,7 @@
                         </accessibility>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">3</property>
                       </packing>
@@ -884,17 +871,6 @@
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox26">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>
@@ -914,21 +890,25 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox3">
+              <object class="GtkBox" id="vbox3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
-                <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkHBox" id="hbox31">
+                  <object class="GtkBox" id="hbox31">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label31">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Font</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -942,12 +922,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the font used for labels and menus</property>
+                        <property name="font">Sans 12</property>
                         <accessibility>
                           <relation type="labelled-by" target="label31"/>
                         </accessibility>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
@@ -960,15 +941,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox32">
+                  <object class="GtkBox" id="hbox32">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label32">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Highlight Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -982,14 +963,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour used to highlight active elements</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label32"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -1001,15 +981,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox33">
+                  <object class="GtkBox" id="hbox33">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label33">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Highlight Text Colour</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1023,14 +1003,13 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Choose the colour used for text on active elements</property>
-                        <property name="color">#000000000000</property>
                         <accessibility>
                           <relation type="labelled-by" target="label33"/>
                         </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -1042,15 +1021,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox34">
+                  <object class="GtkBox" id="hbox34">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label34">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Mouse Cursor</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1063,18 +1042,18 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Set the size of the mouse cursor</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label34"/>
-                        </accessibility>
                         <items>
                           <item translatable="yes">Large</item>
                           <item translatable="yes">Medium</item>
                           <item translatable="yes">Small</item>
                         </items>
+                        <accessibility>
+                          <relation type="labelled-by" target="label34"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="pack_type">end</property>
                         <property name="position">1</property>
                       </packing>
@@ -1087,15 +1066,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox35">
+                  <object class="GtkBox" id="hbox35">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label35">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">New mouse cursor size will take effect at reboot</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1108,17 +1087,6 @@
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox36">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>
@@ -1138,13 +1106,17 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox4">
+              <object class="GtkBox" id="vbox4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
-                <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkHBox" id="hbox41">
+                  <object class="GtkBox" id="hbox41">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -1152,8 +1124,8 @@
                       <object class="GtkLabel" id="label41">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">For large screens:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1186,7 +1158,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox42">
+                  <object class="GtkBox" id="hbox42">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -1194,8 +1166,8 @@
                       <object class="GtkLabel" id="label42">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">For medium screens:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1228,7 +1200,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox43">
+                  <object class="GtkBox" id="hbox43">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -1236,8 +1208,8 @@
                       <object class="GtkLabel" id="label43">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">For small screens:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1269,39 +1241,6 @@
                     <property name="position">2</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkHBox" id="hbox44">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox45">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox46">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="position">4</property>
@@ -1331,5 +1270,80 @@
       <action-widget response="-6">button2</action-widget>
       <action-widget response="-5">button1</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkSizeGroup">
+    <widgets>
+      <widget name="tablabel1"/>
+      <widget name="tablabel1_"/>
+      <widget name="tablabel2"/>
+      <widget name="tablabel3"/>
+      <widget name="tablabel4"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup">
+    <property name="mode">vertical</property>
+    <widgets>
+      <widget name="hbox11"/>
+      <widget name="hbox12"/>
+      <widget name="hbox13"/>
+      <widget name="hbox14"/>
+      <widget name="hbox15"/>
+      <widget name="hbox11_"/>
+      <widget name="hbox12_"/>
+      <widget name="hbox13_"/>
+      <widget name="hbox14_"/>
+      <widget name="hbox15_"/>
+      <widget name="hbox16_"/>
+      <widget name="hbox21"/>
+      <widget name="hbox22"/>
+      <widget name="hbox23"/>
+      <widget name="hbox24"/>
+      <widget name="hbox25"/>
+      <widget name="hbox31"/>
+      <widget name="hbox32"/>
+      <widget name="hbox33"/>
+      <widget name="hbox34"/>
+      <widget name="hbox35"/>
+      <widget name="hbox41"/>
+      <widget name="hbox42"/>
+      <widget name="hbox43"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup">
+    <widgets>
+      <widget name="comboboxtext1"/>
+      <widget name="filechooserbutton1"/>
+      <widget name="colorbutton2"/>
+      <widget name="colorbutton6"/>
+      <widget name="comboboxtext1_"/>
+      <widget name="filechooserbutton1_"/>
+      <widget name="colorbutton2_"/>
+      <widget name="colorbutton6_"/>
+      <widget name="filechooserbutton4"/>
+      <widget name="comboboxtext2"/>
+      <widget name="colorbutton3"/>
+      <widget name="colorbutton4"/>
+      <widget name="fontbutton1"/>
+      <widget name="colorbutton1"/>
+      <widget name="colorbutton5"/>
+      <widget name="comboboxtext3"/>
+      <widget name="defs_lg"/>
+      <widget name="defs_med"/>
+      <widget name="defs_sml"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup">
+    <widgets>
+      <widget name="checkbutton1"/>
+      <widget name="checkbutton2"/>
+      <widget name="checkbutton3"/>
+      <widget name="checkbutton1_"/>
+      <widget name="checkbutton2_"/>
+      <widget name="checkbutton3_"/>
+      <widget name="radiobutton1"/>
+      <widget name="radiobutton2"/>
+      <widget name="radiobutton3"/>
+      <widget name="radiobutton4"/>
+    </widgets>
   </object>
 </interface>

@@ -25,7 +25,7 @@ LT_PREREQ([2.2])
 LT_INIT
 
 # Checks for libraries.
-pkg_modules="$pkg_modules gtk+-2.0 >= 2.18.0"
+pkg_modules="$pkg_modules gtk+-3.0 >= 3.24.0"
 
 pkg_modules="$pkg_modules \
              libxml-2.0"

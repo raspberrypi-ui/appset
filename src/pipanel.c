@@ -61,12 +61,12 @@ typedef struct {
     const char *desktop_mode[2];
     const char *terminal_font;
     const char *desktop_folder;
-    GdkColor theme_colour;
-    GdkColor themetext_colour;
-    GdkColor desktop_colour[2];
-    GdkColor desktoptext_colour[2];
-    GdkColor bar_colour;
-    GdkColor bartext_colour;
+    GdkRGBA theme_colour;
+    GdkRGBA themetext_colour;
+    GdkRGBA desktop_colour[2];
+    GdkRGBA desktoptext_colour[2];
+    GdkRGBA bar_colour;
+    GdkRGBA bartext_colour;
     int icon_size;
     int barpos;
     int show_docs[2];
@@ -145,14 +145,14 @@ static void defaults_pcman (int desktop);
 static void defaults_pcman_g (void);
 static void create_defaults (void);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
-static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr);
-static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr);
-static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr);
-static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr);
-static void on_desktop_colour_set (GtkColorButton* btn, gpointer ptr);
-static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr);
+static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_desktoptext_colour_set (GtkColorChooser* btn, gpointer ptr);
 static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr);
-static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr);
+static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr);
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
 static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr);
 static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr);
@@ -183,6 +183,17 @@ static void atk_label (GtkWidget *widget, GtkLabel *label)
     relation = atk_relation_new (targets, 1, ATK_RELATION_LABELLED_BY);
     atk_relation_set_add (relation_set, relation);
     g_object_unref (G_OBJECT (relation));
+}
+
+char *rgba_to_gdk_color_string (GdkRGBA *col, int siz)
+{
+    int r, g, b;
+    r = col->red * siz;
+    g = col->green * siz;
+    b = col->blue * siz;
+    if (siz == 65535)
+        return g_strdup_printf ("#%04X%04X%04X", r, g, b);
+    else return g_strdup_printf ("#%02X%02X%02X", r, g, b);
 }
 
 /* Shell commands to reload data */
@@ -544,22 +555,22 @@ static void load_lxsession_settings (void)
             cptr = strtok (NULL, ":\n");
             if (!strcmp (nptr, "bar_fg_color"))
             {
-                if (!gdk_color_parse (cptr, &cur_conf.bartext_colour))
+                if (!gdk_rgba_parse (&cur_conf.bartext_colour, cptr))
                     DEFAULT (bartext_colour);
             }
             else if (!strcmp (nptr, "bar_bg_color"))
             {
-                if (!gdk_color_parse (cptr, &cur_conf.bar_colour))
+                if (!gdk_rgba_parse (&cur_conf.bar_colour, cptr))
                     DEFAULT (bar_colour);
             }
             else if (!strcmp (nptr, "selected_fg_color"))
             {
-                if (!gdk_color_parse (cptr, &cur_conf.themetext_colour))
+                if (!gdk_rgba_parse (&cur_conf.themetext_colour, cptr))
                     DEFAULT (themetext_colour);
             }
             else if (!strcmp (nptr, "selected_bg_color"))
             {
-                if (!gdk_color_parse (cptr, &cur_conf.theme_colour))
+                if (!gdk_rgba_parse (&cur_conf.theme_colour, cptr))
                     DEFAULT (theme_colour);
             }
             nptr = strtok (NULL, ":\n");
@@ -612,7 +623,7 @@ static void load_pcman_settings (int desktop)
         ret = g_key_file_get_string (kf, "*", "desktop_bg", &err);
         if (err == NULL)
         {
-            if (!gdk_color_parse (ret, &cur_conf.desktop_colour[desktop]))
+            if (!gdk_rgba_parse (&cur_conf.desktop_colour[desktop], ret))
                 DEFAULT (desktop_colour[desktop]);
         }
         else DEFAULT (desktop_colour[desktop]);
@@ -622,7 +633,7 @@ static void load_pcman_settings (int desktop)
         ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
         if (err == NULL)
         {
-            if (!gdk_color_parse (ret, &cur_conf.desktoptext_colour[desktop]))
+            if (!gdk_rgba_parse (&cur_conf.desktoptext_colour[desktop], ret))
                 DEFAULT (desktoptext_colour[desktop]);
         }
         else DEFAULT (desktoptext_colour[desktop]);
@@ -955,8 +966,8 @@ static void save_gtk3_settings (void)
 {
     char *user_config_file, *cstrb, *cstrf;
 
-    cstrb = gdk_color_to_string (&cur_conf.theme_colour);
-    cstrf = gdk_color_to_string (&cur_conf.themetext_colour);
+    cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour, 65535);
+    cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour, 65535);
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
@@ -1006,8 +1017,8 @@ static void save_lxsession_settings (void)
 
     // update changed values in the key file
     str = g_strdup_printf ("selected_bg_color:%s\nselected_fg_color:%s\nbar_bg_color:%s\nbar_fg_color:%s\n",
-        gdk_color_to_string (&cur_conf.theme_colour), gdk_color_to_string (&cur_conf.themetext_colour),
-        gdk_color_to_string (&cur_conf.bar_colour), gdk_color_to_string (&cur_conf.bartext_colour));
+        rgba_to_gdk_color_string (&cur_conf.theme_colour, 65535), rgba_to_gdk_color_string (&cur_conf.themetext_colour, 65535),
+        rgba_to_gdk_color_string (&cur_conf.bar_colour, 65535), rgba_to_gdk_color_string (&cur_conf.bartext_colour, 65535));
     g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", str);
     g_free (str);
 
@@ -1076,12 +1087,12 @@ static void save_pcman_settings (int desktop)
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    str = gdk_color_to_string (&cur_conf.desktop_colour[desktop]);
+    str = rgba_to_gdk_color_string (&cur_conf.desktop_colour[desktop], 65535);
     g_key_file_set_string (kf, "*", "desktop_bg", str);
     g_key_file_set_string (kf, "*", "desktop_shadow", str);
     g_free (str);
 
-    str = gdk_color_to_string (&cur_conf.desktoptext_colour[desktop]);
+    str = rgba_to_gdk_color_string (&cur_conf.desktoptext_colour[desktop], 65535);
     g_key_file_set_string (kf, "*", "desktop_fg", str);
     g_free (str);
 
@@ -1218,7 +1229,7 @@ static void save_greeter_settings (void)
     }
     g_free (str);
 
-    col = gdk_color_to_string (&cur_conf.desktop_colour[0]);
+    col = rgba_to_gdk_color_string (&cur_conf.desktop_colour[0], 65535);
     err = NULL;
     str = g_key_file_get_string (kf, "greeter", "desktop_bg", &err);
     if (err != NULL || g_strcmp0 (str, col) != 0)
@@ -1369,34 +1380,34 @@ static void save_obconf_settings (void)
         xmlNodeSetContent (cur_node, buf);
     }
 
-    sprintf (buf, "#%02x%02x%02x", cur_conf.theme_colour.red >> 8, cur_conf.theme_colour.green >> 8, cur_conf.theme_colour.blue >> 8);
+    cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour, 255);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, "titleColor", buf);
+        xmlNewChild (cur_node, NULL, "titleColor", cptr);
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, buf);
+        xmlNodeSetContent (cur_node, cptr);
     }
 
-    sprintf (buf, "#%02x%02x%02x", cur_conf.themetext_colour.red >> 8, cur_conf.themetext_colour.green >> 8, cur_conf.themetext_colour.blue >> 8);
+    cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour, 255);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, "textColor", buf);
+        xmlNewChild (cur_node, NULL, "textColor", cptr);
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, buf);
+        xmlNodeSetContent (cur_node, cptr);
     }
 
     // cleanup XML
@@ -1778,9 +1789,9 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
     reload_lxpanel ();
 }
 
-static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
+static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_button_get_color (btn, &cur_conf.theme_colour);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour);
     save_lxsession_settings ();
     save_obconf_settings ();
     save_gtk3_settings ();
@@ -1789,9 +1800,9 @@ static void on_theme_colour_set (GtkColorButton* btn, gpointer ptr)
     reload_pcmanfm ();
 }
 
-static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
+static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_button_get_color (btn, &cur_conf.themetext_colour);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour);
     save_lxsession_settings ();
     save_obconf_settings ();
     save_gtk3_settings ();
@@ -1800,34 +1811,34 @@ static void on_themetext_colour_set (GtkColorButton* btn, gpointer ptr)
     reload_pcmanfm ();
 }
 
-static void on_bar_colour_set (GtkColorButton* btn, gpointer ptr)
+static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_button_get_color (btn, &cur_conf.bar_colour);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour);
     save_lxsession_settings ();
     reload_lxsession ();
     reload_pcmanfm ();
 }
 
-static void on_bartext_colour_set (GtkColorButton* btn, gpointer ptr)
+static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_button_get_color (btn, &cur_conf.bartext_colour);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour);
     save_lxsession_settings ();
     reload_lxsession ();
     reload_pcmanfm ();
 }
 
-static void on_desktop_colour_set (GtkColorButton* btn, gpointer ptr)
+static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     int desk = (int) ptr;
-    gtk_color_button_get_color (btn, &cur_conf.desktop_colour[desk]);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.desktop_colour[desk]);
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
 
-static void on_desktoptext_colour_set (GtkColorButton* btn, gpointer ptr)
+static void on_desktoptext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     int desk = (int) ptr;
-    gtk_color_button_get_color (btn, &cur_conf.desktoptext_colour[desk]);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.desktoptext_colour[desk]);
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
@@ -1841,9 +1852,9 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
     reload_pcmanfm ();
 }
 
-static void on_desktop_font_set (GtkFontButton* btn, gpointer ptr)
+static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
 {
-    const char *font = gtk_font_button_get_font_name (btn);
+    const char *font = gtk_font_chooser_get_font (btn);
     if (font) cur_conf.desktop_font = font;
 
     save_lxsession_settings ();
@@ -2019,7 +2030,7 @@ static void set_controls (void)
         g_signal_handler_block (cb3[i], tmid[i]);
     }
 
-    gtk_font_button_set_font_name (GTK_FONT_BUTTON (font), cur_conf.desktop_font);
+    gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font), cur_conf.desktop_font);
     for (i = 0; i < 2; i++)
     {
         gtk_widget_set_sensitive (GTK_WIDGET (dpic[i]), TRUE);
@@ -2034,16 +2045,16 @@ static void set_controls (void)
             gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 0);
             gtk_widget_set_sensitive (GTK_WIDGET (dpic[i]), FALSE);
         }
-        gtk_color_button_set_color (GTK_COLOR_BUTTON (dcol[i]), &cur_conf.desktop_colour[i]);
-        gtk_color_button_set_color (GTK_COLOR_BUTTON (dtcol[i]), &cur_conf.desktoptext_colour[i]);
+        gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (dcol[i]), &cur_conf.desktop_colour[i]);
+        gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (dtcol[i]), &cur_conf.desktoptext_colour[i]);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1[i]), cur_conf.show_docs[i]);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2[i]), cur_conf.show_trash[i]);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3[i]), cur_conf.show_mnts[i]);
     }
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (hcol), &cur_conf.theme_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (btcol), &cur_conf.bartext_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (bcol), &cur_conf.bar_colour);
-    gtk_color_button_set_color (GTK_COLOR_BUTTON (htcol), &cur_conf.themetext_colour);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour);
 
     if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
     else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
@@ -2190,43 +2201,43 @@ static void defaults_lxsession ()
                 cptr = strtok (NULL, ":\n");
                 if (!strcmp (nptr, "bar_fg_color"))
                 {
-                    if (!gdk_color_parse (cptr, &def_med.bartext_colour))
-                        gdk_color_parse (GREY, &def_med.bartext_colour);
+                    if (!gdk_rgba_parse (&def_med.bartext_colour, cptr))
+                        gdk_rgba_parse (&def_med.bartext_colour, GREY);
                 }
                 else if (!strcmp (nptr, "bar_bg_color"))
                 {
-                    if (!gdk_color_parse (cptr, &def_med.bar_colour))
-                        gdk_color_parse (GREY, &def_med.bar_colour);
+                    if (!gdk_rgba_parse (&def_med.bar_colour, cptr))
+                        gdk_rgba_parse (&def_med.bar_colour, GREY);
                 }
                 else if (!strcmp (nptr, "selected_fg_color"))
                 {
-                    if (!gdk_color_parse (cptr, &def_med.themetext_colour))
-                        gdk_color_parse (GREY, &def_med.themetext_colour);
+                    if (!gdk_rgba_parse (&def_med.themetext_colour, cptr))
+                        gdk_rgba_parse (&def_med.themetext_colour, GREY);
                 }
                 else if (!strcmp (nptr, "selected_bg_color"))
                 {
-                    if (!gdk_color_parse (cptr, &def_med.theme_colour))
-                        gdk_color_parse (GREY, &def_med.theme_colour);
+                    if (!gdk_rgba_parse (&def_med.theme_colour, cptr))
+                        gdk_rgba_parse (&def_med.theme_colour, GREY);
                 }
                 nptr = strtok (NULL, ":\n");
             }
         }
         else
         {
-            gdk_color_parse (GREY, &def_med.theme_colour);
-            gdk_color_parse (GREY, &def_med.themetext_colour);
-            gdk_color_parse (GREY, &def_med.bar_colour);
-            gdk_color_parse (GREY, &def_med.bartext_colour);
+            gdk_rgba_parse (&def_med.theme_colour, GREY);
+            gdk_rgba_parse (&def_med.themetext_colour, GREY);
+            gdk_rgba_parse (&def_med.bar_colour, GREY);
+            gdk_rgba_parse (&def_med.bartext_colour, GREY);
         }
         g_free (ret);
     }
     else
     {
         def_med.desktop_font = "";
-        gdk_color_parse (GREY, &def_med.theme_colour);
-        gdk_color_parse (GREY, &def_med.themetext_colour);
-        gdk_color_parse (GREY, &def_med.bar_colour);
-        gdk_color_parse (GREY, &def_med.bartext_colour);
+        gdk_rgba_parse (&def_med.theme_colour, GREY);
+        gdk_rgba_parse (&def_med.themetext_colour, GREY);
+        gdk_rgba_parse (&def_med.bar_colour, GREY);
+        gdk_rgba_parse (&def_med.bartext_colour, GREY);
         def_med.cursor_size = 0;
     }
     g_key_file_free (kf);
@@ -2250,20 +2261,20 @@ static void defaults_pcman (int desktop)
         ret = g_key_file_get_string (kf, "*", "desktop_bg", &err);
         if (err == NULL)
         {
-            if (!gdk_color_parse (ret, &def_med.desktop_colour[desktop]))
-                gdk_color_parse (GREY, &def_med.desktop_colour[desktop]);
+            if (!gdk_rgba_parse (&def_med.desktop_colour[desktop], ret))
+                gdk_rgba_parse (&def_med.desktop_colour[desktop], GREY);
         }
-        else gdk_color_parse (GREY, &def_med.desktop_colour[desktop]);
+        else gdk_rgba_parse (&def_med.desktop_colour[desktop], GREY);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
         if (err == NULL)
         {
-            if (!gdk_color_parse (ret, &def_med.desktoptext_colour[desktop]))
-                gdk_color_parse (GREY, &def_med.desktoptext_colour[desktop]);
+            if (!gdk_rgba_parse (&def_med.desktoptext_colour[desktop], ret))
+                gdk_rgba_parse (&def_med.desktoptext_colour[desktop], GREY);
         }
-        else gdk_color_parse (GREY, &def_med.desktoptext_colour[desktop]);
+        else gdk_rgba_parse (&def_med.desktoptext_colour[desktop], GREY);
         g_free (ret);
 
         err = NULL;
@@ -2306,8 +2317,8 @@ static void defaults_pcman (int desktop)
     {
         def_med.desktop_picture[desktop] = "";
         def_med.desktop_mode[desktop] = "color";
-        gdk_color_parse (GREY, &def_med.desktop_colour[desktop]);
-        gdk_color_parse (GREY, &def_med.desktoptext_colour[desktop]);
+        gdk_rgba_parse (&def_med.desktop_colour[desktop], GREY);
+        gdk_rgba_parse (&def_med.desktoptext_colour[desktop], GREY);
         def_med.show_docs[desktop] = 0;
         def_med.show_trash[desktop] = 0;
         def_med.show_mnts[desktop] = 0;
@@ -2522,7 +2533,6 @@ int main (int argc, char *argv[])
     builder = gtk_builder_new ();
     gtk_builder_add_from_file (builder, PACKAGE_DATA_DIR "/pipanel.ui", NULL);
     dlg = (GtkWidget *) gtk_builder_get_object (builder, "dialog1");
-    gtk_dialog_set_alternative_button_order (GTK_DIALOG (dlg), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
 
     font = gtk_builder_get_object (builder, "fontbutton1");
     g_signal_connect (font, "font-set", G_CALLBACK (on_desktop_font_set), NULL);
@@ -2633,19 +2643,13 @@ int main (int argc, char *argv[])
     {
         gtk_widget_show (GTK_WIDGET (cb4));
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
-        gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox26")));
-        gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox36")));
-        gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox46")));
         gtk_button_set_label (GTK_BUTTON (rb3), mon_names[0]);
         gtk_button_set_label (GTK_BUTTON (rb4), mon_names[1]);
     }
     else
     {
         gtk_widget_hide (GTK_WIDGET (cb4));
-        gtk_widget_hide_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
-        gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, "hbox26")));
-        gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox36")));
-        gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox46")));
+        gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
     }
 
     if (i > 1 && cur_conf.common_bg == 0)
