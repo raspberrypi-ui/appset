@@ -970,6 +970,16 @@ static void save_gtk3_settings (void)
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
     check_directory (user_config_file);
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
+        vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
+
+        g_free (cstrf);
+        g_free (cstrb);
+        g_free (user_config_file);
+        return;
+    }
 
     // amend entries already in file, or add if not present
     if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
@@ -1001,7 +1011,7 @@ static void save_gtk3_settings (void)
 
 static void save_lxsession_settings (void)
 {
-    char *user_config_file, *str, *ostr;
+    char *user_config_file, *str, *ostr, *ctheme, *cthemet, *cbar, *cbart;
     GKeyFile *kf;
     gsize len;
     GError *err;
@@ -1014,10 +1024,18 @@ static void save_lxsession_settings (void)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     // update changed values in the key file
+    ctheme = rgba_to_gdk_color_string (&cur_conf.theme_colour);
+    cthemet = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
+    cbar = rgba_to_gdk_color_string (&cur_conf.bar_colour);
+    cbart = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
+
     str = g_strdup_printf ("selected_bg_color:%s\nselected_fg_color:%s\nbar_bg_color:%s\nbar_fg_color:%s\n",
-        rgba_to_gdk_color_string (&cur_conf.theme_colour), rgba_to_gdk_color_string (&cur_conf.themetext_colour),
-        rgba_to_gdk_color_string (&cur_conf.bar_colour), rgba_to_gdk_color_string (&cur_conf.bartext_colour));
+        ctheme, cthemet, cbar, cbart);
     g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", str);
+    g_free (ctheme);
+    g_free (cthemet);
+    g_free (cbar);
+    g_free (cbart);
     g_free (str);
 
     g_key_file_set_string (kf, "GTK", "sGtk/FontName", cur_conf.desktop_font);
@@ -1392,6 +1410,7 @@ static void save_obconf_settings (void)
         cur_node = xpathObj->nodesetval->nodeTab[0];
         xmlNodeSetContent (cur_node, cptr);
     }
+    g_free (cptr);
 
     cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
@@ -1407,6 +1426,7 @@ static void save_obconf_settings (void)
         cur_node = xpathObj->nodesetval->nodeTab[0];
         xmlNodeSetContent (cur_node, cptr);
     }
+    g_free (cptr);
 
     // cleanup XML
     xmlXPathFreeObject (xpathObj);
