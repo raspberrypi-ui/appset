@@ -185,15 +185,13 @@ static void atk_label (GtkWidget *widget, GtkLabel *label)
     g_object_unref (G_OBJECT (relation));
 }
 
-char *rgba_to_gdk_color_string (GdkRGBA *col, int siz)
+char *rgba_to_gdk_color_string (GdkRGBA *col)
 {
     int r, g, b;
-    r = col->red * siz;
-    g = col->green * siz;
-    b = col->blue * siz;
-    if (siz == 65535)
-        return g_strdup_printf ("#%04X%04X%04X", r, g, b);
-    else return g_strdup_printf ("#%02X%02X%02X", r, g, b);
+    r = col->red * 255;
+    g = col->green * 255;
+    b = col->blue * 255;
+    return g_strdup_printf ("#%02X%02X%02X", r, g, b);
 }
 
 /* Shell commands to reload data */
@@ -966,8 +964,8 @@ static void save_gtk3_settings (void)
 {
     char *user_config_file, *cstrb, *cstrf;
 
-    cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour, 65535);
-    cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour, 65535);
+    cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour);
+    cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
@@ -976,24 +974,24 @@ static void save_gtk3_settings (void)
     // amend entries already in file, or add if not present
     if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
     {
-        vsystem ("echo '@define-color theme_selected_bg_color #%c%c%c%c%c%c;' >> %s",
-            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
+        vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s",
+            cstrb, user_config_file);
     }
     else
     {
-        vsystem ("sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color #%c%c%c%c%c%c'/g %s",
-            cstrb[1], cstrb[2], cstrb[5], cstrb[6], cstrb[9], cstrb[10], user_config_file);
+        vsystem ("sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color %s'/g %s",
+            cstrb, user_config_file);
     }
 
     if (vsystem ("grep -q theme_selected_fg_color %s\n", user_config_file))
     {
-        vsystem ("echo '@define-color theme_selected_fg_color #%c%c%c%c%c%c;' >> %s",
-            cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
+        vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s",
+            cstrf, user_config_file);
     }
     else
     {
-        vsystem ("sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color #%c%c%c%c%c%c'/g %s",
-            cstrf[1], cstrf[2], cstrf[5], cstrf[6], cstrf[9], cstrf[10], user_config_file);
+        vsystem ("sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color %s'/g %s",
+            cstrf, user_config_file);
     }
 
     g_free (cstrf);
@@ -1017,8 +1015,8 @@ static void save_lxsession_settings (void)
 
     // update changed values in the key file
     str = g_strdup_printf ("selected_bg_color:%s\nselected_fg_color:%s\nbar_bg_color:%s\nbar_fg_color:%s\n",
-        rgba_to_gdk_color_string (&cur_conf.theme_colour, 65535), rgba_to_gdk_color_string (&cur_conf.themetext_colour, 65535),
-        rgba_to_gdk_color_string (&cur_conf.bar_colour, 65535), rgba_to_gdk_color_string (&cur_conf.bartext_colour, 65535));
+        rgba_to_gdk_color_string (&cur_conf.theme_colour), rgba_to_gdk_color_string (&cur_conf.themetext_colour),
+        rgba_to_gdk_color_string (&cur_conf.bar_colour), rgba_to_gdk_color_string (&cur_conf.bartext_colour));
     g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", str);
     g_free (str);
 
@@ -1087,12 +1085,12 @@ static void save_pcman_settings (int desktop)
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    str = rgba_to_gdk_color_string (&cur_conf.desktop_colour[desktop], 65535);
+    str = rgba_to_gdk_color_string (&cur_conf.desktop_colour[desktop]);
     g_key_file_set_string (kf, "*", "desktop_bg", str);
     g_key_file_set_string (kf, "*", "desktop_shadow", str);
     g_free (str);
 
-    str = rgba_to_gdk_color_string (&cur_conf.desktoptext_colour[desktop], 65535);
+    str = rgba_to_gdk_color_string (&cur_conf.desktoptext_colour[desktop]);
     g_key_file_set_string (kf, "*", "desktop_fg", str);
     g_free (str);
 
@@ -1229,7 +1227,7 @@ static void save_greeter_settings (void)
     }
     g_free (str);
 
-    col = rgba_to_gdk_color_string (&cur_conf.desktop_colour[0], 65535);
+    col = rgba_to_gdk_color_string (&cur_conf.desktop_colour[0]);
     err = NULL;
     str = g_key_file_get_string (kf, "greeter", "desktop_bg", &err);
     if (err != NULL || g_strcmp0 (str, col) != 0)
@@ -1380,7 +1378,7 @@ static void save_obconf_settings (void)
         xmlNodeSetContent (cur_node, buf);
     }
 
-    cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour, 255);
+    cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
@@ -1395,7 +1393,7 @@ static void save_obconf_settings (void)
         xmlNodeSetContent (cur_node, cptr);
     }
 
-    cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour, 255);
+    cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
