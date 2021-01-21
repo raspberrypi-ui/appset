@@ -2548,8 +2548,7 @@ int main (int argc, char *argv[])
     gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
     // build the UI
-    builder = gtk_builder_new ();
-    gtk_builder_add_from_file (builder, PACKAGE_DATA_DIR "/pipanel.ui", NULL);
+    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
     dlg = (GtkWidget *) gtk_builder_get_object (builder, "dialog1");
 
     font = gtk_builder_get_object (builder, "fontbutton1");
