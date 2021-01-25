@@ -2490,6 +2490,26 @@ static int n_desktops (void)
 }
 
 
+static gboolean cancel_main (GtkButton *button, gpointer data)
+{
+    if (restore_config_files ())
+    {
+        reload_lxsession ();
+        reload_lxpanel ();
+        reload_openbox ();
+        reload_pcmanfm ();
+    }
+    gtk_main_quit ();
+    return FALSE;
+}
+
+static gboolean ok_main (GtkButton *button, gpointer data)
+{
+    save_greeter_settings ();
+    gtk_main_quit ();
+    return FALSE;
+}
+
 /* The dialog... */
 
 int main (int argc, char *argv[])
@@ -2549,7 +2569,12 @@ int main (int argc, char *argv[])
 
     // build the UI
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
-    dlg = (GtkWidget *) gtk_builder_get_object (builder, "dialog1");
+    dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_ok");
+    g_signal_connect (wid, "clicked", G_CALLBACK (ok_main), NULL);
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_cancel");
+    g_signal_connect (wid, "clicked", G_CALLBACK (cancel_main), NULL);
 
     font = gtk_builder_get_object (builder, "fontbutton1");
     g_signal_connect (font, "font-set", G_CALLBACK (on_desktop_font_set), NULL);
@@ -2680,17 +2705,9 @@ int main (int argc, char *argv[])
 
     set_controls ();
 
-    if (gtk_dialog_run (GTK_DIALOG (dlg)) == GTK_RESPONSE_CANCEL)
-    {
-        if (restore_config_files ())
-        {
-            reload_lxsession ();
-            reload_lxpanel ();
-            reload_openbox ();
-            reload_pcmanfm ();
-        }
-    }
-    else save_greeter_settings ();
+    gtk_widget_show (dlg);
+    gtk_main ();
+
     gtk_widget_destroy (dlg);
 
     return 0;
