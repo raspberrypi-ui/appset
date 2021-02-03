@@ -201,6 +201,11 @@ static void reload_lxpanel (void)
     int res = system ("lxpanelctl refresh");
 }
 
+static void restart_lxpanel (void)
+{
+    int res = system ("lxpanelctl restart");
+}
+
 static void reload_openbox (void)
 {
     int res = system ("openbox --reconfigure");
@@ -962,10 +967,12 @@ static void save_lxpanel_settings (void)
 
 static void save_gtk3_settings (void)
 {
-    char *user_config_file, *cstrb, *cstrf;
+    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf;
 
     cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour);
     cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
+    cstrbb = rgba_to_gdk_color_string (&cur_conf.bar_colour);
+    cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
@@ -974,9 +981,13 @@ static void save_gtk3_settings (void)
     {
         vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
         vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
+        vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
+        vsystem ("echo '@define-color bar_fg_color %s;' >> %s", cstrbf, user_config_file);
 
         g_free (cstrf);
         g_free (cstrb);
+        g_free (cstrbf);
+        g_free (cstrbb);
         g_free (user_config_file);
         return;
     }
@@ -1004,8 +1015,31 @@ static void save_gtk3_settings (void)
             cstrf, user_config_file);
     }
 
+    if (vsystem ("grep -q bar_bg_color %s\n", user_config_file))
+    {
+        vsystem ("echo '@define-color bar_bg_color %s;' >> %s",
+            cstrbb, user_config_file);
+    }
+    else
+    {
+        vsystem ("sed -i s/'bar_bg_color #......'/'bar_bg_color %s'/g %s",
+            cstrbb, user_config_file);
+    }
+
+    if (vsystem ("grep -q bar_fg_color %s\n", user_config_file))
+    {
+        vsystem ("echo '@define-color bar_fg_color %s;' >> %s",
+            cstrbf, user_config_file);
+    }
+    else
+    {
+        vsystem ("sed -i s/'bar_fg_color #......'/'bar_fg_color %s'/g %s",
+            cstrbf, user_config_file);
+    }
     g_free (cstrf);
     g_free (cstrb);
+    g_free (cstrbf);
+    g_free (cstrbb);
     g_free (user_config_file);
 }
 
@@ -1833,16 +1867,20 @@ static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour);
     save_lxsession_settings ();
+    save_gtk3_settings ();
     reload_lxsession ();
     reload_pcmanfm ();
+    restart_lxpanel ();
 }
 
 static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour);
     save_lxsession_settings ();
+    save_gtk3_settings ();
     reload_lxsession ();
     reload_pcmanfm ();
+    restart_lxpanel ();
 }
 
 static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
