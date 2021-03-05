@@ -1,0 +1,303 @@
+# Icelandic translation for pipanel package.
+# Copyright (C) 2021 Free Software Foundation, Inc.
+# This file is distributed under the same license as the pipanel package.
+#
+# Sveinn í Felli <sv1@fellsnet.is>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-04-21 22:24+0300\n"
+"PO-Revision-Date: 2021-03-05 13:27+0000\n"
+"Last-Translator: Sveinn í Felli <sv1@fellsnet.is>\n"
+"Language-Team: Icelandic <translation-team-is@lists.sourceforge.net>\n"
+"Language: is\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 2.0\n"
+
+#: ../src/pipanel.c:1929 ../src/pipanel.c:1933
+#, c-format
+msgid ""
+"Desktop\n"
+"%s"
+msgstr ""
+"Skjáborð\n"
+"%s"
+
+#: ../src/pipanel.c:1941
+msgid "Desktop"
+msgstr "Skjáborð"
+
+#: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
+msgid "Appearance Settings"
+msgstr "Stillingar útlits"
+
+#: ../data/pipanel.ui.h:2
+msgid "Layout"
+msgstr "Framsetning"
+
+#: ../data/pipanel.ui.h:3
+msgid "Set how the wallpaper should be fitted to the screen"
+msgstr "Stilltu hvernig bakgrunnsmynd er löguð að skjánum"
+
+#: ../data/pipanel.ui.h:4
+msgid "No image"
+msgstr "Engin mynd"
+
+#: ../data/pipanel.ui.h:5
+msgid "Centre image on screen"
+msgstr "Miðja myndmynd á skjá"
+
+#: ../data/pipanel.ui.h:6
+msgid "Fit image onto screen"
+msgstr "Laga mynd að skjá"
+
+#: ../data/pipanel.ui.h:7
+msgid "Fill screen with image"
+msgstr "Fylla skjá með mynd"
+
+#: ../data/pipanel.ui.h:8
+msgid "Stretch to cover screen"
+msgstr "Teygja til að þekja allan skjáinn"
+
+#: ../data/pipanel.ui.h:9
+msgid "Tile image"
+msgstr "Flísaleggja amynd"
+
+#: ../data/pipanel.ui.h:10
+msgid "Picture"
+msgstr "Mynd"
+
+#: ../data/pipanel.ui.h:11
+msgid "Choose image file to use as wallpaper"
+msgstr "Veldu myndskrá til að nota sem bakgrunnsmynd"
+
+#: ../data/pipanel.ui.h:12
+msgid "Colour"
+msgstr "Litur"
+
+#: ../data/pipanel.ui.h:13
+msgid "Choose the colour of the desktop background"
+msgstr "Veldu hér lit bakgrunns skjáborðsins"
+
+#: ../data/pipanel.ui.h:14
+msgid "Text Colour"
+msgstr "Litur texta"
+
+#: ../data/pipanel.ui.h:15
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr ""
+"Veldu hér litinn sem notaður er á texta í merkingum táknmynda á skjáborði"
+
+#: ../data/pipanel.ui.h:16
+msgid "Documents"
+msgstr "Skjöl"
+
+#: ../data/pipanel.ui.h:17
+msgid "Show the documents folder on the desktop"
+msgstr "Birta skjalamöppu á skjáborði"
+
+#: ../data/pipanel.ui.h:18
+msgid "Wastebasket"
+msgstr "Ruslafata"
+
+#: ../data/pipanel.ui.h:19
+msgid "Show the wastebasket on the desktop"
+msgstr "Birta ruslafötu á skjáborði"
+
+#: ../data/pipanel.ui.h:20
+msgid "Mounted Disks"
+msgstr "Diskar tengdir í skráakerfi"
+
+#: ../data/pipanel.ui.h:21
+msgid "Show mounted disks on the desktop"
+msgstr "Sýna tengda diska á skjáborði"
+
+#: ../data/pipanel.ui.h:22
+msgid "Show identical desktop on second monitor"
+msgstr "Birta alveg eins skjáborð á aukaskjá"
+
+#: ../data/pipanel.ui.h:23
+msgid ""
+"Check this box to show the same desktop image and icons on both monitors"
+msgstr ""
+"Veldu þetta til að sýna sömu skjáborðsmynd og táknmyndir á báðum skjánum"
+
+#: ../data/pipanel.ui.h:24
+msgid "Desktop 1"
+msgstr "Skjáborð 1"
+
+#: ../data/pipanel.ui.h:25
+msgid "Desktop Folder"
+msgstr "Skjáborðsmappa"
+
+#: ../data/pipanel.ui.h:26
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "Veldu möppu sem inniheldur skrárnar sem á að birta á seinni skjánum"
+
+#: ../data/pipanel.ui.h:27
+msgid "Desktop 2"
+msgstr "Skjáborð 2"
+
+#: ../data/pipanel.ui.h:28
+msgid "Size"
+msgstr "Stærð"
+
+#: ../data/pipanel.ui.h:29
+msgid "Set the size of icons used on the toolbar and menu"
+msgstr "Stilltu stærð táknmynda sem notuð er í verkfærastiku og valmynd"
+
+#: ../data/pipanel.ui.h:30
+msgid "Very large (48x48)"
+msgstr "Mjög stór (48x48)"
+
+#: ../data/pipanel.ui.h:31
+msgid "Large (32x32)"
+msgstr "Stór (32x32)"
+
+#: ../data/pipanel.ui.h:32
+msgid "Medium (24x24)"
+msgstr "Miðlungs (24x24)"
+
+#: ../data/pipanel.ui.h:33
+msgid "Small (16x16)"
+msgstr "Lítil ( 16 x 1 )"
+
+#: ../data/pipanel.ui.h:34
+msgid "Position"
+msgstr "Staðsetning"
+
+#: ../data/pipanel.ui.h:35
+msgid "Top"
+msgstr "Efst"
+
+#: ../data/pipanel.ui.h:36
+msgid "Show the taskbar at the top of the screen"
+msgstr "Birta verkefnastiku efst á skjánum"
+
+#: ../data/pipanel.ui.h:37
+msgid "Bottom"
+msgstr "Neðst"
+
+#: ../data/pipanel.ui.h:38
+msgid "Show the taskbar at the bottom of the screen"
+msgstr "Birta verkefnastiku neðst á skjánum"
+
+#: ../data/pipanel.ui.h:39
+msgid "Choose the colour of the taskbar background"
+msgstr "Veldu hér bakgrunnslit verkefnastiku"
+
+#: ../data/pipanel.ui.h:40
+msgid "Choose the colour of text used on the taskbar"
+msgstr "Veldu hér textalit verkefnastiku"
+
+#: ../data/pipanel.ui.h:41
+msgid "Location"
+msgstr "Staðsetning"
+
+#: ../data/pipanel.ui.h:42
+msgid "Show the taskbar on screen 1"
+msgstr "Birta verkefnastikuna á skjá 1"
+
+#: ../data/pipanel.ui.h:43
+msgid "Show the taskbar on screen 2"
+msgstr "Birta verkefnastikuna á skjá 2"
+
+#: ../data/pipanel.ui.h:44
+msgid "Menu Bar"
+msgstr "Valmyndastika"
+
+#: ../data/pipanel.ui.h:45
+msgid "Font"
+msgstr "Letur"
+
+#: ../data/pipanel.ui.h:46
+msgid "Choose the font used for labels and menus"
+msgstr "Veldu letur fyrir merkingar og valmyndir"
+
+#: ../data/pipanel.ui.h:47
+msgid "Highlight Colour"
+msgstr "Áherslulitur"
+
+#: ../data/pipanel.ui.h:48
+msgid "Choose the colour used to highlight active elements"
+msgstr "Veldu hér litinn sem notaður er til að áherslulita virk atriði"
+
+#: ../data/pipanel.ui.h:49
+msgid "Highlight Text Colour"
+msgstr "Áherslulitur texta"
+
+#: ../data/pipanel.ui.h:50
+msgid "Choose the colour used for text on active elements"
+msgstr "Veldu hér litinn sem notaður er á texta í virkum atriðum"
+
+#: ../data/pipanel.ui.h:51
+msgid "Mouse Cursor"
+msgstr "Músarbendill"
+
+#: ../data/pipanel.ui.h:52
+msgid "Set the size of the mouse cursor"
+msgstr "Stilltu stærð músarbendils"
+
+#: ../data/pipanel.ui.h:53
+msgid "Large"
+msgstr "Stór"
+
+#: ../data/pipanel.ui.h:54
+msgid "Medium"
+msgstr "Miðlungs"
+
+#: ../data/pipanel.ui.h:55
+msgid "Small"
+msgstr "Lítill"
+
+#: ../data/pipanel.ui.h:56
+msgid "New mouse cursor size will take effect at reboot"
+msgstr "Ný stærð músarbendils tekur gildi eftir endurræsingu"
+
+#: ../data/pipanel.ui.h:57
+msgid "System"
+msgstr "Kerfi"
+
+#: ../data/pipanel.ui.h:58
+msgid "For large screens:"
+msgstr "Fyrir stóra skjái:"
+
+#: ../data/pipanel.ui.h:59
+msgid "Set Defaults"
+msgstr "Setja sjálfgefin gildi"
+
+#: ../data/pipanel.ui.h:60
+msgid "Set to default values for high-resolution displays"
+msgstr "Setja á sjálfgefin gildi fyrir skjái með háupplausn"
+
+#: ../data/pipanel.ui.h:61
+msgid "For medium screens:"
+msgstr "Fyrir meðalstóra skjái:"
+
+#: ../data/pipanel.ui.h:62
+msgid "Set to default values for medium-resolution displays"
+msgstr "Setja á sjálfgefin gildi fyrir skjái með meðalupplausn"
+
+#: ../data/pipanel.ui.h:63
+msgid "For small screens:"
+msgstr "Fyrir litla skjái:"
+
+#: ../data/pipanel.ui.h:64
+msgid "Set to default values for low-resolution displays"
+msgstr "Setja á sjálfgefin gildi fyrir skjái með lágri upplausn"
+
+#: ../data/pipanel.ui.h:65
+msgid "Defaults"
+msgstr "Sjálfgefin gildi"
+
+#: ../data/pipanel.desktop.in.h:2
+msgid "Configure the appearance of the desktop and windows"
+msgstr "Stilltu útlit á skjáborði og gluggum"
+
+#: ../data/pwdpip.sh:6
+msgid "Password Required"
+msgstr "Lykilorð nauðsynlegt"
