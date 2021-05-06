@@ -49,6 +49,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define DEFAULT_SES "LXDE-pi"
 
+#define DEFAULT_THEME "PiXflat"
+#define TEMP_THEME    "tPiXflat"
+
 #define GREY    "#808080"
 
 #define DEFAULT(x) cur_conf.x=def_med.x
@@ -201,11 +204,6 @@ static void reload_lxpanel (void)
     int res = system ("lxpanelctl refresh");
 }
 
-static void restart_lxpanel (void)
-{
-    int res = system ("lxpanelctl restart");
-}
-
 static void reload_openbox (void)
 {
     int res = system ("openbox --reconfigure");
@@ -322,6 +320,42 @@ static gboolean read_version (char *package, int *maj, int *min, int *sub)
     else return FALSE;
 }
 
+// Functions to force reloading of GTK+3 theme
+
+static void init_lxsession (const char *theme)
+{
+    /* Creates a default lxsession data file with the theme in it - the
+     * system checks this for changes and reloads the theme if a change is detected */
+    char *user_config_file = lxsession_file (FALSE);
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        check_directory (user_config_file);
+        vsystem ("echo '[GTK]\nsNet/ThemeName=%s' >> %s", theme, user_config_file);
+    }
+    g_free (user_config_file);
+}
+
+static void set_theme (const char *theme)
+{
+    /* Sets the theme in the lxsession data file, which triggers a theme change */
+    char *user_config_file = lxsession_file (FALSE);
+    vsystem ("sed -i s#sNet/ThemeName=.*#sNet/ThemeName=%s#g %s", theme, user_config_file);
+    g_free (user_config_file);
+}
+
+static gboolean restore_theme (gpointer data)
+{
+    /* Resets the theme to the default, causing it to take effect */
+	set_theme (DEFAULT_THEME);
+    if (data) gtk_main_quit ();
+    return FALSE;
+}
+
+static void reload_theme (gboolean quit)
+{
+    g_idle_add (restore_theme, (gpointer *) quit);
+}
+
 // File handling for backing up, restoring and resetting config
 
 static void backup_file (char *filepath)
@@ -381,7 +415,7 @@ static void backup_config_files (void)
     g_free (path);
 
     backup_file (".config/libfm/libfm.conf");
-    backup_file (".config/gtk-3.0/gtk.css");
+    backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".gtkrc-2.0");
 
@@ -450,7 +484,7 @@ static int restore_config_files (void)
     g_free (path);
 
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
-    if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
+    if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
 
@@ -508,9 +542,11 @@ static void reset_to_defaults (void)
     g_free (path);
 
     delete_file (".config/libfm/libfm.conf");
-    delete_file (".config/gtk-3.0/gtk.css");
+    delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".gtkrc-2.0");
+
+    init_lxsession (TEMP_THEME);
 }
 
 
@@ -975,10 +1011,12 @@ static void save_gtk3_settings (void)
     cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
 
     // construct the file path
-    user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
+    user_config_file = g_build_filename (g_get_user_data_dir (), "themes/PiXflat/gtk-3.0/gtk.css", NULL);
     check_directory (user_config_file);
+
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
+        vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk-contained.css\");' >> %s", user_config_file);
         vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
         vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
         vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
@@ -1056,6 +1094,8 @@ static void save_lxsession_settings (void)
     // read in data from file to a key file
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_string (kf, "GTK", "sNet/ThemeName", TEMP_THEME);
 
     // update changed values in the key file
     ctheme = rgba_to_gdk_color_string (&cur_conf.theme_colour);
@@ -1774,7 +1814,7 @@ static void save_scrollbar_settings (void)
     g_free (conffile);
 
     // GTK3 override file
-    conffile = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
+    conffile = g_build_filename (g_get_user_data_dir (), "themes/PiXflat/gtk-3.0/gtk.css", NULL);
     check_directory (conffile);
 
     // check if the scrollbar button entry is in the file - if not, add it...
@@ -1850,6 +1890,7 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_lxsession ();
     reload_openbox ();
     reload_pcmanfm ();
+    reload_theme (FALSE);
 }
 
 static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1861,6 +1902,7 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_lxsession ();
     reload_openbox ();
     reload_pcmanfm ();
+    reload_theme (FALSE);
 }
 
 static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1870,7 +1912,7 @@ static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
     save_gtk3_settings ();
     reload_lxsession ();
     reload_pcmanfm ();
-    restart_lxpanel ();
+    reload_theme (FALSE);
 }
 
 static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1880,7 +1922,7 @@ static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
     save_gtk3_settings ();
     reload_lxsession ();
     reload_pcmanfm ();
-    restart_lxpanel ();
+    reload_theme (FALSE);
 }
 
 static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1924,6 +1966,7 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
     reload_lxpanel ();
     reload_openbox ();
     reload_pcmanfm ();
+    reload_theme (FALSE);
 }
 
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
@@ -2059,6 +2102,7 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     }
     save_lxsession_settings ();
     reload_lxsession ();
+    reload_theme (FALSE);
 
     if (cur_conf.cursor_size != orig_cursor_size)
         gtk_widget_show (GTK_WIDGET (cmsg));
@@ -2190,6 +2234,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_lxpanel ();
     reload_openbox ();
     reload_pcmanfm ();
+    reload_theme (FALSE);
 }
 
 static void defaults_lxpanel (void)
@@ -2532,12 +2577,14 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
 {
     if (restore_config_files ())
     {
+        set_theme (TEMP_THEME);
         reload_lxsession ();
         reload_lxpanel ();
         reload_openbox ();
         reload_pcmanfm ();
+        reload_theme (TRUE);
     }
-    gtk_main_quit ();
+    else gtk_main_quit ();
     return FALSE;
 }
 
@@ -2598,6 +2645,7 @@ int main (int argc, char *argv[])
     load_lxpanel_settings ();
     load_obconf_settings ();
 
+    init_lxsession (DEFAULT_THEME);
     backup_config_files ();
 
     orig_cursor_size = cur_conf.cursor_size;
