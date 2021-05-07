@@ -1003,12 +1003,22 @@ static void save_lxpanel_settings (void)
 
 static void save_gtk3_settings (void)
 {
-    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf;
+    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2;
 
     cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour);
     cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
     cstrbb = rgba_to_gdk_color_string (&cur_conf.bar_colour);
     cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
+
+    // create a temp theme to switch to
+    link1 = g_build_filename (g_get_user_data_dir (), "themes/tPiXflat", NULL);
+    if (!g_file_test (link1, G_FILE_TEST_IS_DIR))
+    {
+        link2 = g_build_filename (g_get_user_data_dir (), "themes/PiXflat", NULL);
+        symlink (link2, link1);
+        g_free (link2);
+    }
+    g_free (link1);
 
     // construct the file path
     user_config_file = g_build_filename (g_get_user_data_dir (), "themes/PiXflat/gtk-3.0/gtk.css", NULL);
