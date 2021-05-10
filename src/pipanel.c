@@ -415,6 +415,7 @@ static void backup_config_files (void)
     g_free (path);
 
     backup_file (".config/libfm/libfm.conf");
+    backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".gtkrc-2.0");
@@ -484,6 +485,7 @@ static int restore_config_files (void)
     g_free (path);
 
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
+    if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
@@ -542,6 +544,7 @@ static void reset_to_defaults (void)
     g_free (path);
 
     delete_file (".config/libfm/libfm.conf");
+    delete_file (".config/gtk-3.0/gtk.css");
     delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".gtkrc-2.0");
@@ -1004,6 +1007,9 @@ static void save_lxpanel_settings (void)
 static void save_gtk3_settings (void)
 {
     char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2;
+
+    // delete old file used to store general overrides
+    delete_file (".config/gtk-3.0/gtk.css");
 
     cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour);
     cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
