@@ -99,6 +99,10 @@ static int orig_cursor_size;
 
 static gboolean needs_refresh;
 
+/* Flag to indicate which window manager is in use */
+
+static gboolean mutter = FALSE;
+
 /* Version of Libreoffice installed - affects toolbar icon setting */
 
 static char lo_ver;
@@ -206,6 +210,8 @@ static void reload_lxpanel (void)
 
 static void reload_openbox (void)
 {
+    if (mutter) return;
+
     int res = system ("openbox --reconfigure");
 }
 
@@ -219,6 +225,17 @@ static void reload_lxsession (void)
     if (needs_refresh)
     {
         int res = system ("lxsession -r");
+    }
+}
+
+static void reload_mutter (void)
+{
+    if (!mutter) return;
+
+    if (fork () == 0)
+    {
+        execl ("/usr/bin/mutter", "mutter", "--replace", NULL);
+        exit (0);
     }
 }
 
@@ -1907,6 +1924,7 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
+    reload_mutter ();
 }
 
 static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1919,6 +1937,7 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
+    reload_mutter ();
 }
 
 static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -2251,6 +2270,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
+    reload_mutter ();
 }
 
 static void defaults_lxpanel (void)
@@ -2599,6 +2619,7 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
         reload_openbox ();
         reload_pcmanfm ();
         reload_theme (TRUE);
+        reload_mutter ();
     }
     else gtk_main_quit ();
     return FALSE;
@@ -2650,6 +2671,9 @@ int main (int argc, char *argv[])
     // get libreoffice version
     if (read_version ("libreoffice", &maj, &min, &sub)) lo_ver = maj;
     else lo_ver = 5;
+
+    // check window manager
+    if (!system ("ps ax | grep mutter | grep -v grep")) mutter = TRUE;
 
     // load data from config files
     create_defaults ();
