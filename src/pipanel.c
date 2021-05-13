@@ -173,6 +173,53 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr);
 static void set_tabs (int n_desk);
 static int n_desktops (void);
 
+/* Utilities */
+
+static int vsystem (const char *fmt, ...)
+{
+    char *cmdline;
+    int res;
+
+    va_list arg;
+    va_start (arg, fmt);
+    g_vasprintf (&cmdline, fmt, arg);
+    va_end (arg);
+    res = system (cmdline);
+    g_free (cmdline);
+    return res;
+}
+
+static char *get_string (char *cmd)
+{
+    char *line = NULL, *res = NULL;
+    size_t len = 0;
+    FILE *fp = popen (cmd, "r");
+
+    if (fp == NULL) return g_strdup ("");
+    if (getline (&line, &len, fp) > 0)
+    {
+        res = line;
+        while (*res++) if (g_ascii_isspace (*res)) *res = 0;
+        res = g_strdup (line);
+    }
+    pclose (fp);
+    g_free (line);
+    return res ? res : g_strdup ("");
+}
+
+static gboolean read_version (char *package, int *maj, int *min, int *sub)
+{
+    char *cmd, *res;
+    int val;
+
+    cmd = g_strdup_printf ("dpkg -s %s 2> /dev/null | grep Version | rev | cut -d : -f 1 | rev", package);
+    res = get_string (cmd);
+    val = sscanf (res, "%d.%d.%d", maj, min, sub);
+    g_free (cmd);
+    g_free (res);
+    if (val == 3) return TRUE;
+    else return FALSE;
+}
 
 /* Create a labelled-by relationship between a widget and a label */
 
@@ -226,6 +273,7 @@ static void reload_lxsession (void)
     {
         int res = system ("lxsession -r");
     }
+    if (mutter) vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
 }
 
 static void reload_mutter (void)
@@ -289,52 +337,6 @@ static void check_directory (char *path)
     char *dir = g_path_get_dirname (path);
     g_mkdir_with_parents (dir, S_IRUSR | S_IWUSR | S_IXUSR);
     g_free (dir);
-}
-
-static int vsystem (const char *fmt, ...)
-{
-    char *cmdline;
-    int res;
-
-    va_list arg;
-    va_start (arg, fmt);
-    g_vasprintf (&cmdline, fmt, arg);
-    va_end (arg);
-    res = system (cmdline);
-    g_free (cmdline);
-    return res;
-}
-
-static char *get_string (char *cmd)
-{
-    char *line = NULL, *res = NULL;
-    size_t len = 0;
-    FILE *fp = popen (cmd, "r");
-
-    if (fp == NULL) return g_strdup ("");
-    if (getline (&line, &len, fp) > 0)
-    {
-        res = line;
-        while (*res++) if (g_ascii_isspace (*res)) *res = 0;
-        res = g_strdup (line);
-    }
-    pclose (fp);
-    g_free (line);
-    return res ? res : g_strdup ("");
-}
-
-static gboolean read_version (char *package, int *maj, int *min, int *sub)
-{
-    char *cmd, *res;
-    int val;
-
-    cmd = g_strdup_printf ("dpkg -s %s 2> /dev/null | grep Version | rev | cut -d : -f 1 | rev", package);
-    res = get_string (cmd);
-    val = sscanf (res, "%d.%d.%d", maj, min, sub);
-    g_free (cmd);
-    g_free (res);
-    if (val == 3) return TRUE;
-    else return FALSE;
 }
 
 // Functions to force reloading of GTK+3 theme
@@ -2138,11 +2140,13 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     save_lxsession_settings ();
     reload_lxsession ();
     reload_theme (FALSE);
-
-    if (cur_conf.cursor_size != orig_cursor_size)
-        gtk_widget_show (GTK_WIDGET (cmsg));
-    else
-        gtk_widget_hide (GTK_WIDGET (cmsg));
+    if (!mutter)
+    {
+        if (cur_conf.cursor_size != orig_cursor_size)
+            gtk_widget_show (GTK_WIDGET (cmsg));
+        else
+            gtk_widget_hide (GTK_WIDGET (cmsg));
+    }
 }
 
 
@@ -2613,6 +2617,7 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
 {
     if (restore_config_files ())
     {
+        if (mutter) cur_conf.cursor_size = orig_cursor_size;
         set_theme (TEMP_THEME);
         reload_lxsession ();
         reload_lxpanel ();
