@@ -206,7 +206,7 @@ msgstr "Ցույց տալ խնդրագոտին 2 էկրանի վրա"
 
 #: ../data/pipanel.ui.h:44
 msgid "Menu Bar"
-msgstr "Խնրագոտի"
+msgstr "Խնդրագոտի"
 
 #: ../data/pipanel.ui.h:45
 msgid "Font"
