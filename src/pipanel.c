@@ -1051,7 +1051,7 @@ static void save_gtk3_settings (void)
 
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk-contained.css\");' >> %s", user_config_file);
+        vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk.css\");' >> %s", user_config_file);
         vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
         vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
         vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
