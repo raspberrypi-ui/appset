@@ -1028,7 +1028,9 @@ static void save_gtk3_settings (void)
     char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2;
 
     // delete old file used to store general overrides
-    delete_file (".config/gtk-3.0/gtk.css");
+    user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
+    vsystem ("if grep -q -s define-color %s ; then rm %s ; fi", user_config_file, user_config_file);
+    g_free (user_config_file);
 
     cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour);
     cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
