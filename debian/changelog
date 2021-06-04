@@ -1,3 +1,9 @@
+pipanel (1:1.13) bullseye; urgency=medium
+
+  * Bullseye greeter fix
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 04 Jun 2021 12:24:20 +0100
+
 pipanel (1:1.12) bullseye; urgency=medium
 
   * Apply modifications to GTK+3 theme to master file, not to included file

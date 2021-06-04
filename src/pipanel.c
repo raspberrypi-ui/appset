@@ -1370,8 +1370,8 @@ static void save_greeter_settings (void)
     if (changed)
     {
         // just in case...
-        g_key_file_set_string (kf, "greeter", "gtk-theme-name", "PiX");
-        g_key_file_set_string (kf, "greeter", "gtk-icon-theme-name", "PiX");
+        g_key_file_set_string (kf, "greeter", "gtk-theme-name", "PiXflat");
+        g_key_file_set_string (kf, "greeter", "gtk-icon-theme-name", "PiXflat");
 
         // write the modified key file out to a temp file
         str = g_key_file_to_data (kf, &len, NULL);
