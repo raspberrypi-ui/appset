@@ -2542,7 +2542,7 @@ static void create_defaults (void)
     def_lg.pane_size = 32;
     def_lg.sicon_size = 32;
     def_lg.tb_icon_size = 48;
-    def_lg.lo_icon_size = (lo_ver == 6 ? 3 : 1);
+    def_lg.lo_icon_size = (lo_ver >= 6 ? 3 : 1);
     def_lg.task_width = 300;
     def_lg.handle_width = 20;
     def_lg.scrollbar_width = 18;
