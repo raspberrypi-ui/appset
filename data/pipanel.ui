@@ -8,7 +8,6 @@
     <property name="title" translatable="yes">Appearance Settings</property>
     <property name="resizable">False</property>
     <property name="icon_name">preferences-desktop-theme</property>
-    <property name="type_hint">dialog</property>
     <child>
       <placeholder/>
     </child>
