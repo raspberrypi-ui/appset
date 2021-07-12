@@ -99,9 +99,10 @@ static int orig_cursor_size;
 
 static gboolean needs_refresh;
 
-/* Flag to indicate which window manager is in use */
+/* Flags to indicate window and settings manager in use */
 
 static gboolean mutter = FALSE;
+static gboolean gsettings = FALSE;
 
 /* Version of Libreoffice installed - affects toolbar icon setting */
 
@@ -122,6 +123,7 @@ static void backup_file (char *filepath);
 static void backup_config_files (void);
 static int restore_file (char *filepath);
 static int restore_config_files (void);
+static void reload_gsettings (void);
 static void delete_file (char *filepath);
 static void reset_to_defaults (void);
 static void load_lxsession_settings (void);
@@ -345,21 +347,29 @@ static void init_lxsession (const char *theme)
 {
     /* Creates a default lxsession data file with the theme in it - the
      * system checks this for changes and reloads the theme if a change is detected */
-    char *user_config_file = lxsession_file (FALSE);
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    if (!gsettings)
     {
-        check_directory (user_config_file);
-        vsystem ("echo '[GTK]\nsNet/ThemeName=%s' >> %s", theme, user_config_file);
+        char *user_config_file = lxsession_file (FALSE);
+        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+        {
+            check_directory (user_config_file);
+            vsystem ("echo '[GTK]\nsNet/ThemeName=%s' >> %s", theme, user_config_file);
+        }
+        g_free (user_config_file);
     }
-    g_free (user_config_file);
+    else vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
 }
 
 static void set_theme (const char *theme)
 {
     /* Sets the theme in the lxsession data file, which triggers a theme change */
-    char *user_config_file = lxsession_file (FALSE);
-    vsystem ("sed -i s#sNet/ThemeName=.*#sNet/ThemeName=%s#g %s", theme, user_config_file);
-    g_free (user_config_file);
+    if (!gsettings)
+    {
+        char *user_config_file = lxsession_file (FALSE);
+        vsystem ("sed -i s#sNet/ThemeName=.*#sNet/ThemeName=%s#g %s", theme, user_config_file);
+        g_free (user_config_file);
+    }
+    else vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
 }
 
 static gboolean restore_theme (gpointer data)
@@ -516,6 +526,16 @@ static int restore_config_files (void)
     return changed;
 }
 
+static void reload_gsettings (void)
+{
+    if (gsettings)
+    {
+        load_lxsession_settings ();
+        vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
+        vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
+    }
+}
+
 static void delete_file (char *filepath)
 {
     char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
@@ -568,6 +588,7 @@ static void reset_to_defaults (void)
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".gtkrc-2.0");
 
+    reload_gsettings ();
     init_lxsession (TEMP_THEME);
 }
 
@@ -1199,6 +1220,13 @@ static void save_lxsession_settings (void)
     g_free (str);
     g_key_file_free (kf);
     g_free (user_config_file);
+
+    if (gsettings)
+    {
+        vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
+        vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
+        set_theme (TEMP_THEME);
+    }
 }
 
 static void save_pcman_settings (int desktop)
@@ -2622,6 +2650,7 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
         if (mutter) cur_conf.cursor_size = orig_cursor_size;
         set_theme (TEMP_THEME);
         reload_lxsession ();
+        reload_gsettings ();
         reload_lxpanel ();
         reload_openbox ();
         reload_pcmanfm ();
@@ -2681,6 +2710,10 @@ int main (int argc, char *argv[])
 
     // check window manager
     if (!system ("ps ax | grep mutter | grep -v grep")) mutter = TRUE;
+
+    // check xsettings
+    const char *type = g_getenv ("XDG_SESSION_TYPE");
+    if (type && strcmp (type, "x11")) gsettings = TRUE;
 
     // load data from config files
     create_defaults ();
