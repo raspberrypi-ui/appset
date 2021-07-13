@@ -1974,7 +1974,7 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
-    reload_mutter ();
+    //reload_mutter ();
 }
 
 static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1987,7 +1987,7 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
-    reload_mutter ();
+    //reload_mutter ();
 }
 
 static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -2322,7 +2322,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
-    reload_mutter ();
+    //reload_mutter ();
 }
 
 static void defaults_lxpanel (void)
@@ -2673,7 +2673,7 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
         reload_openbox ();
         reload_pcmanfm ();
         reload_theme (TRUE);
-        reload_mutter ();
+        //reload_mutter ();
     }
     else gtk_main_quit ();
     return FALSE;
