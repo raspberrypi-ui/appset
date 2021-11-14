@@ -1,3 +1,9 @@
+pipanel (1:1.16) bullseye; urgency=medium
+
+  * Allow opening on any tab with command-line parameter
+
+ -- Simon Long <simon@raspberrypi.com>  Sun, 14 Nov 2021 20:39:59 +0000
+
 pipanel (1:1.15) bullseye; urgency=medium
 
   * Add compatibility with GSettings

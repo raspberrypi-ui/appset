@@ -2727,7 +2727,7 @@ int main (int argc, char *argv[])
     else lo_ver = 5;
 
     // check window manager
-    if (!system ("ps ax | grep mutter | grep -v grep")) mutter = TRUE;
+    if (!system ("ps ax | grep mutter | grep -qv grep")) mutter = TRUE;
 
     // check xsettings
     const char *type = g_getenv ("XDG_SESSION_TYPE");
@@ -2892,6 +2892,19 @@ int main (int argc, char *argv[])
         if (st_tab == 1) gtk_notebook_set_current_page (GTK_NOTEBOOK (nb), 1);
     }
     else set_tabs (1);
+
+    if (st_tab < 0)
+    {
+        switch (st_tab)
+        {
+            case -1 :   gtk_notebook_set_current_page (GTK_NOTEBOOK (nb), 4);
+                        break;
+            case -2 :   gtk_notebook_set_current_page (GTK_NOTEBOOK (nb), 3);
+                        break;
+            case -3 :   gtk_notebook_set_current_page (GTK_NOTEBOOK (nb), 2);
+                        break;
+        }
+    }
 
     g_object_unref (builder);
 
