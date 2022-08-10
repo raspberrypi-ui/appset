@@ -9,7 +9,8 @@ pipanel_CFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DGREETER_CONFIG_FILE=\""$(sysconfdir)/lightdm/pi-greeter.conf"\" \
 	$(PACKAGE_CFLAGS) \
-	$(G_CAST_CHECKS)
+	$(G_CAST_CHECKS) \
+	-Wall
 
 pipanel_SOURCES = pipanel.c
 

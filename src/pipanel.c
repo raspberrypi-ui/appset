@@ -56,6 +56,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define DEFAULT(x) cur_conf.x=def_med.x
 
+#define XC(str) ((xmlChar *) str)
+
 /* Global variables for window values */
 
 typedef struct {
@@ -91,8 +93,6 @@ typedef struct {
 
 static DesktopConfig cur_conf, def_lg, def_med, def_sm;
 
-static const char *orig_lxsession_theme;
-static const char *orig_openbox_theme;
 static int orig_cursor_size;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
@@ -116,7 +116,7 @@ static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cb
 static char *mon_names[2];
 
 /* Controls */
-static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *barh, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
+static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
 static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold;
 
 static void backup_file (char *filepath);
@@ -129,10 +129,7 @@ static void reset_to_defaults (void);
 static void load_lxsession_settings (void);
 static void load_pcman_settings (int desktop);
 static void load_pcman_g_settings (void);
-static void load_libfm_settings (void);
 static void load_lxpanel_settings (void);
-static void load_lxterm_settings (void);
-static void load_libreoffice_settings (void);
 static void load_obconf_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
@@ -254,39 +251,28 @@ char *rgba_to_gdk_color_string (GdkRGBA *col)
 
 static void reload_lxpanel (void)
 {
-    int res = system ("lxpanelctl refresh");
+    vsystem ("lxpanelctl refresh");
 }
 
 static void reload_openbox (void)
 {
     if (mutter) return;
 
-    int res = system ("openbox --reconfigure");
+    vsystem ("openbox --reconfigure");
 }
 
 static void reload_pcmanfm (void)
 {
-    int res = system ("pcmanfm --reconfigure");
+    vsystem ("pcmanfm --reconfigure");
 }
 
 static void reload_lxsession (void)
 {
     if (needs_refresh)
     {
-        int res = system ("lxsession -r");
+        vsystem ("lxsession -r");
     }
     if (mutter) vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
-}
-
-static void reload_mutter (void)
-{
-    if (!mutter) return;
-
-    if (fork () == 0)
-    {
-        execl ("/usr/bin/mutter", "mutter", "--replace", NULL);
-        exit (0);
-    }
 }
 
 static char *openbox_file (void)
@@ -783,7 +769,7 @@ static void load_pcman_settings (int desktop)
 
 static void load_pcman_g_settings (void)
 {
-    char *user_config_file, *ret;
+    char *user_config_file;
     GKeyFile *kf;
     GError *err;
     gint val;
@@ -802,49 +788,6 @@ static void load_pcman_g_settings (void)
     else
     {
         DEFAULT (common_bg);
-    }
-    g_key_file_free (kf);
-    g_free (user_config_file);
-}
-
-static void load_libfm_settings (void)
-{
-    char *user_config_file, *ret;
-    GKeyFile *kf;
-    GError *err;
-    gint val;
-
-    // read in data from file manager config file
-    user_config_file = libfm_file ();
-    kf = g_key_file_new ();
-    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        err = NULL;
-        val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
-        if (err == NULL && val >= 8 && val <= 256) cur_conf.folder_size = val;
-        else DEFAULT (folder_size);
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "ui", "thumbnail_size", &err);
-        if (err == NULL && val >= 8 && val <= 256) cur_conf.thumb_size = val;
-        else DEFAULT (thumb_size);
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "ui", "pane_icon_size", &err);
-        if (err == NULL && val >= 8 && val <= 256) cur_conf.pane_size = val;
-        else DEFAULT (pane_size);
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "ui", "small_icon_size", &err);
-        if (err == NULL && val >= 8 && val <= 256) cur_conf.sicon_size = val;
-        else DEFAULT (sicon_size);
-    }
-    else
-    {
-        DEFAULT (folder_size);
-        DEFAULT (thumb_size);
-        DEFAULT (pane_size);
-        DEFAULT (sicon_size);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -889,99 +832,6 @@ static void load_lxpanel_settings (void)
     g_free (user_config_file);
 }
 
-static void load_lxterm_settings (void)
-{
-    char *user_config_file, *ret;
-    GKeyFile *kf;
-    GError *err;
-
-    // construct the file path
-    user_config_file = g_build_filename (g_get_user_config_dir (), "lxterminal/lxterminal.conf", NULL);
-
-    // read in data from file to a key file
-    kf = g_key_file_new ();
-    if (!g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        g_key_file_free (kf);
-        g_free (user_config_file);
-        DEFAULT (terminal_font);
-        return;
-    }
-
-    // get data from the key file
-    err = NULL;
-    ret = g_key_file_get_string (kf, "general", "fontname", &err);
-    if (err == NULL) cur_conf.terminal_font = g_strdup (ret);
-    else DEFAULT (terminal_font);
-    g_free (ret);
-
-    g_key_file_free (kf);
-    g_free (user_config_file);
-}
-
-static void load_libreoffice_settings (void)
-{
-    char *user_config_file;
-    int res = 2, val;
-
-    DEFAULT (lo_icon_size);
-
-    // construct the file path
-    user_config_file = g_build_filename (g_get_user_config_dir (), "libreoffice/4/user/registrymodifications.xcu", NULL);
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-    {
-        g_free (user_config_file);
-        return;
-    }
-
-    // read in data from XML file
-    xmlInitParser ();
-    LIBXML_TEST_VERSION
-    xmlDocPtr xDoc = xmlParseFile (user_config_file);
-    if (xDoc == NULL)
-    {
-        // need to create XML doc here, potentially with directory tree...
-        g_free (user_config_file);
-        return;
-    }
-
-    xmlNode *rootnode, *itemnode, *propnode, *valnode;
-    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
-    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='items']", xpathCtx);
-
-    // search nodes in XML for SymbolSet value
-    rootnode = xpathObj->nodesetval->nodeTab[0];
-    for (itemnode = rootnode->children; itemnode; itemnode = itemnode->next)
-    {
-        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, "item") && !xmlStrcmp (xmlGetProp (itemnode, "path"), "/org.openoffice.Office.Common/Misc"))
-        {
-            xmlNode *propnode = itemnode->children;
-            if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, "prop") && !xmlStrcmp (xmlGetProp (propnode, "name"), "SymbolSet"))
-            {
-                xmlNode *valnode = propnode->children;
-                if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, "value"))
-                {
-                    if (sscanf (xmlNodeGetContent (valnode), "%d", &val) == 1)
-                    {
-                        if (val >= 0 && val <= 2) res = val;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    // cleanup XML
-    xmlXPathFreeObject (xpathObj);
-    xmlXPathFreeContext (xpathCtx);
-    xmlSaveFile (user_config_file, xDoc);
-    xmlFreeDoc (xDoc);
-    xmlCleanupParser ();
-
-    g_free (user_config_file);
-    cur_conf.lo_icon_size = res;
-}
-
 static void load_obconf_settings (void)
 {
     char *user_config_file;
@@ -1011,7 +861,7 @@ static void load_obconf_settings (void)
     xmlNode *node = xpathObj->nodesetval->nodeTab[0];
     if (node)
     {
-         if (sscanf (xmlNodeGetContent (node), "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
+         if (sscanf ((const char *) xmlNodeGetContent (node), "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
     }
 
     // cleanup XML
@@ -1027,7 +877,6 @@ static void load_obconf_settings (void)
 
 static void save_lxpanel_settings (void)
 {
-    const char *session_name;
     char *user_config_file;
 
     // sanity check
@@ -1441,7 +1290,7 @@ static void save_obconf_settings (void)
     char buf[10];
 
     xmlDocPtr xDoc;
-    xmlNodePtr root, theme, cur_node;
+    xmlNodePtr root, cur_node, node;
     xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
 
@@ -1492,6 +1341,7 @@ static void save_obconf_settings (void)
         root = xmlNewNode (NULL, (xmlChar *) "openbox_config");
         xmlDocSetRootElement (xDoc, root);
     }
+    else root = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
 
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
@@ -1506,32 +1356,31 @@ static void save_obconf_settings (void)
         xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
         for (count = 0; count < 2; count ++)
         {
-            cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, "font", NULL);
+            cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("font"), NULL);
 
-            xmlSetProp (cur_node, "place", count == 0 ? "ActiveWindow" : "InactiveWindow");
+            xmlSetProp (cur_node, XC ("place"), count == 0 ? XC ("ActiveWindow") : XC ("InactiveWindow"));
             sprintf (buf, "%d", size);
-            xmlNewChild (cur_node, NULL, "name", font);
-            xmlNewChild (cur_node, NULL, "size", buf);
-            xmlNewChild (cur_node, NULL, "weight", weight);
-            xmlNewChild (cur_node, NULL, "slant", style);
+            xmlNewChild (cur_node, NULL, XC ("name"), XC (font));
+            xmlNewChild (cur_node, NULL, XC ("size"), XC (buf));
+            xmlNewChild (cur_node, NULL, XC ("weight"), XC (weight));
+            xmlNewChild (cur_node, NULL, XC ("slant"), XC (style));
         }
     }
     else
     {
         for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
         {
-            xmlNode *node = xpathObj->nodesetval->nodeTab[count];
-            xmlAttr *attr = node->properties;
+            node = xpathObj->nodesetval->nodeTab[count];
             cur_node = NULL;
             for (cur_node = node->children; cur_node; cur_node = cur_node->next)
             {
                 if (cur_node->type == XML_ELEMENT_NODE)
                 {
                     sprintf (buf, "%d", size);
-                    if (!strcmp (cur_node->name, "name")) xmlNodeSetContent (cur_node, font);
-                    if (!strcmp (cur_node->name, "size")) xmlNodeSetContent (cur_node, buf);
-                    if (!strcmp (cur_node->name, "weight")) xmlNodeSetContent (cur_node, weight);
-                    if (!strcmp (cur_node->name, "slant"))  xmlNodeSetContent (cur_node, style);
+                    if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
+                    if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
+                    if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
+                    if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
                 }
             }
         }
@@ -1545,12 +1394,12 @@ static void save_obconf_settings (void)
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, "invHandleWidth", buf);
+        xmlNewChild (cur_node, NULL, XC ("invHandleWidth"), XC (buf));
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, buf);
+        xmlNodeSetContent (cur_node, XC (buf));
     }
 
     cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour);
@@ -1560,12 +1409,12 @@ static void save_obconf_settings (void)
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, "titleColor", cptr);
+        xmlNewChild (cur_node, NULL, XC ("titleColor"), XC (cptr));
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, cptr);
+        xmlNodeSetContent (cur_node, XC (cptr));
     }
     g_free (cptr);
 
@@ -1576,12 +1425,12 @@ static void save_obconf_settings (void)
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, "textColor", cptr);
+        xmlNewChild (cur_node, NULL, XC ("textColor"), XC (cptr));
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, cptr);
+        xmlNodeSetContent (cur_node, XC (cptr));
     }
     g_free (cptr);
 
@@ -1629,24 +1478,24 @@ static void save_libreoffice_settings (void)
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[name()='oor:items']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
-        rootnode = xmlNewNode (NULL, (xmlChar *) "oor:items");
-        xmlSetProp (rootnode, "xmlns:oor", "http://openoffice.org/2001/registry");
-        xmlSetProp (rootnode, "xmlns:xs", "http://www.w3.org/2001/XMLSchema");
-        xmlSetProp (rootnode, "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        rootnode = xmlNewNode (NULL, (xmlChar *) XC ("oor:items"));
+        xmlSetProp (rootnode, XC ("xmlns:oor"), XC ("http://openoffice.org/2001/registry"));
+        xmlSetProp (rootnode, XC ("xmlns:xs"), XC ("http://www.w3.org/2001/XMLSchema"));
+        xmlSetProp (rootnode, XC ("xmlns:xsi"), XC ("http://www.w3.org/2001/XMLSchema-instance"));
         xmlDocSetRootElement (xDoc, rootnode);
     }
     else rootnode = xpathObj->nodesetval->nodeTab[0];
 
     for (itemnode = rootnode->children; itemnode; itemnode = itemnode->next)
     {
-        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, "item") && !xmlStrcmp (xmlGetProp (itemnode, "path"), "/org.openoffice.Office.Common/Misc"))
+        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, XC ("item")) && !xmlStrcmp (xmlGetProp (itemnode, XC ("path")), XC ("/org.openoffice.Office.Common/Misc")))
         {
             xmlNode *propnode = itemnode->children;
-            if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, "prop") && !xmlStrcmp (xmlGetProp (propnode, "name"), "SymbolSet"))
+            if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, XC ("prop")) && !xmlStrcmp (xmlGetProp (propnode, XC ("name")), XC ("SymbolSet")))
             {
                 xmlNode *valnode = propnode->children;
-                if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, "value"))
-                    xmlNodeSetContent (valnode, buf);
+                if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, XC ("value")))
+                    xmlNodeSetContent (valnode, XC (buf));
                 found = TRUE;
                 break;
             }
@@ -1656,14 +1505,14 @@ static void save_libreoffice_settings (void)
     // if node not found, add it with desired value
     if (!found)
     {
-        itemnode = xmlNewNode (NULL, "item");
-        xmlSetProp (itemnode, "oor:path", "/org.openoffice.Office.Common/Misc");
-        propnode = xmlNewNode (NULL, "prop");
-        xmlSetProp (propnode, "oor:name", "SymbolSet");
-        xmlSetProp (propnode, "oor:op", "fuse");
+        itemnode = xmlNewNode (NULL, XC ("item"));
+        xmlSetProp (itemnode, XC ("oor:path"), XC ("/org.openoffice.Office.Common/Misc"));
+        propnode = xmlNewNode (NULL, XC ("prop"));
+        xmlSetProp (propnode, XC ("oor:name"), XC ("SymbolSet"));
+        xmlSetProp (propnode, XC ("oor:op"), XC ("fuse"));
         xmlAddChild (itemnode, propnode);
-        valnode = xmlNewNode (NULL, "value");
-        xmlNodeSetContent (valnode, buf);
+        valnode = xmlNewNode (NULL, XC ("value"));
+        xmlNodeSetContent (valnode, XC (buf));
         xmlAddChild (propnode, valnode);
         xmlAddChild (rootnode, itemnode);
     }
@@ -1974,7 +1823,6 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
-    //reload_mutter ();
 }
 
 static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1987,7 +1835,6 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
-    //reload_mutter ();
 }
 
 static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -2322,7 +2169,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
-    //reload_mutter ();
 }
 
 static void defaults_lxpanel (void)
@@ -2519,7 +2365,7 @@ static void defaults_pcman (int desktop)
 
 static void defaults_pcman_g (void)
 {
-    char *user_config_file, *ret;
+    char *user_config_file;
     GKeyFile *kf;
     GError *err;
     gint val;
@@ -2673,7 +2519,6 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
         reload_openbox ();
         reload_pcmanfm ();
         reload_theme (TRUE);
-        //reload_mutter ();
     }
     else gtk_main_quit ();
     return FALSE;
@@ -2702,7 +2547,6 @@ int main (int argc, char *argv[])
     GtkWidget *dlg, *wid;
     GtkLabel *lbl;
     GList *children, *child;
-    GdkScreen *screen;
     int maj, min, sub, i, st_tab = 0;
     int flag1 = 1, flag2 = 2, flag3 = 3;
 
