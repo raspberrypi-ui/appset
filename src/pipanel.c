@@ -47,8 +47,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MAX_ICON 68
 #define MIN_ICON 16
 
-#define DEFAULT_SES "LXDE-pi"
-
 #define DEFAULT_THEME "PiXflat"
 #define TEMP_THEME    "tPiXflat"
 
@@ -275,10 +273,17 @@ static void reload_lxsession (void)
     if (mutter) vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
 }
 
+static const char *session (void)
+{
+    const char *session_name =  g_getenv ("DESKTOP_SESSION");
+    if (!session_name) return "LXDE-pi";
+    if (!strncmp (session_name, "LXDE-pi", 7)) return "LXDE-pi";
+    else return session_name;
+}
+
 static char *openbox_file (void)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
+    const char *session_name = session ();
     char *lc_sess = g_ascii_strdown (session_name, -1);
     char *fname = g_strconcat (lc_sess, "-rc.xml", NULL);
     char *path = g_build_filename (g_get_user_config_dir (), "openbox", fname, NULL);
@@ -289,30 +294,22 @@ static char *openbox_file (void)
 
 static char *lxsession_file (gboolean global)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxsession", session_name, "desktop.conf", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxsession", session (), "desktop.conf", NULL);
 }
 
 static char *lxpanel_file (gboolean global)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel", session_name, "panels/panel", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel", session (), "panels/panel", NULL);
 }
 
 static char *pcmanfm_file (gboolean global, int desktop)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session_name, desktop == 0 ? "desktop-items-0.conf" : "desktop-items-1.conf", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), desktop == 0 ? "desktop-items-0.conf" : "desktop-items-1.conf", NULL);
 }
 
 static char *pcmanfm_g_file (gboolean global)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session_name, "pcmanfm.conf", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), "pcmanfm.conf", NULL);
 }
 
 static char *libfm_file (void)
@@ -390,10 +387,8 @@ static void backup_file (char *filepath)
 
 static void backup_config_files (void)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    const char *session_name = session ();
     char *path, *lc_sess, *fname;
-
-    if (!session_name) session_name = DEFAULT_SES;
 
     // delete any old backups and create a new backup directory
     path = g_build_filename (g_get_home_dir (), ".pp_backup", NULL);
@@ -465,11 +460,9 @@ static int restore_file (char *filepath)
 
 static int restore_config_files (void)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    const char *session_name = session ();
     char *path, *lc_sess, *fname;
     int changed = 0;
-
-    if (!session_name) session_name = DEFAULT_SES;
 
     lc_sess = g_ascii_strdown (session_name, -1);
     fname = g_strconcat (lc_sess, "-rc.xml", NULL);
@@ -544,10 +537,8 @@ static void delete_file (char *filepath)
 
 static void reset_to_defaults (void)
 {
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
+    const char *session_name = session ();
     char *path, *lc_sess, *fname;
-
-    if (!session_name) session_name = DEFAULT_SES;
 
     lc_sess = g_ascii_strdown (session_name, -1);
     fname = g_strconcat (lc_sess, "-rc.xml", NULL);
@@ -887,9 +878,7 @@ static void save_lxpanel_settings (void)
     {
         // need a local copy to take the changes
         check_directory (user_config_file);
-        const char *session_name = g_getenv ("DESKTOP_SESSION");
-        if (!session_name) session_name = DEFAULT_SES;
-        vsystem ("cp /etc/xdg/lxpanel/%s/panels/panel %s", session_name, user_config_file);
+        vsystem ("cp /etc/xdg/lxpanel/%s/panels/panel %s", session (), user_config_file);
     }
 
     // use sed to write
@@ -2461,10 +2450,7 @@ int get_common_bg (gboolean global)
     GError *err;
     gint val;
 
-    const char *session_name = g_getenv ("DESKTOP_SESSION");
-    if (!session_name) session_name = DEFAULT_SES;
-
-    char *fname = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session_name, "pcmanfm.conf", NULL);
+    char *fname = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), "pcmanfm.conf", NULL);
 
     kf = g_key_file_new ();
     if (g_key_file_load_from_file (kf, fname, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
