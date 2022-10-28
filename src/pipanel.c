@@ -100,6 +100,7 @@ static gboolean needs_refresh;
 /* Flags to indicate window and settings manager in use */
 
 static gboolean mutter = FALSE;
+static gboolean wayfire = FALSE;
 static gboolean gsettings = FALSE;
 
 /* Version of Libreoffice installed - affects toolbar icon setting */
@@ -129,12 +130,14 @@ static void load_pcman_settings (int desktop);
 static void load_pcman_g_settings (void);
 static void load_lxpanel_settings (void);
 static void load_obconf_settings (void);
+static void load_wfshell_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
 static void save_lxsession_settings (void);
 static void save_pcman_settings (int desktop);
 static void save_pcman_g_settings (void);
 static void save_libfm_settings (void);
+static void save_wfshell_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
 static void save_greeter_settings (void);
@@ -315,6 +318,11 @@ static char *pcmanfm_g_file (gboolean global)
 static char *libfm_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "libfm/libfm.conf", NULL);
+}
+
+static char *wfshell_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "wf-shell.ini", NULL);
 }
 
 static void check_directory (char *path)
@@ -864,6 +872,39 @@ static void load_obconf_settings (void)
     g_free (user_config_file);
 }
 
+static void load_wfshell_settings (void)
+{
+    char *user_config_file, *ret;
+    GKeyFile *kf;
+    GError *err;
+    gint val;
+
+    // read in data from file to a key file
+    user_config_file = wfshell_file ();
+    kf = g_key_file_new ();
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        // get data from the key file
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "position", &err);
+        if (err == NULL && ret && !strcmp (ret, "bottom")) cur_conf.barpos = 1;
+        else DEFAULT (barpos);
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
+        else DEFAULT (icon_size);
+    }
+    else
+    {
+        DEFAULT (barpos);
+        DEFAULT (icon_size);
+    }
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
 /* Functions to save settings back to relevant files */
 
 static void save_lxpanel_settings (void)
@@ -1169,6 +1210,30 @@ static void save_libfm_settings (void)
     g_file_set_contents (user_config_file, str, len, NULL);
 
     g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
+static void save_wfshell_settings (void)
+{
+    char *user_config_file, *str;
+    GKeyFile *kf;
+    gsize len;
+
+    user_config_file = wfshell_file ();
+    check_directory (user_config_file);
+
+    // process pcmanfm config data
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_string (kf, "panel", "position", cur_conf.barpos ? "bottom" : "top");
+    g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+    g_free (str);
+
     g_key_file_free (kf);
     g_free (user_config_file);
 }
@@ -1798,8 +1863,12 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
         case 3 :    cur_conf.icon_size = 20;
                     break;
     }
-    save_lxpanel_settings ();
-    reload_lxpanel ();
+    if (wayfire) save_wfshell_settings ();
+    else
+    {
+        save_lxpanel_settings ();
+        reload_lxpanel ();
+    }
 }
 
 static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
@@ -1934,16 +2003,24 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
-    save_lxpanel_settings ();
-    reload_lxpanel ();
+    if (wayfire) save_wfshell_settings ();
+    else
+    {
+        save_lxpanel_settings ();
+        reload_lxpanel ();
+    }
 }
 
 static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.monitor = 0;
     else cur_conf.monitor = 1;
-    save_lxpanel_settings ();
-    reload_lxpanel ();
+    if (wayfire) save_wfshell_settings ();
+    else
+    {
+        save_lxpanel_settings ();
+        reload_lxpanel ();
+    }
 }
 
 static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
@@ -2143,7 +2220,8 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_libfm_settings ();
         save_obconf_settings ();
         save_gtk3_settings ();
-        save_lxpanel_settings ();
+        if (wayfire) save_wfshell_settings ();
+        else save_lxpanel_settings ();
         save_qt_settings ();
         save_scrollbar_settings ();
     }
@@ -2558,6 +2636,7 @@ int main (int argc, char *argv[])
 
     // check window manager
     if (!system ("ps ax | grep mutter | grep -qv grep")) mutter = TRUE;
+    if (!system ("ps ax | grep wayfire | grep -qv grep")) wayfire = TRUE;
 
     // check xsettings
     const char *type = g_getenv ("XDG_SESSION_TYPE");
@@ -2570,7 +2649,8 @@ int main (int argc, char *argv[])
     load_pcman_g_settings ();
     load_pcman_settings (0);
     load_pcman_settings (1);
-    load_lxpanel_settings ();
+    if (wayfire) load_wfshell_settings ();
+    else load_lxpanel_settings ();
     load_obconf_settings ();
 
     init_lxsession (DEFAULT_THEME);
