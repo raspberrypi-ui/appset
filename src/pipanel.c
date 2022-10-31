@@ -895,11 +895,17 @@ static void load_wfshell_settings (void)
         val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
         if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
         else DEFAULT (icon_size);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "max_task_width", &err);
+        if (err == NULL) cur_conf.task_width = val;
+        else DEFAULT (task_width);
     }
     else
     {
         DEFAULT (barpos);
         DEFAULT (icon_size);
+        DEFAULT (task_width);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -1229,6 +1235,7 @@ static void save_wfshell_settings (void)
 
     g_key_file_set_string (kf, "panel", "position", cur_conf.barpos ? "bottom" : "top");
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
+    g_key_file_set_integer (kf, "panel", "max_task_width", cur_conf.task_width);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
@@ -2220,11 +2227,12 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_libfm_settings ();
         save_obconf_settings ();
         save_gtk3_settings ();
-        if (wayfire) save_wfshell_settings ();
-        else save_lxpanel_settings ();
+        if (!wayfire) save_lxpanel_settings ();
         save_qt_settings ();
         save_scrollbar_settings ();
     }
+
+    if (wayfire) save_wfshell_settings ();
 
     // save application-specific config - we don't delete these files first...
     save_lxterm_settings ();
