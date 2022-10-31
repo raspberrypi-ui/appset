@@ -432,6 +432,7 @@ static void backup_config_files (void)
     backup_file (path);
     g_free (path);
 
+    backup_file (".config/wf-shell.ini");
     backup_file (".config/libfm/libfm.conf");
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
@@ -500,6 +501,7 @@ static int restore_config_files (void)
     if (restore_file (path)) changed = 1;
     g_free (path);
 
+    if (restore_file (".config/wf-shell.ini")) changed = 1;
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
