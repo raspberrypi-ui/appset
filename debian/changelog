@@ -1,3 +1,9 @@
+pipanel (1:1.17) bullseye; urgency=medium
+
+  * Add compatibility with Wayfire
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 02 Nov 2022 11:42:47 +0000
+
 pipanel (1:1.16) bullseye; urgency=medium
 
   * Allow opening on any tab with command-line parameter
