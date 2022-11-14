@@ -1,3 +1,9 @@
+pipanel (1:1.18) bullseye; urgency=medium
+
+  * Add multi-monitor support for Wayfire
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 14 Nov 2022 14:40:56 +0000
+
 pipanel (1:1.17) bullseye; urgency=medium
 
   * Add compatibility with Wayfire

@@ -902,12 +902,18 @@ static void load_wfshell_settings (void)
         val = g_key_file_get_integer (kf, "panel", "max_task_width", &err);
         if (err == NULL) cur_conf.task_width = val;
         else DEFAULT (task_width);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "monitor", &err);
+        if (err == NULL) cur_conf.monitor = val;
+        else DEFAULT (monitor);
     }
     else
     {
         DEFAULT (barpos);
         DEFAULT (icon_size);
         DEFAULT (task_width);
+        DEFAULT (monitor);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -1238,6 +1244,7 @@ static void save_wfshell_settings (void)
     g_key_file_set_string (kf, "panel", "position", cur_conf.barpos ? "bottom" : "top");
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
     g_key_file_set_integer (kf, "panel", "max_task_width", cur_conf.task_width);
+    g_key_file_set_integer (kf, "panel", "monitor", cur_conf.monitor);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
@@ -2567,17 +2574,41 @@ static int n_desktops (void)
     res = get_string ("xrandr --listmonitors | grep Monitors: | cut -d ' ' -f 2");
     n = sscanf (res, "%d", &m);
     g_free (res);
-    if (n != 1 || m <= 0) m = 1;
-    if (m > 2) m = 2;
-
-    /* get the names */
-    for (i = 0; i < m; i++)
+    if (n == 1)
     {
-        res = g_strdup_printf ("xrandr --listmonitors | grep %d: | cut -d ' ' -f 6", i);
-        mon_names[i] = get_string (res);
-        g_free (res);
+        if (m <= 0) m = 1;
+        if (m > 2) m = 2;
+
+        /* get the names */
+        for (i = 0; i < m; i++)
+        {
+            res = g_strdup_printf ("xrandr --listmonitors | grep %d: | cut -d ' ' -f 6", i);
+            mon_names[i] = get_string (res);
+            g_free (res);
+        }
+        return m;
     }
-    return m;
+
+    /* check wlr-randr for connected monitors */
+    res = get_string ("wlr-randr | grep -vc ^\" \"");
+    n = sscanf (res, "%d", &m);
+    g_free (res);
+    if (n == 1)
+    {
+        if (m <= 0) m = 1;
+        if (m > 2) m = 2;
+
+        /* get the names */
+        for (i = 0; i < m; i++)
+        {
+            res = g_strdup_printf ("wlr-randr | grep -v ^' ' | tail -n +%d | head -n 1 | cut -d ' ' -f 1", 2 - i);
+            mon_names[i] = get_string (res);
+            g_free (res);
+        }
+        return m;
+    }
+
+    return 1;
 }
 
 
