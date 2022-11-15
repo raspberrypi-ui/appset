@@ -2565,6 +2565,11 @@ int get_common_bg (gboolean global)
     return -1;
 }
 
+static int cmp_fn (const void *p1, const void *p2)
+{
+	return strcmp (* (const char **) p1, * (const char **) p2);
+}
+
 static int n_desktops (void)
 {
     int i, n, m;
@@ -2601,10 +2606,13 @@ static int n_desktops (void)
         /* get the names */
         for (i = 0; i < m; i++)
         {
-            res = g_strdup_printf ("wlr-randr | grep -v ^' ' | tail -n +%d | head -n 1 | cut -d ' ' -f 1", 2 - i);
+            res = g_strdup_printf ("wlr-randr | grep -v ^' ' | tail -n +%d | head -n 1 | cut -d ' ' -f 1", i + 1);
             mon_names[i] = get_string (res);
             g_free (res);
         }
+
+        /* wlr-randr sometimes returns results out of order - deep joy....*/
+        qsort (mon_names, m, sizeof (char *), cmp_fn);
         return m;
     }
 
