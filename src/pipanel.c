@@ -1295,24 +1295,6 @@ static void save_greeter_settings (void)
     g_key_file_load_from_file (kf, GREETER_CONFIG_FILE, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     err = NULL;
-    str = g_key_file_get_string (kf, "greeter", "wallpaper", &err);
-    if (err != NULL || g_strcmp0 (str, cur_conf.desktop_picture[0]) != 0)
-    {
-        g_key_file_set_string (kf, "greeter", "wallpaper", cur_conf.desktop_picture[0]);
-        changed = TRUE;
-    }
-    g_free (str);
-
-    err = NULL;
-    str = g_key_file_get_string (kf, "greeter", "wallpaper_mode", &err);
-    if (err != NULL || g_strcmp0 (str, cur_conf.desktop_mode[0]) != 0)
-    {
-        g_key_file_set_string (kf, "greeter", "wallpaper_mode", cur_conf.desktop_mode[0]);
-        changed = TRUE;
-    }
-    g_free (str);
-
-    err = NULL;
     str = g_key_file_get_string (kf, "greeter", "gtk-font-name", &err);
     if (err != NULL || g_strcmp0 (str, cur_conf.desktop_font) != 0)
     {
@@ -1320,17 +1302,6 @@ static void save_greeter_settings (void)
         changed = TRUE;
     }
     g_free (str);
-
-    col = rgba_to_gdk_color_string (&cur_conf.desktop_colour[0]);
-    err = NULL;
-    str = g_key_file_get_string (kf, "greeter", "desktop_bg", &err);
-    if (err != NULL || g_strcmp0 (str, col) != 0)
-    {
-        g_key_file_set_string (kf, "greeter", "desktop_bg", col);
-        changed = TRUE;
-    }
-    g_free (str);
-    g_free (col);
 
     if (changed)
     {
