@@ -1,3 +1,9 @@
+pipanel (1:1.19) bullseye; urgency=medium
+
+  * Do not change greeter backdrop
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 24 Jan 2023 11:31:00 +0000
+
 pipanel (1:1.18) bullseye; urgency=medium
 
   * Add multi-monitor support for Wayfire
