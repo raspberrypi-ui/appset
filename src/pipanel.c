@@ -322,7 +322,7 @@ static char *libfm_file (void)
 
 static char *wfshell_file (void)
 {
-    return g_build_filename (g_get_user_config_dir (), "wf-shell.ini", NULL);
+    return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
 
 static void check_directory (char *path)
@@ -1282,7 +1282,7 @@ static void save_lxterm_settings (void)
 
 static void save_greeter_settings (void)
 {
-    char *str, *tfname, *col;
+    char *str, *tfname;
     GKeyFile *kf;
     GError *err;
     gsize len;
