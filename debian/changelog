@@ -1,3 +1,9 @@
+pipanel (1:1.21) bookworm; urgency=medium
+
+  * ...in every place it is used...
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 22 Feb 2023 12:42:35 +0000
+
 pipanel (1:1.20) bookworm; urgency=medium
 
   * Update wayfire panel config file name
