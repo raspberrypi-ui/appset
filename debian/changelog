@@ -1,3 +1,9 @@
+pipanel (1:1.22) bookworm; urgency=medium
+
+  * Use enums for toolbar icon sizes
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 28 Feb 2023 14:35:07 +0000
+
 pipanel (1:1.21) bookworm; urgency=medium
 
   * ...in every place it is used...

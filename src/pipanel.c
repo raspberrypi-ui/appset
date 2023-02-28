@@ -1073,9 +1073,9 @@ static void save_lxsession_settings (void)
     g_free (str);
 
     g_key_file_set_string (kf, "GTK", "sGtk/FontName", cur_conf.desktop_font);
-    int tbi = 3;
-    if (cur_conf.tb_icon_size == 16) tbi = 1;
-    if (cur_conf.tb_icon_size == 48) tbi = 6;
+    int tbi = GTK_ICON_SIZE_LARGE_TOOLBAR;
+    if (cur_conf.tb_icon_size == 16) tbi = GTK_ICON_SIZE_SMALL_TOOLBAR;
+    if (cur_conf.tb_icon_size == 48) tbi = GTK_ICON_SIZE_DIALOG;
     g_key_file_set_integer (kf, "GTK", "iGtk/ToolbarIconSize", tbi);
 
     err = NULL;
