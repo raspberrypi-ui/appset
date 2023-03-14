@@ -111,9 +111,6 @@ static char lo_ver;
 
 static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid;
 
-/* Monitor names from xrandr */
-static char *mon_names[2];
-
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
 static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold;
@@ -2041,11 +2038,11 @@ static void set_tabs (int n_desk)
     if (n_desk > 1)
     {
         gtk_widget_show (gtk_notebook_get_nth_page (GTK_NOTEBOOK (nb), 1));
-        buf = g_strdup_printf (_("Desktop\n%s"), mon_names[0]);
+        buf = g_strdup_printf (_("Desktop 1"));
         gtk_label_set_text (GTK_LABEL (t1lab), buf);
         gtk_label_set_justify (GTK_LABEL (t1lab), GTK_JUSTIFY_CENTER);
         g_free (buf);
-        buf = g_strdup_printf (_("Desktop\n%s"), mon_names[1]);
+        buf = g_strdup_printf (_("Desktop 2"));
         gtk_label_set_text (GTK_LABEL (t2lab), buf);
         gtk_label_set_justify (GTK_LABEL (t2lab), GTK_JUSTIFY_CENTER);
         g_free (buf);
@@ -2536,57 +2533,20 @@ int get_common_bg (gboolean global)
     return -1;
 }
 
-static int cmp_fn (const void *p1, const void *p2)
-{
-	return strcmp (* (const char **) p1, * (const char **) p2);
-}
-
 static int n_desktops (void)
 {
     int i, n, m;
     char *res;
 
-    /* check xrandr for connected monitors */
-    res = get_string ("xrandr --listmonitors | grep Monitors: | cut -d ' ' -f 2");
+    if (!g_strcmp0 (getenv ("XDG_SESSION_TYPE"), "wayland"))
+        res = get_string ("wlr-randr | grep -vc ^\" \"");
+    else
+        res = get_string ("xrandr --listmonitors | grep Monitors: | cut -d ' ' -f 2");
+
     n = sscanf (res, "%d", &m);
     g_free (res);
-    if (n == 1)
-    {
-        if (m <= 0) m = 1;
-        if (m > 2) m = 2;
 
-        /* get the names */
-        for (i = 0; i < m; i++)
-        {
-            res = g_strdup_printf ("xrandr --listmonitors | grep %d: | cut -d ' ' -f 6", i);
-            mon_names[i] = get_string (res);
-            g_free (res);
-        }
-        return m;
-    }
-
-    /* check wlr-randr for connected monitors */
-    res = get_string ("wlr-randr | grep -vc ^\" \"");
-    n = sscanf (res, "%d", &m);
-    g_free (res);
-    if (n == 1)
-    {
-        if (m <= 0) m = 1;
-        if (m > 2) m = 2;
-
-        /* get the names */
-        for (i = 0; i < m; i++)
-        {
-            res = g_strdup_printf ("wlr-randr | grep -v ^' ' | tail -n +%d | head -n 1 | cut -d ' ' -f 1", i + 1);
-            mon_names[i] = get_string (res);
-            g_free (res);
-        }
-
-        /* wlr-randr sometimes returns results out of order - deep joy....*/
-        qsort (mon_names, m, sizeof (char *), cmp_fn);
-        return m;
-    }
-
+    if (n == 1 && m >= 2) return 2;
     return 1;
 }
 
@@ -2807,8 +2767,8 @@ int main (int argc, char *argv[])
     {
         gtk_widget_show (GTK_WIDGET (cb4));
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
-        gtk_button_set_label (GTK_BUTTON (rb3), mon_names[0]);
-        gtk_button_set_label (GTK_BUTTON (rb4), mon_names[1]);
+        gtk_button_set_label (GTK_BUTTON (rb3), _("Desktop 1"));
+        gtk_button_set_label (GTK_BUTTON (rb4), _("Desktop 2"));
     }
     else
     {
