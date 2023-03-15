@@ -1,3 +1,9 @@
+pipanel (1:1.23) bookworm; urgency=medium
+
+  * Don't display HDMI device names against desktops
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 15 Mar 2023 10:21:32 +0000
+
 pipanel (1:1.22) bookworm; urgency=medium
 
   * Use enums for toolbar icon sizes
