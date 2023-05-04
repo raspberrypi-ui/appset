@@ -1,3 +1,9 @@
+pipanel (1:1.24) bookworm; urgency=medium
+
+  * Make number of desktops check consistent
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 04 May 2023 11:42:49 +0100
+
 pipanel (1:1.23) bookworm; urgency=medium
 
   * Don't display HDMI device names against desktops

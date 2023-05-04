@@ -2538,10 +2538,10 @@ static int n_desktops (void)
     int i, n, m;
     char *res;
 
-    if (!g_strcmp0 (getenv ("XDG_SESSION_TYPE"), "wayland"))
-        res = get_string ("wlr-randr | grep -vc ^\" \"");
+    if (wayfire)
+        res = get_string ("wlr-randr | grep -cv '^ '");
     else
-        res = get_string ("xrandr --listmonitors | grep Monitors: | cut -d ' ' -f 2");
+        res = get_string ("xrandr -q | grep -cw connected");
 
     n = sscanf (res, "%d", &m);
     g_free (res);
