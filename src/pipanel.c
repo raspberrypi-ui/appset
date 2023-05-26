@@ -109,11 +109,17 @@ static char lo_ver;
 
 /* Handler IDs so they can be blocked when needed */
 
-static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid;
+static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid, draw_id;
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
 static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold;
+
+/* Dialogs */
+static GtkWidget *dlg, *msg_dlg;
+
+/* Starting tab value read from command line */
+static int st_tab;
 
 static void backup_file (char *filepath);
 static void backup_config_files (void);
@@ -2584,22 +2590,32 @@ static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data)
 
 /* The dialog... */
 
-int main (int argc, char *argv[])
+static void message (char *msg)
+{
+    GtkWidget *wid;
+    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
+
+    msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
+    if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
+    gtk_label_set_text (GTK_LABEL (wid), msg);
+
+    gtk_widget_show (msg_dlg);
+    gtk_window_set_decorated (GTK_WINDOW (msg_dlg), FALSE);
+
+    g_object_unref (builder);
+}
+
+static gboolean init_config (gpointer data)
 {
     GtkBuilder *builder;
     GObject *item;
-    GtkWidget *dlg, *wid;
+    GtkWidget *wid;
     GtkLabel *lbl;
     GList *children, *child;
-    int maj, min, sub, i, st_tab = 0;
+    int maj, min, sub, i;
     int flag1 = 1, flag2 = 2, flag3 = 3;
-
-#ifdef ENABLE_NLS
-    setlocale (LC_ALL, "");
-    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
-#endif
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
     if (read_version ("lxsession", &maj, &min, &sub))
@@ -2613,10 +2629,6 @@ int main (int argc, char *argv[])
     // get libreoffice version
     if (read_version ("libreoffice", &maj, &min, &sub)) lo_ver = maj;
     else lo_ver = 5;
-
-    // check window manager
-    if (!system ("ps ax | grep mutter | grep -qv grep")) mutter = TRUE;
-    if (!system ("ps ax | grep wayfire | grep -qv grep")) wayfire = TRUE;
 
     // check xsettings
     const char *type = g_getenv ("XDG_SESSION_TYPE");
@@ -2637,16 +2649,6 @@ int main (int argc, char *argv[])
     backup_config_files ();
 
     orig_cursor_size = cur_conf.cursor_size;
-
-    // read starting tab if there is one
-    if (argc > 1)
-    {
-        if (sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
-    }
-
-    // GTK setup
-    gtk_init (&argc, &argv);
-    gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
     // build the UI
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
@@ -2801,6 +2803,54 @@ int main (int argc, char *argv[])
     set_controls ();
 
     gtk_widget_show (dlg);
+    gtk_widget_destroy (msg_dlg);
+
+    return FALSE;
+}
+
+static gboolean event (GtkWidget *wid, GdkEventWindowState *ev, gpointer data)
+{
+    if (ev->type == GDK_WINDOW_STATE)
+    {
+        if (ev->changed_mask == GDK_WINDOW_STATE_FOCUSED
+            && ev->new_window_state & GDK_WINDOW_STATE_FOCUSED)
+                g_idle_add (init_config, NULL);
+    }
+    return FALSE;
+}
+
+static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data)
+{
+    g_signal_handler_disconnect (wid, draw_id);
+    g_idle_add (init_config, NULL);
+    return FALSE;
+}
+
+int main (int argc, char *argv[])
+{
+#ifdef ENABLE_NLS
+    setlocale (LC_ALL, "");
+    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
+#endif
+
+    // read starting tab if there is one
+    if (argc > 1)
+    {
+        if (sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
+    }
+
+    // GTK setup
+    gtk_init (&argc, &argv);
+    gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
+
+    if (getenv ("WAYFIRE_CONFIG_FILE")) wayfire = TRUE;
+
+    message (_("Loading configuration - please wait..."));
+    if (wayfire) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
+    else draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
+
     gtk_main ();
 
     gtk_widget_destroy (dlg);
