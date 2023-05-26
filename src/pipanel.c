@@ -99,7 +99,6 @@ static gboolean needs_refresh;
 
 /* Flags to indicate window and settings manager in use */
 
-static gboolean mutter = FALSE;
 static gboolean wayfire = FALSE;
 static gboolean gsettings = FALSE;
 
@@ -141,6 +140,7 @@ static void save_pcman_settings (int desktop);
 static void save_pcman_g_settings (void);
 static void save_libfm_settings (void);
 static void save_wfshell_settings (void);
+static void save_wayfire_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
 static void save_greeter_settings (void);
@@ -255,12 +255,14 @@ char *rgba_to_gdk_color_string (GdkRGBA *col)
 
 static void reload_lxpanel (void)
 {
+    if (wayfire) return;
+
     vsystem ("lxpanelctl refresh");
 }
 
 static void reload_openbox (void)
 {
-    if (mutter) return;
+    if (wayfire) return;
 
     vsystem ("openbox --reconfigure");
 }
@@ -272,11 +274,12 @@ static void reload_pcmanfm (void)
 
 static void reload_lxsession (void)
 {
+    if (wayfire) return;
+
     if (needs_refresh)
     {
         vsystem ("lxsession -r");
     }
-    if (mutter) vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
 }
 
 static const char *session (void)
@@ -328,6 +331,11 @@ static char *wfshell_file (void)
     return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
 
+static char *wayfire_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "wayfire.ini", NULL);
+}
+
 static void check_directory (char *path)
 {
     char *dir = g_path_get_dirname (path);
@@ -369,7 +377,7 @@ static void set_theme (const char *theme)
 static gboolean restore_theme (gpointer data)
 {
     /* Resets the theme to the default, causing it to take effect */
-	set_theme (DEFAULT_THEME);
+    set_theme (DEFAULT_THEME);
     if (data) gtk_main_quit ();
     return FALSE;
 }
@@ -436,6 +444,7 @@ static void backup_config_files (void)
     g_free (path);
 
     backup_file (".config/wf-panel-pi.ini");
+    backup_file (".config/wayfire.ini");
     backup_file (".config/libfm/libfm.conf");
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
@@ -505,6 +514,7 @@ static int restore_config_files (void)
     g_free (path);
 
     if (restore_file (".config/wf-panel-pi.ini")) changed = 1;
+    if (restore_file (".config/wayfire.ini")) changed = 1;
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
@@ -1248,6 +1258,29 @@ static void save_wfshell_settings (void)
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
     g_key_file_set_integer (kf, "panel", "max_task_width", cur_conf.task_width);
     g_key_file_set_integer (kf, "panel", "monitor", cur_conf.monitor);
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+    g_free (str);
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
+static void save_wayfire_settings (void)
+{
+    char *user_config_file, *str;
+    GKeyFile *kf;
+    gsize len;
+
+    user_config_file = wayfire_file ();
+    check_directory (user_config_file);
+
+    // process pcmanfm config data
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_integer (kf, "input", "cursor_size", cur_conf.cursor_size);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
@@ -2089,15 +2122,9 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
     save_lxsession_settings ();
+    save_wayfire_settings ();
     reload_lxsession ();
     reload_theme (FALSE);
-    if (!mutter)
-    {
-        if (cur_conf.cursor_size != orig_cursor_size)
-            gtk_widget_show (GTK_WIDGET (cmsg));
-        else
-            gtk_widget_hide (GTK_WIDGET (cmsg));
-    }
 }
 
 
@@ -2561,7 +2588,6 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
 {
     if (restore_config_files ())
     {
-        if (mutter) cur_conf.cursor_size = orig_cursor_size;
         set_theme (TEMP_THEME);
         reload_lxsession ();
         reload_gsettings ();
