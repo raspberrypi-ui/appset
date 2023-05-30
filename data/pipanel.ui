@@ -1024,30 +1024,6 @@
                     <property name="position">3</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkBox" id="hbox35">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label35">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">New mouse cursor size will take effect at reboot</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="position">3</property>
@@ -1300,7 +1276,6 @@
       <widget name="hbox32"/>
       <widget name="hbox33"/>
       <widget name="hbox34"/>
-      <widget name="hbox35"/>
       <widget name="hbox41"/>
       <widget name="hbox42"/>
       <widget name="hbox43"/>
