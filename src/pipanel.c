@@ -91,8 +91,6 @@ typedef struct {
 
 static DesktopConfig cur_conf, def_lg, def_med, def_sm;
 
-static int orig_cursor_size;
-
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
 static gboolean needs_refresh;
@@ -2191,11 +2189,6 @@ static void set_controls (void)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb4), cur_conf.common_bg);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dfold), cur_conf.desktop_folder);
 
-    if (cur_conf.cursor_size != orig_cursor_size)
-        gtk_widget_show (GTK_WIDGET (cmsg));
-    else
-        gtk_widget_hide (GTK_WIDGET (cmsg));
-
     // unblock widget handlers
     g_signal_handler_unblock (isz, iid);
     g_signal_handler_unblock (csz, cid);
@@ -2673,8 +2666,6 @@ static gboolean init_config (gpointer data)
 
     init_lxsession (DEFAULT_THEME);
     backup_config_files ();
-
-    orig_cursor_size = cur_conf.cursor_size;
 
     // build the UI
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
