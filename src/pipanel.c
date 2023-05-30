@@ -138,7 +138,6 @@ static void save_pcman_settings (int desktop);
 static void save_pcman_g_settings (void);
 static void save_libfm_settings (void);
 static void save_wfshell_settings (void);
-static void save_wayfire_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
 static void save_greeter_settings (void);
@@ -1282,29 +1281,6 @@ static void save_wfshell_settings (void)
     g_free (user_config_file);
 }
 
-static void save_wayfire_settings (void)
-{
-    char *user_config_file, *str;
-    GKeyFile *kf;
-    gsize len;
-
-    user_config_file = wayfire_file ();
-    check_directory (user_config_file);
-
-    // process pcmanfm config data
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-
-    g_key_file_set_integer (kf, "input", "cursor_size", cur_conf.cursor_size);
-
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-    g_free (str);
-
-    g_key_file_free (kf);
-    g_free (user_config_file);
-}
-
 static void save_lxterm_settings (void)
 {
     char *user_config_file, *str;
@@ -1987,7 +1963,6 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
     save_pcman_settings (0);
     save_pcman_settings (1);
     save_obconf_settings ();
-    save_gtk3_settings ();
     save_qt_settings ();
 
     reload_lxsession ();
@@ -2137,7 +2112,6 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
     save_lxsession_settings ();
-    save_wayfire_settings ();
     reload_lxsession ();
     reload_theme (FALSE);
 }
