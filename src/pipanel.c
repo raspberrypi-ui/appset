@@ -222,6 +222,23 @@ static gboolean read_version (char *package, int *maj, int *min, int *sub)
     else return FALSE;
 }
 
+static void message (char *msg)
+{
+    GtkWidget *wid;
+    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
+
+    msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
+    if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
+    gtk_label_set_text (GTK_LABEL (wid), msg);
+
+    gtk_widget_show (msg_dlg);
+    gtk_window_set_decorated (GTK_WINDOW (msg_dlg), FALSE);
+
+    g_object_unref (builder);
+}
+
 /* Create a labelled-by relationship between a widget and a label */
 
 static void atk_label (GtkWidget *widget, GtkLabel *label)
@@ -2576,8 +2593,7 @@ static int n_desktops (void)
     return 1;
 }
 
-
-static gboolean cancel_main (GtkButton *button, gpointer data)
+static gpointer restore_thread (gpointer ptr)
 {
     if (restore_config_files ())
     {
@@ -2590,6 +2606,13 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
         reload_theme (TRUE);
     }
     else gtk_main_quit ();
+    return NULL;
+}
+
+static gboolean cancel_main (GtkButton *button, gpointer data)
+{
+    message (_("Restoring configuration - please wait..."));
+    g_thread_new (NULL, restore_thread, NULL);
     return FALSE;
 }
 
@@ -2608,23 +2631,6 @@ static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data)
 
 
 /* The dialog... */
-
-static void message (char *msg)
-{
-    GtkWidget *wid;
-    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
-
-    msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
-    if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
-
-    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
-    gtk_label_set_text (GTK_LABEL (wid), msg);
-
-    gtk_widget_show (msg_dlg);
-    gtk_window_set_decorated (GTK_WINDOW (msg_dlg), FALSE);
-
-    g_object_unref (builder);
-}
 
 static gboolean init_config (gpointer data)
 {
