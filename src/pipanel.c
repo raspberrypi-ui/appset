@@ -345,11 +345,6 @@ static char *wfshell_file (void)
     return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
 
-static char *wayfire_file (void)
-{
-    return g_build_filename (g_get_user_config_dir (), "wayfire.ini", NULL);
-}
-
 static void check_directory (char *path)
 {
     char *dir = g_path_get_dirname (path);
