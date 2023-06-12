@@ -140,7 +140,6 @@ static void save_libfm_settings (void);
 static void save_wfshell_settings (void);
 static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
-static void save_greeter_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
@@ -1298,49 +1297,6 @@ static void save_lxterm_settings (void)
     g_free (str);
     g_key_file_free (kf);
     g_free (user_config_file);
-}
-
-static void save_greeter_settings (void)
-{
-    char *str, *tfname;
-    GKeyFile *kf;
-    GError *err;
-    gsize len;
-    gint handle;
-    int res;
-    gboolean changed = FALSE;
-
-    // read the current config
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, GREETER_CONFIG_FILE, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-
-    err = NULL;
-    str = g_key_file_get_string (kf, "greeter", "gtk-font-name", &err);
-    if (err != NULL || g_strcmp0 (str, cur_conf.desktop_font) != 0)
-    {
-        g_key_file_set_string (kf, "greeter", "gtk-font-name", cur_conf.desktop_font);
-        changed = TRUE;
-    }
-    g_free (str);
-
-    if (changed)
-    {
-        // just in case...
-        g_key_file_set_string (kf, "greeter", "gtk-theme-name", "PiXflat");
-        g_key_file_set_string (kf, "greeter", "gtk-icon-theme-name", "PiXflat");
-
-        // write the modified key file out to a temp file
-        str = g_key_file_to_data (kf, &len, NULL);
-        handle = g_file_open_tmp ("XXXXXX", &tfname, NULL);
-        res = write (handle, str, len);
-        close (handle);
-
-        g_free (str);
-        g_key_file_free (kf);
-
-        // copy the temp file to the correct place with sudo
-        if (res != -1) vsystem ("sudo -A cp %s %s", tfname, GREETER_CONFIG_FILE);
-    }
 }
 
 static void save_obconf_settings (void)
@@ -2588,7 +2544,6 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
 
 static gboolean ok_main (GtkButton *button, gpointer data)
 {
-    save_greeter_settings ();
     gtk_main_quit ();
     return FALSE;
 }
