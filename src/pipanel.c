@@ -2197,17 +2197,20 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reset_to_defaults ();
 
     // set config structure to a default
-    if (* (int *) ptr == 3)
-        cur_conf = def_lg;
-    else if (* (int *) ptr == 1)
-        cur_conf = def_sm;
-    else cur_conf = def_med;
+    switch ((int) ptr)
+    {
+        case 3 :    cur_conf = def_lg;
+                    break;
+        case 1 :    cur_conf = def_sm;
+                    break;
+        default :   cur_conf = def_med;
+    }
 
     // reset the GUI controls to match the variables
     set_controls ();
 
     // save changes to files if not using medium (the global default)
-    if (* (int *) ptr != 2)
+    if (ptr != 2)
     {
         save_lxsession_settings ();
         save_pcman_g_settings ();
@@ -2609,7 +2612,6 @@ static gboolean init_config (gpointer data)
     GtkLabel *lbl;
     GList *children, *child;
     int maj, min, sub, i;
-    int flag1 = 1, flag2 = 2, flag3 = 3;
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
     if (read_version ("lxsession", &maj, &min, &sub))
@@ -2668,13 +2670,13 @@ static gboolean init_config (gpointer data)
     g_signal_connect (htcol, "color-set", G_CALLBACK (on_themetext_colour_set), NULL);
 
     item = gtk_builder_get_object (builder, "defs_lg");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag3);
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), 3);
 
     item = gtk_builder_get_object (builder, "defs_med");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag2);
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), 2);
 
     item = gtk_builder_get_object (builder, "defs_sml");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), &flag1);
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), 1);
 
     rb1 = gtk_builder_get_object (builder, "radiobutton1");
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
