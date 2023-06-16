@@ -918,7 +918,7 @@ static void load_wfshell_settings (void)
         else DEFAULT (icon_size);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "max_task_width", &err);
+        val = g_key_file_get_integer (kf, "panel", "window_list_max_width", &err);
         if (err == NULL) cur_conf.task_width = val;
         else DEFAULT (task_width);
 
@@ -1262,7 +1262,7 @@ static void save_wfshell_settings (void)
 
     g_key_file_set_string (kf, "panel", "position", cur_conf.barpos ? "bottom" : "top");
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
-    g_key_file_set_integer (kf, "panel", "max_task_width", cur_conf.task_width);
+    g_key_file_set_integer (kf, "panel", "window_list_max_width", cur_conf.task_width);
     g_key_file_set_integer (kf, "panel", "monitor", cur_conf.monitor);
 
     str = g_key_file_to_data (kf, &len, NULL);
