@@ -1,3 +1,9 @@
+pipanel (1:1.28) bookworm; urgency=medium
+
+  * Change window list width parameter name
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 20 Jun 2023 14:14:22 +0100
+
 pipanel (1:1.27) bookworm; urgency=medium
 
   * Fix defaults
