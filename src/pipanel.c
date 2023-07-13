@@ -1826,7 +1826,11 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
         case 3 :    cur_conf.icon_size = 20;
                     break;
     }
-    if (wayfire) save_wfshell_settings ();
+    if (wayfire)
+    {
+        save_wfshell_settings ();
+        reload_pcmanfm ();
+    }
     else
     {
         save_lxpanel_settings ();
@@ -1965,7 +1969,11 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
-    if (wayfire) save_wfshell_settings ();
+    if (wayfire)
+    {
+        save_wfshell_settings ();
+        reload_pcmanfm ();
+    }
     else
     {
         save_lxpanel_settings ();
@@ -1977,7 +1985,11 @@ static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.monitor = 0;
     else cur_conf.monitor = 1;
-    if (wayfire) save_wfshell_settings ();
+    if (wayfire)
+    {
+        save_wfshell_settings ();
+        reload_pcmanfm ();
+    }
     else
     {
         save_lxpanel_settings ();
@@ -2792,7 +2804,7 @@ int main (int argc, char *argv[])
     gtk_init (&argc, &argv);
     gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
-    if (getenv ("WAYFIRE_CONFIG_FILE")) wayfire = TRUE;
+    if (getenv ("WAYLAND_DISPLAY")) wayfire = TRUE;
 
     message (_("Loading configuration - please wait..."));
     if (wayfire) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
