@@ -1,6 +1,5 @@
 pipanel (1:1.29) bookworm; urgency=medium
 
-  * Check WAYLAND_DISPLAY instead of WAYFIRE_CONFIG_FILE
   * Reload pcmanfm if size of taskbar has changed
 
  -- Simon Long <simon@raspberrypi.com>  Thu, 13 Jul 2023 13:51:35 +0100

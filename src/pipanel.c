@@ -2804,7 +2804,7 @@ int main (int argc, char *argv[])
     gtk_init (&argc, &argv);
     gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
-    if (getenv ("WAYLAND_DISPLAY")) wayfire = TRUE;
+    if (getenv ("WAYFIRE_CONFIG_FILE")) wayfire = TRUE;
 
     message (_("Loading configuration - please wait..."));
     if (wayfire) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
