@@ -134,6 +134,7 @@ static void load_wfshell_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
 static void save_lxsession_settings (void);
+static void save_xsettings (void);
 static void save_pcman_settings (int desktop);
 static void save_pcman_g_settings (void);
 static void save_libfm_settings (void);
@@ -295,6 +296,13 @@ static void reload_lxsession (void)
     }
 }
 
+static void reload_xsettings (void)
+{
+    if (!wayfire) return;
+
+    vsystem ("pkill xsettingsd");
+}
+
 static const char *session (void)
 {
     const char *session_name =  g_getenv ("DESKTOP_SESSION");
@@ -317,6 +325,11 @@ static char *openbox_file (void)
 static char *lxsession_file (gboolean global)
 {
     return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxsession", session (), "desktop.conf", NULL);
+}
+
+static char *xsettings_file (gboolean global)
+{
+    return g_build_filename (global ? "/etc" : g_get_user_config_dir (), "xsettingsd/xsettingsd.conf", NULL);
 }
 
 static char *lxpanel_file (gboolean global)
@@ -601,6 +614,7 @@ static void reset_to_defaults (void)
     delete_file (".config/gtk-3.0/gtk.css");
     delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
+    delete_file (".config/xsettingsd/xsettingsd.conf");
     delete_file (".gtkrc-2.0");
 
     reload_gsettings ();
@@ -1157,6 +1171,47 @@ static void save_lxsession_settings (void)
         }
         set_theme (TEMP_THEME);
     }
+}
+
+static void save_xsettings (void)
+{
+    char *user_config_file, *str, *ctheme, *cthemet, *cbar, *cbart;
+
+    user_config_file = xsettings_file (FALSE);
+    printf ("%s\n", user_config_file);
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        // need a local copy to take the changes
+        check_directory (user_config_file);
+        vsystem ("cp /etc/xsettingsd/xsettingsd.conf %s", user_config_file);
+    }
+
+    ctheme = rgba_to_gdk_color_string (&cur_conf.theme_colour);
+    cthemet = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
+    cbar = rgba_to_gdk_color_string (&cur_conf.bar_colour);
+    cbart = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
+
+    str = g_strdup_printf ("selected_bg_color:%s\\\\nselected_fg_color:%s\\\\nbar_bg_color:%s\\\\nbar_fg_color:%s\\\\n",
+        ctheme, cthemet, cbar, cbart);
+
+    printf ("%s\n", str);
+    int tbi = GTK_ICON_SIZE_LARGE_TOOLBAR;
+    if (cur_conf.tb_icon_size == 16) tbi = GTK_ICON_SIZE_SMALL_TOOLBAR;
+    if (cur_conf.tb_icon_size == 48) tbi = GTK_ICON_SIZE_DIALOG;
+
+    // use sed to write
+    vsystem ("sed -i s/'ColorScheme.*'/'ColorScheme \"%s\"'/g %s", str, user_config_file);
+    vsystem ("sed -i s/'FontName.*'/'FontName \"%s\"'/g %s", cur_conf.desktop_font, user_config_file);
+    vsystem ("sed -i s/'ToolbarIconSize.*'/'ToolbarIconSize %d'/g %s", tbi, user_config_file);
+    vsystem ("sed -i s/'CursorThemeSize.*'/'CursorThemeSize %d'/g %s", cur_conf.cursor_size, user_config_file);
+    vsystem ("sed -i s/gtk-large-toolbar=[0-9]+,[0-9]+/gtk-large-toolbar=%d,%d/g %s", cur_conf.tb_icon_size, cur_conf.tb_icon_size, user_config_file);
+
+    g_free (ctheme);
+    g_free (cthemet);
+    g_free (cbar);
+    g_free (cbart);
+    g_free (str);
+    g_free (user_config_file);
 }
 
 static void save_pcman_settings (int desktop)
@@ -1842,9 +1897,11 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour);
     save_lxsession_settings ();
+    save_xsettings ();
     save_obconf_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
+    reload_xsettings ();
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
@@ -1854,9 +1911,11 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour);
     save_lxsession_settings ();
+    save_xsettings ();
     save_obconf_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
+    reload_xsettings ();
     reload_openbox ();
     reload_pcmanfm ();
     reload_theme (FALSE);
@@ -1866,8 +1925,10 @@ static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour);
     save_lxsession_settings ();
+    save_xsettings ();
     save_gtk3_settings ();
     reload_lxsession ();
+    reload_xsettings ();
     reload_pcmanfm ();
     reload_theme (FALSE);
 }
@@ -1876,8 +1937,10 @@ static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour);
     save_lxsession_settings ();
+    save_xsettings ();
     save_gtk3_settings ();
     reload_lxsession ();
+    reload_xsettings ();
     reload_pcmanfm ();
     reload_theme (FALSE);
 }
@@ -1913,12 +1976,14 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
     if (font) cur_conf.desktop_font = font;
 
     save_lxsession_settings ();
+    save_xsettings ();
     save_pcman_settings (0);
     save_pcman_settings (1);
     save_obconf_settings ();
     save_qt_settings ();
 
     reload_lxsession ();
+    reload_xsettings ();
     reload_lxpanel ();
     reload_openbox ();
     reload_pcmanfm ();
@@ -2073,7 +2138,9 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
     save_lxsession_settings ();
+    save_xsettings ();
     reload_lxsession ();
+    reload_xsettings ();
     reload_theme (FALSE);
 }
 
@@ -2179,6 +2246,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     if (ptr != 2)
     {
         save_lxsession_settings ();
+        save_xsettings ();
         save_pcman_g_settings ();
         save_pcman_settings (0);
         save_pcman_settings (1);
@@ -2198,6 +2266,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
     // reload everything to reflect the current state
     reload_lxsession ();
+    reload_xsettings ();
     reload_lxpanel ();
     reload_openbox ();
     reload_pcmanfm ();
@@ -2537,6 +2606,7 @@ static gpointer restore_thread (gpointer ptr)
     {
         set_theme (TEMP_THEME);
         reload_lxsession ();
+        reload_xsettings ();
         reload_gsettings ();
         reload_lxpanel ();
         reload_openbox ();
