@@ -113,11 +113,11 @@ static char lo_ver;
 
 /* Handler IDs so they can be blocked when needed */
 
-static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid, draw_id, vcmarid[2];
+static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid, draw_id;
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
-static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold, *mar[2];
+static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold;
 
 /* Dialogs */
 static GtkWidget *dlg, *msg_dlg;
@@ -125,7 +125,11 @@ static GtkWidget *dlg, *msg_dlg;
 /* Starting tab value read from command line */
 static int st_tab;
 
+#ifdef MARGINS
+static GObject *mar[2];
+static gulong vcmarid[2];
 static guint martimer;
+#endif
 
 static void backup_file (char *filepath);
 static void backup_config_files (void);
@@ -182,6 +186,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr);
 static void set_tabs (int n_desk);
 static int n_desktops (void);
 #ifdef MARGINS
+static void calc_new_margins (void);
 static gboolean update_margin (gpointer data);
 static void on_margin_changed (GtkSpinButton* sb, gpointer ptr);
 #endif
@@ -1916,11 +1921,11 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
     if (wayfire)
     {
 #ifdef MARGINS
-        update_margin (cur_conf.monitor);
-#else
+        calc_new_margins ();
+        save_pcman_settings (cur_conf.monitor);
+#endif
         save_wfshell_settings ();
         reload_pcmanfm ();
-#endif
     }
     else
     {
@@ -2073,11 +2078,11 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     if (wayfire)
     {
 #ifdef MARGINS
-        update_margin (cur_conf.monitor);
-#else
+        calc_new_margins ();
+        save_pcman_settings (cur_conf.monitor);
+#endif
         save_wfshell_settings ();
         reload_pcmanfm ();
-#endif
     }
     else
     {
@@ -2093,12 +2098,12 @@ static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
     if (wayfire)
     {
 #ifdef MARGINS
-        update_margin (0);
-        update_margin (1);
-#else
+        calc_new_margins ();
+        save_pcman_settings (0);
+        save_pcman_settings (1);
+#endif
         save_wfshell_settings ();
         reload_pcmanfm ();
-#endif
     }
     else
     {
@@ -2190,17 +2195,26 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
 }
 
 #ifdef MARGINS
+static void calc_new_margins (void)
+{
+    int i;
+    for (i = 0; i < 2; i++)
+    {
+        cur_conf.tmargin[i] = cur_conf.margin[i];
+        cur_conf.bmargin[i] = cur_conf.margin[i];
+        if (cur_conf.monitor == i && cur_conf.margin[i])
+        {
+            if (cur_conf.barpos) cur_conf.bmargin[i] += cur_conf.icon_size;
+            else cur_conf.tmargin[i] += cur_conf.icon_size;
+        }
+    }
+}
+
 static gboolean update_margin (gpointer data)
 {
     int desk = (int) data;
     save_wfshell_settings ();
-    cur_conf.tmargin[desk] = cur_conf.margin[desk];
-    cur_conf.bmargin[desk] = cur_conf.margin[desk];
-    if (cur_conf.monitor == desk && cur_conf.margin[desk])
-    {
-        if (cur_conf.barpos) cur_conf.bmargin[desk] += cur_conf.icon_size;
-        else cur_conf.tmargin[desk] += cur_conf.icon_size;
-    }
+    calc_new_margins ();
     save_pcman_settings (desk);
     reload_pcmanfm ();
     martimer = 0;
@@ -2321,6 +2335,10 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
     // reset the GUI controls to match the variables
     set_controls ();
+
+#ifdef MARGINS
+    calc_new_margins ();
+#endif
 
     // save changes to files if not using medium (the global default)
     if (ptr != 2)
@@ -2546,6 +2564,9 @@ static void defaults_pcman (int desktop)
         def_med.show_docs[desktop] = 0;
         def_med.show_trash[desktop] = 0;
         def_med.show_mnts[desktop] = 0;
+#ifdef MARGINS
+        def_med.margin[desktop] = 0;
+#endif
         if (desktop == 1) def_med.desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);
     }
     g_key_file_free (kf);
