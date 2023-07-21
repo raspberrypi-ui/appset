@@ -1915,8 +1915,12 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
     }
     if (wayfire)
     {
+#ifdef MARGINS
+        update_margin (cur_conf.monitor);
+#else
         save_wfshell_settings ();
         reload_pcmanfm ();
+#endif
     }
     else
     {
