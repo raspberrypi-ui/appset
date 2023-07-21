@@ -56,6 +56,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define XC(str) ((xmlChar *) str)
 
+#define MARGINS
+
 /* Global variables for window values */
 
 typedef struct {
@@ -87,6 +89,9 @@ typedef struct {
     int scrollbar_width;
     int monitor;
     int common_bg;
+#ifdef MARGINS
+    int margin[2];
+#endif
 } DesktopConfig;
 
 static DesktopConfig cur_conf, def_lg, def_med, def_sm;
@@ -106,17 +111,19 @@ static char lo_ver;
 
 /* Handler IDs so they can be blocked when needed */
 
-static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid, draw_id;
+static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid, draw_id, vcmarid[2];
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
-static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold;
+static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold, *mar[2];
 
 /* Dialogs */
 static GtkWidget *dlg, *msg_dlg;
 
 /* Starting tab value read from command line */
 static int st_tab;
+
+static guint martimer;
 
 static void backup_file (char *filepath);
 static void backup_config_files (void);
@@ -785,6 +792,13 @@ static void load_pcman_settings (int desktop)
             else DEFAULT (desktop_folder);
             g_free (ret);
         }
+
+#ifdef MARGINS
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "margin", &err);
+        if (err == NULL && val >= 0 && val <= 50) cur_conf.margin[desktop] = val;
+        else DEFAULT (margin[desktop]);
+#endif
     }
     else
     {
@@ -795,6 +809,9 @@ static void load_pcman_settings (int desktop)
         DEFAULT (show_docs[desktop]);
         DEFAULT (show_trash[desktop]);
         DEFAULT (show_mnts[desktop]);
+#ifdef MARGINS
+        DEFAULT (margin[desktop]);
+#endif
         if (desktop == 1) DEFAULT (desktop_folder);
     }
     g_key_file_free (kf);
@@ -1242,6 +1259,12 @@ static void save_pcman_settings (int desktop)
     g_key_file_set_integer (kf, "*", "show_documents", cur_conf.show_docs[desktop]);
     g_key_file_set_integer (kf, "*", "show_trash", cur_conf.show_trash[desktop]);
     g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.show_mnts[desktop]);
+
+#ifdef MARGINS
+    g_key_file_set_integer (kf, "*", "margin", cur_conf.margin[desktop]);
+    g_key_file_set_integer (kf, "*", "tmargin", cur_conf.margin[desktop]);
+    g_key_file_set_integer (kf, "*", "bmargin", cur_conf.margin[desktop]);
+#endif
 
     if (desktop == 1) g_key_file_set_string (kf, "*", "folder", cur_conf.desktop_folder);
 
@@ -2144,6 +2167,24 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
+#ifdef MARGINS
+static gboolean update_margin (gpointer data)
+{
+    int desk = (int) data;
+    save_pcman_settings (desk);
+    reload_pcmanfm ();
+    martimer = 0;
+    return FALSE;
+}
+
+static void on_margin_changed (GtkSpinButton* sb, gpointer ptr)
+{
+    int desk = (int) ptr;
+    if (martimer) g_source_remove (martimer);
+    cur_conf.margin[desk] = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (sb));
+    martimer = g_timeout_add (500, update_margin, (gpointer) desk);
+}
+#endif
 
 static void set_controls (void)
 {
@@ -2162,6 +2203,9 @@ static void set_controls (void)
         g_signal_handler_block (cb1[i], tdid[i]);
         g_signal_handler_block (cb2[i], ttid[i]);
         g_signal_handler_block (cb3[i], tmid[i]);
+#ifdef MARGINS
+        g_signal_handler_block (mar[i], vcmarid[i]);
+#endif
     }
 
     gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font), cur_conf.desktop_font);
@@ -2184,6 +2228,9 @@ static void set_controls (void)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1[i]), cur_conf.show_docs[i]);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2[i]), cur_conf.show_trash[i]);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3[i]), cur_conf.show_mnts[i]);
+#ifdef MARGINS
+        if (wayfire) gtk_spin_button_set_value (GTK_SPIN_BUTTON (mar[i]), cur_conf.margin[i]);
+#endif
     }
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour);
@@ -2221,6 +2268,9 @@ static void set_controls (void)
         g_signal_handler_unblock (cb1[i], tdid[i]);
         g_signal_handler_unblock (cb2[i], ttid[i]);
         g_signal_handler_unblock (cb3[i], tmid[i]);
+#ifdef MARGINS
+        g_signal_handler_unblock (mar[i], vcmarid[i]);
+#endif
     }
 }
 
@@ -2441,6 +2491,13 @@ static void defaults_pcman (int desktop)
         if (err == NULL && val >= 0 && val <= 1) def_med.show_mnts[desktop] = val;
         else def_med.show_mnts[desktop] = 0;
 
+#ifdef MARGINS
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "margin", &err);
+        if (err == NULL && val >= 0 && val <= 1) def_med.margin[desktop] = val;
+        else def_med.margin[desktop] = 0;
+#endif
+
         if (desktop == 1)
         {
             err = NULL;
@@ -2647,6 +2704,9 @@ static gboolean init_config (gpointer data)
     GtkLabel *lbl;
     GList *children, *child;
     int maj, min, sub, i;
+#ifdef MARGINS
+    GtkAdjustment *madj[2];
+#endif
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
     if (read_version ("lxsession", &maj, &min, &sub))
@@ -2764,6 +2824,19 @@ static gboolean init_config (gpointer data)
 
         cb3[i] = gtk_builder_get_object (builder, i ? "checkbutton3_" : "checkbutton3");
         tmid[i] = g_signal_connect (cb3[i], "toggled", G_CALLBACK (on_toggle_mnts), (void *) i);
+
+        gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, i ? "hbox17_" : "hbox17")));
+
+#ifdef MARGINS
+        if (wayfire)
+        {
+            mar[i] = gtk_builder_get_object (builder, i ? "sb_margin1" : "sb_margin0");
+            madj[i] = gtk_adjustment_new (0, 0, 50, 1, 0, 0);
+            gtk_spin_button_set_adjustment (GTK_SPIN_BUTTON (mar[i]), madj[i]);
+            vcmarid[i] = g_signal_connect (mar[i], "value-changed", G_CALLBACK (on_margin_changed), (void *) i);
+            gtk_widget_show (GTK_WIDGET (gtk_builder_get_object (builder, i ? "hbox17_" : "hbox17")));
+        }
+#endif
     }
 
     cb4 = gtk_builder_get_object (builder, "checkbutton4");
