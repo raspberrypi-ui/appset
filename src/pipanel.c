@@ -186,7 +186,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr);
 static void set_tabs (int n_desk);
 static int n_desktops (void);
 #ifdef MARGINS
-static void calc_new_margins (void);
 static gboolean update_margin (gpointer data);
 static void on_margin_changed (GtkSpinButton* sb, gpointer ptr);
 #endif
@@ -1272,6 +1271,13 @@ static void save_pcman_settings (int desktop)
     g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.show_mnts[desktop]);
 
 #ifdef MARGINS
+    cur_conf.tmargin[desktop] = cur_conf.margin[desktop];
+    cur_conf.bmargin[desktop] = cur_conf.margin[desktop];
+    if (cur_conf.monitor == desktop && cur_conf.margin[desktop])
+    {
+        if (cur_conf.barpos) cur_conf.bmargin[desktop] += cur_conf.icon_size;
+        else cur_conf.tmargin[desktop] += cur_conf.icon_size;
+    }
     g_key_file_set_integer (kf, "*", "margin", cur_conf.margin[desktop]);
     g_key_file_set_integer (kf, "*", "tmargin", cur_conf.tmargin[desktop]);
     g_key_file_set_integer (kf, "*", "bmargin", cur_conf.bmargin[desktop]);
@@ -1921,7 +1927,6 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
     if (wayfire)
     {
 #ifdef MARGINS
-        calc_new_margins ();
         save_pcman_settings (cur_conf.monitor);
 #endif
         save_wfshell_settings ();
@@ -2078,7 +2083,6 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     if (wayfire)
     {
 #ifdef MARGINS
-        calc_new_margins ();
         save_pcman_settings (cur_conf.monitor);
 #endif
         save_wfshell_settings ();
@@ -2098,7 +2102,6 @@ static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
     if (wayfire)
     {
 #ifdef MARGINS
-        calc_new_margins ();
         save_pcman_settings (0);
         save_pcman_settings (1);
 #endif
@@ -2195,26 +2198,10 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
 }
 
 #ifdef MARGINS
-static void calc_new_margins (void)
-{
-    int i;
-    for (i = 0; i < 2; i++)
-    {
-        cur_conf.tmargin[i] = cur_conf.margin[i];
-        cur_conf.bmargin[i] = cur_conf.margin[i];
-        if (cur_conf.monitor == i && cur_conf.margin[i])
-        {
-            if (cur_conf.barpos) cur_conf.bmargin[i] += cur_conf.icon_size;
-            else cur_conf.tmargin[i] += cur_conf.icon_size;
-        }
-    }
-}
-
 static gboolean update_margin (gpointer data)
 {
     int desk = (int) data;
     save_wfshell_settings ();
-    calc_new_margins ();
     save_pcman_settings (desk);
     reload_pcmanfm ();
     martimer = 0;
@@ -2335,10 +2322,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
     // reset the GUI controls to match the variables
     set_controls ();
-
-#ifdef MARGINS
-    calc_new_margins ();
-#endif
 
     // save changes to files if not using medium (the global default)
     if (ptr != 2)
