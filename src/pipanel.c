@@ -91,6 +91,8 @@ typedef struct {
     int common_bg;
 #ifdef MARGINS
     int margin[2];
+    int tmargin[2];
+    int bmargin[2];
 #endif
 } DesktopConfig;
 
@@ -179,6 +181,10 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
 static void set_tabs (int n_desk);
 static int n_desktops (void);
+#ifdef MARGINS
+static gboolean update_margin (gpointer data);
+static void on_margin_changed (GtkSpinButton* sb, gpointer ptr);
+#endif
 
 /* Utilities */
 
@@ -1262,8 +1268,8 @@ static void save_pcman_settings (int desktop)
 
 #ifdef MARGINS
     g_key_file_set_integer (kf, "*", "margin", cur_conf.margin[desktop]);
-    g_key_file_set_integer (kf, "*", "tmargin", cur_conf.margin[desktop]);
-    g_key_file_set_integer (kf, "*", "bmargin", cur_conf.margin[desktop]);
+    g_key_file_set_integer (kf, "*", "tmargin", cur_conf.tmargin[desktop]);
+    g_key_file_set_integer (kf, "*", "bmargin", cur_conf.bmargin[desktop]);
 #endif
 
     if (desktop == 1) g_key_file_set_string (kf, "*", "folder", cur_conf.desktop_folder);
@@ -1342,6 +1348,9 @@ static void save_wfshell_settings (void)
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
     g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
     g_key_file_set_integer (kf, "panel", "monitor", cur_conf.monitor);
+#ifdef MARGINS
+    g_key_file_set_integer (kf, "panel", "margin", cur_conf.margin[cur_conf.monitor]);
+#endif
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
@@ -2059,8 +2068,12 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     else cur_conf.barpos = 1;
     if (wayfire)
     {
+#ifdef MARGINS
+        update_margin (cur_conf.monitor);
+#else
         save_wfshell_settings ();
         reload_pcmanfm ();
+#endif
     }
     else
     {
@@ -2171,6 +2184,14 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
 static gboolean update_margin (gpointer data)
 {
     int desk = (int) data;
+    save_wfshell_settings ();
+    cur_conf.tmargin[desk] = cur_conf.margin[desk];
+    cur_conf.bmargin[desk] = cur_conf.margin[desk];
+    if (cur_conf.monitor == desk && cur_conf.margin[desk])
+    {
+        if (cur_conf.barpos) cur_conf.bmargin[desk] += cur_conf.icon_size;
+        else cur_conf.tmargin[desk] += cur_conf.icon_size;
+    }
     save_pcman_settings (desk);
     reload_pcmanfm ();
     martimer = 0;
