@@ -2092,8 +2092,13 @@ static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
     else cur_conf.monitor = 1;
     if (wayfire)
     {
+#ifdef MARGINS
+        update_margin (0);
+        update_margin (1);
+#else
         save_wfshell_settings ();
         reload_pcmanfm ();
+#endif
     }
     else
     {
