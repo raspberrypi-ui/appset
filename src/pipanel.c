@@ -469,6 +469,7 @@ static void backup_config_files (void)
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
+    backup_file (".config/xsettingsd/xsettingsd.conf");
     backup_file (".gtkrc-2.0");
 
     // app-specific
@@ -538,6 +539,7 @@ static int restore_config_files (void)
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
+    if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
 
     // app-specific

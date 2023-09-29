@@ -1,3 +1,9 @@
+pipanel (1:1.31) bookworm; urgency=medium
+
+  * Add backup and restore of xsettingsd config file
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 29 Sep 2023 11:49:29 +0100
+
 pipanel (1:1.30) bookworm; urgency=medium
 
   *  Edit xsettingsd configuration for Xwayland
