@@ -477,6 +477,7 @@ static void backup_config_files (void)
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".config/gtk-3.0/settings.ini");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
+    backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk-dark.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".config/xsettingsd/xsettingsd.conf");
     backup_file (".gtkrc-2.0");
@@ -548,6 +549,7 @@ static int restore_config_files (void)
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/gtk-3.0/settings.ini")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
+    if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk-dark.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
@@ -626,6 +628,7 @@ static void reset_to_defaults (void)
     delete_file (".config/gtk-3.0/gtk.css");
     delete_file (".config/gtk-3.0/settings.ini");
     delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
+    delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk-dark.css");
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".config/xsettingsd/xsettingsd.conf");
     delete_file (".gtkrc-2.0");
@@ -1872,7 +1875,7 @@ static void save_scrollbar_settings (void)
     g_free (conffile);
 
     // GTK3 override file
-    conffile = g_build_filename (g_get_user_data_dir (), "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+    conffile = g_build_filename (g_get_user_data_dir (), cur_conf.darkmode ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
     check_directory (conffile);
 
     // check if the scrollbar button entry is in the file - if not, add it...
