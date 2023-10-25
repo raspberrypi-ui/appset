@@ -48,6 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MIN_ICON 16
 
 #define DEFAULT_THEME "PiXflat"
+#define DEFAULT_THEME_DARK "PiXflat-dark"
 #define TEMP_THEME    "tPiXflat"
 
 #define GREY    "#808080"
@@ -360,11 +361,6 @@ static char *wfshell_file (void)
     return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
 
-static char *gtk3_file (void)
-{
-    return g_build_filename (g_get_user_config_dir (), "gtk-3.0/settings.ini", NULL);
-}
-
 static void check_directory (char *path)
 {
     char *dir = g_path_get_dirname (path);
@@ -403,10 +399,27 @@ static void set_theme (const char *theme)
     else vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
 }
 
+static gboolean is_dark (void)
+{
+    int res;
+
+    if (!gsettings)
+    {
+        char *user_config_file = lxsession_file (FALSE);
+        res = vsystem ("grep sNet/ThemeName %s | grep -q dark", user_config_file);
+        g_free (user_config_file);
+        return res;
+    }
+    else res = system ("gsettings get org.gnome.desktop.interface gtk-theme | grep -q dark");
+
+    if (!res) return 1;
+    else return 0;
+}
+
 static gboolean restore_theme (gpointer data)
 {
     /* Resets the theme to the default, causing it to take effect */
-    set_theme (DEFAULT_THEME);
+    set_theme (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
     if (data) gtk_main_quit ();
     return FALSE;
 }
@@ -477,7 +490,7 @@ static void backup_config_files (void)
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".config/gtk-3.0/settings.ini");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
-    backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk-dark.css");
+    backup_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".config/xsettingsd/xsettingsd.conf");
     backup_file (".gtkrc-2.0");
@@ -549,7 +562,7 @@ static int restore_config_files (void)
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/gtk-3.0/settings.ini")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
-    if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk-dark.css")) changed = 1;
+    if (restore_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
@@ -628,7 +641,7 @@ static void reset_to_defaults (void)
     delete_file (".config/gtk-3.0/gtk.css");
     delete_file (".config/gtk-3.0/settings.ini");
     delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
-    delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk-dark.css");
+    delete_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".config/xsettingsd/xsettingsd.conf");
     delete_file (".gtkrc-2.0");
@@ -926,33 +939,17 @@ static void load_wfshell_settings (void)
 
 static void load_gtk3_settings (void)
 {
-    char *user_config_file, *ret, *cmdbuf, *res;
-    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours-light.css", "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours-dark.css" };
+    char *user_config_file, *cmdbuf, *res;
+    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours-light.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours-dark.css" };
     GKeyFile *kf;
     GError *err;
     gint val;
 
-    // read in data from file to a key file
-    user_config_file = gtk3_file ();
-    kf = g_key_file_new ();
-    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        // get data from the key file
-        err = NULL;
-        val = g_key_file_get_integer (kf, "Settings", "gtk-application-prefer-dark-theme", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.darkmode = val;
-        else DEFAULT (darkmode);
-    }
-    else
-    {
-        DEFAULT (darkmode);
-    }
-    g_key_file_free (kf);
-    g_free (user_config_file);
+    cur_conf.darkmode = is_dark ();
 
     for (val = 0; val < 2; val++)
     {
-        user_config_file = g_build_filename (g_get_user_data_dir (), val ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), val ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
 
         cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
@@ -1050,18 +1047,6 @@ static void save_gtk3_settings (void)
     vsystem ("if grep -q -s define-color %s ; then rm %s ; fi", user_config_file, user_config_file);
     g_free (user_config_file);
 
-    // update the dark mode
-    user_config_file = gtk3_file ();
-    check_directory (user_config_file);
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-    g_key_file_set_integer (kf, "Settings", "gtk-application-prefer-dark-theme", cur_conf.darkmode);
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-    g_free (str);
-    g_key_file_free (kf);
-    g_free (user_config_file);
-
     // create a temp theme to switch to
     link1 = g_build_filename (g_get_user_data_dir (), "themes/tPiXflat", NULL);
     if (!g_file_test (link1, G_FILE_TEST_IS_DIR))
@@ -1080,12 +1065,12 @@ static void save_gtk3_settings (void)
         cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour[dark]);
 
         // construct the file path
-        user_config_file = g_build_filename (g_get_user_data_dir (), dark ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), dark ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
         check_directory (user_config_file);
 
         if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
         {
-            vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk%s.css\");' >> %s", dark ? "-dark" : "", user_config_file);
+            vsystem ("echo '@import url(\"/usr/share/themes/PiXflat%s/gtk-3.0/gtk.css\");' >> %s", dark ? "-dark" : "", user_config_file);
             vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
             vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
             vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
@@ -1841,7 +1826,7 @@ static void save_scrollbar_settings (void)
     g_free (conffile);
 
     // GTK3 override file
-    conffile = g_build_filename (g_get_user_data_dir (), cur_conf.darkmode ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+    conffile = g_build_filename (g_get_user_data_dir (), cur_conf.darkmode ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
     check_directory (conffile);
 
     // check if the scrollbar button entry is in the file - if not, add it...
@@ -2670,7 +2655,7 @@ static gboolean init_config (gpointer data)
     load_obconf_settings ();
     load_gtk3_settings ();
 
-    init_lxsession (DEFAULT_THEME);
+    init_lxsession (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
     backup_config_files ();
 
     // build the UI
