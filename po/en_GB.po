@@ -257,38 +257,50 @@ msgid "New mouse cursor size will take effect at reboot"
 msgstr "New mouse cursor size will take effect at reboot"
 
 #: ../data/pipanel.ui.h:57
+msgid "Theme"
+msgstr "Theme:"
+
+#: ../data/pipanel.ui.h:58
+msgid "Light"
+msgstr "Light"
+
+#: ../data/pipanel.ui.h:59
+msgid "Dark"
+msgstr "Dark"
+
+#: ../data/pipanel.ui.h:60
 msgid "System"
 msgstr "System"
 
-#: ../data/pipanel.ui.h:58
+#: ../data/pipanel.ui.h:61
 msgid "For large screens:"
 msgstr "For large screens:"
 
-#: ../data/pipanel.ui.h:59
+#: ../data/pipanel.ui.h:62
 msgid "Set Defaults"
 msgstr "Set Defaults"
 
-#: ../data/pipanel.ui.h:60
+#: ../data/pipanel.ui.h:63
 msgid "Set to default values for high-resolution displays"
 msgstr "Set to default values for high-resolution displays"
 
-#: ../data/pipanel.ui.h:61
+#: ../data/pipanel.ui.h:64
 msgid "For medium screens:"
 msgstr "For medium screens:"
 
-#: ../data/pipanel.ui.h:62
+#: ../data/pipanel.ui.h:65
 msgid "Set to default values for medium-resolution displays"
 msgstr "Set to default values for medium-resolution displays"
 
-#: ../data/pipanel.ui.h:63
+#: ../data/pipanel.ui.h:66
 msgid "For small screens:"
 msgstr "For small screens:"
 
-#: ../data/pipanel.ui.h:64
+#: ../data/pipanel.ui.h:67
 msgid "Set to default values for low-resolution displays"
 msgstr "Set to default values for low-resolution displays"
 
-#: ../data/pipanel.ui.h:65
+#: ../data/pipanel.ui.h:68
 msgid "Defaults"
 msgstr "Defaults"
 

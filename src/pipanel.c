@@ -87,6 +87,7 @@ typedef struct {
     int scrollbar_width;
     int monitor;
     int common_bg;
+    int darkmode;
 } DesktopConfig;
 
 static DesktopConfig cur_conf, def_lg, def_med, def_sm;
@@ -106,10 +107,10 @@ static char lo_ver;
 
 /* Handler IDs so they can be blocked when needed */
 
-static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid, draw_id;
+static gulong cid, iid, bpid, blid, dmid[2], tdid[2], ttid[2], tmid[2], dfid, cbid, draw_id, bdid;
 
 /* Controls */
-static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *bcol, *btcol, *rb1, *rb2, *rb3, *rb4;
+static GObject *hcol, *htcol, *font, *dcol[2], *dtcol[2], *dmod[2], *dpic[2], *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5, *rb6;
 static GObject *isz, *cb1[2], *cb2[2], *cb3[2], *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold;
 
 /* Dialogs */
@@ -131,6 +132,7 @@ static void load_pcman_g_settings (void);
 static void load_lxpanel_settings (void);
 static void load_obconf_settings (void);
 static void load_wfshell_settings (void);
+static void load_gtk3_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
 static void save_lxsession_settings (void);
@@ -168,6 +170,7 @@ static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr);
+static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr);
 static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_set_defaults (GtkButton* btn, gpointer ptr);
 static void set_tabs (int n_desk);
@@ -357,6 +360,11 @@ static char *wfshell_file (void)
     return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
 
+static char *gtk3_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "gtk-3.0/settings.ini", NULL);
+}
+
 static void check_directory (char *path)
 {
     char *dir = g_path_get_dirname (path);
@@ -467,6 +475,7 @@ static void backup_config_files (void)
     backup_file (".config/wf-panel-pi.ini");
     backup_file (".config/libfm/libfm.conf");
     backup_file (".config/gtk-3.0/gtk.css");
+    backup_file (".config/gtk-3.0/settings.ini");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".config/xsettingsd/xsettingsd.conf");
@@ -537,6 +546,7 @@ static int restore_config_files (void)
     if (restore_file (".config/wf-panel-pi.ini")) changed = 1;
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
+    if (restore_file (".config/gtk-3.0/settings.ini")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
@@ -614,6 +624,7 @@ static void reset_to_defaults (void)
 
     delete_file (".config/libfm/libfm.conf");
     delete_file (".config/gtk-3.0/gtk.css");
+    delete_file (".config/gtk-3.0/settings.ini");
     delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".config/xsettingsd/xsettingsd.conf");
@@ -954,6 +965,33 @@ static void load_wfshell_settings (void)
     g_free (user_config_file);
 }
 
+static void load_gtk3_settings (void)
+{
+    char *user_config_file, *ret;
+    GKeyFile *kf;
+    GError *err;
+    gint val;
+
+    // read in data from file to a key file
+    user_config_file = gtk3_file ();
+    kf = g_key_file_new ();
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        // get data from the key file
+        err = NULL;
+        val = g_key_file_get_integer (kf, "Settings", "gtk-application-prefer-dark-theme", &err);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.darkmode = val;
+        else DEFAULT (darkmode);
+    }
+    else
+    {
+        DEFAULT (darkmode);
+    }
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
+
 /* Functions to save settings back to relevant files */
 
 static void save_lxpanel_settings (void)
@@ -983,7 +1021,9 @@ static void save_lxpanel_settings (void)
 
 static void save_gtk3_settings (void)
 {
-    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2;
+    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2, *str;
+    GKeyFile *kf;
+    gsize len;
 
     // delete old file used to store general overrides
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
@@ -994,6 +1034,18 @@ static void save_gtk3_settings (void)
     cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
     cstrbb = rgba_to_gdk_color_string (&cur_conf.bar_colour);
     cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
+
+    // update the dark mode
+    user_config_file = gtk3_file ();
+    check_directory (user_config_file);
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+    g_key_file_set_integer (kf, "Settings", "gtk-application-prefer-dark-theme", cur_conf.darkmode);
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+    g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
 
     // create a temp theme to switch to
     link1 = g_build_filename (g_get_user_data_dir (), "themes/tPiXflat", NULL);
@@ -1006,12 +1058,12 @@ static void save_gtk3_settings (void)
     g_free (link1);
 
     // construct the file path
-    user_config_file = g_build_filename (g_get_user_data_dir (), "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+    user_config_file = g_build_filename (g_get_user_data_dir (), cur_conf.darkmode ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
     check_directory (user_config_file);
 
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk.css\");' >> %s", user_config_file);
+        vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk%s.css\");' >> %s", cur_conf.darkmode ? "-dark" : "", user_config_file);
         vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
         vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
         vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
@@ -2088,6 +2140,14 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
     reload_pcmanfm ();
 }
 
+static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
+{
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.darkmode = 0;
+    else cur_conf.darkmode = 1;
+    save_gtk3_settings ();
+    reload_theme (FALSE);
+}
+
 static void set_tabs (int n_desk)
 {
     char *buf;
@@ -2156,6 +2216,7 @@ static void set_controls (void)
     g_signal_handler_block (csz, cid);
     g_signal_handler_block (rb1, bpid);
     g_signal_handler_block (rb3, blid);
+    g_signal_handler_block (rb5, bdid);
     g_signal_handler_block (dfold, dfid);
     g_signal_handler_block (cb4, cbid);
     for (i = 0; i < 2; i++)
@@ -2207,6 +2268,9 @@ static void set_controls (void)
     if (cur_conf.monitor) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb4), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
 
+    if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
+    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
+
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb4), cur_conf.common_bg);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dfold), cur_conf.desktop_folder);
 
@@ -2215,6 +2279,7 @@ static void set_controls (void)
     g_signal_handler_unblock (csz, cid);
     g_signal_handler_unblock (rb1, bpid);
     g_signal_handler_unblock (rb3, blid);
+    g_signal_handler_unblock (rb5, bdid);
     g_signal_handler_unblock (dfold, dfid);
     g_signal_handler_unblock (cb4, cbid);
     for (i = 0; i < 2; i++)
@@ -2525,6 +2590,7 @@ static void create_defaults (void)
     def_med.task_width = 200;
     def_med.handle_width = 10;
     def_med.scrollbar_width = 13;
+    def_med.darkmode = 0;
 
     def_lg = def_sm = def_med;
 
@@ -2677,6 +2743,7 @@ static gboolean init_config (gpointer data)
     if (wayfire) load_wfshell_settings ();
     else load_lxpanel_settings ();
     load_obconf_settings ();
+    load_gtk3_settings ();
 
     init_lxsession (DEFAULT_THEME);
     backup_config_files ();
@@ -2728,6 +2795,10 @@ static gboolean init_config (gpointer data)
 
     csz = gtk_builder_get_object (builder, "comboboxtext3");
     cid = g_signal_connect (csz, "changed", G_CALLBACK (on_cursor_size_set), NULL);
+
+    rb5 = gtk_builder_get_object (builder, "radiobutton5");
+    rb6 = gtk_builder_get_object (builder, "radiobutton6");
+    bdid = g_signal_connect (rb5, "toggled", G_CALLBACK (on_darkmode_set), NULL);
 
     for (i = 0; i < 2; i++)
     {
