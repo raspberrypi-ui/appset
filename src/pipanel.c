@@ -408,7 +408,6 @@ static gboolean is_dark (void)
         char *user_config_file = lxsession_file (FALSE);
         res = vsystem ("grep sNet/ThemeName %s | grep -q dark", user_config_file);
         g_free (user_config_file);
-        return res;
     }
     else res = system ("gsettings get org.gnome.desktop.interface gtk-theme | grep -q dark");
 
