@@ -64,12 +64,12 @@ typedef struct {
     const char *desktop_mode[2];
     const char *terminal_font;
     const char *desktop_folder;
-    GdkRGBA theme_colour;
-    GdkRGBA themetext_colour;
+    GdkRGBA theme_colour[2];
+    GdkRGBA themetext_colour[2];
     GdkRGBA desktop_colour[2];
     GdkRGBA desktoptext_colour[2];
-    GdkRGBA bar_colour;
-    GdkRGBA bartext_colour;
+    GdkRGBA bar_colour[2];
+    GdkRGBA bartext_colour[2];
     int icon_size;
     int barpos;
     int show_docs[2];
@@ -655,10 +655,6 @@ static void load_lxsession_settings (void)
     {
         g_key_file_free (kf);
         g_free (user_config_file);
-        DEFAULT (bar_colour);
-        DEFAULT (bartext_colour);
-        DEFAULT (theme_colour);
-        DEFAULT (themetext_colour);
         DEFAULT (desktop_font);
         DEFAULT (tb_icon_size);
         DEFAULT (cursor_size);
@@ -670,46 +666,6 @@ static void load_lxsession_settings (void)
     ret = g_key_file_get_string (kf, "GTK", "sGtk/FontName", &err);
     if (err == NULL) cur_conf.desktop_font = g_strdup (ret);
     else DEFAULT (desktop_font);
-    g_free (ret);
-
-    err = NULL;
-    ret = g_key_file_get_string (kf, "GTK", "sGtk/ColorScheme", &err);
-    if (err == NULL)
-    {
-        nptr = strtok (ret, ":\n");
-        while (nptr)
-        {
-            cptr = strtok (NULL, ":\n");
-            if (!strcmp (nptr, "bar_fg_color"))
-            {
-                if (!gdk_rgba_parse (&cur_conf.bartext_colour, cptr))
-                    DEFAULT (bartext_colour);
-            }
-            else if (!strcmp (nptr, "bar_bg_color"))
-            {
-                if (!gdk_rgba_parse (&cur_conf.bar_colour, cptr))
-                    DEFAULT (bar_colour);
-            }
-            else if (!strcmp (nptr, "selected_fg_color"))
-            {
-                if (!gdk_rgba_parse (&cur_conf.themetext_colour, cptr))
-                    DEFAULT (themetext_colour);
-            }
-            else if (!strcmp (nptr, "selected_bg_color"))
-            {
-                if (!gdk_rgba_parse (&cur_conf.theme_colour, cptr))
-                    DEFAULT (theme_colour);
-            }
-            nptr = strtok (NULL, ":\n");
-        }
-    }
-    else
-    {
-        DEFAULT (bar_colour);
-        DEFAULT (bartext_colour);
-        DEFAULT (theme_colour);
-        DEFAULT (themetext_colour);
-    }
     g_free (ret);
 
     err = NULL;
@@ -970,7 +926,8 @@ static void load_wfshell_settings (void)
 
 static void load_gtk3_settings (void)
 {
-    char *user_config_file, *ret;
+    char *user_config_file, *ret, *cmdbuf, *res;
+    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours-light.css", "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours-dark.css" };
     GKeyFile *kf;
     GError *err;
     gint val;
@@ -992,6 +949,65 @@ static void load_gtk3_settings (void)
     }
     g_key_file_free (kf);
     g_free (user_config_file);
+
+    for (val = 0; val < 2; val++)
+    {
+        user_config_file = g_build_filename (g_get_user_data_dir (), val ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[val], res))
+        {
+            g_free (res);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            res = get_string (cmdbuf);
+            g_free (cmdbuf);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[val], res)) DEFAULT (theme_colour[val]);
+        }
+        g_free (res);
+
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[val], res))
+        {
+            g_free (res);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            res = get_string (cmdbuf);
+            g_free (cmdbuf);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[val], res)) DEFAULT (themetext_colour[val]);
+        }
+        g_free (res);
+
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[val], res))
+        {
+            g_free (res);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            res = get_string (cmdbuf);
+            g_free (cmdbuf);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[val], res)) DEFAULT (bar_colour[val]);
+        }
+        g_free (res);
+
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[val], res))
+        {
+            g_free (res);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            res = get_string (cmdbuf);
+            g_free (cmdbuf);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[val], res)) DEFAULT (bartext_colour[val]);
+        }
+        g_free (res);
+
+        g_free (user_config_file);
+    }
 }
 
 
@@ -1027,16 +1043,12 @@ static void save_gtk3_settings (void)
     char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2, *str;
     GKeyFile *kf;
     gsize len;
+    int dark;
 
     // delete old file used to store general overrides
     user_config_file = g_build_filename (g_get_user_config_dir (), "gtk-3.0/gtk.css", NULL);
     vsystem ("if grep -q -s define-color %s ; then rm %s ; fi", user_config_file, user_config_file);
     g_free (user_config_file);
-
-    cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour);
-    cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
-    cstrbb = rgba_to_gdk_color_string (&cur_conf.bar_colour);
-    cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
 
     // update the dark mode
     user_config_file = gtk3_file ();
@@ -1060,75 +1072,60 @@ static void save_gtk3_settings (void)
     }
     g_free (link1);
 
-    // construct the file path
-    user_config_file = g_build_filename (g_get_user_data_dir (), cur_conf.darkmode ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
-    check_directory (user_config_file);
-
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    for (dark = 0; dark < 2; dark++)
     {
-        vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk%s.css\");' >> %s", cur_conf.darkmode ? "-dark" : "", user_config_file);
-        vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
-        vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
-        vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
-        vsystem ("echo '@define-color bar_fg_color %s;' >> %s", cstrbf, user_config_file);
+        cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour[dark]);
+        cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour[dark]);
+        cstrbb = rgba_to_gdk_color_string (&cur_conf.bar_colour[dark]);
+        cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour[dark]);
+
+        // construct the file path
+        user_config_file = g_build_filename (g_get_user_data_dir (), dark ? "themes/PiXflat/gtk-3.0/gtk-dark.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+        check_directory (user_config_file);
+
+        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+        {
+            vsystem ("echo '@import url(\"/usr/share/themes/PiXflat/gtk-3.0/gtk%s.css\");' >> %s", dark ? "-dark" : "", user_config_file);
+            vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
+            vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
+            vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
+            vsystem ("echo '@define-color bar_fg_color %s;' >> %s", cstrbf, user_config_file);
+
+            g_free (cstrf);
+            g_free (cstrb);
+            g_free (cstrbf);
+            g_free (cstrbb);
+            g_free (user_config_file);
+            return;
+        }
+
+        // amend entries already in file, or add if not present
+        if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
+            vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
+        else
+            vsystem ("sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color %s'/g %s", cstrb, user_config_file);
+
+        if (vsystem ("grep -q theme_selected_fg_color %s\n", user_config_file))
+            vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
+        else
+            vsystem ("sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color %s'/g %s", cstrf, user_config_file);
+
+        if (vsystem ("grep -q bar_bg_color %s\n", user_config_file))
+            vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
+        else
+            vsystem ("sed -i s/'bar_bg_color #......'/'bar_bg_color %s'/g %s", cstrbb, user_config_file);
+
+        if (vsystem ("grep -q bar_fg_color %s\n", user_config_file))
+            vsystem ("echo '@define-color bar_fg_color %s;' >> %s", cstrbf, user_config_file);
+        else
+            vsystem ("sed -i s/'bar_fg_color #......'/'bar_fg_color %s'/g %s", cstrbf, user_config_file);
 
         g_free (cstrf);
         g_free (cstrb);
         g_free (cstrbf);
         g_free (cstrbb);
         g_free (user_config_file);
-        return;
     }
-
-    // amend entries already in file, or add if not present
-    if (vsystem ("grep -q theme_selected_bg_color %s\n", user_config_file))
-    {
-        vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s",
-            cstrb, user_config_file);
-    }
-    else
-    {
-        vsystem ("sed -i s/'theme_selected_bg_color #......'/'theme_selected_bg_color %s'/g %s",
-            cstrb, user_config_file);
-    }
-
-    if (vsystem ("grep -q theme_selected_fg_color %s\n", user_config_file))
-    {
-        vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s",
-            cstrf, user_config_file);
-    }
-    else
-    {
-        vsystem ("sed -i s/'theme_selected_fg_color #......'/'theme_selected_fg_color %s'/g %s",
-            cstrf, user_config_file);
-    }
-
-    if (vsystem ("grep -q bar_bg_color %s\n", user_config_file))
-    {
-        vsystem ("echo '@define-color bar_bg_color %s;' >> %s",
-            cstrbb, user_config_file);
-    }
-    else
-    {
-        vsystem ("sed -i s/'bar_bg_color #......'/'bar_bg_color %s'/g %s",
-            cstrbb, user_config_file);
-    }
-
-    if (vsystem ("grep -q bar_fg_color %s\n", user_config_file))
-    {
-        vsystem ("echo '@define-color bar_fg_color %s;' >> %s",
-            cstrbf, user_config_file);
-    }
-    else
-    {
-        vsystem ("sed -i s/'bar_fg_color #......'/'bar_fg_color %s'/g %s",
-            cstrbf, user_config_file);
-    }
-    g_free (cstrf);
-    g_free (cstrb);
-    g_free (cstrbf);
-    g_free (cstrbb);
-    g_free (user_config_file);
 }
 
 static void save_lxsession_settings (void)
@@ -1146,22 +1143,7 @@ static void save_lxsession_settings (void)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_string (kf, "GTK", "sNet/ThemeName", TEMP_THEME);
-
     // update changed values in the key file
-    ctheme = rgba_to_gdk_color_string (&cur_conf.theme_colour);
-    cthemet = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
-    cbar = rgba_to_gdk_color_string (&cur_conf.bar_colour);
-    cbart = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
-
-    str = g_strdup_printf ("selected_bg_color:%s\nselected_fg_color:%s\nbar_bg_color:%s\nbar_fg_color:%s\n",
-        ctheme, cthemet, cbar, cbart);
-    g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", str);
-    g_free (ctheme);
-    g_free (cthemet);
-    g_free (cbar);
-    g_free (cbart);
-    g_free (str);
-
     g_key_file_set_string (kf, "GTK", "sGtk/FontName", cur_conf.desktop_font);
     int tbi = GTK_ICON_SIZE_LARGE_TOOLBAR;
     if (cur_conf.tb_icon_size == 16) tbi = GTK_ICON_SIZE_SMALL_TOOLBAR;
@@ -1235,7 +1217,6 @@ static void save_xsettings (void)
     char *user_config_file, *str, *ctheme, *cthemet, *cbar, *cbart;
 
     user_config_file = xsettings_file (FALSE);
-    printf ("%s\n", user_config_file);
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
         // need a local copy to take the changes
@@ -1243,31 +1224,16 @@ static void save_xsettings (void)
         vsystem ("cp /etc/xsettingsd/xsettingsd.conf %s", user_config_file);
     }
 
-    ctheme = rgba_to_gdk_color_string (&cur_conf.theme_colour);
-    cthemet = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
-    cbar = rgba_to_gdk_color_string (&cur_conf.bar_colour);
-    cbart = rgba_to_gdk_color_string (&cur_conf.bartext_colour);
-
-    str = g_strdup_printf ("selected_bg_color:%s\\\\nselected_fg_color:%s\\\\nbar_bg_color:%s\\\\nbar_fg_color:%s\\\\n",
-        ctheme, cthemet, cbar, cbart);
-
-    printf ("%s\n", str);
     int tbi = GTK_ICON_SIZE_LARGE_TOOLBAR;
     if (cur_conf.tb_icon_size == 16) tbi = GTK_ICON_SIZE_SMALL_TOOLBAR;
     if (cur_conf.tb_icon_size == 48) tbi = GTK_ICON_SIZE_DIALOG;
 
     // use sed to write
-    vsystem ("sed -i s/'ColorScheme.*'/'ColorScheme \"%s\"'/g %s", str, user_config_file);
     vsystem ("sed -i s/'FontName.*'/'FontName \"%s\"'/g %s", cur_conf.desktop_font, user_config_file);
     vsystem ("sed -i s/'ToolbarIconSize.*'/'ToolbarIconSize %d'/g %s", tbi, user_config_file);
     vsystem ("sed -i s/'CursorThemeSize.*'/'CursorThemeSize %d'/g %s", cur_conf.cursor_size, user_config_file);
     vsystem ("sed -i s/gtk-large-toolbar=[0-9]+,[0-9]+/gtk-large-toolbar=%d,%d/g %s", cur_conf.tb_icon_size, cur_conf.tb_icon_size, user_config_file);
 
-    g_free (ctheme);
-    g_free (cthemet);
-    g_free (cbar);
-    g_free (cbart);
-    g_free (str);
     g_free (user_config_file);
 }
 
@@ -1531,7 +1497,7 @@ static void save_obconf_settings (void)
         xmlNodeSetContent (cur_node, XC (buf));
     }
 
-    cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour);
+    cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
@@ -1547,7 +1513,7 @@ static void save_obconf_settings (void)
     }
     g_free (cptr);
 
-    cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour);
+    cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
@@ -1952,9 +1918,8 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
 
 static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour);
-    save_lxsession_settings ();
-    save_xsettings ();
+    gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
+    set_theme (TEMP_THEME);
     save_obconf_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
@@ -1966,9 +1931,8 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 
 static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour);
-    save_lxsession_settings ();
-    save_xsettings ();
+    gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
+    set_theme (TEMP_THEME);
     save_obconf_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
@@ -1980,9 +1944,8 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
 
 static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour);
-    save_lxsession_settings ();
-    save_xsettings ();
+    gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour[cur_conf.darkmode]);
+    set_theme (TEMP_THEME);
     save_gtk3_settings ();
     reload_lxsession ();
     reload_xsettings ();
@@ -1992,9 +1955,8 @@ static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
 
 static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
-    gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour);
-    save_lxsession_settings ();
-    save_xsettings ();
+    gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour[cur_conf.darkmode]);
+    set_theme (TEMP_THEME);
     save_gtk3_settings ();
     reload_lxsession ();
     reload_xsettings ();
@@ -2147,6 +2109,10 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.darkmode = 0;
     else cur_conf.darkmode = 1;
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
     save_gtk3_settings ();
     reload_theme (FALSE);
 }
@@ -2251,10 +2217,10 @@ static void set_controls (void)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2[i]), cur_conf.show_trash[i]);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3[i]), cur_conf.show_mnts[i]);
     }
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
 
     if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
     else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
@@ -2397,54 +2363,10 @@ static void defaults_lxsession ()
         val = g_key_file_get_integer (kf, "GTK", "iGtk/CursorThemeSize", &err);
         if (err == NULL && val >= 24 && val <= 48) def_med.cursor_size = val;
         else def_med.cursor_size = 0;
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "GTK", "sGtk/ColorScheme", &err);
-        if (err == NULL)
-        {
-            nptr = strtok (ret, ":\n");
-            while (nptr)
-            {
-                cptr = strtok (NULL, ":\n");
-                if (!strcmp (nptr, "bar_fg_color"))
-                {
-                    if (!gdk_rgba_parse (&def_med.bartext_colour, cptr))
-                        gdk_rgba_parse (&def_med.bartext_colour, GREY);
-                }
-                else if (!strcmp (nptr, "bar_bg_color"))
-                {
-                    if (!gdk_rgba_parse (&def_med.bar_colour, cptr))
-                        gdk_rgba_parse (&def_med.bar_colour, GREY);
-                }
-                else if (!strcmp (nptr, "selected_fg_color"))
-                {
-                    if (!gdk_rgba_parse (&def_med.themetext_colour, cptr))
-                        gdk_rgba_parse (&def_med.themetext_colour, GREY);
-                }
-                else if (!strcmp (nptr, "selected_bg_color"))
-                {
-                    if (!gdk_rgba_parse (&def_med.theme_colour, cptr))
-                        gdk_rgba_parse (&def_med.theme_colour, GREY);
-                }
-                nptr = strtok (NULL, ":\n");
-            }
-        }
-        else
-        {
-            gdk_rgba_parse (&def_med.theme_colour, GREY);
-            gdk_rgba_parse (&def_med.themetext_colour, GREY);
-            gdk_rgba_parse (&def_med.bar_colour, GREY);
-            gdk_rgba_parse (&def_med.bartext_colour, GREY);
-        }
-        g_free (ret);
     }
     else
     {
         def_med.desktop_font = "";
-        gdk_rgba_parse (&def_med.theme_colour, GREY);
-        gdk_rgba_parse (&def_med.themetext_colour, GREY);
-        gdk_rgba_parse (&def_med.bar_colour, GREY);
-        gdk_rgba_parse (&def_med.bartext_colour, GREY);
         def_med.cursor_size = 0;
     }
     g_key_file_free (kf);
