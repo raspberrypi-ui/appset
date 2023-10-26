@@ -488,7 +488,6 @@ static void backup_config_files (void)
     backup_file (".config/wf-panel-pi.ini");
     backup_file (".config/libfm/libfm.conf");
     backup_file (".config/gtk-3.0/gtk.css");
-    backup_file (".config/gtk-3.0/settings.ini");
     backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     backup_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
@@ -560,7 +559,6 @@ static int restore_config_files (void)
     if (restore_file (".config/wf-panel-pi.ini")) changed = 1;
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
-    if (restore_file (".config/gtk-3.0/settings.ini")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
@@ -639,7 +637,6 @@ static void reset_to_defaults (void)
 
     delete_file (".config/libfm/libfm.conf");
     delete_file (".config/gtk-3.0/gtk.css");
-    delete_file (".config/gtk-3.0/settings.ini");
     delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
     delete_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
@@ -655,7 +652,7 @@ static void reset_to_defaults (void)
 
 static void load_lxsession_settings (void)
 {
-    char *user_config_file, *ret, *cptr, *nptr;
+    char *user_config_file, *ret;
     GKeyFile *kf;
     GError *err;
     int val;
@@ -941,65 +938,63 @@ static void load_gtk3_settings (void)
 {
     char *user_config_file, *cmdbuf, *res;
     const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours.css" };
-    GKeyFile *kf;
-    GError *err;
-    gint val;
+    int dark;
 
     cur_conf.darkmode = is_dark ();
 
-    for (val = 0; val < 2; val++)
+    for (dark = 0; dark < 2; dark++)
     {
-        user_config_file = g_build_filename (g_get_user_data_dir (), val ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), dark ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
 
         cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[val], res))
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
-            if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[val], res)) DEFAULT (theme_colour[val]);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[dark], res)) DEFAULT (theme_colour[dark]);
         }
         g_free (res);
 
         cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[val], res))
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
-            if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[val], res)) DEFAULT (themetext_colour[val]);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[dark], res)) DEFAULT (themetext_colour[dark]);
         }
         g_free (res);
 
         cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[val], res))
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
-            if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[val], res)) DEFAULT (bar_colour[val]);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[dark], res)) DEFAULT (bar_colour[dark]);
         }
         g_free (res);
 
         cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[val], res))
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
-            if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[val], res)) DEFAULT (bartext_colour[val]);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[dark], res)) DEFAULT (bartext_colour[dark]);
         }
         g_free (res);
 
@@ -1037,9 +1032,7 @@ static void save_lxpanel_settings (void)
 
 static void save_gtk3_settings (void)
 {
-    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2, *str;
-    GKeyFile *kf;
-    gsize len;
+    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2;
     int dark;
 
     // delete old file used to store general overrides
@@ -1115,7 +1108,7 @@ static void save_gtk3_settings (void)
 
 static void save_lxsession_settings (void)
 {
-    char *user_config_file, *str, *ostr, *ctheme, *cthemet, *cbar, *cbart;
+    char *user_config_file, *str, *ostr;
     GKeyFile *kf;
     gsize len;
     GError *err;
@@ -1199,7 +1192,7 @@ static void save_lxsession_settings (void)
 
 static void save_xsettings (void)
 {
-    char *user_config_file, *str, *ctheme, *cthemet, *cbar, *cbart;
+    char *user_config_file;
 
     user_config_file = xsettings_file (FALSE);
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -2266,7 +2259,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     set_controls ();
 
     // save changes to files if not using medium (the global default)
-    if (ptr != 2)
+    if ((int) ptr != 2)
     {
         save_lxsession_settings ();
         save_xsettings ();
@@ -2329,7 +2322,7 @@ static void defaults_lxpanel (void)
 
 static void defaults_lxsession ()
 {
-    char *user_config_file, *ret, *cptr, *nptr;
+    char *user_config_file, *ret;
     GKeyFile *kf;
     GError *err;
     int val;
@@ -2474,33 +2467,31 @@ static void defaults_gtk3 (void)
 {
     char *cmdbuf, *res;
     const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours.css" };
-    GKeyFile *kf;
-    GError *err;
-    gint val;
+    int dark;
 
     def_med.darkmode = 0;
 
-    for (val = 0; val < 2; val++)
+    for (dark = 0; dark < 2; dark++)
     {
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.theme_colour[val], res)) gdk_rgba_parse (&def_med.theme_colour[val], GREY);
+        if (!res[0] || !gdk_rgba_parse (&def_med.theme_colour[dark], res)) gdk_rgba_parse (&def_med.theme_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.themetext_colour[val], res)) gdk_rgba_parse (&def_med.themetext_colour[val], GREY);
+        if (!res[0] || !gdk_rgba_parse (&def_med.themetext_colour[dark], res)) gdk_rgba_parse (&def_med.themetext_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[val], res)) gdk_rgba_parse (&def_med.bar_colour[val], GREY);
+        if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[dark], res)) gdk_rgba_parse (&def_med.bar_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[val], res)) gdk_rgba_parse (&def_med.bartext_colour[val], GREY);
+        if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[dark], res)) gdk_rgba_parse (&def_med.bartext_colour[dark], GREY);
     }
 }
 
@@ -2601,7 +2592,7 @@ int get_common_bg (gboolean global)
 
 static int n_desktops (void)
 {
-    int i, n, m;
+    int n, m;
     char *res;
 
     if (wayfire)
