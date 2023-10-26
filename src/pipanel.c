@@ -153,6 +153,7 @@ static void defaults_lxpanel (void);
 static void defaults_lxsession (void);
 static void defaults_pcman (int desktop);
 static void defaults_pcman_g (void);
+static void defaults_gtk3 (void);
 static void create_defaults (void);
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr);
@@ -2094,9 +2095,9 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.darkmode = 0;
     else cur_conf.darkmode = 1;
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
     save_gtk3_settings ();
     reload_theme (FALSE);
 }
@@ -2202,9 +2203,9 @@ static void set_controls (void)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3[i]), cur_conf.show_mnts[i]);
     }
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
 
     if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
     else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
@@ -2467,6 +2468,40 @@ static void defaults_pcman_g (void)
     g_free (user_config_file);
 }
 
+static void defaults_gtk3 (void)
+{
+    char *cmdbuf, *res;
+    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours.css" };
+    GKeyFile *kf;
+    GError *err;
+    gint val;
+
+    def_med.darkmode = 0;
+
+    for (val = 0; val < 2; val++)
+    {
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.theme_colour[val], res)) gdk_rgba_parse (&def_med.theme_colour[val], GREY);
+
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.themetext_colour[val], res)) gdk_rgba_parse (&def_med.themetext_colour[val], GREY);
+
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[val], res)) gdk_rgba_parse (&def_med.bar_colour[val], GREY);
+
+        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[val]);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[val], res)) gdk_rgba_parse (&def_med.bartext_colour[val], GREY);
+    }
+}
+
 static void create_defaults (void)
 {
     // defaults for controls
@@ -2486,6 +2521,9 @@ static void create_defaults (void)
     // /etc/xdg/pcmanfm/LXDE-pi/pcmanfm.conf
     defaults_pcman_g ();
 
+    // GTK 3 theme defaults
+    defaults_gtk3 ();
+
     // defaults with no dedicated controls - set on defaults buttons only,
     // so the values set in these are only used in the large and small cases
     // medium values provided for reference only...
@@ -2499,7 +2537,6 @@ static void create_defaults (void)
     def_med.task_width = 200;
     def_med.handle_width = 10;
     def_med.scrollbar_width = 13;
-    def_med.darkmode = 0;
 
     def_lg = def_sm = def_med;
 
@@ -2640,7 +2677,7 @@ static gboolean init_config (gpointer data)
 
     // check xsettings
     const char *type = g_getenv ("XDG_SESSION_TYPE");
-    if (type && strcmp (type, "x11")) gsettings = TRUE;
+    if (type && !strcmp (type, "wayland")) gsettings = TRUE;
 
     // load data from config files
     create_defaults ();
