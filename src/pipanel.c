@@ -2098,7 +2098,9 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
+    save_obconf_settings ();
     save_gtk3_settings ();
+    reload_openbox ();
     reload_theme (FALSE);
 }
 
