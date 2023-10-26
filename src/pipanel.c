@@ -939,7 +939,7 @@ static void load_wfshell_settings (void)
 static void load_gtk3_settings (void)
 {
     char *user_config_file, *cmdbuf, *res;
-    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours-light.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours-dark.css" };
+    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours.css" };
     GKeyFile *kf;
     GError *err;
     gint val;
