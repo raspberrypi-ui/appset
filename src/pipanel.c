@@ -97,10 +97,9 @@ static DesktopConfig cur_conf, def_lg, def_med, def_sm;
 
 static gboolean needs_refresh;
 
-/* Flags to indicate window and settings manager in use */
+/* Flags to indicate window manager in use */
 
 static gboolean wayfire = FALSE;
-static gboolean gsettings = FALSE;
 
 /* Version of Libreoffice installed - affects toolbar icon setting */
 
@@ -305,7 +304,7 @@ static void reload_xsettings (void)
 {
     if (!wayfire) return;
 
-    vsystem ("pkill xsettingsd");
+    vsystem ("pkill xsettingsd; xsettingsd &");
 }
 
 static const char *session (void)
@@ -373,27 +372,41 @@ static void check_directory (char *path)
 
 static void init_lxsession (const char *theme)
 {
+    char *user_config_file;
+
     /* Creates a default lxsession data file with the theme in it - the
      * system checks this for changes and reloads the theme if a change is detected */
-    if (!gsettings)
+    if (!wayfire)
     {
-        char *user_config_file = lxsession_file (FALSE);
+        user_config_file = lxsession_file (FALSE);
         if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
         {
             check_directory (user_config_file);
             vsystem ("echo '[GTK]\nsNet/ThemeName=%s' >> %s", theme, user_config_file);
         }
-        g_free (user_config_file);
     }
-    else vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
+    else
+    {
+        vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
+
+        user_config_file = xsettings_file (FALSE);
+        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+        {
+            check_directory (user_config_file);
+            vsystem ("cp /etc/xsettingsd/xsettingsd.conf %s", user_config_file);
+        }
+    }
+    g_free (user_config_file);
 }
 
 static void set_theme (const char *theme)
 {
+    char *user_config_file;
+
     /* Sets the theme in the lxsession data file, which triggers a theme change */
-    if (!gsettings)
+    if (!wayfire)
     {
-        char *user_config_file = lxsession_file (FALSE);
+        user_config_file = lxsession_file (FALSE);
         vsystem ("sed -i s#sNet/ThemeName=.*#sNet/ThemeName=%s#g %s", theme, user_config_file);
         g_free (user_config_file);
     }
@@ -401,17 +414,8 @@ static void set_theme (const char *theme)
     {
         vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
 
-        char *user_config_file = xsettings_file (FALSE);
-        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-        {
-            // need a local copy to take the changes
-            check_directory (user_config_file);
-            vsystem ("cp /etc/xsettingsd/xsettingsd.conf %s", user_config_file);
-        }
-
-        // use sed to write
+        user_config_file = xsettings_file (FALSE);
         vsystem ("sed -i s#'Net/ThemeName.*'#'Net/ThemeName \"%s\"'#g %s", theme, user_config_file);
-
         g_free (user_config_file);
         reload_xsettings ();
     }
@@ -421,7 +425,7 @@ static gboolean is_dark (void)
 {
     int res;
 
-    if (!gsettings)
+    if (!wayfire)
     {
         char *user_config_file = lxsession_file (FALSE);
         res = vsystem ("grep sNet/ThemeName %s | grep -q dark", user_config_file);
@@ -591,7 +595,7 @@ static int restore_config_files (void)
 
 static void reload_gsettings (void)
 {
-    if (gsettings)
+    if (wayfire)
     {
         load_lxsession_settings ();
         vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
@@ -1191,7 +1195,7 @@ static void save_lxsession_settings (void)
     g_key_file_free (kf);
     g_free (user_config_file);
 
-    if (gsettings)
+    if (wayfire)
     {
         vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
         vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
@@ -2685,10 +2689,6 @@ static gboolean init_config (gpointer data)
     // get libreoffice version
     if (read_version ("libreoffice", &maj, &min, &sub)) lo_ver = maj;
     else lo_ver = 5;
-
-    // check xsettings
-    const char *type = g_getenv ("XDG_SESSION_TYPE");
-    if (type && !strcmp (type, "wayland")) gsettings = TRUE;
 
     // load data from config files
     create_defaults ();
