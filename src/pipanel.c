@@ -397,7 +397,24 @@ static void set_theme (const char *theme)
         vsystem ("sed -i s#sNet/ThemeName=.*#sNet/ThemeName=%s#g %s", theme, user_config_file);
         g_free (user_config_file);
     }
-    else vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
+    else
+    {
+        vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
+
+        char *user_config_file = xsettings_file (FALSE);
+        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+        {
+            // need a local copy to take the changes
+            check_directory (user_config_file);
+            vsystem ("cp /etc/xsettingsd/xsettingsd.conf %s", user_config_file);
+        }
+
+        // use sed to write
+        vsystem ("sed -i s#'Net/ThemeName.*'#'Net/ThemeName \"%s\"'#g %s", theme, user_config_file);
+
+        g_free (user_config_file);
+        reload_xsettings ();
+    }
 }
 
 static gboolean is_dark (void)
@@ -1121,6 +1138,7 @@ static void save_lxsession_settings (void)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_string (kf, "GTK", "sNet/ThemeName", TEMP_THEME);
+
     // update changed values in the key file
     g_key_file_set_string (kf, "GTK", "sGtk/FontName", cur_conf.desktop_font);
     int tbi = GTK_ICON_SIZE_LARGE_TOOLBAR;
