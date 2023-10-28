@@ -304,7 +304,7 @@ static void reload_xsettings (void)
 {
     if (!wayfire) return;
 
-    vsystem ("pkill xsettingsd; xsettingsd &");
+    vsystem ("killall -HUP xsettingsd");
 }
 
 static const char *session (void)
