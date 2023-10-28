@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-03 20:01+0900\n"
+"POT-Creation-Date: 2023-10-28 23:02+0900\n"
 "PO-Revision-Date: 2018-01-10 12:36+0000\n"
 "Last-Translator: Akira Ouchi <akkiesoft@marokun.net>\n"
 "Language-Team: Japanese\n"
@@ -12,18 +12,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../src/pipanel.c:1949 ../src/pipanel.c:1953
+#: ../src/pipanel.c:2098 ../src/pipanel.c:2803 ../data/pipanel.ui.h:24
 #, c-format
-msgid ""
-"Desktop\n"
-"%s"
-msgstr ""
-"デスクトップ\n"
-"%s"
+msgid "Desktop 1"
+msgstr "デスクトップ 1"
 
-#: ../src/pipanel.c:1961
+#: ../src/pipanel.c:2102 ../src/pipanel.c:2804 ../data/pipanel.ui.h:27
+#, c-format
+msgid "Desktop 2"
+msgstr "デスクトップ 2"
+
+#: ../src/pipanel.c:2110
 msgid "Desktop"
 msgstr "デスクトップ"
+
+#: ../src/pipanel.c:2624
+msgid "Restoring configuration - please wait..."
+msgstr "構成を復元しています。少々お待ちください。"
+
+#: ../src/pipanel.c:2881
+msgid "Loading configuration - please wait..."
+msgstr "構成を読み込んでいます。少々お待ちください。"
 
 #: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
 msgid "Appearance Settings"
@@ -120,10 +129,6 @@ msgstr ""
 "ボックスにチェックすると、両方のモニターに同じデスクトップ画像とアイコンを表"
 "示します"
 
-#: ../data/pipanel.ui.h:24
-msgid "Desktop 1"
-msgstr "デスクトップ 1"
-
 #: ../data/pipanel.ui.h:25
 msgid "Desktop Folder"
 msgstr "デスクトップフォルダー"
@@ -131,10 +136,6 @@ msgstr "デスクトップフォルダー"
 #: ../data/pipanel.ui.h:26
 msgid "Choose the folder containing files to be shown on the second desktop"
 msgstr "セカンドデスクトップに表示するファイルが含まれるフォルダーを選択します"
-
-#: ../data/pipanel.ui.h:27
-msgid "Desktop 2"
-msgstr "デスクトップ 2"
 
 #: ../data/pipanel.ui.h:28
 msgid "Size"
@@ -249,49 +250,63 @@ msgid "Small"
 msgstr "小"
 
 #: ../data/pipanel.ui.h:56
-msgid "New mouse cursor size will take effect at reboot"
-msgstr "新しいマウスカーソルの設定は再起動後に適用されます"
-
-#: ../data/pipanel.ui.h:57
 msgid "System"
 msgstr "システム"
 
-#: ../data/pipanel.ui.h:58
+#: ../data/pipanel.ui.h:57
 msgid "For large screens:"
 msgstr "大きな画面向け:"
 
-#: ../data/pipanel.ui.h:59
+#: ../data/pipanel.ui.h:58
 msgid "Set Defaults"
 msgstr "デフォルト設定にする"
 
-#: ../data/pipanel.ui.h:60
+#: ../data/pipanel.ui.h:59
 msgid "Set to default values for high-resolution displays"
 msgstr "高解像度の画面向けのデフォルト値に設定します"
 
-#: ../data/pipanel.ui.h:61
+#: ../data/pipanel.ui.h:60
 msgid "For medium screens:"
 msgstr "普通の画面向け:"
 
-#: ../data/pipanel.ui.h:62
+#: ../data/pipanel.ui.h:61
 msgid "Set to default values for medium-resolution displays"
 msgstr "中解像度の画面向けのデフォルト値に設定します"
 
-#: ../data/pipanel.ui.h:63
+#: ../data/pipanel.ui.h:62
 msgid "For small screens:"
 msgstr "小さな画面向け:"
 
-#: ../data/pipanel.ui.h:64
+#: ../data/pipanel.ui.h:63
 msgid "Set to default values for low-resolution displays"
 msgstr "低解像度の画面向けのデフォルト値に設定します"
 
-#: ../data/pipanel.ui.h:65
+#: ../data/pipanel.ui.h:64
 msgid "Defaults"
 msgstr "デフォルト"
+
+#: ../data/pipanel.ui.h:65
+msgid "_Cancel"
+msgstr "キャンセル(_C)"
+
+#: ../data/pipanel.ui.h:66
+msgid "_OK"
+msgstr "_OK"
 
 #: ../data/pipanel.desktop.in.h:2
 msgid "Configure the appearance of the desktop and windows"
 msgstr "デスクトップやウィンドウの外観を設定します"
 
-#: ../data/pwdpip.sh:6
-msgid "Password Required"
-msgstr "パスワードが必要です"
+#, c-format
+#~ msgid ""
+#~ "Desktop\n"
+#~ "%s"
+#~ msgstr ""
+#~ "デスクトップ\n"
+#~ "%s"
+
+#~ msgid "New mouse cursor size will take effect at reboot"
+#~ msgstr "新しいマウスカーソルの設定は再起動後に適用されます"
+
+#~ msgid "Password Required"
+#~ msgstr "パスワードが必要です"
