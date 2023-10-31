@@ -986,7 +986,7 @@ static void load_gtk3_settings (void)
 
     for (dark = 0; dark < 2; dark++)
     {
-        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/*.css", NULL);
+        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/!(*-dark).css", NULL);
         user_config_file = g_build_filename (g_get_user_data_dir (), "themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/*.css", NULL);
 
         cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
@@ -995,7 +995,7 @@ static void load_gtk3_settings (void)
         if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+            cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[dark], res)) DEFAULT (theme_colour[dark]);
@@ -1008,7 +1008,7 @@ static void load_gtk3_settings (void)
         if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+            cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[dark], res)) DEFAULT (themetext_colour[dark]);
@@ -1021,7 +1021,7 @@ static void load_gtk3_settings (void)
         if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+            cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[dark], res)) DEFAULT (bar_colour[dark]);
@@ -1034,7 +1034,7 @@ static void load_gtk3_settings (void)
         if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+            cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[dark], res)) DEFAULT (bartext_colour[dark]);
@@ -2517,24 +2517,24 @@ static void defaults_gtk3 (void)
 
     for (dark = 0; dark < 2; dark++)
     {
-        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/*.css", NULL);
+        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/!(*-dark).css", NULL);
 
-        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.theme_colour[dark], res)) gdk_rgba_parse (&def_med.theme_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.themetext_colour[dark], res)) gdk_rgba_parse (&def_med.themetext_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[dark], res)) gdk_rgba_parse (&def_med.bar_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[dark], res)) gdk_rgba_parse (&def_med.bartext_colour[dark], GREY);
