@@ -48,7 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MIN_ICON 16
 
 #define DEFAULT_THEME "PiXflat"
-#define DEFAULT_THEME_DARK "PiXflat-dark"
+#define DEFAULT_THEME_DARK "PiXnoir"
 #define TEMP_THEME    "tPiXflat"
 
 #define GREY    "#808080"
@@ -97,9 +97,12 @@ static DesktopConfig cur_conf, def_lg, def_med, def_sm;
 
 static gboolean needs_refresh;
 
-/* Flags to indicate window manager in use */
+/* Flag to indicate window manager in use */
 
 static gboolean wayfire = FALSE;
+
+/* Original theme in use */
+static int orig_darkmode;
 
 /* Version of Libreoffice installed - affects toolbar icon setting */
 
@@ -428,10 +431,10 @@ static gboolean is_dark (void)
     if (!wayfire)
     {
         char *user_config_file = lxsession_file (FALSE);
-        res = vsystem ("grep sNet/ThemeName %s | grep -q dark", user_config_file);
+        res = vsystem ("grep sNet/ThemeName %s | grep -q %s", user_config_file, DEFAULT_THEME_DARK);
         g_free (user_config_file);
     }
-    else res = system ("gsettings get org.gnome.desktop.interface gtk-theme | grep -q dark");
+    else res = vsystem ("gsettings get org.gnome.desktop.interface gtk-theme | grep -q %s", DEFAULT_THEME_DARK);
 
     if (!res) return 1;
     else return 0;
@@ -506,11 +509,17 @@ static void backup_config_files (void)
     backup_file (path);
     g_free (path);
 
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    backup_file (path);
+    g_free (path);
+
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    backup_file (path);
+    g_free (path);
+
     backup_file (".config/wf-panel-pi.ini");
     backup_file (".config/libfm/libfm.conf");
     backup_file (".config/gtk-3.0/gtk.css");
-    backup_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
-    backup_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".config/xsettingsd/xsettingsd.conf");
     backup_file (".gtkrc-2.0");
@@ -577,11 +586,17 @@ static int restore_config_files (void)
     if (restore_file (path)) changed = 1;
     g_free (path);
 
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    if (restore_file (path)) changed = 1;
+    g_free (path);
+
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    if (restore_file (path)) changed = 1;
+    g_free (path);
+
     if (restore_file (".config/wf-panel-pi.ini")) changed = 1;
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
-    if (restore_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css")) changed = 1;
-    if (restore_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
@@ -656,10 +671,16 @@ static void reset_to_defaults (void)
     delete_file (path);
     g_free (path);
 
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    delete_file (path);
+    g_free (path);
+
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    delete_file (path);
+    g_free (path);
+
     delete_file (".config/libfm/libfm.conf");
     delete_file (".config/gtk-3.0/gtk.css");
-    delete_file (".local/share/themes/PiXflat/gtk-3.0/gtk.css");
-    delete_file (".local/share/themes/PiXflat-dark/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".config/xsettingsd/xsettingsd.conf");
     delete_file (".gtkrc-2.0");
@@ -957,62 +978,63 @@ static void load_wfshell_settings (void)
 
 static void load_gtk3_settings (void)
 {
-    char *user_config_file, *cmdbuf, *res;
-    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours.css" };
+    char *user_config_file, *sys_config_file, *cmdbuf, *res;
     int dark;
 
     cur_conf.darkmode = is_dark ();
+    orig_darkmode = cur_conf.darkmode;
 
     for (dark = 0; dark < 2; dark++)
     {
-        user_config_file = g_build_filename (g_get_user_data_dir (), dark ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/*.css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/*.css", NULL);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.theme_colour[dark], res)) DEFAULT (theme_colour[dark]);
         }
         g_free (res);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.themetext_colour[dark], res)) DEFAULT (themetext_colour[dark]);
         }
         g_free (res);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.bar_colour[dark], res)) DEFAULT (bar_colour[dark]);
         }
         g_free (res);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[dark], res))
         {
             g_free (res);
-            cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+            cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
             res = get_string (cmdbuf);
             g_free (cmdbuf);
             if (!res[0] || !gdk_rgba_parse (&cur_conf.bartext_colour[dark], res)) DEFAULT (bartext_colour[dark]);
@@ -1020,6 +1042,7 @@ static void load_gtk3_settings (void)
         g_free (res);
 
         g_free (user_config_file);
+        g_free (sys_config_file);
     }
 }
 
@@ -1062,10 +1085,10 @@ static void save_gtk3_settings (void)
     g_free (user_config_file);
 
     // create a temp theme to switch to
-    link1 = g_build_filename (g_get_user_data_dir (), "themes/tPiXflat", NULL);
+    link1 = g_build_filename (g_get_user_data_dir (), "themes", TEMP_THEME, NULL);
     if (!g_file_test (link1, G_FILE_TEST_IS_DIR))
     {
-        link2 = g_build_filename (g_get_user_data_dir (), "themes/PiXflat", NULL);
+        link2 = g_build_filename (g_get_user_data_dir (), "themes", DEFAULT_THEME, NULL);
         symlink (link2, link1);
         g_free (link2);
     }
@@ -1079,12 +1102,12 @@ static void save_gtk3_settings (void)
         cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour[dark]);
 
         // construct the file path
-        user_config_file = g_build_filename (g_get_user_data_dir (), dark ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
         check_directory (user_config_file);
 
         if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
         {
-            vsystem ("echo '@import url(\"/usr/share/themes/PiXflat%s/gtk-3.0/gtk.css\");' >> %s", dark ? "-dark" : "", user_config_file);
+            vsystem ("echo '@import url(\"/usr/share/themes/%s/gtk-3.0/gtk.css\");' >> %s", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, user_config_file);
             vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
             vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
             vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
@@ -1841,7 +1864,7 @@ static void save_scrollbar_settings (void)
     g_free (conffile);
 
     // GTK3 override file
-    conffile = g_build_filename (g_get_user_data_dir (), cur_conf.darkmode ? "themes/PiXflat-dark/gtk-3.0/gtk.css" : "themes/PiXflat/gtk-3.0/gtk.css", NULL);
+    conffile = g_build_filename (g_get_user_data_dir (), "/themes/", cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, "/gtk-3.0/gtk.css", NULL);
     check_directory (conffile);
 
     // check if the scrollbar button entry is in the file - if not, add it...
@@ -2487,33 +2510,36 @@ static void defaults_pcman_g (void)
 
 static void defaults_gtk3 (void)
 {
-    char *cmdbuf, *res;
-    const char *sys_config_file[2] = { "/usr/share/themes/PiXflat/gtk-3.0/gtk-colours.css", "/usr/share/themes/PiXflat-dark/gtk-3.0/gtk-colours.css" };
+    char *sys_config_file, *cmdbuf, *res;
     int dark;
 
     def_med.darkmode = 0;
 
     for (dark = 0; dark < 2; dark++)
     {
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/*.css", NULL);
+
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.theme_colour[dark], res)) gdk_rgba_parse (&def_med.theme_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.themetext_colour[dark], res)) gdk_rgba_parse (&def_med.themetext_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[dark], res)) gdk_rgba_parse (&def_med.bar_colour[dark], GREY);
 
-        cmdbuf = g_strdup_printf ("grep -Po '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file[dark]);
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[dark], res)) gdk_rgba_parse (&def_med.bartext_colour[dark], GREY);
+
+        g_free (sys_config_file);
     }
 }
 
@@ -2633,6 +2659,7 @@ static gpointer restore_thread (gpointer ptr)
 {
     if (restore_config_files ())
     {
+        cur_conf.darkmode = orig_darkmode;
         set_theme (TEMP_THEME);
         reload_lxsession ();
         reload_xsettings ();
