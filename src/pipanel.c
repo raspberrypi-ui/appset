@@ -1533,6 +1533,20 @@ static void save_obconf_settings (void)
     }
     xmlXPathFreeObject (xpathObj);
 
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']", xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    {
+        xmlXPathFreeObject (xpathObj);
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNewChild (cur_node, NULL, XC ("name"), XC (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME));
+    }
+    else
+    {
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNodeSetContent (cur_node, XC (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME));
+    }
+
     sprintf (buf, "%d", cur_conf.handle_width);
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
@@ -2172,9 +2186,9 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
-    save_obconf_settings ();
     save_lxsession_settings ();
     save_xsettings ();
+    save_obconf_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
     reload_xsettings ();
