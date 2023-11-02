@@ -1152,7 +1152,7 @@ static void save_gtk3_settings (void)
 
 static void save_lxsession_settings (void)
 {
-    char *user_config_file, *str, *ostr;
+    char *user_config_file, *str, *ostr, *ctheme, *cthemet, *cbar, *cbart;
     GKeyFile *kf;
     gsize len;
     GError *err;
@@ -1167,6 +1167,20 @@ static void save_lxsession_settings (void)
     g_key_file_set_string (kf, "GTK", "sNet/ThemeName", TEMP_THEME);
 
     // update changed values in the key file
+    ctheme = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
+    cthemet = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
+    cbar = rgba_to_gdk_color_string (&cur_conf.bar_colour[cur_conf.darkmode]);
+    cbart = rgba_to_gdk_color_string (&cur_conf.bartext_colour[cur_conf.darkmode]);
+
+    str = g_strdup_printf ("selected_bg_color:%s\nselected_fg_color:%s\nbar_bg_color:%s\nbar_fg_color:%s\n",
+        ctheme, cthemet, cbar, cbart);
+    g_key_file_set_string (kf, "GTK", "sGtk/ColorScheme", str);
+    g_free (ctheme);
+    g_free (cthemet);
+    g_free (cbar);
+    g_free (cbart);
+    g_free (str);
+
     g_key_file_set_string (kf, "GTK", "sGtk/FontName", cur_conf.desktop_font);
     int tbi = GTK_ICON_SIZE_LARGE_TOOLBAR;
     if (cur_conf.tb_icon_size == 16) tbi = GTK_ICON_SIZE_SMALL_TOOLBAR;
@@ -1957,8 +1971,9 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
     set_theme (TEMP_THEME);
-    save_obconf_settings ();
+    save_lxsession_settings ();
     save_xsettings ();
+    save_obconf_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
     reload_xsettings ();
@@ -1971,8 +1986,9 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
     set_theme (TEMP_THEME);
-    save_obconf_settings ();
+    save_lxsession_settings ();
     save_xsettings ();
+    save_obconf_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
     reload_xsettings ();
@@ -1985,6 +2001,7 @@ static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour[cur_conf.darkmode]);
     set_theme (TEMP_THEME);
+    save_lxsession_settings ();
     save_xsettings ();
     save_gtk3_settings ();
     reload_lxsession ();
@@ -1997,6 +2014,7 @@ static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour[cur_conf.darkmode]);
     set_theme (TEMP_THEME);
+    save_lxsession_settings ();
     save_xsettings ();
     save_gtk3_settings ();
     reload_lxsession ();
@@ -2155,8 +2173,11 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
     save_obconf_settings ();
+    save_lxsession_settings ();
     save_xsettings ();
     save_gtk3_settings ();
+    reload_lxsession ();
+    reload_xsettings ();
     reload_openbox ();
     reload_theme (FALSE);
 }
