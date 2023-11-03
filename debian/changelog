@@ -1,3 +1,9 @@
+pipanel (1:1.32) bookworm; urgency=medium
+
+  * Updated Japanese translation
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 03 Nov 2023 11:20:51 +0000
+
 pipanel (1:1.31) bookworm; urgency=medium
 
   * Add backup and restore of xsettingsd config file
