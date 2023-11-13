@@ -1,8 +1,8 @@
-AC_PREREQ(2.53)
+AC_PREREQ([2.71])
 AC_CONFIG_MACRO_DIR([m4])
-AC_INIT(pipanel,0.1,http://raspberrypi.org/)
+AC_INIT([pipanel],[0.1],[http://raspberrypi.org/])
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects no-dist-gzip dist-xz])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Support silent build rules. Disable by either passing --disable-silent-rules
 # to configure or passing V=1 to make
@@ -37,8 +37,7 @@ PKG_CHECK_MODULES(X11, [$pkg_modules])
 AC_SUBST(X11_LIBS)
 
 AC_ARG_ENABLE(more_warnings,
-       [AC_HELP_STRING([--enable-more-warnings],
-               [Add more warnings @<:@default=no@:>@])],
+       [AS_HELP_STRING([--enable-more-warnings],[Add more warnings @<:@default=no@:>@])],
        [enable_more_warnings="${enableval}"],
        [enable_more_warnings=no]
 )
@@ -117,7 +116,6 @@ AC_SUBST(LXPANEL_MODULE)
 
 # Checks for header files.
 AC_PATH_X
-AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/time.h unistd.h])
 
@@ -129,7 +127,9 @@ AC_STRUCT_TM
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
-AC_TYPE_SIGNAL
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([bzero memset mkdir setlocale strchr])
@@ -155,11 +155,8 @@ GETTEXT_PACKAGE=pipanel
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
-AM_GLIB_GNU_GETTEXT
-
 AC_ARG_ENABLE(debug,
-    [AC_HELP_STRING([--enable-debug],
-        [enable debug support @<:@default=no@:>@])],
+    [AS_HELP_STRING([--enable-debug],[enable debug support @<:@default=no@:>@])],
     [enable_debug="${enableval}"],
     [enable_debug=no]
 )
