@@ -1909,21 +1909,24 @@ static void save_scrollbar_settings (void)
     conffile = g_build_filename (g_get_user_data_dir (), "/themes/", cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, "/gtk-3.0/gtk.css", NULL);
     check_directory (conffile);
 
+    if (!g_file_test (conffile, G_FILE_TEST_IS_REGULAR))
+        vsystem ("echo '@import url(\"/usr/share/themes/%s/gtk-3.0/gtk.css\");' >> %s", cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, conffile);
+
     // check if the scrollbar button entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 1);
+    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width);
     add_or_amend (conffile, "scrollbar button", "min-width:\\s*[0-9]*px;", repl);
     g_free (repl);
 
-    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 1);
+    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width);
     add_or_amend (conffile, "scrollbar button", "min-height:\\s*[0-9]*px;", repl);
     g_free (repl);
 
     // check if the scrollbar slider entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 7);
+    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 6);
     add_or_amend (conffile, "scrollbar slider", "min-width:\\s*[0-9]*px;", repl);
     g_free (repl);
 
-    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 7);
+    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 6);
     add_or_amend (conffile, "scrollbar slider", "min-height:\\s*[0-9]*px;", repl);
     g_free (repl);
 
@@ -1934,7 +1937,7 @@ static void save_scrollbar_settings (void)
     {
         block = g_strdup_printf ("scrollbar.%s button.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
         repl = g_strdup_printf ("background-image: image(-gtk-recolor(url(\"\\/usr\\/share\\/themes\\/%s\\/gtk-3.0\\/assets\\/%sscroll_%s.symbolic.png\")));",
-            cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, cur_conf.scrollbar_width >= 18 ? "l" : "", dl[i]);
+            cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, cur_conf.scrollbar_width >= 17 ? "l" : "", dl[i]);
 
         add_or_amend (conffile, block, "background-image:.*;", repl);
         g_free (repl);
@@ -2181,6 +2184,7 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     save_xsettings ();
     save_obconf_settings ();
     save_gtk3_settings ();
+    save_scrollbar_settings ();
     reload_lxsession ();
     reload_xsettings ();
     reload_openbox ();
@@ -2639,7 +2643,7 @@ static void create_defaults (void)
     def_lg.lo_icon_size = (lo_ver >= 6 ? 3 : 1);
     def_lg.task_width = 300;
     def_lg.handle_width = 20;
-    def_lg.scrollbar_width = 18;
+    def_lg.scrollbar_width = 17;
 
     def_sm.desktop_font = "PibotoLt 8";
     def_sm.icon_size = 20;
