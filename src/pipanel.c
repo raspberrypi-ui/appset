@@ -307,7 +307,7 @@ static void reload_xsettings (void)
 {
     if (!wayfire) return;
 
-    vsystem ("killall -HUP xsettingsd");
+    vsystem ("pgrep xsettingsd > /dev/null && killall -HUP xsettingsd");
 }
 
 static const char *session (void)
