@@ -984,6 +984,11 @@ static void load_gtk3_settings (void)
     cur_conf.darkmode = is_dark ();
     orig_darkmode = cur_conf.darkmode;
 
+    cur_conf.scrollbar_width = 13;
+    user_config_file = g_build_filename (g_get_user_data_dir (), "themes", cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    if (!vsystem ("grep -q \"min-width: 17px\" %s 2> /dev/null", user_config_file)) cur_conf.scrollbar_width = 17;
+    g_free (user_config_file);
+
     for (dark = 0; dark < 2; dark++)
     {
         sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/!(*-dark).css", NULL);
