@@ -1910,20 +1910,20 @@ static void save_scrollbar_settings (void)
     check_directory (conffile);
 
     // check if the scrollbar button entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 6);
+    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 1);
     add_or_amend (conffile, "scrollbar button", "min-width:\\s*[0-9]*px;", repl);
     g_free (repl);
 
-    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 6);
+    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 1);
     add_or_amend (conffile, "scrollbar button", "min-height:\\s*[0-9]*px;", repl);
     g_free (repl);
 
     // check if the scrollbar slider entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 6);
+    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 7);
     add_or_amend (conffile, "scrollbar slider", "min-width:\\s*[0-9]*px;", repl);
     g_free (repl);
 
-    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 6);
+    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 7);
     add_or_amend (conffile, "scrollbar slider", "min-height:\\s*[0-9]*px;", repl);
     g_free (repl);
 
@@ -1933,19 +1933,10 @@ static void save_scrollbar_settings (void)
     for (i = 0; i < 4; i++)
     {
         block = g_strdup_printf ("scrollbar.%s button.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s\");", cur_conf.scrollbar_width >= 18 ? "l" : "", dl[i]);
+        repl = g_strdup_printf ("background-image: image(-gtk-recolor(url(\"\\/usr\\/share\\/themes\\/%s\\/gtk-3.0\\/assets\\/%sscroll_%s.symbolic.png\")));",
+            cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, cur_conf.scrollbar_width >= 18 ? "l" : "", dl[i]);
 
-        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
-        g_free (repl);
-        g_free (block);
-    }
-
-    for (i = 0; i < 4; i++)
-    {
-        block = g_strdup_printf ("scrollbar.%s button:disabled.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
-        repl = g_strdup_printf ("-gtk-icon-source: -gtk-icontheme(\"%sscroll_%s_d\");", cur_conf.scrollbar_width >= 18 ? "l" : "", dl[i]);
-
-        add_or_amend (conffile, block, "-gtk-icon-source:.*;", repl);
+        add_or_amend (conffile, block, "background-image:.*;", repl);
         g_free (repl);
         g_free (block);
     }
