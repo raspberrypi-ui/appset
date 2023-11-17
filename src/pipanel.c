@@ -53,6 +53,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GREY    "#808080"
 
+#define LARGE_ICON_THRESHOLD 20
+
 #define DEFAULT(x) cur_conf.x=def_med.x
 
 #define XC(str) ((xmlChar *) str)
@@ -2037,14 +2039,29 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 
 static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
 {
+    PangoFontDescription *font_desc = gtk_font_chooser_get_font_desc (btn);
     const char *font = gtk_font_chooser_get_font (btn);
-    if (font) cur_conf.desktop_font = font;
+    if (font)
+    {
+        cur_conf.desktop_font = font;
+
+        int font_height = pango_font_description_get_size (font_desc);
+        if (!pango_font_description_get_size_is_absolute (font_desc))
+        {
+            font_height *= 4;
+            font_height /= 3;
+        }
+        font_height /= PANGO_SCALE;
+
+        cur_conf.scrollbar_width = font_height >= LARGE_ICON_THRESHOLD ? 17 : 13;
+    }
 
     save_lxsession_settings ();
     save_xsettings ();
     save_pcman_settings (0);
     save_pcman_settings (1);
     save_obconf_settings ();
+    save_gtk3_settings ();
     save_qt_settings ();
 
     reload_lxsession ();
