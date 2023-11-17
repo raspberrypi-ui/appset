@@ -149,7 +149,6 @@ static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
-static void save_scrollbar_settings (void);
 static void set_controls (void);
 static void defaults_lxpanel (void);
 static void defaults_lxsession (void);
@@ -1081,7 +1080,7 @@ static void save_lxpanel_settings (void)
 
 static void save_gtk3_settings (void)
 {
-    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2;
+    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2, *repl;
     int dark;
 
     // delete old file used to store general overrides
@@ -1117,6 +1116,8 @@ static void save_gtk3_settings (void)
             vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
             vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
             vsystem ("echo '@define-color bar_fg_color %s;' >> %s", cstrbf, user_config_file);
+            vsystem ("echo '\nscrollbar button {\n\tmin-width: %dpx;\n\tmin-height: %dpx;\n}' >> %s", cur_conf.scrollbar_width, cur_conf.scrollbar_width, user_config_file);
+            vsystem ("echo '\nscrollbar slider {\n\tmin-width: %dpx;\n\tmin-height: %dpx;\n}' >> %s", cur_conf.scrollbar_width - 6, cur_conf.scrollbar_width - 6, user_config_file);
 
             g_free (cstrf);
             g_free (cstrb);
@@ -1151,8 +1152,41 @@ static void save_gtk3_settings (void)
         g_free (cstrb);
         g_free (cstrbf);
         g_free (cstrbb);
+
+        // check if the scrollbar button entry is in the file - if not, add it...
+        repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width);
+        add_or_amend (user_config_file, "scrollbar button", "min-width:\\s*[0-9]*px;", repl);
+        g_free (repl);
+
+        repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width);
+        add_or_amend (user_config_file, "scrollbar button", "min-height:\\s*[0-9]*px;", repl);
+        g_free (repl);
+
+        // check if the scrollbar slider entry is in the file - if not, add it...
+        repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 6);
+        add_or_amend (user_config_file, "scrollbar slider", "min-width:\\s*[0-9]*px;", repl);
+        g_free (repl);
+
+        repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 6);
+        add_or_amend (user_config_file, "scrollbar slider", "min-height:\\s*[0-9]*px;", repl);
+        g_free (repl);
+
         g_free (user_config_file);
     }
+
+    // GTK2 override file
+    user_config_file = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
+
+    // check if the scrollbar button entry is in the file - if not, add it...
+    repl = g_strdup_printf ("GtkRange::slider-width = %d", cur_conf.scrollbar_width);
+    add_or_amend (user_config_file, "style \"scrollbar\"", "GtkRange::slider-width\\s*=\\s*[0-9]*", repl);
+    g_free (repl);
+
+    repl = g_strdup_printf ("GtkRange::stepper-size = %d", cur_conf.scrollbar_width);
+    add_or_amend (user_config_file, "style \"scrollbar\"", "GtkRange::stepper-size\\s*=\\s*[0-9]*", repl);
+    g_free (repl);
+
+    g_free (user_config_file);
 }
 
 static void save_lxsession_settings (void)
@@ -1892,66 +1926,6 @@ static void add_or_amend (const char *conffile, const char *block, const char *p
     g_free (block_ws);
 }
 
-static void save_scrollbar_settings (void)
-{
-    char *conffile, *repl, *block;
-
-    // GTK2 override file
-    conffile = g_build_filename (g_get_home_dir (), ".gtkrc-2.0", NULL);
-
-    // check if the scrollbar button entry is in the file - if not, add it...
-    repl = g_strdup_printf ("GtkRange::slider-width = %d", cur_conf.scrollbar_width);
-    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::slider-width\\s*=\\s*[0-9]*", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("GtkRange::stepper-size = %d", cur_conf.scrollbar_width);
-    add_or_amend (conffile, "style \"scrollbar\"", "GtkRange::stepper-size\\s*=\\s*[0-9]*", repl);
-    g_free (repl);
-
-    g_free (conffile);
-
-    // GTK3 override file
-    conffile = g_build_filename (g_get_user_data_dir (), "/themes/", cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, "/gtk-3.0/gtk.css", NULL);
-    check_directory (conffile);
-
-    if (!g_file_test (conffile, G_FILE_TEST_IS_REGULAR))
-        vsystem ("echo '@import url(\"/usr/share/themes/%s/gtk-3.0/gtk.css\");' >> %s", cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, conffile);
-
-    // check if the scrollbar button entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width);
-    add_or_amend (conffile, "scrollbar button", "min-width:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width);
-    add_or_amend (conffile, "scrollbar button", "min-height:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    // check if the scrollbar slider entry is in the file - if not, add it...
-    repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width - 6);
-    add_or_amend (conffile, "scrollbar slider", "min-width:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    repl = g_strdup_printf ("min-height: %dpx;", cur_conf.scrollbar_width - 6);
-    add_or_amend (conffile, "scrollbar slider", "min-height:\\s*[0-9]*px;", repl);
-    g_free (repl);
-
-    // process active scrollbar button icons
-    int i;
-    const char *dl[4] = { "d", "u", "r", "l" };
-    for (i = 0; i < 4; i++)
-    {
-        block = g_strdup_printf ("scrollbar.%s button.%s", i < 2 ? "vertical" : "horizontal", i % 2 ? "up" : "down");
-        repl = g_strdup_printf ("background-image: image(-gtk-recolor(url(\"\\/usr\\/share\\/themes\\/%s\\/gtk-3.0\\/assets\\/%sscroll_%s.symbolic.png\")));",
-            cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, cur_conf.scrollbar_width >= 17 ? "l" : "", dl[i]);
-
-        add_or_amend (conffile, block, "background-image:.*;", repl);
-        g_free (repl);
-        g_free (block);
-    }
-
-    g_free (conffile);
-}
-
 /* Dialog box "changed" signal handlers */
 
 static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
@@ -2189,7 +2163,6 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     save_xsettings ();
     save_obconf_settings ();
     save_gtk3_settings ();
-    save_scrollbar_settings ();
     reload_lxsession ();
     reload_xsettings ();
     reload_openbox ();
@@ -2370,7 +2343,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_gtk3_settings ();
         if (!wayfire) save_lxpanel_settings ();
         save_qt_settings ();
-        save_scrollbar_settings ();
     }
 
     if (wayfire) save_wfshell_settings ();
