@@ -28,7 +28,7 @@ msgstr "Schreibtisch"
 
 #: ../src/pipanel.c:2624
 msgid "Restoring configuration - please wait..."
-msgstr "Konfiguration wird wiederhergestellt - bitte warten..."
+msgstr "Konfiguration wiederherstellen - bitte warten..."
 
 #: ../src/pipanel.c:2881
 msgid "Loading configuration - please wait..."
@@ -40,7 +40,7 @@ msgstr "Erscheinungsbild-Einstellungen"
 
 #: ../data/pipanel.ui.h:2
 msgid "Layout"
-msgstr "Layout:"
+msgstr "Layout"
 
 #: ../data/pipanel.ui.h:3
 msgid "Set how the wallpaper should be fitted to the screen"
@@ -72,7 +72,7 @@ msgstr "Bild kacheln"
 
 #: ../data/pipanel.ui.h:10
 msgid "Picture"
-msgstr "Bild:"
+msgstr "Bild"
 
 #: ../data/pipanel.ui.h:11
 msgid "Choose image file to use as wallpaper"
@@ -80,7 +80,7 @@ msgstr "Bilddatei für den Hintergrund auswählen"
 
 #: ../data/pipanel.ui.h:12
 msgid "Color"
-msgstr "Farbe:"
+msgstr "Farbe"
 
 #: ../data/pipanel.ui.h:13
 msgid "Choose the color of the desktop background"
@@ -88,7 +88,7 @@ msgstr "Farbe des Schreibtisch-Hintergrunds auswählen"
 
 #: ../data/pipanel.ui.h:14
 msgid "Text Color"
-msgstr "Textfarbe:"
+msgstr "Textfarbe"
 
 #: ../data/pipanel.ui.h:15
 msgid "Choose the color of the text used for desktop icon labels"
@@ -206,7 +206,7 @@ msgstr "Menüleiste"
 
 #: ../data/pipanel.ui.h:45
 msgid "Font"
-msgstr "Schriftart:"
+msgstr "Schriftart"
 
 #: ../data/pipanel.ui.h:46
 msgid "Choose the font used for labels and menus"
@@ -214,7 +214,7 @@ msgstr "Schriftart für Beschriftungen und Menüs auswählen"
 
 #: ../data/pipanel.ui.h:47
 msgid "Highlight Color"
-msgstr "Hervorhebungsfarbe:"
+msgstr "Hervorhebungsfarbe"
 
 #: ../data/pipanel.ui.h:48
 msgid "Choose the color used to highlight active elements"
@@ -222,7 +222,7 @@ msgstr "Farbe auswählen, um aktive Elemente hervorzuheben"
 
 #: ../data/pipanel.ui.h:49
 msgid "Highlight Text Color"
-msgstr "Hervorhebungstextfarbe:"
+msgstr "Hervorhebungstextfarbe"
 
 #: ../data/pipanel.ui.h:50
 msgid "Choose the color used for text on active elements"
@@ -230,7 +230,7 @@ msgstr "Farbe für Text auf aktiven Elementen auswählen"
 
 #: ../data/pipanel.ui.h:51
 msgid "Mouse Cursor"
-msgstr "Mauszeiger:"
+msgstr "Mauszeiger"
 
 #: ../data/pipanel.ui.h:52
 msgid "Set the size of the mouse cursor"
@@ -286,7 +286,7 @@ msgstr "Standardeinstellungen"
 
 #: ../data/pipanel.ui.h:65
 msgid "_Cancel"
-msgstr "Abbrechen (_C)"
+msgstr "_Abbrechen"
 
 #: ../data/pipanel.ui.h:66
 msgid "_OK"
