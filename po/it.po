@@ -80,20 +80,20 @@ msgstr "Seleziona l'immagine da utilizzare come sfondo"
 
 # ends with ":"
 #: ../data/pipanel.ui.h:12
-msgid "Colour"
+msgid "Color"
 msgstr "Colore:"
 
 #: ../data/pipanel.ui.h:13
-msgid "Choose the colour of the desktop background"
+msgid "Choose the color of the desktop background"
 msgstr "Seleziona il colore di sfondo della scrivania"
 
 # ends with ":"
 #: ../data/pipanel.ui.h:14
-msgid "Text Colour"
+msgid "Text Color"
 msgstr "Colore del testo:"
 
 #: ../data/pipanel.ui.h:15
-msgid "Choose the colour of the text used for desktop icon labels"
+msgid "Choose the color of the text used for desktop icon labels"
 msgstr "Seleziona il colore del testo utilizzato per le etichette delle icone sulla scrivania"
 
 #: ../data/pipanel.ui.h:16
@@ -192,11 +192,11 @@ msgid "Show the taskbar at the bottom of the screen"
 msgstr "Mostra la barra delle attività nel bordo inferiore dello schermo"
 
 #: ../data/pipanel.ui.h:39
-msgid "Choose the colour of the taskbar background"
+msgid "Choose the color of the taskbar background"
 msgstr "Seleziona il colore di sfondo della barra delle attività"
 
 #: ../data/pipanel.ui.h:40
-msgid "Choose the colour of text used on the taskbar"
+msgid "Choose the color of text used on the taskbar"
 msgstr "Sceglie il colore del testo usato nella barra delle attività"
 
 # ends with ":"
@@ -227,20 +227,20 @@ msgstr "Seleziona il carattere utilizzato per etichette e menu"
 
 # ends with ":"
 #: ../data/pipanel.ui.h:47
-msgid "Highlight Colour"
+msgid "Highlight Color"
 msgstr "Colore in evidenza:"
 
 #: ../data/pipanel.ui.h:48
-msgid "Choose the colour used to highlight active elements"
+msgid "Choose the color used to highlight active elements"
 msgstr "Seleziona il colore utilizzato per evidenziare gli elementi attivi"
 
 # ends with ":"
 #: ../data/pipanel.ui.h:49
-msgid "Highlight Text Colour"
+msgid "Highlight Text Color"
 msgstr "Colore del testo in evidenza:"
 
 #: ../data/pipanel.ui.h:50
-msgid "Choose the colour used for text on active elements"
+msgid "Choose the color used for text on active elements"
 msgstr "Seleziona il colore utilizzato per il testo degli elementi attivi"
 
 # ends with ":"

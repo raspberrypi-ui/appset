@@ -76,19 +76,19 @@ msgid "Choose image file to use as wallpaper"
 msgstr "Velg en billedfil å bruke som skrivebordsbakgrunn"
 
 #: ../data/pipanel.ui.h:12
-msgid "Colour"
+msgid "Color"
 msgstr "Farge"
 
 #: ../data/pipanel.ui.h:13
-msgid "Choose the colour of the desktop background"
+msgid "Choose the color of the desktop background"
 msgstr "Velg fargen til skrivebordsbakgrunnen"
 
 #: ../data/pipanel.ui.h:14
-msgid "Text Colour"
+msgid "Text Color"
 msgstr "Tekstfarge"
 
 #: ../data/pipanel.ui.h:15
-msgid "Choose the colour of the text used for desktop icon labels"
+msgid "Choose the color of the text used for desktop icon labels"
 msgstr "Velg fargen til teksten som brukes til skrivebordsikon-etiketter"
 
 #: ../data/pipanel.ui.h:16
@@ -184,11 +184,11 @@ msgid "Show the taskbar at the bottom of the screen"
 msgstr "Vis oppgavelinjen nederst på skjermen"
 
 #: ../data/pipanel.ui.h:39
-msgid "Choose the colour of the taskbar background"
+msgid "Choose the color of the taskbar background"
 msgstr "Velg fargen på oppgavelinjens bakgrunn"
 
 #: ../data/pipanel.ui.h:40
-msgid "Choose the colour of text used on the taskbar"
+msgid "Choose the color of text used on the taskbar"
 msgstr "Velg fargen på teksten som brukes på oppgavelinjen"
 
 #: ../data/pipanel.ui.h:41
@@ -216,19 +216,19 @@ msgid "Choose the font used for labels and menus"
 msgstr "Velg skrifttypen som brukes til etiketter og menyer"
 
 #: ../data/pipanel.ui.h:47
-msgid "Highlight Colour"
+msgid "Highlight Color"
 msgstr "Fremhevingsfarge"
 
 #: ../data/pipanel.ui.h:48
-msgid "Choose the colour used to highlight active elements"
+msgid "Choose the color used to highlight active elements"
 msgstr "Velg fargen som brukes til å fremheve aktive elementer"
 
 #: ../data/pipanel.ui.h:49
-msgid "Highlight Text Colour"
+msgid "Highlight Text Color"
 msgstr "Fremhevingstekstfarge"
 
 #: ../data/pipanel.ui.h:50
-msgid "Choose the colour used for text on active elements"
+msgid "Choose the color used for text on active elements"
 msgstr "Velg fargen som brukes til tekst på aktive elementer"
 
 #: ../data/pipanel.ui.h:51

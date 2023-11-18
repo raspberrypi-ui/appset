@@ -76,19 +76,19 @@ msgid "Choose image file to use as wallpaper"
 msgstr "Veldu myndskrá til að nota sem bakgrunnsmynd"
 
 #: ../data/pipanel.ui.h:12
-msgid "Colour"
+msgid "Color"
 msgstr "Litur"
 
 #: ../data/pipanel.ui.h:13
-msgid "Choose the colour of the desktop background"
+msgid "Choose the color of the desktop background"
 msgstr "Veldu hér lit bakgrunns skjáborðsins"
 
 #: ../data/pipanel.ui.h:14
-msgid "Text Colour"
+msgid "Text Color"
 msgstr "Litur texta"
 
 #: ../data/pipanel.ui.h:15
-msgid "Choose the colour of the text used for desktop icon labels"
+msgid "Choose the color of the text used for desktop icon labels"
 msgstr ""
 "Veldu hér litinn sem notaður er á texta í merkingum táknmynda á skjáborði"
 
@@ -187,11 +187,11 @@ msgid "Show the taskbar at the bottom of the screen"
 msgstr "Birta verkefnastiku neðst á skjánum"
 
 #: ../data/pipanel.ui.h:39
-msgid "Choose the colour of the taskbar background"
+msgid "Choose the color of the taskbar background"
 msgstr "Veldu hér bakgrunnslit verkefnastiku"
 
 #: ../data/pipanel.ui.h:40
-msgid "Choose the colour of text used on the taskbar"
+msgid "Choose the color of text used on the taskbar"
 msgstr "Veldu hér textalit verkefnastiku"
 
 #: ../data/pipanel.ui.h:41
@@ -219,19 +219,19 @@ msgid "Choose the font used for labels and menus"
 msgstr "Veldu letur fyrir merkingar og valmyndir"
 
 #: ../data/pipanel.ui.h:47
-msgid "Highlight Colour"
+msgid "Highlight Color"
 msgstr "Áherslulitur"
 
 #: ../data/pipanel.ui.h:48
-msgid "Choose the colour used to highlight active elements"
+msgid "Choose the color used to highlight active elements"
 msgstr "Veldu hér litinn sem notaður er til að áherslulita virk atriði"
 
 #: ../data/pipanel.ui.h:49
-msgid "Highlight Text Colour"
+msgid "Highlight Text Color"
 msgstr "Áherslulitur texta"
 
 #: ../data/pipanel.ui.h:50
-msgid "Choose the colour used for text on active elements"
+msgid "Choose the color used for text on active elements"
 msgstr "Veldu hér litinn sem notaður er á texta í virkum atriðum"
 
 #: ../data/pipanel.ui.h:51

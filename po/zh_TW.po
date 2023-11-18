@@ -26,11 +26,11 @@ msgid "Defaults"
 msgstr "預設"
 
 #: ../data/pipanel.ui.h:3
-msgid "Colour"
+msgid "Color"
 msgstr "色彩"
 
 #: ../data/pipanel.ui.h:4
-msgid "Text Colour"
+msgid "Text Color"
 msgstr "文字色彩"
 
 #: ../data/pipanel.ui.h:5
@@ -106,11 +106,11 @@ msgid "Font"
 msgstr "字型"
 
 #: ../data/pipanel.ui.h:23
-msgid "Highlight Colour"
+msgid "Highlight Color"
 msgstr "突顯色彩"
 
 #: ../data/pipanel.ui.h:24
-msgid "Highlight Text Colour"
+msgid "Highlight Text Color"
 msgstr "突顯文字色彩"
 
 #: ../data/pipanel.ui.h:25

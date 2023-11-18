@@ -123,7 +123,7 @@
                       <object class="GtkLabel" id="label13">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Colour</property>
+                        <property name="label" translatable="yes">Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -137,7 +137,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color of the desktop background</property>
                         <accessibility>
                           <relation type="labelled-by" target="label13"/>
                         </accessibility>
@@ -163,7 +163,7 @@
                       <object class="GtkLabel" id="label14">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Text Colour</property>
+                        <property name="label" translatable="yes">Text Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -177,7 +177,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color of the text used for desktop icon labels</property>
                         <accessibility>
                           <relation type="labelled-by" target="label14"/>
                         </accessibility>
@@ -382,7 +382,7 @@
                       <object class="GtkLabel" id="label13_">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Colour</property>
+                        <property name="label" translatable="yes">Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -396,7 +396,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour of the desktop background</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color of the desktop background</property>
                         <accessibility>
                           <relation type="labelled-by" target="label13_"/>
                         </accessibility>
@@ -422,7 +422,7 @@
                       <object class="GtkLabel" id="label14_">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Text Colour</property>
+                        <property name="label" translatable="yes">Text Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -436,7 +436,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color of the text used for desktop icon labels</property>
                         <accessibility>
                           <relation type="labelled-by" target="label14_"/>
                         </accessibility>
@@ -696,7 +696,7 @@
                       <object class="GtkLabel" id="label23">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Colour</property>
+                        <property name="label" translatable="yes">Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -710,7 +710,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour of the taskbar background</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color of the taskbar background</property>
                         <accessibility>
                           <relation type="labelled-by" target="label23"/>
                         </accessibility>
@@ -736,7 +736,7 @@
                       <object class="GtkLabel" id="label24">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Text Colour</property>
+                        <property name="label" translatable="yes">Text Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -750,7 +750,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour of text used on the taskbar</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color of text used on the taskbar</property>
                         <accessibility>
                           <relation type="labelled-by" target="label24"/>
                         </accessibility>
@@ -907,7 +907,7 @@
                       <object class="GtkLabel" id="label32">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Highlight Colour</property>
+                        <property name="label" translatable="yes">Highlight Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -921,7 +921,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour used to highlight active elements</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color used to highlight active elements</property>
                         <accessibility>
                           <relation type="labelled-by" target="label32"/>
                         </accessibility>
@@ -947,7 +947,7 @@
                       <object class="GtkLabel" id="label33">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Highlight Text Colour</property>
+                        <property name="label" translatable="yes">Highlight Text Color</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -961,7 +961,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose the colour used for text on active elements</property>
+                        <property name="tooltip_text" translatable="yes">Choose the color used for text on active elements</property>
                         <accessibility>
                           <relation type="labelled-by" target="label33"/>
                         </accessibility>

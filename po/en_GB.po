@@ -75,19 +75,19 @@ msgid "Choose image file to use as wallpaper"
 msgstr "Choose image file to use as wallpaper"
 
 #: ../data/pipanel.ui.h:12
-msgid "Colour"
+msgid "Color"
 msgstr "Colour:"
 
 #: ../data/pipanel.ui.h:13
-msgid "Choose the colour of the desktop background"
-msgstr "Choose the colour of the desktop background"
+msgid "Choose the color of the desktop background"
+msgstr "Choose the color of the desktop background"
 
 #: ../data/pipanel.ui.h:14
-msgid "Text Colour"
+msgid "Text Color"
 msgstr "Text Colour:"
 
 #: ../data/pipanel.ui.h:15
-msgid "Choose the colour of the text used for desktop icon labels"
+msgid "Choose the color of the text used for desktop icon labels"
 msgstr "Choose the colour of the text used for desktop icon labels"
 
 #: ../data/pipanel.ui.h:16
@@ -185,11 +185,11 @@ msgid "Show the taskbar at the bottom of the screen"
 msgstr "Show the taskbar at the bottom of the screen"
 
 #: ../data/pipanel.ui.h:39
-msgid "Choose the colour of the taskbar background"
+msgid "Choose the color of the taskbar background"
 msgstr "Choose the colour of the taskbar background"
 
 #: ../data/pipanel.ui.h:40
-msgid "Choose the colour of text used on the taskbar"
+msgid "Choose the color of text used on the taskbar"
 msgstr "Choose the colour of text used on the taskbar"
 
 #: ../data/pipanel.ui.h:41
@@ -217,19 +217,19 @@ msgid "Choose the font used for labels and menus"
 msgstr "Choose the font used for labels and menus"
 
 #: ../data/pipanel.ui.h:47
-msgid "Highlight Colour"
+msgid "Highlight Color"
 msgstr "Highlight Colour:"
 
 #: ../data/pipanel.ui.h:48
-msgid "Choose the colour used to highlight active elements"
+msgid "Choose the color used to highlight active elements"
 msgstr "Choose the colour used to highlight active elements"
 
 #: ../data/pipanel.ui.h:49
-msgid "Highlight Text Colour"
+msgid "Highlight Text Color"
 msgstr "Highlight Text Colour:"
 
 #: ../data/pipanel.ui.h:50
-msgid "Choose the colour used for text on active elements"
+msgid "Choose the color used for text on active elements"
 msgstr "Choose the colour used for text on active elements"
 
 #: ../data/pipanel.ui.h:51

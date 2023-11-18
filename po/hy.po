@@ -75,19 +75,19 @@ msgid "Choose image file to use as wallpaper"
 msgstr "Ընտրել նկարը էկրանի համար"
 
 #: ../data/pipanel.ui.h:12
-msgid "Colour"
+msgid "Color"
 msgstr "Գույն՝"
 
 #: ../data/pipanel.ui.h:13
-msgid "Choose the colour of the desktop background"
+msgid "Choose the color of the desktop background"
 msgstr "Ընտրել գույնը աշխատասեղանի ֆոնի համար"
 
 #: ../data/pipanel.ui.h:14
-msgid "Text Colour"
+msgid "Text Color"
 msgstr "Տեքստի գույնը:"
 
 #: ../data/pipanel.ui.h:15
-msgid "Choose the colour of the text used for desktop icon labels"
+msgid "Choose the color of the text used for desktop icon labels"
 msgstr "Ընտրել տեքստի գույնը աշխատասեղանի պատկերի պիտակների համար"
 
 #: ../data/pipanel.ui.h:16
@@ -185,11 +185,11 @@ msgid "Show the taskbar at the bottom of the screen"
 msgstr "Ցույց տալ խնդրագոտին էկրանի ներքևում"
 
 #: ../data/pipanel.ui.h:39
-msgid "Choose the colour of the taskbar background"
+msgid "Choose the color of the taskbar background"
 msgstr "Ընտրել խնդրագոտու ֆոնի գույնը"
 
 #: ../data/pipanel.ui.h:40
-msgid "Choose the colour of text used on the taskbar"
+msgid "Choose the color of text used on the taskbar"
 msgstr "ԸՆտրել խնդրագոտում օգտագործված տեքստի գույնը"
 
 #: ../data/pipanel.ui.h:41
@@ -217,19 +217,19 @@ msgid "Choose the font used for labels and menus"
 msgstr "Choose the font used for labels and menus"
 
 #: ../data/pipanel.ui.h:47
-msgid "Highlight Colour"
+msgid "Highlight Color"
 msgstr "Ընդգծել գույնը՝"
 
 #: ../data/pipanel.ui.h:48
-msgid "Choose the colour used to highlight active elements"
+msgid "Choose the color used to highlight active elements"
 msgstr "Ընտրել ակտիվ տարրերում ընդգծվող գույնը"
 
 #: ../data/pipanel.ui.h:49
-msgid "Highlight Text Colour"
+msgid "Highlight Text Color"
 msgstr "Ընդգծել տեքստի գույնը՝"
 
 #: ../data/pipanel.ui.h:50
-msgid "Choose the colour used for text on active elements"
+msgid "Choose the color used for text on active elements"
 msgstr "Ընտրել ակտիվ տարրերում ընդգծվող տեքստի գույնը"
 
 #: ../data/pipanel.ui.h:51
