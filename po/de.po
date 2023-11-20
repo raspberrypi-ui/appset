@@ -1,0 +1,311 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: pipanel 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-11-18 20:00+0100\n"
+"PO-Revision-Date: 2023-11-18 20:00+0100\n"
+"Last-Translator: Simon Peter <prbono@puredarwin.org>\n"
+"Language-Team: German\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../src/pipanel.c:2098 ../src/pipanel.c:2803 ../data/pipanel.ui.h:24
+#, c-format
+msgid "Desktop 1"
+msgstr "Schreibtisch 1"
+
+#: ../src/pipanel.c:2102 ../src/pipanel.c:2804 ../data/pipanel.ui.h:27
+#, c-format
+msgid "Desktop 2"
+msgstr "Schreibtisch 2"
+
+#: ../src/pipanel.c:2110
+msgid "Desktop"
+msgstr "Schreibtisch"
+
+#: ../src/pipanel.c:2624
+msgid "Restoring configuration - please wait..."
+msgstr "Konfiguration wiederherstellen - bitte warten..."
+
+#: ../src/pipanel.c:2881
+msgid "Loading configuration - please wait..."
+msgstr "Konfiguration wird geladen - bitte warten..."
+
+#: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
+msgid "Appearance Settings"
+msgstr "Erscheinungsbild-Einstellungen"
+
+#: ../data/pipanel.ui.h:2
+msgid "Layout"
+msgstr "Layout"
+
+#: ../data/pipanel.ui.h:3
+msgid "Set how the wallpaper should be fitted to the screen"
+msgstr "Festlegen, wie der Hintergrund auf dem Bildschirm angepasst werden soll"
+
+#: ../data/pipanel.ui.h:4
+msgid "No image"
+msgstr "Kein Bild"
+
+#: ../data/pipanel.ui.h:5
+msgid "Centre image on screen"
+msgstr "Bild in der Mitte des Bildschirms"
+
+#: ../data/pipanel.ui.h:6
+msgid "Fit image onto screen"
+msgstr "Bild auf Bildschirm anpassen"
+
+#: ../data/pipanel.ui.h:7
+msgid "Fill screen with image"
+msgstr "Bildschirm mit Bild füllen"
+
+#: ../data/pipanel.ui.h:8
+msgid "Stretch to cover screen"
+msgstr "Strecken, um den Bildschirm zu bedecken"
+
+#: ../data/pipanel.ui.h:9
+msgid "Tile image"
+msgstr "Bild kacheln"
+
+#: ../data/pipanel.ui.h:10
+msgid "Picture"
+msgstr "Bild"
+
+#: ../data/pipanel.ui.h:11
+msgid "Choose image file to use as wallpaper"
+msgstr "Bilddatei für den Hintergrund auswählen"
+
+#: ../data/pipanel.ui.h:12
+msgid "Colour"
+msgstr "Farbe"
+
+#: ../data/pipanel.ui.h:13
+msgid "Choose the colour of the desktop background"
+msgstr "Farbe des Schreibtisch-Hintergrunds auswählen"
+
+#: ../data/pipanel.ui.h:14
+msgid "Text Colour"
+msgstr "Textfarbe"
+
+#: ../data/pipanel.ui.h:15
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr "Farbe des Texts für die Beschriftung der Schreibtisch-Symbole auswählen"
+
+#: ../data/pipanel.ui.h:16
+msgid "Documents"
+msgstr "Dokumente"
+
+#: ../data/pipanel.ui.h:17
+msgid "Show the documents folder on the desktop"
+msgstr "Dokumentenordner auf dem Schreibtisch anzeigen"
+
+#: ../data/pipanel.ui.h:18
+msgid "Wastebasket"
+msgstr "Papierkorb"
+
+#: ../data/pipanel.ui.h:19
+msgid "Show the wastebasket on the desktop"
+msgstr "Papierkorb auf dem Schreibtisch anzeigen"
+
+#: ../data/pipanel.ui.h:20
+msgid "Mounted Disks"
+msgstr "Eingehängte Laufwerke"
+
+#: ../data/pipanel.ui.h:21
+msgid "Show mounted disks on the desktop"
+msgstr "Eingehängte Laufwerke auf dem Schreibtisch anzeigen"
+
+#: ../data/pipanel.ui.h:22
+msgid "Show identical desktop on second monitor"
+msgstr "Identischen Schreibtisch auf dem zweiten Monitor anzeigen"
+
+#: ../data/pipanel.ui.h:23
+msgid ""
+"Check this box to show the same desktop image and icons on both monitors"
+msgstr ""
+"Dieses Kästchen aktivieren, um das gleiche Schreibtisch-Bild und die gleichen Symbole auf beiden Monitoren anzuzeigen"
+
+#: ../data/pipanel.ui.h:25
+msgid "Desktop Folder"
+msgstr "Desktop-Ordner"
+
+#: ../data/pipanel.ui.h:26
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "Ordner auswählen, der die Dateien für den zweiten Schreibtisch enthält"
+
+#: ../data/pipanel.ui.h:28
+msgid "Size"
+msgstr "Größe"
+
+#: ../data/pipanel.ui.h:29
+msgid "Set the size of icons used on the toolbar and menu"
+msgstr "Größe der Symbole auf der Symbolleiste und im Menü festlegen"
+
+#: ../data/pipanel.ui.h:30
+msgid "Very large (48x48)"
+msgstr "Sehr groß (48x48)"
+
+#: ../data/pipanel.ui.h:31
+msgid "Large (32x32)"
+msgstr "Groß (32x32)"
+
+#: ../data/pipanel.ui.h:32
+msgid "Medium (24x24)"
+msgstr "Mittel (24x24)"
+
+#: ../data/pipanel.ui.h:33
+msgid "Small (16x16)"
+msgstr "Klein (16x16)"
+
+#: ../data/pipanel.ui.h:34
+msgid "Position"
+msgstr "Position"
+
+#: ../data/pipanel.ui.h:35
+msgid "Top"
+msgstr "Oben"
+
+#: ../data/pipanel.ui.h:36
+msgid "Show the taskbar at the top of the screen"
+msgstr "Taskleiste oben auf dem Bildschirm anzeigen"
+
+#: ../data/pipanel.ui.h:37
+msgid "Bottom"
+msgstr "Unten"
+
+#: ../data/pipanel.ui.h:38
+msgid "Show the taskbar at the bottom of the screen"
+msgstr "Taskleiste unten auf dem Bildschirm anzeigen"
+
+#: ../data/pipanel.ui.h:39
+msgid "Choose the colour of the taskbar background"
+msgstr "Farbe des Hintergrunds der Taskleiste auswählen"
+
+#: ../data/pipanel.ui.h:40
+msgid "Choose the colour of text used on the taskbar"
+msgstr "Farbe des Texts für die Taskleiste auswählen"
+
+#: ../data/pipanel.ui.h:41
+msgid "Location"
+msgstr "Ort"
+
+#: ../data/pipanel.ui.h:42
+msgid "Show the taskbar on screen 1"
+msgstr "Taskleiste auf Bildschirm 1 anzeigen"
+
+#: ../data/pipanel.ui.h:43
+msgid "Show the taskbar on screen 2"
+msgstr "Taskleiste auf Bildschirm 2 anzeigen"
+
+#: ../data/pipanel.ui.h:44
+msgid "Menu Bar"
+msgstr "Menüleiste"
+
+#: ../data/pipanel.ui.h:45
+msgid "Font"
+msgstr "Schriftart"
+
+#: ../data/pipanel.ui.h:46
+msgid "Choose the font used for labels and menus"
+msgstr "Schriftart für Beschriftungen und Menüs auswählen"
+
+#: ../data/pipanel.ui.h:47
+msgid "Highlight Colour"
+msgstr "Hervorhebungsfarbe"
+
+#: ../data/pipanel.ui.h:48
+msgid "Choose the colour used to highlight active elements"
+msgstr "Farbe auswählen, um aktive Elemente hervorzuheben"
+
+#: ../data/pipanel.ui.h:49
+msgid "Highlight Text Colour"
+msgstr "Hervorhebungstextfarbe"
+
+#: ../data/pipanel.ui.h:50
+msgid "Choose the colour used for text on active elements"
+msgstr "Farbe für Text auf aktiven Elementen auswählen"
+
+#: ../data/pipanel.ui.h:51
+msgid "Mouse Cursor"
+msgstr "Mauszeiger"
+
+#: ../data/pipanel.ui.h:52
+msgid "Set the size of the mouse cursor"
+msgstr "Größe des Mauszeigers festlegen"
+
+#: ../data/pipanel.ui.h:53
+msgid "Large"
+msgstr "Groß"
+
+#: ../data/pipanel.ui.h:54
+msgid "Medium"
+msgstr "Mittel"
+
+#: ../data/pipanel.ui.h:55
+msgid "Small"
+msgstr "Klein"
+
+#: ../data/pipanel.ui.h:56
+msgid "System"
+msgstr "System"
+
+#: ../data/pipanel.ui.h:57
+msgid "For large screens:"
+msgstr "Für große Bildschirme:"
+
+#: ../data/pipanel.ui.h:58
+msgid "Set Defaults"
+msgstr "Standardeinstellungen festlegen"
+
+#: ../data/pipanel.ui.h:59
+msgid "Set to default values for high-resolution displays"
+msgstr "Auf Standardwerte für hochauflösende Displays setzen"
+
+#: ../data/pipanel.ui.h:60
+msgid "For medium screens:"
+msgstr "Für mittelgroße Bildschirme:"
+
+#: ../data/pipanel.ui.h:61
+msgid "Set to default values for medium-resolution displays"
+msgstr "Auf Standardwerte für mittlere Auflösung setzen"
+
+#: ../data/pipanel.ui.h:62
+msgid "For small screens:"
+msgstr "Für kleine Bildschirme:"
+
+#: ../data/pipanel.ui.h:63
+msgid "Set to default values for low-resolution displays"
+msgstr "Auf Standardwerte für niedrige Auflösung setzen"
+
+#: ../data/pipanel.ui.h:64
+msgid "Defaults"
+msgstr "Standardeinstellungen"
+
+#: ../data/pipanel.ui.h:65
+msgid "_Cancel"
+msgstr "_Abbrechen"
+
+#: ../data/pipanel.ui.h:66
+msgid "_OK"
+msgstr "_OK"
+
+#: ../data/pipanel.desktop.in.h:2
+msgid "Configure the appearance of the desktop and windows"
+msgstr "Erscheinungsbild von Schreibtisch und Fenstern konfigurieren"
+
+#, c-format
+#~ msgid ""
+#~ "Desktop\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Schreibtisch\n"
+#~ "%s"
+
+#~ msgid "New mouse cursor size will take effect at reboot"
+#~ msgstr "Die neue Mauszeigergröße wird nach dem Neustart wirksam"
+
+#~ msgid "Password Required"
+#~ msgstr "Passwort erforderlich"
