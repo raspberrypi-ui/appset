@@ -1,3 +1,9 @@
+pipanel (1:1.33) bookworm; urgency=medium
+
+  * Add dark mode switching
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 22 Nov 2023 07:57:05 +0000
+
 pipanel (1:1.32) bookworm; urgency=medium
 
   * Updated Japanese translation
