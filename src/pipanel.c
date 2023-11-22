@@ -425,9 +425,13 @@ static void set_theme (const char *theme)
     }
 }
 
-static gboolean is_dark (void)
+static int is_dark (void)
 {
     int res;
+
+    char *config_file = g_build_filename ("/usr/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    if (access (config_file, F_OK)) return -1;
+    g_free (config_file);
 
     if (!wayfire)
     {
@@ -982,7 +986,7 @@ static void load_gtk3_settings (void)
     char *user_config_file, *sys_config_file, *cmdbuf, *res;
     int dark;
 
-    cur_conf.darkmode = is_dark ();
+    cur_conf.darkmode = (is_dark () == 1) ? TRUE : FALSE;
     orig_darkmode = cur_conf.darkmode;
 
     cur_conf.scrollbar_width = 13;
@@ -2746,6 +2750,7 @@ static gboolean init_config (gpointer data)
     GtkLabel *lbl;
     GList *children, *child;
     int maj, min, sub, i;
+    gboolean has_dark;
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
     if (read_version ("lxsession", &maj, &min, &sub))
@@ -2759,6 +2764,9 @@ static gboolean init_config (gpointer data)
     // get libreoffice version
     if (read_version ("libreoffice", &maj, &min, &sub)) lo_ver = maj;
     else lo_ver = 5;
+
+    // is there a dark theme available?
+    has_dark = (is_dark () == -1) ? FALSE : TRUE;
 
     // load data from config files
     create_defaults ();
@@ -2823,9 +2831,13 @@ static gboolean init_config (gpointer data)
     csz = gtk_builder_get_object (builder, "comboboxtext3");
     cid = g_signal_connect (csz, "changed", G_CALLBACK (on_cursor_size_set), NULL);
 
-    rb5 = gtk_builder_get_object (builder, "radiobutton5");
-    rb6 = gtk_builder_get_object (builder, "radiobutton6");
-    bdid = g_signal_connect (rb5, "toggled", G_CALLBACK (on_darkmode_set), NULL);
+    if (has_dark)
+    {
+        rb5 = gtk_builder_get_object (builder, "radiobutton5");
+        rb6 = gtk_builder_get_object (builder, "radiobutton6");
+        bdid = g_signal_connect (rb5, "toggled", G_CALLBACK (on_darkmode_set), NULL);
+    }
+    else gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox35")));
 
     for (i = 0; i < 2; i++)
     {
