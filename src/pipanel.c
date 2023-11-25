@@ -1920,7 +1920,7 @@ static void save_app_settings (void)
 
     // geany colour theme
     config_file = g_build_filename (g_get_user_config_dir (), "geany/geany.conf", NULL);
-    set_config_param (config_file, "geany", "color_scheme", cur_conf.darkmode ? "dark-colors.conf" : "");
+    set_config_param (config_file, "geany", "color_scheme", cur_conf.darkmode ? "pixnoir.conf" : "");
     g_free (config_file);
 
     // galculator display colours
