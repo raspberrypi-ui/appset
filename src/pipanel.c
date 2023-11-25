@@ -124,6 +124,7 @@ static GtkWidget *dlg, *msg_dlg;
 /* Starting tab value read from command line */
 static int st_tab;
 
+static void check_directory (char *path);
 static void backup_file (char *filepath);
 static void backup_config_files (void);
 static int restore_file (char *filepath);
@@ -150,6 +151,7 @@ static void save_obconf_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
+static void save_app_settings (void);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
 static void set_controls (void);
 static void defaults_lxpanel (void);
@@ -271,6 +273,26 @@ char *rgba_to_gdk_color_string (GdkRGBA *col)
     g = col->green * 255;
     b = col->blue * 255;
     return g_strdup_printf ("#%02X%02X%02X", r, g, b);
+}
+
+static void set_config_param (const char *file, const char *section, const char *tag, const char *value)
+{
+    char *str;
+    GKeyFile *kf;
+    gsize len;
+
+    check_directory (file);
+
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_string (kf, section, tag, value);
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (file, str, len, NULL);
+
+    g_free (str);
+    g_key_file_free (kf);
 }
 
 /* Shell commands to reload data */
@@ -1892,6 +1914,23 @@ static void save_qt_settings (void)
     g_free (user_config_file);
 }
 
+static void save_app_settings (void)
+{
+    char *config_file;
+
+    // geany colour theme
+    config_file = g_build_filename (g_get_user_config_dir (), "geany/geany.conf", NULL);
+    set_config_param (config_file, "geany", "color_scheme", cur_conf.darkmode ? "dark-colors.conf" : "");
+    g_free (config_file);
+
+    // galculator display colours
+    config_file = g_build_filename (g_get_user_config_dir (), "galculator/galculator.conf", NULL);
+    set_config_param (config_file, "general", "display_bkg_color", cur_conf.darkmode ? "rgb(94,92,100)" : "#ffffff");
+    set_config_param (config_file, "general", "display_result_color", cur_conf.darkmode ? "rgb(246,245,244)" : "black");
+    set_config_param (config_file, "general", "display_stack_color", cur_conf.darkmode ? "rgb(246,245,244)" : "black");
+    g_free (config_file);
+}
+
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl)
 {
     // grep - use tr to convert file to single line then search for -
@@ -2184,6 +2223,7 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     save_xsettings ();
     save_obconf_settings ();
     save_gtk3_settings ();
+    save_app_settings ();
     reload_lxsession ();
     reload_xsettings ();
     reload_openbox ();
@@ -2371,6 +2411,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     // save application-specific config - we don't delete these files first...
     save_lxterm_settings ();
     save_libreoffice_settings ();
+    save_app_settings ();
 
     // reload everything to reflect the current state
     reload_lxsession ();
