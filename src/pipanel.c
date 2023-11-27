@@ -248,6 +248,37 @@ static void message (char *msg)
     g_object_unref (builder);
 }
 
+static gboolean ok_clicked (GtkButton *button, gpointer data)
+{
+    gtk_widget_destroy (msg_dlg);
+    return FALSE;
+}
+
+static void message_ok (char *msg)
+{
+    GtkWidget *wid;
+    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
+
+    msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
+    if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
+    gtk_label_set_text (GTK_LABEL (wid), msg);
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_buttons");
+    gtk_widget_show (wid);
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_ok");
+    gtk_widget_show (wid);
+    g_signal_connect (wid, "clicked", G_CALLBACK (ok_clicked), NULL);
+    gtk_widget_grab_focus (wid);
+
+    gtk_widget_show (msg_dlg);
+    gtk_window_set_decorated (GTK_WINDOW (msg_dlg), FALSE);
+
+    g_object_unref (builder);
+}
+
 /* Create a labelled-by relationship between a widget and a label */
 
 static void atk_label (GtkWidget *widget, GtkLabel *label)
@@ -2213,6 +2244,26 @@ static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
 
 static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
 {
+    if (!system ("pgrep geany > /dev/null"))
+    {
+        g_signal_handler_block (rb5, bdid);
+        if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
+        else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
+        message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+        g_signal_handler_unblock (rb5, bdid);
+        return;
+    }
+
+    if (!system ("pgrep galculator > /dev/null"))
+    {
+        g_signal_handler_block (rb5, bdid);
+        if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
+        else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
+        message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+        g_signal_handler_unblock (rb5, bdid);
+        return;
+    }
+
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.darkmode = 0;
     else cur_conf.darkmode = 1;
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
