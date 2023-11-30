@@ -1,3 +1,9 @@
+pipanel (1:1.36) bookworm; urgency=medium
+
+  * Fix translations
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 30 Nov 2023 12:24:17 +0000
+
 pipanel (1:1.35) bookworm; urgency=medium
 
   * Block dark mode setting when apps are running
