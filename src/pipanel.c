@@ -101,7 +101,11 @@ static gboolean needs_refresh;
 
 /* Flag to indicate window manager in use */
 
-static gboolean wayfire = FALSE;
+typedef enum {
+    WM_OPENBOX,
+    WM_WAYFIRE,
+    WM_LABWC } wm_type;
+static wm_type wm;
 
 /* Original theme in use */
 static int orig_darkmode;
@@ -147,7 +151,8 @@ static void save_pcman_settings (int desktop);
 static void save_pcman_g_settings (void);
 static void save_libfm_settings (void);
 static void save_wfshell_settings (void);
-static void save_obconf_settings (void);
+static void save_obconf_settings (gboolean lw);
+static void save_labwc_to_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
@@ -330,16 +335,15 @@ static void set_config_param (const char *file, const char *section, const char 
 
 static void reload_lxpanel (void)
 {
-    if (wayfire) return;
+    if (wm != WM_OPENBOX) return;
 
     vsystem ("lxpanelctl refresh");
 }
 
 static void reload_openbox (void)
 {
-    if (wayfire) return;
-
-    vsystem ("openbox --reconfigure");
+    if (wm == WM_LABWC) vsystem ("labwc --reconfigure");
+    if (wm == WM_OPENBOX)  vsystem ("openbox --reconfigure");
 }
 
 static void reload_pcmanfm (void)
@@ -349,7 +353,7 @@ static void reload_pcmanfm (void)
 
 static void reload_lxsession (void)
 {
-    if (wayfire) return;
+    if (wm != WM_OPENBOX) return;
 
     if (needs_refresh)
     {
@@ -359,7 +363,7 @@ static void reload_lxsession (void)
 
 static void reload_xsettings (void)
 {
-    if (!wayfire) return;
+    if (wm == WM_OPENBOX) return;
 
     vsystem ("pgrep xsettingsd > /dev/null && killall -HUP xsettingsd");
 }
@@ -381,6 +385,11 @@ static char *openbox_file (void)
     g_free (lc_sess);
     g_free (fname);
     return path;
+}
+
+static char *labwc_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "labwc", "rc.xml", NULL);
 }
 
 static char *lxsession_file (gboolean global)
@@ -433,7 +442,7 @@ static void init_lxsession (const char *theme)
 
     /* Creates a default lxsession data file with the theme in it - the
      * system checks this for changes and reloads the theme if a change is detected */
-    if (!wayfire)
+    if (wm == WM_OPENBOX)
     {
         user_config_file = lxsession_file (FALSE);
         if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -461,7 +470,7 @@ static void set_theme (const char *theme)
     char *user_config_file;
 
     /* Sets the theme in the lxsession data file, which triggers a theme change */
-    if (!wayfire)
+    if (wm == WM_OPENBOX)
     {
         user_config_file = lxsession_file (FALSE);
         vsystem ("sed -i s#sNet/ThemeName=.*#sNet/ThemeName=%s#g %s", theme, user_config_file);
@@ -486,7 +495,7 @@ static int is_dark (void)
     if (access (config_file, F_OK)) return -1;
     g_free (config_file);
 
-    if (!wayfire)
+    if (wm == WM_OPENBOX)
     {
         char *user_config_file = lxsession_file (FALSE);
         res = vsystem ("grep sNet/ThemeName %s | grep -q %s", user_config_file, DEFAULT_THEME_DARK);
@@ -580,6 +589,8 @@ static void backup_config_files (void)
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".config/xsettingsd/xsettingsd.conf");
+    backup_file (".config/labwc/themerc-override");
+    backup_file (".config/labwc/rc.xml");
     backup_file (".gtkrc-2.0");
 
     // app-specific
@@ -657,6 +668,8 @@ static int restore_config_files (void)
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
+    if (restore_file (".config/labwc/themerc-override")) changed = 1;
+    if (restore_file (".config/labwc/rc.xml")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
 
     // app-specific
@@ -668,7 +681,7 @@ static int restore_config_files (void)
 
 static void reload_gsettings (void)
 {
-    if (wayfire)
+    if (wm != WM_OPENBOX)
     {
         load_lxsession_settings ();
         vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
@@ -741,6 +754,7 @@ static void reset_to_defaults (void)
     delete_file (".config/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
     delete_file (".config/xsettingsd/xsettingsd.conf");
+    delete_file (".config/labwc/themerc-override");
     delete_file (".gtkrc-2.0");
 
     reload_gsettings ();
@@ -1330,7 +1344,7 @@ static void save_lxsession_settings (void)
     g_key_file_free (kf);
     g_free (user_config_file);
 
-    if (wayfire)
+    if (wm != WM_OPENBOX)
     {
         vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
         vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
@@ -1526,7 +1540,7 @@ static void save_lxterm_settings (void)
     g_free (user_config_file);
 }
 
-static void save_obconf_settings (void)
+static void save_obconf_settings (gboolean lw)
 {
     char *user_config_file, *font, *cptr;
     int count, size;
@@ -1538,7 +1552,8 @@ static void save_obconf_settings (void)
     xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
 
-    user_config_file = openbox_file ();
+    if (lw) user_config_file = labwc_file ();
+    else user_config_file = openbox_file ();
     check_directory (user_config_file);
 
     // set the font description variables for XML from the font name
@@ -1660,37 +1675,40 @@ static void save_obconf_settings (void)
         xmlNodeSetContent (cur_node, XC (buf));
     }
 
-    cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    if (!lw)
     {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("titleColor"), XC (cptr));
-    }
-    else
-    {
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, XC (cptr));
-    }
-    g_free (cptr);
+        cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']", xpathCtx);
+        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        {
+            xmlXPathFreeObject (xpathObj);
+            xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+            cur_node = xpathObj->nodesetval->nodeTab[0];
+            xmlNewChild (cur_node, NULL, XC ("titleColor"), XC (cptr));
+        }
+        else
+        {
+            cur_node = xpathObj->nodesetval->nodeTab[0];
+            xmlNodeSetContent (cur_node, XC (cptr));
+        }
+        g_free (cptr);
 
-    cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-    {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("textColor"), XC (cptr));
+        cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']", xpathCtx);
+        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        {
+            xmlXPathFreeObject (xpathObj);
+            xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+            cur_node = xpathObj->nodesetval->nodeTab[0];
+            xmlNewChild (cur_node, NULL, XC ("textColor"), XC (cptr));
+        }
+        else
+        {
+            cur_node = xpathObj->nodesetval->nodeTab[0];
+            xmlNodeSetContent (cur_node, XC (cptr));
+        }
+        g_free (cptr);
     }
-    else
-    {
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, XC (cptr));
-    }
-    g_free (cptr);
 
     // cleanup XML
     xmlXPathFreeObject (xpathObj);
@@ -1701,6 +1719,44 @@ static void save_obconf_settings (void)
 
     pango_font_description_free (pfd);
     g_free (font);
+    g_free (user_config_file);
+}
+
+static void save_labwc_to_settings (void)
+{
+    char *user_config_file, *cstrb, *cstrf;
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "themerc-override", NULL);
+    check_directory (user_config_file);
+
+    cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
+    cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
+
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("echo 'window.active.title.bg.color: %s' >> %s", cstrb, user_config_file);
+        vsystem ("echo 'window.active.label.text.color: %s' >> %s", cstrf, user_config_file);
+
+        g_free (cstrf);
+        g_free (cstrb);
+        g_free (user_config_file);
+        return;
+    }
+
+    // amend entries already in file, or add if not present
+    if (vsystem ("grep -q window.active.title.bg.color %s\n", user_config_file))
+        vsystem ("echo 'window.active.title.bg.color: %s' >> %s", cstrb, user_config_file);
+    else
+        vsystem ("sed -i s/'window.active.title.bg.color.*'/'window.active.title.bg.color: %s'/g %s", cstrb, user_config_file);
+
+    if (vsystem ("grep -q window.active.label.text.color %s\n", user_config_file))
+        vsystem ("echo 'window.active.label.text.color: %s' >> %s", cstrf, user_config_file);
+    else
+        vsystem ("sed -i s/'window.active.label.text.color.*'/'window.active.label.text.color: %s'/g %s", cstrf, user_config_file);
+
+    g_free (cstrf);
+    g_free (cstrb);
     g_free (user_config_file);
 }
 
@@ -2018,7 +2074,7 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
         case 3 :    cur_conf.icon_size = 20;
                     break;
     }
-    if (wayfire)
+    if (wm != WM_OPENBOX)
     {
         save_wfshell_settings ();
         reload_pcmanfm ();
@@ -2036,7 +2092,8 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     set_theme (TEMP_THEME);
     save_lxsession_settings ();
     save_xsettings ();
-    save_obconf_settings ();
+    save_obconf_settings (FALSE);
+    if (wm == WM_LABWC) save_labwc_to_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
     reload_xsettings ();
@@ -2051,7 +2108,8 @@ static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
     set_theme (TEMP_THEME);
     save_lxsession_settings ();
     save_xsettings ();
-    save_obconf_settings ();
+    save_obconf_settings (FALSE);
+    if (wm == WM_LABWC) save_labwc_to_settings ();
     save_gtk3_settings ();
     reload_lxsession ();
     reload_xsettings ();
@@ -2134,7 +2192,8 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
     save_xsettings ();
     save_pcman_settings (0);
     save_pcman_settings (1);
-    save_obconf_settings ();
+    save_obconf_settings (FALSE);
+    if (wm == WM_LABWC) save_obconf_settings (TRUE);
     save_gtk3_settings ();
     save_qt_settings ();
 
@@ -2190,7 +2249,7 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
-    if (wayfire)
+    if (wm != WM_OPENBOX)
     {
         save_wfshell_settings ();
         reload_pcmanfm ();
@@ -2206,7 +2265,7 @@ static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.monitor = 0;
     else cur_conf.monitor = 1;
-    if (wayfire)
+    if (wm != WM_OPENBOX)
     {
         save_wfshell_settings ();
         reload_pcmanfm ();
@@ -2272,7 +2331,8 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
     save_lxsession_settings ();
     save_xsettings ();
-    save_obconf_settings ();
+    save_obconf_settings (FALSE);
+    if (wm == WM_LABWC) save_obconf_settings (TRUE);
     save_gtk3_settings ();
     save_app_settings ();
     reload_lxsession ();
@@ -2451,13 +2511,15 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_pcman_settings (0);
         save_pcman_settings (1);
         save_libfm_settings ();
-        save_obconf_settings ();
+        save_obconf_settings (FALSE);
+        if (wm == WM_LABWC) save_labwc_to_settings ();
         save_gtk3_settings ();
-        if (!wayfire) save_lxpanel_settings ();
+        if (wm == WM_OPENBOX) save_lxpanel_settings ();
         save_qt_settings ();
     }
 
-    if (wayfire) save_wfshell_settings ();
+    if (wm != WM_OPENBOX) save_wfshell_settings ();
+    if (wm == WM_LABWC) save_obconf_settings (TRUE);
 
     // save application-specific config - we don't delete these files first...
     save_lxterm_settings ();
@@ -2782,7 +2844,7 @@ static int n_desktops (void)
     int n, m;
     char *res;
 
-    if (wayfire)
+    if (wm != WM_OPENBOX)
         res = get_string ("wlr-randr | grep -cv '^ '");
     else
         res = get_string ("xrandr -q | grep -cw connected");
@@ -2867,7 +2929,7 @@ static gboolean init_config (gpointer data)
     load_pcman_g_settings ();
     load_pcman_settings (0);
     load_pcman_settings (1);
-    if (wayfire) load_wfshell_settings ();
+    if (wm != WM_OPENBOX) load_wfshell_settings ();
     else load_lxpanel_settings ();
     load_obconf_settings ();
     load_gtk3_settings ();
@@ -3078,10 +3140,15 @@ int main (int argc, char *argv[])
     gtk_init (&argc, &argv);
     gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
-    if (getenv ("WAYFIRE_CONFIG_FILE")) wayfire = TRUE;
+    if (getenv ("WAYLAND_DISPLAY"))
+    {
+        if (getenv ("WAYFIRE_CONFIG_FILE")) wm = WM_WAYFIRE;
+        else wm = WM_LABWC;
+    }
+    else wm = WM_OPENBOX;
 
     message (_("Loading configuration - please wait..."));
-    if (wayfire) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
+    if (wm != WM_OPENBOX) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
     else draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
 
     gtk_main ();
