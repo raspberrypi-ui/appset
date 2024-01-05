@@ -2486,6 +2486,21 @@ static void set_controls (void)
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
+	if (cur_conf.darkmode == 1)
+	{
+		if (!system ("pgrep geany > /dev/null"))
+		{
+			message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+			return;
+		}
+
+		if (!system ("pgrep galculator > /dev/null"))
+		{
+			message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+			return;
+		}
+	}
+
     // clear all the config files
     reset_to_defaults ();
 
@@ -2876,6 +2891,20 @@ static gpointer restore_thread (gpointer ptr)
 
 static gboolean cancel_main (GtkButton *button, gpointer data)
 {
+	if (orig_darkmode != cur_conf.darkmode)
+	{
+		if (!system ("pgrep geany > /dev/null"))
+		{
+			message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+			return FALSE;
+		}
+
+		if (!system ("pgrep galculator > /dev/null"))
+		{
+			message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+			return FALSE;
+		}
+	}
     message (_("Restoring configuration - please wait..."));
     g_thread_new (NULL, restore_thread, NULL);
     return FALSE;
