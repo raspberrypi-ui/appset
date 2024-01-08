@@ -596,6 +596,8 @@ static void backup_config_files (void)
     // app-specific
     backup_file (".config/lxterminal/lxterminal.conf");
     backup_file (".config/libreoffice/4/user/registrymodifications.xcu");
+    backup_file (".config/geany/geany.conf");
+    backup_file (".config/galculator/galculator.conf");
 }
 
 static int restore_file (char *filepath)
@@ -675,6 +677,8 @@ static int restore_config_files (void)
     // app-specific
     if (restore_file (".config/lxterminal/lxterminal.conf")) changed = 1;
     if (restore_file (".config/libreoffice/4/user/registrymodifications.xcu")) changed = 1;
+    if (restore_file (".config/geany/geany.conf")) changed = 1;
+    if (restore_file (".config/galculator/galculator.conf")) changed = 1;
 
     return changed;
 }
