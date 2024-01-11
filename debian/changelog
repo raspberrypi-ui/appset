@@ -1,3 +1,9 @@
+pipanel (1:1.37) bookworm; urgency=medium
+
+  * Add labwc support
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 11 Jan 2024 14:17:20 +0000
+
 pipanel (1:1.36) bookworm; urgency=medium
 
   * Fix translations
