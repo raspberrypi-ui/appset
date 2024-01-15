@@ -248,7 +248,6 @@ static void message (char *msg)
     gtk_label_set_text (GTK_LABEL (wid), msg);
 
     gtk_widget_show (msg_dlg);
-    gtk_window_set_decorated (GTK_WINDOW (msg_dlg), FALSE);
 
     g_object_unref (builder);
 }
@@ -279,7 +278,6 @@ static void message_ok (char *msg)
     gtk_widget_grab_focus (wid);
 
     gtk_widget_show (msg_dlg);
-    gtk_window_set_decorated (GTK_WINDOW (msg_dlg), FALSE);
 
     g_object_unref (builder);
 }
