@@ -1601,6 +1601,8 @@ static void save_obconf_settings (gboolean lw)
     {
         root = xmlNewNode (NULL, (xmlChar *) "openbox_config");
         xmlDocSetRootElement (xDoc, root);
+        xmlNsPtr ns = xmlNewNs (root, "http://openbox.org/3.4/rc", NULL);
+        xmlXPathRegisterNs (xpathCtx, "openbox_config", "http://openbox.org/3.4/rc");
     }
     else root = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
@@ -1662,19 +1664,22 @@ static void save_obconf_settings (gboolean lw)
         xmlNodeSetContent (cur_node, XC (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME));
     }
 
-    sprintf (buf, "%d", cur_conf.handle_width);
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    if (!lw)
     {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("invHandleWidth"), XC (buf));
-    }
-    else
-    {
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, XC (buf));
+        sprintf (buf, "%d", cur_conf.handle_width);
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
+        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        {
+            xmlXPathFreeObject (xpathObj);
+            xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']", xpathCtx);
+            cur_node = xpathObj->nodesetval->nodeTab[0];
+            xmlNewChild (cur_node, NULL, XC ("invHandleWidth"), XC (buf));
+        }
+        else
+        {
+            cur_node = xpathObj->nodesetval->nodeTab[0];
+            xmlNodeSetContent (cur_node, XC (buf));
+        }
     }
 
     if (!lw)
