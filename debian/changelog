@@ -1,3 +1,9 @@
+pipanel (1:1.38) bookworm; urgency=medium
+
+  * Fix XML namespace
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 22 Jan 2024 11:01:49 +0000
+
 pipanel (1:1.37) bookworm; urgency=medium
 
   * Add labwc support
