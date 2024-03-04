@@ -50,6 +50,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define DEFAULT_THEME "PiXflat"
 #define DEFAULT_THEME_DARK "PiXnoir"
+#define DEFAULT_THEME_L "PiXflat_l"
+#define DEFAULT_THEME_DARK_L "PiXnoir_l"
 #define TEMP_THEME    "tPiXflat"
 
 #define GREY    "#808080"
@@ -1657,12 +1659,18 @@ static void save_obconf_settings (gboolean lw)
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("name"), cur_conf.darkmode ? XC (DEFAULT_THEME_DARK) : XC (DEFAULT_THEME));
+        if (cur_conf.scrollbar_width >= 17)
+            xmlNewChild (cur_node, NULL, XC ("name"), cur_conf.darkmode ? XC (DEFAULT_THEME_DARK_L) : XC (DEFAULT_THEME_L));
+        else
+            xmlNewChild (cur_node, NULL, XC ("name"), cur_conf.darkmode ? XC (DEFAULT_THEME_DARK) : XC (DEFAULT_THEME));
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, cur_conf.darkmode ? XC (DEFAULT_THEME_DARK) : XC (DEFAULT_THEME));
+        if (cur_conf.scrollbar_width >= 17)
+            xmlNodeSetContent (cur_node, cur_conf.darkmode ? XC (DEFAULT_THEME_DARK_L) : XC (DEFAULT_THEME_L));
+        else
+            xmlNodeSetContent (cur_node, cur_conf.darkmode ? XC (DEFAULT_THEME_DARK) : XC (DEFAULT_THEME));
     }
 
     if (!lw)
