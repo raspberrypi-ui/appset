@@ -153,6 +153,7 @@ static void save_xsettings (void);
 static void save_pcman_settings (int desktop);
 static void save_pcman_g_settings (void);
 static void save_libfm_settings (void);
+static void save_wayfire_settings (void);
 static void save_wfshell_settings (void);
 static void save_obconf_settings (gboolean lw);
 static void save_labwc_to_settings (void);
@@ -422,6 +423,11 @@ static char *pcmanfm_g_file (gboolean global)
 static char *libfm_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "libfm/libfm.conf", NULL);
+}
+
+static char *wayfire_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "wayfire.ini", NULL);
 }
 
 static char *wfshell_file (void)
@@ -1520,6 +1526,29 @@ static void save_wfshell_settings (void)
     g_free (user_config_file);
 }
 
+static void save_wayfire_settings (void)
+{
+    char *user_config_file, *str;
+    GKeyFile *kf;
+    gsize len;
+
+    user_config_file = wayfire_file ();
+    check_directory (user_config_file);
+
+    // process pcmanfm config data
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_integer (kf, "input", "cursor_size", cur_conf.cursor_size);
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+    g_free (str);
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
 static void save_lxterm_settings (void)
 {
     char *user_config_file, *str;
@@ -2437,6 +2466,7 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     save_lxsession_settings ();
     save_xsettings ();
     if (wm == WM_LABWC) save_labwc_env_settings ();
+    if (wm == WM_WAYFIRE) save_wayfire_settings ();
     reload_lxsession ();
     reload_xsettings ();
     reload_theme (FALSE);
