@@ -2487,18 +2487,10 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-
-static void set_controls (void)
+static void set_desktop_controls (void)
 {
     int i;
 
-    // block widget handlers
-    g_signal_handler_block (isz, iid);
-    g_signal_handler_block (csz, cid);
-    g_signal_handler_block (rb1, bpid);
-    g_signal_handler_block (rb3, blid);
-    g_signal_handler_block (rb5, bdid);
-    g_signal_handler_block (cb4, cbid);
     for (i = 0; i < MAX_DESKTOPS; i++)
     {
         g_signal_handler_block (dmod[i], dmid[i]);
@@ -2508,7 +2500,6 @@ static void set_controls (void)
         if (i > 0) g_signal_handler_block (dfold, dfid);
     }
 
-    gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font), cur_conf.desktop_font);
     for (i = 0; i < MAX_DESKTOPS; i++)
     {
         gtk_widget_set_sensitive (GTK_WIDGET (dpic[i]), TRUE);
@@ -2530,6 +2521,28 @@ static void set_controls (void)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3[i]), cur_conf.desktops[i].show_mnts);
         if (i > 0) gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dfold), cur_conf.desktops[i].desktop_folder);
     }
+
+    for (i = 0; i < MAX_DESKTOPS; i++)
+    {
+        g_signal_handler_unblock (dmod[i], dmid[i]);
+        g_signal_handler_unblock (cb1[i], tdid[i]);
+        g_signal_handler_unblock (cb2[i], ttid[i]);
+        g_signal_handler_unblock (cb3[i], tmid[i]);
+        if (i > 0) g_signal_handler_unblock (dfold, dfid);
+    }
+}
+
+static void set_controls (void)
+{
+    // block widget handlers
+    g_signal_handler_block (isz, iid);
+    g_signal_handler_block (csz, cid);
+    g_signal_handler_block (rb1, bpid);
+    g_signal_handler_block (rb3, blid);
+    g_signal_handler_block (rb5, bdid);
+    g_signal_handler_block (cb4, cbid);
+
+    gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font), cur_conf.desktop_font);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
@@ -2562,14 +2575,8 @@ static void set_controls (void)
     g_signal_handler_unblock (rb3, blid);
     g_signal_handler_unblock (rb5, bdid);
     g_signal_handler_unblock (cb4, cbid);
-    for (i = 0; i < MAX_DESKTOPS; i++)
-    {
-        g_signal_handler_unblock (dmod[i], dmid[i]);
-        g_signal_handler_unblock (cb1[i], tdid[i]);
-        g_signal_handler_unblock (cb2[i], ttid[i]);
-        g_signal_handler_unblock (cb3[i], tmid[i]);
-        if (i > 0) g_signal_handler_unblock (dfold, dfid);
-    }
+
+    set_desktop_controls ();
 }
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
