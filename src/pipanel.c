@@ -156,6 +156,7 @@ static void save_libfm_settings (void);
 static void save_wfshell_settings (void);
 static void save_obconf_settings (gboolean lw);
 static void save_labwc_to_settings (void);
+static void save_labwc_env_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void save_qt_settings (void);
@@ -1776,6 +1777,31 @@ static void save_labwc_to_settings (void)
     g_free (user_config_file);
 }
 
+static void save_labwc_env_settings (void)
+{
+    char *user_config_file;
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "environment", NULL);
+    check_directory (user_config_file);
+
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("echo 'XCURSOR_SIZE=%d' >> %s", cur_conf.cursor_size, user_config_file);
+
+        g_free (user_config_file);
+        return;
+    }
+
+    // amend entries already in file, or add if not present
+    if (vsystem ("grep -q XCURSOR_SIZE %s\n", user_config_file))
+        vsystem ("echo 'XCURSOR_SIZE=%d' >> %s", cur_conf.cursor_size, user_config_file);
+    else
+        vsystem ("sed -i s/'XCURSOR_SIZE.*'/'XCURSOR_SIZE=%d'/g %s", cur_conf.cursor_size, user_config_file);
+
+    g_free (user_config_file);
+}
+
 static void save_libreoffice_settings (void)
 {
     char *user_config_file;
@@ -2410,6 +2436,7 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     }
     save_lxsession_settings ();
     save_xsettings ();
+    if (wm == WM_LABWC) save_labwc_env_settings ();
     reload_lxsession ();
     reload_xsettings ();
     reload_theme (FALSE);
