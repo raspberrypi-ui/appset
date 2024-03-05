@@ -63,24 +63,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define XC(str) ((xmlChar *) str)
 
 /* Global variables for window values */
+typedef struct {
+    const char *desktop_folder;
+    const char *desktop_picture;
+    const char *desktop_mode;
+    GdkRGBA desktop_colour;
+    GdkRGBA desktoptext_colour;
+    int show_docs;
+    int show_trash;
+    int show_mnts;
+} DesktopConfig;
 
 typedef struct {
+    DesktopConfig desktops[2];
     const char *desktop_font;
-    const char *desktop_picture[2];
-    const char *desktop_mode[2];
     const char *terminal_font;
-    const char *desktop_folder;
     GdkRGBA theme_colour[2];
     GdkRGBA themetext_colour[2];
-    GdkRGBA desktop_colour[2];
-    GdkRGBA desktoptext_colour[2];
     GdkRGBA bar_colour[2];
     GdkRGBA bartext_colour[2];
     int icon_size;
     int barpos;
-    int show_docs[2];
-    int show_trash[2];
-    int show_mnts[2];
     int folder_size;
     int thumb_size;
     int pane_size;
@@ -94,9 +97,9 @@ typedef struct {
     int monitor;
     int common_bg;
     int darkmode;
-} DesktopConfig;
+} Config;
 
-static DesktopConfig cur_conf, def_lg, def_med, def_sm;
+static Config cur_conf, def_lg, def_med, def_sm;
 
 /* Flag to indicate whether lxsession is version 4.9 or later, in which case no need to refresh manually */
 
@@ -842,68 +845,68 @@ static void load_pcman_settings (int desktop)
         ret = g_key_file_get_string (kf, "*", "desktop_bg", &err);
         if (err == NULL)
         {
-            if (!gdk_rgba_parse (&cur_conf.desktop_colour[desktop], ret))
-                DEFAULT (desktop_colour[desktop]);
+            if (!gdk_rgba_parse (&cur_conf.desktops[desktop].desktop_colour, ret))
+                DEFAULT (desktops[desktop].desktop_colour);
         }
-        else DEFAULT (desktop_colour[desktop]);
+        else DEFAULT (desktops[desktop].desktop_colour);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
         if (err == NULL)
         {
-            if (!gdk_rgba_parse (&cur_conf.desktoptext_colour[desktop], ret))
-                DEFAULT (desktoptext_colour[desktop]);
+            if (!gdk_rgba_parse (&cur_conf.desktops[desktop].desktoptext_colour, ret))
+                DEFAULT (desktops[desktop].desktoptext_colour);
         }
-        else DEFAULT (desktoptext_colour[desktop]);
+        else DEFAULT (desktops[desktop].desktoptext_colour);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
-        if (err == NULL && ret) cur_conf.desktop_picture[desktop] = g_strdup (ret);
-        else DEFAULT (desktop_picture[desktop]);
+        if (err == NULL && ret) cur_conf.desktops[desktop].desktop_picture = g_strdup (ret);
+        else DEFAULT (desktops[desktop].desktop_picture);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
-        if (err == NULL && ret) cur_conf.desktop_mode[desktop] = g_strdup (ret);
-        else DEFAULT (desktop_mode[desktop]);
+        if (err == NULL && ret) cur_conf.desktops[desktop].desktop_mode = g_strdup (ret);
+        else DEFAULT (desktops[desktop].desktop_mode);
         g_free (ret);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_documents", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.show_docs[desktop] = val;
-        else DEFAULT (show_docs[desktop]);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.desktops[desktop].show_docs = val;
+        else DEFAULT (desktops[desktop].show_docs);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_trash", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.show_trash[desktop] = val;
-        else DEFAULT (show_trash[desktop]);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.desktops[desktop].show_trash = val;
+        else DEFAULT (desktops[desktop].show_trash);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.show_mnts[desktop] = val;
-        else DEFAULT (show_mnts[desktop]);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.desktops[desktop].show_mnts = val;
+        else DEFAULT (desktops[desktop].show_mnts);
 
         if (desktop == 1)
         {
             err = NULL;
             ret = g_key_file_get_string (kf, "*", "folder", &err);
-            if (err == NULL && ret) cur_conf.desktop_folder = g_strdup (ret);
-            else DEFAULT (desktop_folder);
+            if (err == NULL && ret) cur_conf.desktops[desktop].desktop_folder = g_strdup (ret);
+            else DEFAULT (desktops[desktop].desktop_folder);
             g_free (ret);
         }
     }
     else
     {
-        DEFAULT (desktop_colour[desktop]);
-        DEFAULT (desktoptext_colour[desktop]);
-        DEFAULT (desktop_picture[desktop]);
-        DEFAULT (desktop_mode[desktop]);
-        DEFAULT (show_docs[desktop]);
-        DEFAULT (show_trash[desktop]);
-        DEFAULT (show_mnts[desktop]);
-        if (desktop == 1) DEFAULT (desktop_folder);
+        DEFAULT (desktops[desktop].desktop_colour);
+        DEFAULT (desktops[desktop].desktoptext_colour);
+        DEFAULT (desktops[desktop].desktop_picture);
+        DEFAULT (desktops[desktop].desktop_mode);
+        DEFAULT (desktops[desktop].show_docs);
+        DEFAULT (desktops[desktop].show_trash);
+        DEFAULT (desktops[desktop].show_mnts);
+        if (desktop == 1) DEFAULT (desktops[desktop].desktop_folder);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -1425,23 +1428,23 @@ static void save_pcman_settings (int desktop)
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    str = rgba_to_gdk_color_string (&cur_conf.desktop_colour[desktop]);
+    str = rgba_to_gdk_color_string (&cur_conf.desktops[desktop].desktop_colour);
     g_key_file_set_string (kf, "*", "desktop_bg", str);
     g_key_file_set_string (kf, "*", "desktop_shadow", str);
     g_free (str);
 
-    str = rgba_to_gdk_color_string (&cur_conf.desktoptext_colour[desktop]);
+    str = rgba_to_gdk_color_string (&cur_conf.desktops[desktop].desktoptext_colour);
     g_key_file_set_string (kf, "*", "desktop_fg", str);
     g_free (str);
 
     g_key_file_set_string (kf, "*", "desktop_font", cur_conf.desktop_font);
-    g_key_file_set_string (kf, "*", "wallpaper", cur_conf.desktop_picture[desktop]);
-    g_key_file_set_string (kf, "*", "wallpaper_mode", cur_conf.desktop_mode[desktop]);
-    g_key_file_set_integer (kf, "*", "show_documents", cur_conf.show_docs[desktop]);
-    g_key_file_set_integer (kf, "*", "show_trash", cur_conf.show_trash[desktop]);
-    g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.show_mnts[desktop]);
+    g_key_file_set_string (kf, "*", "wallpaper", cur_conf.desktops[desktop].desktop_picture);
+    g_key_file_set_string (kf, "*", "wallpaper_mode", cur_conf.desktops[desktop].desktop_mode);
+    g_key_file_set_integer (kf, "*", "show_documents", cur_conf.desktops[desktop].show_docs);
+    g_key_file_set_integer (kf, "*", "show_trash", cur_conf.desktops[desktop].show_trash);
+    g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.desktops[desktop].show_mnts);
 
-    if (desktop == 1) g_key_file_set_string (kf, "*", "folder", cur_conf.desktop_folder);
+    if (desktop == 1) g_key_file_set_string (kf, "*", "folder", cur_conf.desktops[desktop].desktop_folder);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
@@ -2218,7 +2221,7 @@ static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
 static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     int desk = (int) ptr;
-    gtk_color_chooser_get_rgba (btn, &cur_conf.desktop_colour[desk]);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.desktops[desk].desktop_colour);
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
@@ -2226,7 +2229,7 @@ static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
 static void on_desktoptext_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     int desk = (int) ptr;
-    gtk_color_chooser_get_rgba (btn, &cur_conf.desktoptext_colour[desk]);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.desktops[desk].desktoptext_colour);
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
@@ -2235,7 +2238,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 {
     int desk = (int) ptr;
     char *picture = gtk_file_chooser_get_filename (btn);
-    if (picture) cur_conf.desktop_picture[desk] = picture;
+    if (picture) cur_conf.desktops[desk].desktop_picture = picture;
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
@@ -2282,21 +2285,21 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
     {
-        case 0 :    cur_conf.desktop_mode[desk] = "color";
+        case 0 :    cur_conf.desktops[desk].desktop_mode = "color";
                     break;
-        case 1 :    cur_conf.desktop_mode[desk] = "center";
+        case 1 :    cur_conf.desktops[desk].desktop_mode = "center";
                     break;
-        case 2 :    cur_conf.desktop_mode[desk] = "fit";
+        case 2 :    cur_conf.desktops[desk].desktop_mode = "fit";
                     break;
-        case 3 :    cur_conf.desktop_mode[desk] = "crop";
+        case 3 :    cur_conf.desktops[desk].desktop_mode = "crop";
                     break;
-        case 4 :    cur_conf.desktop_mode[desk] = "stretch";
+        case 4 :    cur_conf.desktops[desk].desktop_mode = "stretch";
                     break;
-        case 5 :    cur_conf.desktop_mode[desk] = "tile";
+        case 5 :    cur_conf.desktops[desk].desktop_mode = "tile";
                     break;
     }
 
-    if (!strcmp (cur_conf.desktop_mode[desk], "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic[desk]), FALSE);
+    if (!strcmp (cur_conf.desktops[desk].desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (dpic[desk]), FALSE);
     else gtk_widget_set_sensitive (GTK_WIDGET (dpic[desk]), TRUE);
     save_pcman_settings (desk);
     reload_pcmanfm ();
@@ -2307,9 +2310,9 @@ static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr)
     char *folder = gtk_file_chooser_get_filename (btn);
     if (folder)
     {
-        if (g_strcmp0 (cur_conf.desktop_folder, folder))
+        if (g_strcmp0 (cur_conf.desktops[1].desktop_folder, folder))
         {
-            cur_conf.desktop_folder = folder;
+            cur_conf.desktops[1].desktop_folder = folder;
             save_pcman_settings (1);
             reload_pcmanfm ();
         }
@@ -2351,7 +2354,7 @@ static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
 static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
 {
     int desk = (int) ptr;
-    cur_conf.show_docs[desk] = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+    cur_conf.desktops[desk].show_docs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
@@ -2359,7 +2362,7 @@ static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
 static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr)
 {
     int desk = (int) ptr;
-    cur_conf.show_trash[desk] = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+    cur_conf.desktops[desk].show_trash = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
@@ -2367,7 +2370,7 @@ static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr)
 static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
 {
     int desk = (int) ptr;
-    cur_conf.show_mnts[desk] = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+    cur_conf.desktops[desk].show_mnts = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
     save_pcman_settings (desk);
     reload_pcmanfm ();
 }
@@ -2497,22 +2500,22 @@ static void set_controls (void)
     for (i = 0; i < 2; i++)
     {
         gtk_widget_set_sensitive (GTK_WIDGET (dpic[i]), TRUE);
-        gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic[i]), cur_conf.desktop_picture[i]);
-        if (!strcmp (cur_conf.desktop_mode[i], "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 1);
-        else if (!strcmp (cur_conf.desktop_mode[i], "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 2);
-        else if (!strcmp (cur_conf.desktop_mode[i], "crop")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 3);
-        else if (!strcmp (cur_conf.desktop_mode[i], "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 4);
-        else if (!strcmp (cur_conf.desktop_mode[i], "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 5);
+        gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dpic[i]), cur_conf.desktops[i].desktop_picture);
+        if (!strcmp (cur_conf.desktops[i].desktop_mode, "center")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 1);
+        else if (!strcmp (cur_conf.desktops[i].desktop_mode, "fit")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 2);
+        else if (!strcmp (cur_conf.desktops[i].desktop_mode, "crop")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 3);
+        else if (!strcmp (cur_conf.desktops[i].desktop_mode, "stretch")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 4);
+        else if (!strcmp (cur_conf.desktops[i].desktop_mode, "tile")) gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 5);
         else
         {
             gtk_combo_box_set_active (GTK_COMBO_BOX (dmod[i]), 0);
             gtk_widget_set_sensitive (GTK_WIDGET (dpic[i]), FALSE);
         }
-        gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (dcol[i]), &cur_conf.desktop_colour[i]);
-        gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (dtcol[i]), &cur_conf.desktoptext_colour[i]);
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1[i]), cur_conf.show_docs[i]);
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2[i]), cur_conf.show_trash[i]);
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3[i]), cur_conf.show_mnts[i]);
+        gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (dcol[i]), &cur_conf.desktops[i].desktop_colour);
+        gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (dtcol[i]), &cur_conf.desktops[i].desktoptext_colour);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1[i]), cur_conf.desktops[i].show_docs);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2[i]), cur_conf.desktops[i].show_trash);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3[i]), cur_conf.desktops[i].show_mnts);
     }
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
@@ -2538,7 +2541,7 @@ static void set_controls (void)
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
 
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb4), cur_conf.common_bg);
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dfold), cur_conf.desktop_folder);
+    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dfold), cur_conf.desktops[1].desktop_folder);
 
     // unblock widget handlers
     g_signal_handler_unblock (isz, iid);
@@ -2704,68 +2707,68 @@ static void defaults_pcman (int desktop)
         ret = g_key_file_get_string (kf, "*", "desktop_bg", &err);
         if (err == NULL)
         {
-            if (!gdk_rgba_parse (&def_med.desktop_colour[desktop], ret))
-                gdk_rgba_parse (&def_med.desktop_colour[desktop], GREY);
+            if (!gdk_rgba_parse (&def_med.desktops[desktop].desktop_colour, ret))
+                gdk_rgba_parse (&def_med.desktops[desktop].desktop_colour, GREY);
         }
-        else gdk_rgba_parse (&def_med.desktop_colour[desktop], GREY);
+        else gdk_rgba_parse (&def_med.desktops[desktop].desktop_colour, GREY);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "desktop_fg", &err);
         if (err == NULL)
         {
-            if (!gdk_rgba_parse (&def_med.desktoptext_colour[desktop], ret))
-                gdk_rgba_parse (&def_med.desktoptext_colour[desktop], GREY);
+            if (!gdk_rgba_parse (&def_med.desktops[desktop].desktoptext_colour, ret))
+                gdk_rgba_parse (&def_med.desktops[desktop].desktoptext_colour, GREY);
         }
-        else gdk_rgba_parse (&def_med.desktoptext_colour[desktop], GREY);
+        else gdk_rgba_parse (&def_med.desktops[desktop].desktoptext_colour, GREY);
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "wallpaper", &err);
-        if (err == NULL && ret) def_med.desktop_picture[desktop] = g_strdup (ret);
-        else def_med.desktop_picture[desktop] = "";
+        if (err == NULL && ret) def_med.desktops[desktop].desktop_picture = g_strdup (ret);
+        else def_med.desktops[desktop].desktop_picture = "";
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "*", "wallpaper_mode", &err);
-        if (err == NULL && ret) def_med.desktop_mode[desktop] = g_strdup (ret);
-        else def_med.desktop_mode[desktop] = "color";
+        if (err == NULL && ret) def_med.desktops[desktop].desktop_mode = g_strdup (ret);
+        else def_med.desktops[desktop].desktop_mode = "color";
         g_free (ret);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_documents", &err);
-        if (err == NULL && val >= 0 && val <= 1) def_med.show_docs[desktop] = val;
-        else def_med.show_docs[desktop] = 0;
+        if (err == NULL && val >= 0 && val <= 1) def_med.desktops[desktop].show_docs = val;
+        else def_med.desktops[desktop].show_docs = 0;
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_trash", &err);
-        if (err == NULL && val >= 0 && val <= 1) def_med.show_trash[desktop] = val;
-        else def_med.show_trash[desktop] = 0;
+        if (err == NULL && val >= 0 && val <= 1) def_med.desktops[desktop].show_trash = val;
+        else def_med.desktops[desktop].show_trash = 0;
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_mounts", &err);
-        if (err == NULL && val >= 0 && val <= 1) def_med.show_mnts[desktop] = val;
-        else def_med.show_mnts[desktop] = 0;
+        if (err == NULL && val >= 0 && val <= 1) def_med.desktops[desktop].show_mnts = val;
+        else def_med.desktops[desktop].show_mnts = 0;
 
         if (desktop == 1)
         {
             err = NULL;
             ret = g_key_file_get_string (kf, "*", "folder", &err);
-            if (err == NULL && ret) def_med.desktop_folder = g_strdup (ret);
-            else def_med.desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);
+            if (err == NULL && ret) def_med.desktops[desktop].desktop_folder = g_strdup (ret);
+            else def_med.desktops[desktop].desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);
             g_free (ret);
         }
     }
     else
     {
-        def_med.desktop_picture[desktop] = "";
-        def_med.desktop_mode[desktop] = "color";
-        gdk_rgba_parse (&def_med.desktop_colour[desktop], GREY);
-        gdk_rgba_parse (&def_med.desktoptext_colour[desktop], GREY);
-        def_med.show_docs[desktop] = 0;
-        def_med.show_trash[desktop] = 0;
-        def_med.show_mnts[desktop] = 0;
-        if (desktop == 1) def_med.desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);
+        def_med.desktops[desktop].desktop_picture = "";
+        def_med.desktops[desktop].desktop_mode = "color";
+        gdk_rgba_parse (&def_med.desktops[desktop].desktop_colour, GREY);
+        gdk_rgba_parse (&def_med.desktops[desktop].desktoptext_colour, GREY);
+        def_med.desktops[desktop].show_docs = 0;
+        def_med.desktops[desktop].show_trash = 0;
+        def_med.desktops[desktop].show_mnts = 0;
+        if (desktop == 1) def_med.desktops[desktop].desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
