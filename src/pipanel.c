@@ -417,7 +417,10 @@ static char *lxpanel_file (gboolean global)
 
 static char *pcmanfm_file (gboolean global, int desktop)
 {
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), desktop == 0 ? "desktop-items-0.conf" : "desktop-items-1.conf", NULL);
+    char fname[21];
+    if (desktop < 0 || desktop > 9) return NULL;
+    sprintf (fname, "desktop-items-%d.conf", desktop);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
 }
 
 static char *pcmanfm_g_file (gboolean global)
@@ -554,6 +557,7 @@ static void backup_config_files (void)
 {
     const char *session_name = session ();
     char *path, *lc_sess, *fname;
+    int i;
 
     // delete any old backups and create a new backup directory
     path = g_build_filename (g_get_home_dir (), ".pp_backup", NULL);
@@ -577,13 +581,14 @@ static void backup_config_files (void)
     backup_file (path);
     g_free (path);
 
-    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-0.conf", NULL);
-    backup_file (path);
-    g_free (path);
-
-    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-1.conf", NULL);
-    backup_file (path);
-    g_free (path);
+    for (i = 0; i < MAX_DESKTOPS; i++)
+    {
+        fname = g_strdup_printf ("desktop-items-%d.conf", i);
+        path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+        backup_file (path);
+        g_free (path);
+        g_free (fname);
+    }
 
     path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
     backup_file (path);
@@ -640,7 +645,7 @@ static int restore_config_files (void)
 {
     const char *session_name = session ();
     char *path, *lc_sess, *fname;
-    int changed = 0;
+    int i, changed = 0;
 
     lc_sess = g_ascii_strdown (session_name, -1);
     fname = g_strconcat (lc_sess, "-rc.xml", NULL);
@@ -658,13 +663,14 @@ static int restore_config_files (void)
     if (restore_file (path)) changed = 1;
     g_free (path);
 
-    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-0.conf", NULL);
-    if (restore_file (path)) changed = 1;
-    g_free (path);
-
-    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-1.conf", NULL);
-    if (restore_file (path)) changed = 1;
-    g_free (path);
+    for (i = 0; i < MAX_DESKTOPS; i++)
+    {
+        fname = g_strdup_printf ("desktop-items-%d.conf", i);
+        path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+        if (restore_file (path)) changed = 1;
+        g_free (path);
+        g_free (fname);
+    }
 
     path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
     if (restore_file (path)) changed = 1;
@@ -730,6 +736,7 @@ static void reset_to_defaults (void)
 {
     const char *session_name = session ();
     char *path, *lc_sess, *fname;
+    int i;
 
     lc_sess = g_ascii_strdown (session_name, -1);
     fname = g_strconcat (lc_sess, "-rc.xml", NULL);
@@ -747,13 +754,14 @@ static void reset_to_defaults (void)
     delete_file (path);
     g_free (path);
 
-    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-0.conf", NULL);
-    delete_file (path);
-    g_free (path);
-
-    path = g_build_filename (".config/pcmanfm", session_name, "desktop-items-1.conf", NULL);
-    delete_file (path);
-    g_free (path);
+    for (i = 0; i < MAX_DESKTOPS; i++)
+    {
+        fname = g_strdup_printf ("desktop-items-%d.conf", i);
+        path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+        delete_file (path);
+        g_free (path);
+        g_free (fname);
+    }
 
     path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
     delete_file (path);
@@ -1514,7 +1522,7 @@ static void save_wfshell_settings (void)
     user_config_file = wfshell_file ();
     check_directory (user_config_file);
 
-    // process pcmanfm config data
+    // process wfpanel config data
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
@@ -1540,7 +1548,7 @@ static void save_wayfire_settings (void)
     user_config_file = wayfire_file ();
     check_directory (user_config_file);
 
-    // process pcmanfm config data
+    // process wayfire config data
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
@@ -2247,6 +2255,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 
 static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
 {
+    int i;
     PangoFontDescription *font_desc = gtk_font_chooser_get_font_desc (btn);
     const char *font = gtk_font_chooser_get_font (btn);
     if (font)
@@ -2266,8 +2275,8 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
 
     save_lxsession_settings ();
     save_xsettings ();
-    save_pcman_settings (0);
-    save_pcman_settings (1);
+    for (i = 0; i < MAX_DESKTOPS; i++)
+        save_pcman_settings (i);
     save_obconf_settings (FALSE);
     if (wm == WM_LABWC) save_obconf_settings (TRUE);
     save_gtk3_settings ();
@@ -2565,20 +2574,21 @@ static void set_controls (void)
 
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
-	if (cur_conf.darkmode == 1)
-	{
-		if (!system ("pgrep geany > /dev/null"))
-		{
-			message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
-			return;
-		}
+    int i;
+    if (cur_conf.darkmode == 1)
+    {
+        if (!system ("pgrep geany > /dev/null"))
+        {
+            message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+            return;
+        }
 
-		if (!system ("pgrep galculator > /dev/null"))
-		{
-			message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
-			return;
-		}
-	}
+        if (!system ("pgrep galculator > /dev/null"))
+        {
+            message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+            return;
+        }
+    }
 
     // clear all the config files
     reset_to_defaults ();
@@ -2602,8 +2612,8 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_lxsession_settings ();
         save_xsettings ();
         save_pcman_g_settings ();
-        save_pcman_settings (0);
-        save_pcman_settings (1);
+        for (i = 0; i < MAX_DESKTOPS; i++)
+            save_pcman_settings (i);
         save_libfm_settings ();
         save_obconf_settings (FALSE);
         if (wm == WM_LABWC) save_labwc_to_settings ();
@@ -2840,6 +2850,7 @@ static void defaults_gtk3 (void)
 
 static void create_defaults (void)
 {
+    int i;
     // defaults for controls
 
     // /etc/xdg/lxpanel/LXDE-pi/panels/panel
@@ -2848,11 +2859,9 @@ static void create_defaults (void)
     // /etc/xdg/lxsession/LXDE-pi/desktop.conf
     defaults_lxsession ();
 
-    // /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
-    defaults_pcman (0);
-
-    // /etc/xdg/pcmanfm/LXDE-pi/desktop-items-1.conf
-    defaults_pcman (1);
+    // /etc/xdg/pcmanfm/LXDE-pi/desktop-items-n.conf
+    for (i = 0; i < MAX_DESKTOPS; i++)
+        defaults_pcman (i);
 
     // /etc/xdg/pcmanfm/LXDE-pi/pcmanfm.conf
     defaults_pcman_g ();
@@ -2970,20 +2979,20 @@ static gpointer restore_thread (gpointer ptr)
 
 static gboolean cancel_main (GtkButton *button, gpointer data)
 {
-	if (orig_darkmode != cur_conf.darkmode)
-	{
-		if (!system ("pgrep geany > /dev/null"))
-		{
-			message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
-			return FALSE;
-		}
+    if (orig_darkmode != cur_conf.darkmode)
+    {
+        if (!system ("pgrep geany > /dev/null"))
+        {
+            message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+            return FALSE;
+        }
 
-		if (!system ("pgrep galculator > /dev/null"))
-		{
-			message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
-			return FALSE;
-		}
-	}
+        if (!system ("pgrep galculator > /dev/null"))
+        {
+            message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+            return FALSE;
+        }
+    }
     message (_("Restoring configuration - please wait..."));
     g_thread_new (NULL, restore_thread, NULL);
     return FALSE;
@@ -3035,8 +3044,8 @@ static gboolean init_config (gpointer data)
 
     load_lxsession_settings ();
     load_pcman_g_settings ();
-    load_pcman_settings (0);
-    load_pcman_settings (1);
+    for (i = 0; i < MAX_DESKTOPS; i++)
+        load_pcman_settings (i);
     if (wm != WM_OPENBOX) load_wfshell_settings ();
     else load_lxpanel_settings ();
     load_obconf_settings ();
