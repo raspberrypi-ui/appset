@@ -3166,7 +3166,7 @@ static gboolean init_config (gpointer data)
     }
     else
     {
-        gtk_widget_hide (GTK_WIDGET (cb4));
+        gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox10")));
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
     }
 
