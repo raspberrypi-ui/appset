@@ -126,7 +126,7 @@ static gulong cid, iid, bpid, blid, dmid, tdid, ttid, tmid, dfid, cbid, draw_id,
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5, *rb6;
-static GObject *isz, *cb1, *cb2, *cb3, *cb4, *csz, *cmsg, *t1lab, *t2lab, *nb, *dfold, *cdesk;
+static GObject *isz, *cb1, *cb2, *cb3, *cb4, *csz, *cmsg, *nb, *dfold, *cdesk;
 
 /* Dialogs */
 static GtkWidget *dlg, *msg_dlg;
@@ -3126,7 +3126,7 @@ static gboolean init_config (gpointer data)
     cdid = g_signal_connect (cdesk, "changed", G_CALLBACK (on_desktop_changed), NULL);
 
     // add accessibility label to combo box child of file chooser (yes, I know the previous one attached to a button...)
-    lbl = GTK_LABEL (gtk_builder_get_object (builder, "label16_"));
+    lbl = GTK_LABEL (gtk_builder_get_object (builder, "label16"));
     children = gtk_container_get_children (GTK_CONTAINER (dfold));
     child = children;
     do
@@ -3142,8 +3142,6 @@ static gboolean init_config (gpointer data)
 
     cmsg = gtk_builder_get_object (builder, "label35");
 
-    t1lab = gtk_builder_get_object (builder, "tablabel1");
-    t2lab = gtk_builder_get_object (builder, "tablabel1_");
     nb = gtk_builder_get_object (builder, "notebook1");
 
     i = n_desktops ();
