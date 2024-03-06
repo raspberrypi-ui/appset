@@ -49,6 +49,12 @@
                       <object class="GtkComboBoxText" id="cb_desktop">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <items>
+                          <item translatable="yes">0</item>
+                          <item translatable="yes">1</item>
+                          <item translatable="yes">2</item>
+                          <item translatable="yes">3</item>
+                        </items>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -282,274 +288,15 @@
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="checkbutton4">
-                    <property name="label" translatable="yes">Show identical desktop on second monitor</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="tooltip-text" translatable="yes">Check this box to show the same desktop image and icons on both monitors</property>
-                    <property name="draw-indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
                     <property name="position">6</property>
                   </packing>
                 </child>
-              </object>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel" id="tablabel1">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Desktop 1</property>
-              </object>
-              <packing>
-                <property name="tab-fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="vbox1_">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="margin-left">5</property>
-                <property name="margin-right">5</property>
-                <property name="margin-top">5</property>
-                <property name="margin-bottom">5</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">5</property>
                 <child>
-                  <object class="GtkBox" id="hbox11_">
+                  <object class="GtkBox" id="hbox16">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkLabel" id="label11_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Layout</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBoxText" id="comboboxtext1_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="tooltip-text" translatable="yes">Set how the wallpaper should be fitted to the screen</property>
-                        <items>
-                          <item translatable="yes">No image</item>
-                          <item translatable="yes">Centre image on screen</item>
-                          <item translatable="yes">Fit image onto screen</item>
-                          <item translatable="yes">Fill screen with image</item>
-                          <item translatable="yes">Stretch to cover screen</item>
-                          <item translatable="yes">Tile image</item>
-                        </items>
-                        <accessibility>
-                          <relation type="labelled-by" target="label11_"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="pack-type">end</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox12_">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label12_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Picture</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkFileChooserButton" id="filechooserbutton1_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="tooltip-text" translatable="yes">Choose image file to use as wallpaper</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox13_">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label13_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Colour</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkColorButton" id="colorbutton2_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">Choose the colour of the desktop background</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label13_"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox14_">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label14_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Text Colour</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkColorButton" id="colorbutton6_">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label14_"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox15_">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="homogeneous">True</property>
-                    <child>
-                      <object class="GtkCheckButton" id="checkbutton1_">
-                        <property name="label" translatable="yes">Documents</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Show the documents folder on the desktop</property>
-                        <property name="relief">none</property>
-                        <property name="draw-indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="checkbutton2_">
-                        <property name="label" translatable="yes">Wastebasket</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Show the wastebasket on the desktop</property>
-                        <property name="draw-indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="checkbutton3_">
-                        <property name="label" translatable="yes">Mounted Disks</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Show mounted disks on the desktop</property>
-                        <property name="draw-indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox16_">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label16_">
+                      <object class="GtkLabel" id="label16">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Desktop Folder</property>
@@ -568,7 +315,7 @@
                         <property name="tooltip-text" translatable="yes">Choose the folder containing files to be shown on the second desktop</property>
                         <property name="action">select-folder</property>
                         <accessibility>
-                          <relation type="labelled-by" target="label16_"/>
+                          <relation type="labelled-by" target="label16"/>
                         </accessibility>
                       </object>
                       <packing>
@@ -579,24 +326,35 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
+                    <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">5</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton4">
+                    <property name="label" translatable="yes">Show identical desktop on second monitor</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="tooltip-text" translatable="yes">Check this box to show the same desktop image and icons on both monitors</property>
+                    <property name="draw-indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
               </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="tablabel1_">
+              <object class="GtkLabel" id="tablabel1">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Desktop 2</property>
+                <property name="label" translatable="yes">Desktop</property>
               </object>
               <packing>
-                <property name="position">1</property>
                 <property name="tab-fill">False</property>
               </packing>
             </child>
@@ -1339,7 +1097,6 @@
   <object class="GtkSizeGroup">
     <widgets>
       <widget name="tablabel1"/>
-      <widget name="tablabel1_"/>
       <widget name="tablabel2"/>
       <widget name="tablabel3"/>
       <widget name="tablabel4"/>
@@ -1355,12 +1112,6 @@
       <widget name="hbox14"/>
       <widget name="hbox15"/>
       <widget name="checkbutton4"/>
-      <widget name="hbox11_"/>
-      <widget name="hbox12_"/>
-      <widget name="hbox13_"/>
-      <widget name="hbox14_"/>
-      <widget name="hbox15_"/>
-      <widget name="hbox16_"/>
       <widget name="hbox21"/>
       <widget name="hbox22"/>
       <widget name="hbox23"/>
@@ -1383,10 +1134,6 @@
       <widget name="colorbutton2"/>
       <widget name="colorbutton6"/>
       <widget name="cb_desktop"/>
-      <widget name="comboboxtext1_"/>
-      <widget name="filechooserbutton1_"/>
-      <widget name="colorbutton2_"/>
-      <widget name="colorbutton6_"/>
       <widget name="filechooserbutton4"/>
       <widget name="comboboxtext2"/>
       <widget name="colorbutton3"/>
@@ -1405,9 +1152,6 @@
       <widget name="checkbutton1"/>
       <widget name="checkbutton2"/>
       <widget name="checkbutton3"/>
-      <widget name="checkbutton1_"/>
-      <widget name="checkbutton2_"/>
-      <widget name="checkbutton3_"/>
       <widget name="radiobutton1"/>
       <widget name="radiobutton2"/>
       <widget name="radiobutton3"/>
@@ -1421,7 +1165,6 @@
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Appearance Settings</property>
     <property name="resizable">False</property>
-    <property name="decorated">False</property>
     <property name="modal">True</property>
     <property name="window-position">center-on-parent</property>
     <property name="default-width">340</property>
@@ -1430,6 +1173,7 @@
     <property name="type-hint">dialog</property>
     <property name="skip-taskbar-hint">True</property>
     <property name="skip-pager-hint">True</property>
+    <property name="decorated">False</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>

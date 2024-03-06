@@ -130,11 +130,11 @@ msgstr "Desktop 1"
 
 #: ../data/pipanel.ui.h:25
 msgid "Desktop Folder"
-msgstr "Second Desktop Folder:"
+msgstr "Desktop Folder:"
 
 #: ../data/pipanel.ui.h:26
 msgid "Choose the folder containing files to be shown on the second desktop"
-msgstr "Choose the folder containing files to be shown on the second desktop"
+msgstr "Choose the folder containing files to be shown on the desktop"
 
 #: ../data/pipanel.ui.h:27
 msgid "Desktop 2"
