@@ -2428,10 +2428,15 @@ static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn)))
     {
         cur_conf.common_bg = 1;
+        desktop_n = 0;
+        gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), desktop_n);
+        gtk_widget_set_sensitive (GTK_WIDGET (cdesk), FALSE);
+        set_desktop_controls ();
     }
     else
     {
         cur_conf.common_bg = 0;
+        gtk_widget_set_sensitive (GTK_WIDGET (cdesk), TRUE);
     }
     save_pcman_g_settings ();
     reload_pcmanfm ();
