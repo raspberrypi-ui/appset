@@ -2,6 +2,7 @@
 <!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkSizeGroup"/>
   <object class="GtkWindow" id="main_window">
     <property name="can-focus">False</property>
     <property name="border-width">5</property>
@@ -564,7 +565,6 @@
                   <object class="GtkBox" id="hbox25">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="homogeneous">True</property>
                     <child>
                       <object class="GtkLabel" id="label25">
                         <property name="visible">True</property>
@@ -579,42 +579,18 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkRadioButton" id="radiobutton3">
-                        <property name="label" translatable="yes">Desktop 1</property>
+                      <object class="GtkComboBoxText" id="cb_barmon">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Show the taskbar on screen 1</property>
-                        <property name="active">True</property>
-                        <property name="draw-indicator">True</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label25"/>
-                        </accessibility>
+                        <property name="can-focus">False</property>
+                        <items>
+                          <item translatable="yes">0</item>
+                          <item translatable="yes">1</item>
+                        </items>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="radiobutton4">
-                        <property name="label" translatable="yes">Desktop 2</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Show the taskbar on screen 2</property>
-                        <property name="active">True</property>
-                        <property name="draw-indicator">True</property>
-                        <property name="group">radiobutton3</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label25"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">3</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
@@ -1138,6 +1114,7 @@
       <widget name="comboboxtext2"/>
       <widget name="colorbutton3"/>
       <widget name="colorbutton4"/>
+      <widget name="cb_barmon"/>
       <widget name="fontbutton1"/>
       <widget name="colorbutton1"/>
       <widget name="colorbutton5"/>
@@ -1154,8 +1131,6 @@
       <widget name="checkbutton3"/>
       <widget name="radiobutton1"/>
       <widget name="radiobutton2"/>
-      <widget name="radiobutton3"/>
-      <widget name="radiobutton4"/>
       <widget name="radiobutton5"/>
       <widget name="radiobutton6"/>
     </widgets>

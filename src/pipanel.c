@@ -125,8 +125,8 @@ static char lo_ver;
 static gulong cid, iid, bpid, blid, dmid, tdid, ttid, tmid, dfid, cbid, draw_id, bdid, cdid;
 
 /* Controls */
-static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *bcol, *btcol, *rb1, *rb2, *rb3, *rb4, *rb5, *rb6;
-static GObject *isz, *cb1, *cb2, *cb3, *cb4, *csz, *cmsg, *nb, *dfold, *cdesk;
+static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *bcol, *btcol, *rb1, *rb2, *rb5, *rb6;
+static GObject *isz, *cb1, *cb2, *cb3, *cb4, *csz, *cmsg, *nb, *dfold, *cdesk, *cbar;
 
 /* Dialogs */
 static GtkWidget *dlg, *msg_dlg;
@@ -189,7 +189,7 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr);
 static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
 static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr);
 static void on_desktop_changed (GtkComboBox* btn, gpointer ptr);
-static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr);
+static void on_bar_loc_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr);
 static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr);
@@ -2346,10 +2346,9 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     }
 }
 
-static void on_bar_loc_set (GtkRadioButton* btn, gpointer ptr)
+static void on_bar_loc_set (GtkComboBox* btn, gpointer ptr)
 {
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.monitor = 0;
-    else cur_conf.monitor = 1;
+    cur_conf.monitor = gtk_combo_box_get_active (btn);
     if (wm != WM_OPENBOX)
     {
         save_wfshell_settings ();
@@ -2506,7 +2505,7 @@ static void set_controls (void)
     g_signal_handler_block (isz, iid);
     g_signal_handler_block (csz, cid);
     g_signal_handler_block (rb1, bpid);
-    g_signal_handler_block (rb3, blid);
+    g_signal_handler_block (cbar, blid);
     g_signal_handler_block (rb5, bdid);
     g_signal_handler_block (cb4, cbid);
     g_signal_handler_block (cdesk, cdid);
@@ -2529,8 +2528,7 @@ static void set_controls (void)
     if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 
-    if (cur_conf.monitor) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb4), TRUE);
-    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb3), TRUE);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (cbar), cur_conf.monitor);
 
     if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
@@ -2547,7 +2545,7 @@ static void set_controls (void)
     g_signal_handler_unblock (isz, iid);
     g_signal_handler_unblock (csz, cid);
     g_signal_handler_unblock (rb1, bpid);
-    g_signal_handler_unblock (rb3, blid);
+    g_signal_handler_unblock (cbar, blid);
     g_signal_handler_unblock (rb5, bdid);
     g_signal_handler_unblock (cb4, cbid);
     g_signal_handler_unblock (cdesk, cdid);
@@ -3074,9 +3072,8 @@ static gboolean init_config (gpointer data)
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
     bpid = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
 
-    rb3 = gtk_builder_get_object (builder, "radiobutton3");
-    rb4 = gtk_builder_get_object (builder, "radiobutton4");
-    blid = g_signal_connect (rb3, "toggled", G_CALLBACK (on_bar_loc_set), NULL);
+    cbar = gtk_builder_get_object (builder, "cb_barmon");
+    blid = g_signal_connect (cbar, "changed", G_CALLBACK (on_bar_loc_set), NULL);
 
     isz = gtk_builder_get_object (builder, "comboboxtext2");
     iid = g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
@@ -3161,8 +3158,6 @@ static gboolean init_config (gpointer data)
     {
         gtk_widget_show (GTK_WIDGET (cb4));
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
-        gtk_button_set_label (GTK_BUTTON (rb3), _("Desktop 1"));
-        gtk_button_set_label (GTK_BUTTON (rb4), _("Desktop 2"));
     }
     else
     {
