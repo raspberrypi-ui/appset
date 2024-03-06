@@ -2998,8 +2998,9 @@ static gboolean init_config (gpointer data)
     GtkWidget *wid;
     GtkLabel *lbl;
     GList *children, *child;
-    int maj, min, sub, i;
+    int maj, min, sub, i, j;
     gboolean has_dark;
+    char *buf;
 
     desktop_n = 0;
 
@@ -3158,6 +3159,16 @@ static gboolean init_config (gpointer data)
     {
         gtk_widget_show (GTK_WIDGET (cb4));
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
+        for (j = 0; j < i; j++)
+        {
+            buf = g_strdup_printf ("%d", j + 1);
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX (cdesk), buf);
+            g_free (buf);
+
+            buf = g_strdup_printf (_("Desktop %d"), j + 1);
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX (cbar), buf);
+            g_free (buf);
+        }
     }
     else
     {

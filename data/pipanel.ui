@@ -50,12 +50,6 @@
                       <object class="GtkComboBoxText" id="cb_desktop">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <items>
-                          <item translatable="yes">0</item>
-                          <item translatable="yes">1</item>
-                          <item translatable="yes">2</item>
-                          <item translatable="yes">3</item>
-                        </items>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -582,10 +576,6 @@
                       <object class="GtkComboBoxText" id="cb_barmon">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <items>
-                          <item translatable="yes">0</item>
-                          <item translatable="yes">1</item>
-                        </items>
                       </object>
                       <packing>
                         <property name="expand">False</property>
