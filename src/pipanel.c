@@ -56,7 +56,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GREY    "#808080"
 
-#define MAX_DESKTOPS 2
+#define MAX_DESKTOPS 9
 
 #define LARGE_ICON_THRESHOLD 20
 
@@ -135,7 +135,7 @@ static GtkWidget *dlg, *msg_dlg;
 static int st_tab;
 
 /* Desktop number */
-static int desktop_n;
+static int ndesks, desktop_n;
 
 static void check_directory (char *path);
 static void backup_file (char *filepath);
@@ -583,7 +583,7 @@ static void backup_config_files (void)
     backup_file (path);
     g_free (path);
 
-    for (i = 0; i < MAX_DESKTOPS; i++)
+    for (i = 0; i < ndesks; i++)
     {
         fname = g_strdup_printf ("desktop-items-%d.conf", i);
         path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
@@ -665,7 +665,7 @@ static int restore_config_files (void)
     if (restore_file (path)) changed = 1;
     g_free (path);
 
-    for (i = 0; i < MAX_DESKTOPS; i++)
+    for (i = 0; i < ndesks; i++)
     {
         fname = g_strdup_printf ("desktop-items-%d.conf", i);
         path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
@@ -756,7 +756,7 @@ static void reset_to_defaults (void)
     delete_file (path);
     g_free (path);
 
-    for (i = 0; i < MAX_DESKTOPS; i++)
+    for (i = 0; i < ndesks; i++)
     {
         fname = g_strdup_printf ("desktop-items-%d.conf", i);
         path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
@@ -2270,7 +2270,7 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
 
     save_lxsession_settings ();
     save_xsettings ();
-    for (i = 0; i < MAX_DESKTOPS; i++)
+    for (i = 0; i < ndesks; i++)
         save_pcman_settings (i);
     save_obconf_settings (FALSE);
     if (wm == WM_LABWC) save_obconf_settings (TRUE);
@@ -2593,7 +2593,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_lxsession_settings ();
         save_xsettings ();
         save_pcman_g_settings ();
-        for (i = 0; i < MAX_DESKTOPS; i++)
+        for (i = 0; i < ndesks; i++)
             save_pcman_settings (i);
         save_libfm_settings ();
         save_obconf_settings (FALSE);
@@ -2838,7 +2838,7 @@ static void create_defaults (void)
     defaults_lxsession ();
 
     // /etc/xdg/pcmanfm/LXDE-pi/desktop-items-n.conf
-    for (i = 0; i < MAX_DESKTOPS; i++)
+    for (i = 0; i < ndesks; i++)
         defaults_pcman (i);
 
     // /etc/xdg/pcmanfm/LXDE-pi/pcmanfm.conf
@@ -2933,7 +2933,7 @@ static int n_desktops (void)
     n = sscanf (res, "%d", &m);
     g_free (res);
 
-    if (n == 1 && m >= 2) return 2;
+    if (n == 1) return m;
     return 1;
 }
 
@@ -2998,10 +2998,11 @@ static gboolean init_config (gpointer data)
     GtkWidget *wid;
     GtkLabel *lbl;
     GList *children, *child;
-    int maj, min, sub, i, j;
+    int maj, min, sub, i;
     gboolean has_dark;
     char *buf;
 
+    ndesks = n_desktops ();
     desktop_n = 0;
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
@@ -3025,7 +3026,7 @@ static gboolean init_config (gpointer data)
 
     load_lxsession_settings ();
     load_pcman_g_settings ();
-    for (i = 0; i < MAX_DESKTOPS; i++)
+    for (i = 0; i < ndesks; i++)
         load_pcman_settings (i);
     if (wm != WM_OPENBOX) load_wfshell_settings ();
     else load_lxpanel_settings ();
@@ -3154,31 +3155,26 @@ static gboolean init_config (gpointer data)
 
     nb = gtk_builder_get_object (builder, "notebook1");
 
-    i = n_desktops ();
-    if (i > 1)
+    if (ndesks > 1)
     {
         gtk_widget_show (GTK_WIDGET (cb4));
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
-        for (j = 0; j < i; j++)
+        for (i = 0; i < ndesks; i++)
         {
-            buf = g_strdup_printf ("%d", j + 1);
+            buf = g_strdup_printf ("%d", i + 1);
             gtk_combo_box_text_append_text (GTK_COMBO_BOX (cdesk), buf);
             g_free (buf);
 
-            buf = g_strdup_printf (_("Desktop %d"), j + 1);
+            buf = g_strdup_printf (_("Desktop %d"), i + 1);
             gtk_combo_box_text_append_text (GTK_COMBO_BOX (cbar), buf);
             g_free (buf);
         }
+        if (cur_conf.common_bg == 0 && st_tab == 1) desktop_n = 1;
     }
     else
     {
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox10")));
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
-    }
-
-    if (i > 1 && cur_conf.common_bg == 0)
-    {
-        if (st_tab == 1) desktop_n = 1;
     }
 
     if (st_tab < 0)
