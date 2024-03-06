@@ -2425,17 +2425,20 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
 
 static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
 {
+    desktop_n = 0;
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn)))
     {
         cur_conf.common_bg = 1;
-        desktop_n = 0;
-        gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), desktop_n);
+        g_signal_handler_block (cdesk, cdid);
+        gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), -1);
+        g_signal_handler_unblock (cdesk, cdid);
         gtk_widget_set_sensitive (GTK_WIDGET (cdesk), FALSE);
         set_desktop_controls ();
     }
     else
     {
         cur_conf.common_bg = 0;
+        gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), 0);
         gtk_widget_set_sensitive (GTK_WIDGET (cdesk), TRUE);
     }
     save_pcman_g_settings ();
@@ -2533,7 +2536,11 @@ static void set_controls (void)
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
 
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb4), cur_conf.common_bg);
-
+    if (cur_conf.common_bg)
+    {
+        desktop_n = 0;
+        gtk_widget_set_sensitive (GTK_WIDGET (cdesk), FALSE);
+    }
     gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), desktop_n);
 
     // unblock widget handlers
