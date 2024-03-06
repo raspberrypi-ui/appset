@@ -50,6 +50,10 @@
                       <object class="GtkComboBoxText" id="cb_desktop">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Choose the desktop to configure</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label10"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -576,6 +580,10 @@
                       <object class="GtkComboBoxText" id="cb_barmon">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Choose the screen where the taskbar is shown</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label25"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
