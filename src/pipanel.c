@@ -533,7 +533,7 @@ static gboolean restore_theme (gpointer data)
     return FALSE;
 }
 
-static void reload_theme (gboolean quit)
+static void reload_theme (long int quit)
 {
     g_idle_add (restore_theme, (gpointer) quit);
 }
