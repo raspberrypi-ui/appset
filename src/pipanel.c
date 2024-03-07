@@ -3012,6 +3012,7 @@ static gboolean init_config (gpointer data)
     char *buf;
 
     ndesks = n_desktops ();
+    if (ndesks > MAX_DESKTOPS) ndesks = MAX_DESKTOPS;
     desktop_n = 0;
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
