@@ -137,7 +137,7 @@ static int st_tab;
 /* Desktop number */
 static int ndesks, desktop_n;
 
-static void check_directory (char *path);
+static void check_directory (const char *path);
 static void backup_file (char *filepath);
 static void backup_config_files (void);
 static int restore_file (char *filepath);
@@ -445,7 +445,7 @@ static char *wfshell_file (void)
     return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
 
-static void check_directory (char *path)
+static void check_directory (const char *path)
 {
     char *dir = g_path_get_dirname (path);
     g_mkdir_with_parents (dir, S_IRUSR | S_IWUSR | S_IXUSR);
@@ -535,7 +535,7 @@ static gboolean restore_theme (gpointer data)
 
 static void reload_theme (gboolean quit)
 {
-    g_idle_add (restore_theme, (gpointer *) quit);
+    g_idle_add (restore_theme, (gpointer) quit);
 }
 
 // File handling for backing up, restoring and resetting config
@@ -2579,7 +2579,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reset_to_defaults ();
 
     // set config structure to a default
-    switch ((int) ptr)
+    switch ((long int) ptr)
     {
         case 3 :    cur_conf = def_lg;
                     break;
@@ -2592,7 +2592,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     set_controls ();
 
     // save changes to files if not using medium (the global default)
-    if ((int) ptr != 2)
+    if ((long int) ptr != 2)
     {
         save_lxsession_settings ();
         save_xsettings ();
@@ -3071,13 +3071,13 @@ static gboolean init_config (gpointer data)
     g_signal_connect (htcol, "color-set", G_CALLBACK (on_themetext_colour_set), NULL);
 
     item = gtk_builder_get_object (builder, "defs_lg");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), 3);
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 3);
 
     item = gtk_builder_get_object (builder, "defs_med");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), 2);
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 2);
 
     item = gtk_builder_get_object (builder, "defs_sml");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), 1);
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 1);
 
     rb1 = gtk_builder_get_object (builder, "radiobutton1");
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
@@ -3171,11 +3171,11 @@ static gboolean init_config (gpointer data)
         for (i = 0; i < ndesks; i++)
         {
             buf = g_strdup_printf ("%d", i + 1);
-            gtk_combo_box_text_append_text (GTK_COMBO_BOX (cdesk), buf);
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (cdesk), buf);
             g_free (buf);
 
             buf = g_strdup_printf (_("Desktop %d"), i + 1);
-            gtk_combo_box_text_append_text (GTK_COMBO_BOX (cbar), buf);
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (cbar), buf);
             g_free (buf);
         }
         if (cur_conf.common_bg == 0 && st_tab == 1) desktop_n = 1;
