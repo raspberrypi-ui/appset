@@ -609,8 +609,10 @@ static void backup_config_files (void)
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".config/xsettingsd/xsettingsd.conf");
+    backup_file (".config/wayfire.ini");
     backup_file (".config/labwc/themerc-override");
     backup_file (".config/labwc/rc.xml");
+    backup_file (".config/labwc/environment");
     backup_file (".gtkrc-2.0");
 
     // app-specific
@@ -691,8 +693,10 @@ static int restore_config_files (void)
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
+    if (restore_file (".config/wayfire.ini")) changed = 1;
     if (restore_file (".config/labwc/themerc-override")) changed = 1;
     if (restore_file (".config/labwc/rc.xml")) changed = 1;
+    if (restore_file (".config/labwc/environment")) changed = 1;
     if (restore_file (".gtkrc-2.0")) changed = 1;
 
     // app-specific
@@ -2604,7 +2608,12 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     }
 
     if (wm != WM_OPENBOX) save_wfshell_settings ();
-    if (wm == WM_LABWC) save_obconf_settings (TRUE);
+    if (wm == WM_LABWC)
+    {
+        save_obconf_settings (TRUE);
+        save_labwc_env_settings ();
+    }
+    if (wm == WM_WAYFIRE) save_wayfire_settings ();
 
     // save application-specific config - we don't delete these files first...
     save_lxterm_settings ();
