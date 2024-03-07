@@ -1,3 +1,9 @@
+pipanel (1:1.41) bookworm; urgency=medium
+
+  * Handle undo for wayfire and labwc mouse cursors
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 07 Mar 2024 14:03:06 +0000
+
 pipanel (1:1.40) bookworm; urgency=medium
 
   * Set mouse cursors for wayfire and labwc
