@@ -426,7 +426,14 @@ static char *pcmanfm_file (gboolean global, int desktop)
 {
     char fname[21];
     if (desktop < 0 || desktop > 9) return NULL;
-    sprintf (fname, "desktop-items-%d.conf", desktop);
+    if (global || cur_conf.common_bg)
+        sprintf (fname, "desktop-items.conf", desktop);
+    else
+    {
+        char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), desktop);
+        sprintf (fname, "desktop-items-%s.conf", buf);
+        g_free (buf);
+    }
     return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
 }
 
@@ -3177,11 +3184,8 @@ static gboolean init_config (gpointer data)
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
         for (i = 0; i < ndesks; i++)
         {
-            buf = g_strdup_printf ("%d", i + 1);
+            buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
             gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (cdesk), buf);
-            g_free (buf);
-
-            buf = g_strdup_printf (_("Desktop %d"), i + 1);
             gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (cbar), buf);
             g_free (buf);
         }

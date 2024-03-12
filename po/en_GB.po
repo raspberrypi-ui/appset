@@ -31,7 +31,7 @@ msgid "Desktop"
 msgstr "Desktop"
 
 msgid "Desktop Number"
-msgstr "Desktop Number:"
+msgstr "Monitor:"
 
 #: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
 msgid "Appearance Settings"
