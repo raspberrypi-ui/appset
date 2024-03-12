@@ -343,10 +343,15 @@ static void reload_lxpanel (void)
     vsystem ("lxpanelctl refresh");
 }
 
-static void reload_openbox (void)
+static void reload_labwc (void)
 {
     if (wm == WM_LABWC) vsystem ("labwc --reconfigure");
-    if (wm == WM_OPENBOX)  vsystem ("openbox --reconfigure");
+}
+
+static void reload_openbox (void)
+{
+    reload_labwc ();
+    if (wm == WM_OPENBOX) vsystem ("openbox --reconfigure");
 }
 
 static void reload_pcmanfm (void)
@@ -2473,6 +2478,7 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     if (wm == WM_WAYFIRE) save_wayfire_settings ();
     reload_lxsession ();
     reload_xsettings ();
+    reload_labwc ();
     reload_theme (FALSE);
 }
 
