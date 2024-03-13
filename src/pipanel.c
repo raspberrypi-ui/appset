@@ -427,7 +427,7 @@ static char *pcmanfm_file (gboolean global, int desktop)
     char fname[21];
     if (desktop < 0 || desktop > 9) return NULL;
     if (global || cur_conf.common_bg)
-        sprintf (fname, "desktop-items.conf", desktop);
+        sprintf (fname, "desktop-items.conf");
     else
     {
         char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), desktop);
@@ -1073,9 +1073,17 @@ static void load_wfshell_settings (void)
         else DEFAULT (task_width);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "monitor", &err);
-        if (err == NULL) cur_conf.monitor = val;
-        else DEFAULT (monitor);
+        ret = g_key_file_get_string (kf, "panel", "monitor", &err);
+        DEFAULT (monitor);
+        if (err == NULL && ret)
+        {
+            for (int i = 0; i < ndesks; i++)
+            {
+                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
+                if (!g_strcmp0 (buf, ret)) cur_conf.monitor = i;
+                g_free (buf);
+            }
+        }
     }
     else
     {
@@ -1543,7 +1551,10 @@ static void save_wfshell_settings (void)
     g_key_file_set_string (kf, "panel", "position", cur_conf.barpos ? "bottom" : "top");
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
     g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
-    g_key_file_set_integer (kf, "panel", "monitor", cur_conf.monitor);
+
+    char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), cur_conf.monitor);
+    g_key_file_set_string (kf, "panel", "monitor", buf);
+    g_free (buf);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
