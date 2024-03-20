@@ -422,19 +422,33 @@ static char *lxpanel_file (gboolean global)
     return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel", session (), "panels/panel", NULL);
 }
 
-static char *pcmanfm_file (gboolean global, int desktop)
+static char *pcmanfm_file (gboolean global, int desktop, gboolean write)
 {
-    char fname[21];
-    if (desktop < 0 || desktop > 9) return NULL;
-    if (global || cur_conf.common_bg)
-        sprintf (fname, "desktop-items.conf");
-    else
+    char *fname, *buf;
+    if (desktop < 0 || desktop > MAX_DESKTOPS) return NULL;
+    if (cur_conf.common_bg)
     {
-        char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), desktop);
-        sprintf (fname, "desktop-items-%s.conf", buf);
-        g_free (buf);
+        fname = g_strdup_printf ("desktop-items-0.conf");
+        buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
+        g_free (fname);
+        return buf;
     }
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
+
+    if (wm != WM_OPENBOX)
+    {
+        buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), desktop);
+        fname = g_strdup_printf ("desktop-items-%s.conf", buf);
+        g_free (buf);
+        buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
+        g_free (fname);
+        if (write || access (buf, F_OK) == 0) return buf;
+        else g_free (buf);
+    }
+
+    fname = g_strdup_printf ("desktop-items-%u.conf", desktop);
+    buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
+    g_free (fname);
+    return buf;
 }
 
 static char *pcmanfm_g_file (gboolean global)
@@ -864,7 +878,7 @@ static void load_pcman_settings (int desktop)
     gint val;
 
     // read in data from file to a key file
-    user_config_file = pcmanfm_file (FALSE, desktop);
+    user_config_file = pcmanfm_file (FALSE, desktop, FALSE);
     kf = g_key_file_new ();
     if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
@@ -1454,7 +1468,7 @@ static void save_pcman_settings (int desktop)
     GKeyFile *kf;
     gsize len;
 
-    user_config_file = pcmanfm_file (FALSE, desktop);
+    user_config_file = pcmanfm_file (FALSE, desktop, TRUE);
     check_directory (user_config_file);
 
     // process pcmanfm config data
@@ -2725,7 +2739,7 @@ static void defaults_pcman (int desktop)
     gint val;
 
     // read in data from system default file to a key file structure
-    user_config_file = pcmanfm_file (TRUE, desktop);
+    user_config_file = pcmanfm_file (TRUE, desktop, FALSE);
     kf = g_key_file_new ();
     if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
