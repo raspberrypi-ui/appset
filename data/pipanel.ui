@@ -47,7 +47,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText" id="cb_desktop">
+                      <object class="GtkComboBox" id="cb_desktop">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="tooltip-text" translatable="yes">Choose the desktop to configure</property>
@@ -577,7 +577,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText" id="cb_barmon">
+                      <object class="GtkComboBox" id="cb_barmon">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="tooltip-text" translatable="yes">Choose the screen where the taskbar is shown</property>

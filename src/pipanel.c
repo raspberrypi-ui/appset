@@ -126,10 +126,14 @@ static gulong cid, iid, bpid, blid, dmid, tdid, ttid, tmid, dfid, cbid, draw_id,
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *bcol, *btcol, *rb1, *rb2, *rb5, *rb6;
-static GObject *isz, *cb1, *cb2, *cb3, *cb4, *csz, *cmsg, *nb, *dfold, *cdesk, *cbar;
+static GObject *isz, *cb1, *cb2, *cb3, *cb4, *csz, *cmsg, *nb, *dfold, *cbdesk, *cbbar;
 
 /* Dialogs */
 static GtkWidget *dlg, *msg_dlg;
+
+/* Monitor list for combos */
+static GtkListStore *mons;
+static GtkTreeModel *sortmons;
 
 /* Starting tab value read from command line */
 static int st_tab;
@@ -150,7 +154,7 @@ static void load_pcman_settings (int desktop);
 static void load_pcman_g_settings (void);
 static void load_lxpanel_settings (void);
 static void load_obconf_settings (void);
-static void load_wfshell_settings (void);
+static void load_wfpanel_settings (void);
 static void load_gtk3_settings (void);
 static void save_lxpanel_settings (void);
 static void save_gtk3_settings (void);
@@ -160,7 +164,7 @@ static void save_pcman_settings (int desktop);
 static void save_pcman_g_settings (void);
 static void save_libfm_settings (void);
 static void save_wayfire_settings (void);
-static void save_wfshell_settings (void);
+static void save_wfpanel_settings (void);
 static void save_obconf_settings (gboolean lw);
 static void save_labwc_to_settings (void);
 static void save_labwc_env_settings (void);
@@ -466,7 +470,7 @@ static char *wayfire_file (void)
     return g_build_filename (g_get_user_config_dir (), "wayfire.ini", NULL);
 }
 
-static char *wfshell_file (void)
+static char *wfpanel_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
@@ -1057,7 +1061,7 @@ static void load_obconf_settings (void)
     g_free (user_config_file);
 }
 
-static void load_wfshell_settings (void)
+static void load_wfpanel_settings (void)
 {
     char *user_config_file, *ret;
     GKeyFile *kf;
@@ -1065,7 +1069,7 @@ static void load_wfshell_settings (void)
     gint val;
 
     // read in data from file to a key file
-    user_config_file = wfshell_file ();
+    user_config_file = wfpanel_file ();
     kf = g_key_file_new ();
     if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
@@ -1091,13 +1095,12 @@ static void load_wfshell_settings (void)
         DEFAULT (monitor);
         if (err == NULL && ret)
         {
-            for (int i = 0; i < ndesks; i++)
+            for (val = 0; val < ndesks; val++)
             {
-                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
-                if (!g_strcmp0 (buf, ret)) cur_conf.monitor = i;
+                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
+                if (!g_strcmp0 (buf, ret)) cur_conf.monitor = val;
                 g_free (buf);
             }
-            if (i >= ndesks) i = 0;
         }
     }
     else
@@ -1550,13 +1553,13 @@ static void save_libfm_settings (void)
     g_free (user_config_file);
 }
 
-static void save_wfshell_settings (void)
+static void save_wfpanel_settings (void)
 {
     char *user_config_file, *str;
     GKeyFile *kf;
     gsize len;
 
-    user_config_file = wfshell_file ();
+    user_config_file = wfpanel_file ();
     check_directory (user_config_file);
 
     // process wfpanel config data
@@ -2200,7 +2203,7 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
     }
     if (wm != WM_OPENBOX)
     {
-        save_wfshell_settings ();
+        save_wfpanel_settings ();
         reload_pcmanfm ();
     }
     else
@@ -2378,7 +2381,7 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     else cur_conf.barpos = 1;
     if (wm != WM_OPENBOX)
     {
-        save_wfshell_settings ();
+        save_wfpanel_settings ();
         reload_pcmanfm ();
     }
     else
@@ -2388,12 +2391,15 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     }
 }
 
-static void on_bar_loc_set (GtkComboBox* btn, gpointer ptr)
+static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr)
 {
-    cur_conf.monitor = gtk_combo_box_get_active (btn);
+    GtkTreeIter iter;
+
+    gtk_combo_box_get_active_iter (cb, &iter);
+    gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &cur_conf.monitor, -1);
     if (wm != WM_OPENBOX)
     {
-        save_wfshell_settings ();
+        save_wfpanel_settings ();
         reload_pcmanfm ();
     }
     else
@@ -2470,17 +2476,17 @@ static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn)))
     {
         cur_conf.common_bg = 1;
-        g_signal_handler_block (cdesk, cdid);
-        gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), -1);
-        g_signal_handler_unblock (cdesk, cdid);
-        gtk_widget_set_sensitive (GTK_WIDGET (cdesk), FALSE);
+        g_signal_handler_block (cbdesk, cdid);
+        gtk_combo_box_set_active (GTK_COMBO_BOX (cbdesk), -1);
+        g_signal_handler_unblock (cbdesk, cdid);
+        gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), FALSE);
         set_desktop_controls ();
     }
     else
     {
         cur_conf.common_bg = 0;
-        gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), 0);
-        gtk_widget_set_sensitive (GTK_WIDGET (cdesk), TRUE);
+        gtk_combo_box_set_active (GTK_COMBO_BOX (cbdesk), 0);
+        gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), TRUE);
     }
     save_pcman_g_settings ();
     reload_pcmanfm ();
@@ -2544,14 +2550,17 @@ static void set_desktop_controls (void)
 
 static void set_controls (void)
 {
+    GtkTreeIter iter;
+    int val;
+
     // block widget handlers
     g_signal_handler_block (isz, iid);
     g_signal_handler_block (csz, cid);
     g_signal_handler_block (rb1, bpid);
-    g_signal_handler_block (cbar, blid);
+    g_signal_handler_block (cbbar, blid);
     g_signal_handler_block (rb5, bdid);
     g_signal_handler_block (cb4, cbid);
-    g_signal_handler_block (cdesk, cdid);
+    g_signal_handler_block (cbdesk, cdid);
 
     gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font), cur_conf.desktop_font);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
@@ -2571,7 +2580,14 @@ static void set_controls (void)
     if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
 
-    gtk_combo_box_set_active (GTK_COMBO_BOX (cbar), cur_conf.monitor);
+    gtk_tree_model_get_iter_first (GTK_TREE_MODEL (sortmons), &iter);
+    gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+    while (val != cur_conf.monitor)
+    {
+        gtk_tree_model_iter_next (GTK_TREE_MODEL (sortmons), &iter);
+        gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+    }
+    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (cbbar), &iter);
 
     if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
     else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
@@ -2580,18 +2596,26 @@ static void set_controls (void)
     if (cur_conf.common_bg)
     {
         desktop_n = 0;
-        gtk_widget_set_sensitive (GTK_WIDGET (cdesk), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), FALSE);
     }
-    gtk_combo_box_set_active (GTK_COMBO_BOX (cdesk), desktop_n);
+
+    gtk_tree_model_get_iter_first (GTK_TREE_MODEL (sortmons), &iter);
+    gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+    while (val != desktop_n)
+    {
+        gtk_tree_model_iter_next (GTK_TREE_MODEL (sortmons), &iter);
+        gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+    }
+    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (cbdesk), &iter);
 
     // unblock widget handlers
     g_signal_handler_unblock (isz, iid);
     g_signal_handler_unblock (csz, cid);
     g_signal_handler_unblock (rb1, bpid);
-    g_signal_handler_unblock (cbar, blid);
+    g_signal_handler_unblock (cbbar, blid);
     g_signal_handler_unblock (rb5, bdid);
     g_signal_handler_unblock (cb4, cbid);
-    g_signal_handler_unblock (cdesk, cdid);
+    g_signal_handler_unblock (cbdesk, cdid);
 
     set_desktop_controls ();
 }
@@ -2646,7 +2670,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_qt_settings ();
     }
 
-    if (wm != WM_OPENBOX) save_wfshell_settings ();
+    if (wm != WM_OPENBOX) save_wfpanel_settings ();
     if (wm == WM_LABWC)
     {
         save_obconf_settings (TRUE);
@@ -3077,7 +3101,7 @@ static gboolean init_config (gpointer data)
     load_pcman_g_settings ();
     for (i = 0; i < ndesks; i++)
         load_pcman_settings (i);
-    if (wm != WM_OPENBOX) load_wfshell_settings ();
+    if (wm != WM_OPENBOX) load_wfpanel_settings ();
     else load_lxpanel_settings ();
     load_obconf_settings ();
     load_gtk3_settings ();
@@ -3123,8 +3147,8 @@ static gboolean init_config (gpointer data)
     rb2 = gtk_builder_get_object (builder, "radiobutton2");
     bpid = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
 
-    cbar = gtk_builder_get_object (builder, "cb_barmon");
-    blid = g_signal_connect (cbar, "changed", G_CALLBACK (on_bar_loc_set), NULL);
+    cbbar = gtk_builder_get_object (builder, "cb_barmon");
+    blid = g_signal_connect (cbbar, "changed", G_CALLBACK (on_bar_loc_set), NULL);
 
     isz = gtk_builder_get_object (builder, "comboboxtext2");
     iid = g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
@@ -3182,8 +3206,8 @@ static gboolean init_config (gpointer data)
     cb4 = gtk_builder_get_object (builder, "checkbutton4");
     cbid = g_signal_connect (cb4, "toggled", G_CALLBACK (on_toggle_desktop), NULL);
 
-    cdesk = gtk_builder_get_object (builder, "cb_desktop");
-    cdid = g_signal_connect (cdesk, "changed", G_CALLBACK (on_desktop_changed), NULL);
+    cbdesk = gtk_builder_get_object (builder, "cb_desktop");
+    cdid = g_signal_connect (cbdesk, "changed", G_CALLBACK (on_desktop_changed), NULL);
 
     // add accessibility label to combo box child of file chooser (yes, I know the previous one attached to a button...)
     lbl = GTK_LABEL (gtk_builder_get_object (builder, "label16"));
@@ -3204,17 +3228,30 @@ static gboolean init_config (gpointer data)
 
     nb = gtk_builder_get_object (builder, "notebook1");
 
+    mons = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
+    for (i = 0; i < ndesks; i++)
+    {
+        buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
+        gtk_list_store_insert_with_values (mons, NULL, i, 0, i, 1, buf, -1);
+        g_free (buf);
+    }
+    sortmons = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (mons));
+    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sortmons), 1, GTK_SORT_ASCENDING);
+
     if (ndesks > 1)
     {
+        GtkCellRenderer *rend = gtk_cell_renderer_text_new ();
+
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (cbdesk), rend, FALSE);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (cbdesk), rend, "text", 1);
+        gtk_combo_box_set_model (GTK_COMBO_BOX (cbdesk), GTK_TREE_MODEL (sortmons));
+
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (cbbar), rend, FALSE);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (cbbar), rend, "text", 1);
+        gtk_combo_box_set_model (GTK_COMBO_BOX (cbbar), GTK_TREE_MODEL (sortmons));
+
         gtk_widget_show (GTK_WIDGET (cb4));
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
-        for (i = 0; i < ndesks; i++)
-        {
-            buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
-            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (cdesk), buf);
-            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (cbar), buf);
-            g_free (buf);
-        }
         if (cur_conf.common_bg == 0 && st_tab == 1) desktop_n = 1;
     }
     else
