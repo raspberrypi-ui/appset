@@ -1097,6 +1097,7 @@ static void load_wfshell_settings (void)
                 if (!g_strcmp0 (buf, ret)) cur_conf.monitor = i;
                 g_free (buf);
             }
+            if (i >= ndesks) i = 0;
         }
     }
     else
