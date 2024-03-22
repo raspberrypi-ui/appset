@@ -588,7 +588,7 @@ static void backup_file (char *filepath)
 static void backup_config_files (void)
 {
     const char *session_name = session ();
-    char *path, *lc_sess, *fname;
+    char *path, *lc_sess, *fname, *monname;
     int i;
 
     // delete any old backups and create a new backup directory
@@ -620,6 +620,17 @@ static void backup_config_files (void)
         backup_file (path);
         g_free (path);
         g_free (fname);
+
+        if (wm != WM_OPENBOX)
+        {
+            monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
+            fname = g_strdup_printf ("desktop-items-%s.conf", monname);
+            path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+            backup_file (path);
+            g_free (path);
+            g_free (fname);
+            g_free (monname);
+        }
     }
 
     path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
@@ -678,7 +689,7 @@ static int restore_file (char *filepath)
 static int restore_config_files (void)
 {
     const char *session_name = session ();
-    char *path, *lc_sess, *fname;
+    char *path, *lc_sess, *fname, *monname;
     int i, changed = 0;
 
     lc_sess = g_ascii_strdown (session_name, -1);
@@ -704,6 +715,17 @@ static int restore_config_files (void)
         if (restore_file (path)) changed = 1;
         g_free (path);
         g_free (fname);
+
+        if (wm != WM_OPENBOX)
+        {
+            monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
+            fname = g_strdup_printf ("desktop-items-%s.conf", monname);
+            path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+            if (restore_file (path)) changed = 1;
+            g_free (path);
+            g_free (fname);
+            g_free (monname);
+        }
     }
 
     path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
@@ -771,7 +793,7 @@ static void delete_file (char *filepath)
 static void reset_to_defaults (void)
 {
     const char *session_name = session ();
-    char *path, *lc_sess, *fname;
+    char *path, *lc_sess, *fname, *monname;
     int i;
 
     lc_sess = g_ascii_strdown (session_name, -1);
@@ -797,6 +819,17 @@ static void reset_to_defaults (void)
         delete_file (path);
         g_free (path);
         g_free (fname);
+
+        if (wm != WM_OPENBOX)
+        {
+            monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
+            fname = g_strdup_printf ("desktop-items-%s.conf", monname);
+            path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+            delete_file (path);
+            g_free (path);
+            g_free (fname);
+            g_free (monname);
+        }
     }
 
     path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
@@ -2480,7 +2513,6 @@ static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
         gtk_combo_box_set_active (GTK_COMBO_BOX (cbdesk), -1);
         g_signal_handler_unblock (cbdesk, cdid);
         gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), FALSE);
-        set_desktop_controls ();
     }
     else
     {
@@ -2488,7 +2520,9 @@ static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
         gtk_combo_box_set_active (GTK_COMBO_BOX (cbdesk), 0);
         gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), TRUE);
     }
+    set_desktop_controls ();
     save_pcman_g_settings ();
+    save_pcman_settings (0);
     reload_pcmanfm ();
 }
 
@@ -2964,32 +2998,6 @@ static void create_defaults (void)
     def_sm.task_width = 150;
     def_sm.handle_width = 10;
     def_sm.scrollbar_width = 13;
-}
-
-int get_common_bg (gboolean global)
-{
-    GKeyFile *kf;
-    GError *err;
-    gint val;
-
-    char *fname = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), "pcmanfm.conf", NULL);
-
-    kf = g_key_file_new ();
-    if (g_key_file_load_from_file (kf, fname, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
-    {
-        err = NULL;
-        val = g_key_file_get_integer (kf, "ui", "common_bg", &err);
-        if (err == NULL && (val == 0 || val == 1))
-        {
-            g_key_file_free (kf);
-            g_free (fname);
-            return val;
-        }
-    }
-
-    g_key_file_free (kf);
-    g_free (fname);
-    return -1;
 }
 
 static int n_desktops (void)
