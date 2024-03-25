@@ -1,3 +1,9 @@
+pipanel (1:1.42) bookworm; urgency=medium
+
+  * Add support for more than 2 desktops
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 25 Mar 2024 11:50:37 +0000
+
 pipanel (1:1.41) bookworm; urgency=medium
 
   * Handle undo for wayfire and labwc mouse cursors
