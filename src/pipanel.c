@@ -2402,9 +2402,13 @@ static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr)
     }
 }
 
-static void on_desktop_changed (GtkComboBox* btn, gpointer ptr)
+static void on_desktop_changed (GtkComboBox* cb, gpointer ptr)
 {
-    desktop_n = gtk_combo_box_get_active (btn);
+    GtkTreeIter iter;
+
+    gtk_combo_box_get_active_iter (cb, &iter);
+    gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &desktop_n, -1);
+
     set_desktop_controls ();
 }
 
