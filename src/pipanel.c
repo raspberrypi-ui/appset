@@ -3241,7 +3241,7 @@ static gboolean init_config (gpointer data)
     nb = gtk_builder_get_object (builder, "notebook1");
 
     mons = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
-    for (i = 0; i < ndesks; i++)
+    for (i = 0; i < (wm == WM_OPENBOX && ndesks > 2 ? 2 : ndesks); i++)
     {
         buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
         gtk_list_store_insert_with_values (mons, NULL, i, 0, i, 1, buf, -1);
