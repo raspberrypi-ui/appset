@@ -57,6 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GREY    "#808080"
 
 #define MAX_DESKTOPS 9
+#define MAX_X_DESKTOPS 2
 
 #define LARGE_ICON_THRESHOLD 20
 
@@ -3088,6 +3089,7 @@ static gboolean init_config (gpointer data)
 
     ndesks = n_desktops ();
     if (ndesks > MAX_DESKTOPS) ndesks = MAX_DESKTOPS;
+    if (wm == WM_OPENBOX && ndesks > MAX_X_DESKTOPS) ndesks = MAX_X_DESKTOPS;
     desktop_n = 0;
 
     // check to see if lxsession will auto-refresh - version 0.4.9 or later
@@ -3241,7 +3243,7 @@ static gboolean init_config (gpointer data)
     nb = gtk_builder_get_object (builder, "notebook1");
 
     mons = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
-    for (i = 0; i < (wm == WM_OPENBOX && ndesks > 2 ? 2 : ndesks); i++)
+    for (i = 0; i < ndesks; i++)
     {
         buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
         gtk_list_store_insert_with_values (mons, NULL, i, 0, i, 1, buf, -1);
