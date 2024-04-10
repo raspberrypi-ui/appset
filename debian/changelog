@@ -1,3 +1,9 @@
+pipanel (1:1.42) bookworm; urgency=medium
+
+  * Set title for modal dialog
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 10 Apr 2024 13:32:22 +0100
+
 pipanel (1:1.41) bookworm; urgency=medium
 
   * Handle undo for wayfire and labwc mouse cursors
