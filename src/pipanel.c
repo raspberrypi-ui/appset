@@ -2636,17 +2636,21 @@ static void set_controls (void)
     if (cur_conf.common_bg)
     {
         desktop_n = 0;
+        gtk_combo_box_set_active (GTK_COMBO_BOX (cbdesk), -1);
         gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), FALSE);
     }
-
-    gtk_tree_model_get_iter_first (GTK_TREE_MODEL (sortmons), &iter);
-    gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
-    while (val != desktop_n)
+    else
     {
-        gtk_tree_model_iter_next (GTK_TREE_MODEL (sortmons), &iter);
+        gtk_tree_model_get_iter_first (GTK_TREE_MODEL (sortmons), &iter);
         gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+        while (val != desktop_n)
+        {
+            gtk_tree_model_iter_next (GTK_TREE_MODEL (sortmons), &iter);
+            gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+        }
+        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (cbdesk), &iter);
+        gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), TRUE);
     }
-    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (cbdesk), &iter);
 
     // unblock widget handlers
     g_signal_handler_unblock (isz, iid);
