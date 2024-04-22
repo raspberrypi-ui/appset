@@ -448,6 +448,7 @@ static char *pcmanfm_file (gboolean global, int desktop, gboolean write)
         g_free (fname);
         if (write || access (buf, F_OK) == 0) return buf;
         else g_free (buf);
+        if (global && desktop > 1) desktop = 1; // only 2 numbered global desktop files
     }
 
     fname = g_strdup_printf ("desktop-items-%u.conf", desktop);
