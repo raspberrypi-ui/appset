@@ -2515,6 +2515,8 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
 
 static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
 {
+    int i;
+
     desktop_n = 0;
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn)))
     {
@@ -2529,6 +2531,7 @@ static void on_toggle_desktop (GtkCheckButton* btn, gpointer ptr)
         cur_conf.common_bg = 0;
         gtk_combo_box_set_active (GTK_COMBO_BOX (cbdesk), 0);
         gtk_widget_set_sensitive (GTK_WIDGET (cbdesk), TRUE);
+        for (i = 0; i < ndesks; i++) load_pcman_settings (i);
     }
     set_desktop_controls ();
     save_pcman_g_settings ();
