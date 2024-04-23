@@ -2500,7 +2500,11 @@ static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
     save_lxsession_settings ();
     save_xsettings ();
     save_obconf_settings (FALSE);
-    if (wm == WM_LABWC) save_obconf_settings (TRUE);
+    if (wm == WM_LABWC)
+    {
+        save_obconf_settings (TRUE);
+        save_labwc_to_settings ();
+    }
     save_gtk3_settings ();
     save_app_settings ();
     reload_lxsession ();
