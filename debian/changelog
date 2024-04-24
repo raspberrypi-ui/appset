@@ -1,3 +1,9 @@
+pipanel (1:1.45) bookworm; urgency=medium
+
+  * Fix some GTK warnings
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 24 Apr 2024 09:42:06 +0100
+
 pipanel (1:1.44) bookworm; urgency=medium
 
   * Fix for correct desktop global defaults with > 2 desktops
