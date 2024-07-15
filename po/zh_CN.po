@@ -1,0 +1,316 @@
+# Simplified Chinese translations for appset package.
+# Copyright (C) 2018 Raspberry Pi
+# This file is distributed under the same license as the appset package.
+# ykla <yklaxds@gmail>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pipanel 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-07-15 14:22+0100\n"
+"PO-Revision-Date: 2024-07-14 18:24+0800\n"
+"Last-Translator: ykla <yklaxds@gmail.com>\n"
+"Language-Team: ykla <yklaxds@gmail.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.4\n"
+
+#: ../src/pipanel.c:1929 ../src/pipanel.c:1933
+#, c-format
+msgid ""
+"Desktop\n"
+"%s"
+msgstr ""
+"桌面\n"
+"%s"
+
+#: ../src/pipanel.c:1941
+msgid "Desktop"
+msgstr "桌面"
+
+msgid "Desktop Number"
+msgstr "桌面数量"
+
+#: ../data/pipanel.ui.h:1 ../data/pipanel.desktop.in.h:1
+msgid "Appearance Settings"
+msgstr "外观设置"
+
+#: ../data/pipanel.ui.h:2
+msgid "Layout"
+msgstr "布局"
+
+#: ../data/pipanel.ui.h:3
+msgid "Set how the wallpaper should be fitted to the screen"
+msgstr "设置壁纸如何适应屏幕"
+
+#: ../data/pipanel.ui.h:4
+msgid "No image"
+msgstr "无图像"
+
+#: ../data/pipanel.ui.h:5
+msgid "Centre image on screen"
+msgstr "图像居中显示"
+
+#: ../data/pipanel.ui.h:6
+msgid "Fit image onto screen"
+msgstr "使图像适应屏幕"
+
+#: ../data/pipanel.ui.h:7
+msgid "Fill screen with image"
+msgstr "用图像填充屏幕"
+
+#: ../data/pipanel.ui.h:8
+msgid "Stretch to cover screen"
+msgstr "将屏幕拉伸覆盖整个屏幕"
+
+#: ../data/pipanel.ui.h:9
+msgid "Tile image"
+msgstr "平铺图像"
+
+#: ../data/pipanel.ui.h:10
+msgid "Picture"
+msgstr "图片"
+
+#: ../data/pipanel.ui.h:11
+msgid "Choose image file to use as wallpaper"
+msgstr "选择要用作壁纸的图像文件"
+
+#: ../data/pipanel.ui.h:12
+msgid "Colour"
+msgstr "颜色"
+
+#: ../data/pipanel.ui.h:13
+msgid "Choose the colour of the desktop background"
+msgstr "选择桌面背景的颜色"
+
+#: ../data/pipanel.ui.h:14
+msgid "Text Colour"
+msgstr "文本颜色"
+
+#: ../data/pipanel.ui.h:15
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr "选择用于桌面图标标签的文本颜色"
+
+#: ../data/pipanel.ui.h:16
+msgid "Documents"
+msgstr "文档"
+
+#: ../data/pipanel.ui.h:17
+msgid "Show the documents folder on the desktop"
+msgstr "在桌面上显示文档文件夹"
+
+#: ../data/pipanel.ui.h:18
+msgid "Wastebasket"
+msgstr "回收站"
+
+#: ../data/pipanel.ui.h:19
+msgid "Show the wastebasket on the desktop"
+msgstr "在桌面显示回收站"
+
+#: ../data/pipanel.ui.h:20
+msgid "Mounted Disks"
+msgstr "已挂载磁盘"
+
+#: ../data/pipanel.ui.h:21
+msgid "Show mounted disks on the desktop"
+msgstr "在桌面显示已挂载磁盘"
+
+#: ../data/pipanel.ui.h:22
+msgid "Show identical desktop on second monitor"
+msgstr "在第二显示器上显示相同的桌面"
+
+#: ../data/pipanel.ui.h:23
+msgid ""
+"Check this box to show the same desktop image and icons on both monitors"
+msgstr "勾选此框可在两个显示器上显示相同的桌面背景图像和图标"
+
+#: ../data/pipanel.ui.h:24
+msgid "Desktop 1"
+msgstr "桌面 1"
+
+#: ../data/pipanel.ui.h:25
+msgid "Desktop Folder"
+msgstr "桌面文件夹"
+
+#: ../data/pipanel.ui.h:26
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "选择要显示在第二个桌面上的文件夹"
+
+#: ../data/pipanel.ui.h:27
+msgid "Desktop 2"
+msgstr "桌面 2"
+
+#: ../data/pipanel.ui.h:28
+msgid "Size"
+msgstr "大小"
+
+#: ../data/pipanel.ui.h:29
+msgid "Set the size of icons used on the toolbar and menu"
+msgstr "设置工具栏和菜单中的图标大小"
+
+#: ../data/pipanel.ui.h:30
+msgid "Very large (48x48)"
+msgstr "非常大（48x48）"
+
+#: ../data/pipanel.ui.h:31
+msgid "Large (32x32)"
+msgstr "大（32x32）"
+
+#: ../data/pipanel.ui.h:32
+msgid "Medium (24x24)"
+msgstr "中等（24x24）"
+
+#: ../data/pipanel.ui.h:33
+msgid "Small (16x16)"
+msgstr "小（16x16）"
+
+#: ../data/pipanel.ui.h:34
+msgid "Position"
+msgstr "位置"
+
+#: ../data/pipanel.ui.h:35
+msgid "Top"
+msgstr "顶部"
+
+#: ../data/pipanel.ui.h:36
+msgid "Show the taskbar at the top of the screen"
+msgstr "在屏幕顶部显示任务栏"
+
+#: ../data/pipanel.ui.h:37
+msgid "Bottom"
+msgstr "按钮"
+
+#: ../data/pipanel.ui.h:38
+msgid "Show the taskbar at the bottom of the screen"
+msgstr "在屏幕底部显示任务栏"
+
+#: ../data/pipanel.ui.h:39
+msgid "Choose the colour of the taskbar background"
+msgstr "选择任务栏背景颜色"
+
+#: ../data/pipanel.ui.h:40
+msgid "Choose the colour of text used on the taskbar"
+msgstr "选择任务栏上文本的颜色"
+
+#: ../data/pipanel.ui.h:41
+msgid "Location"
+msgstr "位置"
+
+#: ../data/pipanel.ui.h:42
+msgid "Show the taskbar on screen 1"
+msgstr "在屏幕 1 显示任务栏"
+
+#: ../data/pipanel.ui.h:43
+msgid "Show the taskbar on screen 2"
+msgstr "在屏幕 2 显示任务栏"
+
+#: ../data/pipanel.ui.h:44
+msgid "Menu Bar"
+msgstr "菜单栏"
+
+#: ../data/pipanel.ui.h:45
+msgid "Font"
+msgstr "字体"
+
+#: ../data/pipanel.ui.h:46
+msgid "Choose the font used for labels and menus"
+msgstr "选择标签和菜单的字体"
+
+#: ../data/pipanel.ui.h:47
+msgid "Highlight Colour"
+msgstr "高亮颜色"
+
+#: ../data/pipanel.ui.h:48
+msgid "Choose the colour used to highlight active elements"
+msgstr "选择显示活动元素的颜色"
+
+#: ../data/pipanel.ui.h:49
+msgid "Highlight Text Colour"
+msgstr "文本高亮颜色"
+
+#: ../data/pipanel.ui.h:50
+msgid "Choose the colour used for text on active elements"
+msgstr "选择活动元素上文本的颜色"
+
+#: ../data/pipanel.ui.h:51
+msgid "Mouse Cursor"
+msgstr "鼠标光标"
+
+#: ../data/pipanel.ui.h:52
+msgid "Set the size of the mouse cursor"
+msgstr "设置鼠标光标的大小"
+
+#: ../data/pipanel.ui.h:53
+msgid "Large"
+msgstr "大"
+
+#: ../data/pipanel.ui.h:54
+msgid "Medium"
+msgstr "中"
+
+#: ../data/pipanel.ui.h:55
+msgid "Small"
+msgstr "小"
+
+#: ../data/pipanel.ui.h:56
+msgid "New mouse cursor size will take effect at reboot"
+msgstr "新的鼠标指针大小将在重启后生效"
+
+#: ../data/pipanel.ui.h:57
+msgid "Theme"
+msgstr "主题"
+
+#: ../data/pipanel.ui.h:58
+msgid "Light"
+msgstr "亮"
+
+#: ../data/pipanel.ui.h:59
+msgid "Dark"
+msgstr "暗"
+
+#: ../data/pipanel.ui.h:60
+msgid "System"
+msgstr "系统"
+
+#: ../data/pipanel.ui.h:61
+msgid "For large screens:"
+msgstr "对于大屏幕："
+
+#: ../data/pipanel.ui.h:62
+msgid "Set Defaults"
+msgstr "默认设置"
+
+#: ../data/pipanel.ui.h:63
+msgid "Set to default values for high-resolution displays"
+msgstr "设置高分辨率显示器的默认值"
+
+#: ../data/pipanel.ui.h:64
+msgid "For medium screens:"
+msgstr "对于中等大小屏幕："
+
+#: ../data/pipanel.ui.h:65
+msgid "Set to default values for medium-resolution displays"
+msgstr "设置中等分辨率显示器的默认值"
+
+#: ../data/pipanel.ui.h:66
+msgid "For small screens:"
+msgstr "对于小屏幕："
+
+#: ../data/pipanel.ui.h:67
+msgid "Set to default values for low-resolution displays"
+msgstr "设置低分辨率显示器的默认值"
+
+#: ../data/pipanel.ui.h:68
+msgid "Defaults"
+msgstr "默认"
+
+#: ../data/pipanel.desktop.in.h:2
+msgid "Configure the appearance of the desktop and windows"
+msgstr "配置桌面和窗口外观"
+
+#: ../data/pwdpip.sh:6
+msgid "Password Required"
+msgstr "需要密码"
