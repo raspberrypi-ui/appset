@@ -1570,7 +1570,11 @@ static void save_libfm_settings (void)
 
     // process libfm config data
     user_config_file = libfm_file ();
-    check_directory (user_config_file);
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        check_directory (user_config_file);
+        vsystem ("cp /etc/xdg/libfm/libfm.conf %s", user_config_file);
+    }
 
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
