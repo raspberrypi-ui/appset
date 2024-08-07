@@ -3037,7 +3037,7 @@ static int n_desktops (void)
     n = sscanf (res, "%d", &m);
     g_free (res);
 
-    if (n == 1) return m;
+    if (n == 1 && m >= 1) return m;
     return 1;
 }
 
