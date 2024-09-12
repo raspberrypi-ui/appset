@@ -1145,7 +1145,7 @@
     <property name="type-hint">dialog</property>
     <property name="skip-taskbar-hint">True</property>
     <property name="skip-pager-hint">True</property>
-    <property name="decorated">False</property>
+    <property name="decorated">True</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -1223,7 +1223,7 @@
     <child type="titlebar">
       <object class="GtkHeaderBar">
         <property name="title" translatable="yes">Appearance Settings</property>
-        <property name="visible">True</property>
+        <property name="visible">False</property>
         <property name="can-focus">False</property>
         <child>
           <placeholder/>
