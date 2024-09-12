@@ -1,4 +1,4 @@
-pipanel (1:1.49) UNRELEASED; urgency=medium
+pipanel (1:1.49) bookworm; urgency=medium
 
   * Fix shadows on undecorated windows
 
