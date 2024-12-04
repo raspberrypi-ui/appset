@@ -3158,7 +3158,7 @@ void init_plugin (void)
 
 int plugin_tabs (void)
 {
-    return 4;
+    return 3;
 }
 
 const char *tab_name (int tab)
