@@ -3177,22 +3177,19 @@ GtkWidget *get_tab (int tab)
 {
     GtkWidget *window, *plugin;
 
+    window = (GtkWidget *) gtk_builder_get_object (builder, "notebook1");
     switch (tab)
     {
         case 0 :
-            window = (GtkWidget *) gtk_builder_get_object (builder, "window1");
             plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox1");
             break;
         case 1 :
-            window = (GtkWidget *) gtk_builder_get_object (builder, "window2");
             plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox2");
             break;
         case 2 :
-            window = (GtkWidget *) gtk_builder_get_object (builder, "window3");
             plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox3");
             break;
         case 3 :
-            window = (GtkWidget *) gtk_builder_get_object (builder, "window4");
             plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox4");
             break;
     }
