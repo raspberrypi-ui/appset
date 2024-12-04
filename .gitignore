@@ -19,7 +19,6 @@ config.sub
 Makefile
 Makefile.in
 POTFILES
-LINGUAS
 po/.intltool-merge-cache
 po/stamp-it
 aclocal.m4

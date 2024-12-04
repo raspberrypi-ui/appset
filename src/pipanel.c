@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string.h>
 #include <math.h>
+#include <locale.h>
 #include <ctype.h>
 #include <sys/stat.h>
 
@@ -141,6 +142,8 @@ static int st_tab;
 
 /* Desktop number */
 static int ndesks, desktop_n;
+
+GtkBuilder *builder;
 
 static void check_directory (const char *path);
 static void backup_file (char *filepath);
@@ -256,7 +259,7 @@ static gboolean read_version (char *package, int *maj, int *min, int *sub)
 static void message (char *msg)
 {
     GtkWidget *wid;
-    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
+    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
     if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
@@ -278,7 +281,7 @@ static gboolean ok_clicked (GtkButton *button, gpointer data)
 static void message_ok (char *msg)
 {
     GtkWidget *wid;
-    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
+    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
     if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
@@ -3097,7 +3100,6 @@ static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data)
 
 static gboolean init_config (gpointer data)
 {
-    GtkBuilder *builder;
     GObject *item;
     GtkWidget *wid;
     GtkLabel *lbl;
@@ -3143,7 +3145,7 @@ static gboolean init_config (gpointer data)
     backup_config_files ();
 
     // build the UI
-    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/pipanel.ui");
+    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
     dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
     g_signal_connect (dlg, "delete_event", G_CALLBACK (close_prog), NULL);
 
@@ -3306,12 +3308,7 @@ static gboolean init_config (gpointer data)
         }
     }
 
-    g_object_unref (builder);
-
     set_controls ();
-
-    gtk_widget_show (dlg);
-    gtk_widget_destroy (msg_dlg);
 
     return FALSE;
 }
@@ -3334,24 +3331,12 @@ static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data)
     return FALSE;
 }
 
-int main (int argc, char *argv[])
+void init_plugin (void)
 {
-#ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
     bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
-#endif
-
-    // read starting tab if there is one
-    if (argc > 1)
-    {
-        if (sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
-    }
-
-    // GTK setup
-    gtk_init (&argc, &argv);
-    gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
     if (getenv ("WAYLAND_DISPLAY"))
     {
@@ -3360,13 +3345,60 @@ int main (int argc, char *argv[])
     }
     else wm = WM_OPENBOX;
 
-    message (_("Loading configuration - please wait..."));
-    if (wm != WM_OPENBOX) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
-    else draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
+    init_config (NULL);
 
-    gtk_main ();
+    //message (_("Loading configuration - please wait..."));
+    //if (wm != WM_OPENBOX) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
+    //else draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
+}
 
-    gtk_widget_destroy (dlg);
+int plugin_tabs (void)
+{
+    return 4;
+}
 
-    return 0;
+const char *tab_name (int tab)
+{
+    switch (tab)
+    {
+        case 0 : return "Desktop";
+        case 1 : return "Taskbar";
+        case 2 : return "System";
+        case 3 : return "Defaults";
+        default : return "No such tab";
+    }
+}
+
+GtkWidget *get_tab (int tab)
+{
+    GtkWidget *window, *plugin;
+
+    switch (tab)
+    {
+        case 0 :
+            window = (GtkWidget *) gtk_builder_get_object (builder, "window1");
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox1");
+            break;
+        case 1 :
+            window = (GtkWidget *) gtk_builder_get_object (builder, "window2");
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox2");
+            break;
+        case 2 :
+            window = (GtkWidget *) gtk_builder_get_object (builder, "window3");
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox3");
+            break;
+        case 3 :
+            window = (GtkWidget *) gtk_builder_get_object (builder, "window4");
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox4");
+            break;
+    }
+
+    gtk_container_remove (GTK_CONTAINER (window), plugin);
+
+    return plugin;
+}
+
+void free_plugin (void)
+{
+    g_object_unref (builder);
 }
