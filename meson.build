@@ -1,6 +1,6 @@
-# To build standalone, use 'rasputin'
+# To build standalone, use 'pipanel'
 #project ('pipanel','c')
-# To build plugin, use 'rpcc_rasputin'
+# To build plugin, use 'rpcc_pipanel'
 project ('rpcc_pipanel','c')
 
 share_dir = join_paths(get_option('prefix'), 'share')
