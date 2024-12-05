@@ -124,7 +124,7 @@ static int orig_darkmode;
 static char lo_ver;
 
 /* Handler IDs so they can be blocked when needed */
-static gulong cid, iid, bpid, blid, dmid, tdid, ttid, tmid, dfid, cbid, bdid, cdid;
+static gulong cid, iid, bpid, blid, dmid, tdid, ttid, tmid, dfid, cbid, draw_id, bdid, cdid;
 
 /* Controls */
 static GObject *hcol, *htcol, *font, *dcol, *dtcol, *dmod, *dpic, *bcol, *btcol, *rb1, *rb2, *rb5, *rb6;
@@ -143,11 +143,11 @@ static int st_tab;
 /* Desktop number */
 static int ndesks, desktop_n;
 
-GtkBuilder *builder;
-
 static void check_directory (const char *path);
 static void backup_file (char *filepath);
 static void backup_config_files (void);
+static int restore_file (char *filepath);
+static int restore_config_files (void);
 static void reload_gsettings (void);
 static void delete_file (char *filepath);
 static void reset_to_defaults (void);
@@ -252,6 +252,22 @@ static gboolean read_version (char *package, int *maj, int *min, int *sub)
     g_free (res);
     if (val == 3) return TRUE;
     else return FALSE;
+}
+
+static void message (char *msg)
+{
+    GtkWidget *wid;
+    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+
+    msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
+    if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
+    gtk_label_set_text (GTK_LABEL (wid), msg);
+
+    gtk_widget_show (msg_dlg);
+
+    g_object_unref (builder);
 }
 
 static gboolean ok_clicked (GtkButton *button, gpointer data)
@@ -648,6 +664,103 @@ static void backup_config_files (void)
     backup_file (".config/libreoffice/4/user/registrymodifications.xcu");
     backup_file (".config/geany/geany.conf");
     backup_file (".config/galculator/galculator.conf");
+}
+
+static int restore_file (char *filepath)
+{
+    // filepath must be relative to current user's home directory
+    char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
+    char *backup = g_build_filename (g_get_home_dir (), ".pp_backup", filepath, NULL);
+    int changed = 1;
+
+    if (g_file_test (backup, G_FILE_TEST_IS_REGULAR))
+    {
+        if (vsystem ("diff %s %s > /dev/null 2>&1", backup, orig) == 0) changed = 0;
+        else vsystem ("cp %s %s", backup, orig);
+    }
+    else if (g_file_test (orig, G_FILE_TEST_IS_REGULAR))
+    {
+        g_remove (orig);
+    }
+    else changed = 0;
+    g_free (backup);
+    g_free (orig);
+
+    return changed;
+}
+
+static int restore_config_files (void)
+{
+    const char *session_name = session ();
+    char *path, *lc_sess, *fname, *monname;
+    int i, changed = 0;
+
+    lc_sess = g_ascii_strdown (session_name, -1);
+    fname = g_strconcat (lc_sess, "-rc.xml", NULL);
+    path = g_build_filename (".config/openbox", fname, NULL);
+    restore_file (path);
+    g_free (path);
+    g_free (fname);
+    g_free (lc_sess);
+
+    path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
+    if (restore_file (path)) changed = 1;
+    g_free (path);
+
+    path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
+    if (restore_file (path)) changed = 1;
+    g_free (path);
+
+    for (i = 0; i < ndesks; i++)
+    {
+        fname = g_strdup_printf ("desktop-items-%d.conf", i);
+        path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+        if (restore_file (path)) changed = 1;
+        g_free (path);
+        g_free (fname);
+
+        if (wm != WM_OPENBOX)
+        {
+            monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
+            fname = g_strdup_printf ("desktop-items-%s.conf", monname);
+            path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+            if (restore_file (path)) changed = 1;
+            g_free (path);
+            g_free (fname);
+            g_free (monname);
+        }
+    }
+
+    path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
+    if (restore_file (path)) changed = 1;
+    g_free (path);
+
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    if (restore_file (path)) changed = 1;
+    g_free (path);
+
+    path = g_build_filename (".local/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    if (restore_file (path)) changed = 1;
+    g_free (path);
+
+    if (restore_file (".config/wf-panel-pi.ini")) changed = 1;
+    if (restore_file (".config/libfm/libfm.conf")) changed = 1;
+    if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
+    if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
+    if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
+    if (restore_file (".config/wayfire.ini")) changed = 1;
+    if (restore_file (".config/labwc/themerc-override")) changed = 1;
+    if (restore_file (".config/labwc/rc.xml")) changed = 1;
+    if (restore_file (".config/labwc/environment")) changed = 1;
+    if (restore_file (".gtkrc-2.0")) changed = 1;
+
+    // app-specific
+    if (restore_file (".config/lxterminal/lxterminal.conf")) changed = 1;
+    if (restore_file (".config/libreoffice/4/user/registrymodifications.xcu")) changed = 1;
+    if (restore_file (".config/geany/geany.conf")) changed = 1;
+    if (restore_file (".config/galculator/galculator.conf")) changed = 1;
+
+    return changed;
 }
 
 static void reload_gsettings (void)
@@ -2929,10 +3042,68 @@ static int n_desktops (void)
     return 1;
 }
 
+static gpointer restore_thread (gpointer ptr)
+{
+    if (restore_config_files ())
+    {
+        cur_conf.darkmode = orig_darkmode;
+        set_theme (TEMP_THEME);
+        reload_lxsession ();
+        reload_xsettings ();
+        reload_gsettings ();
+        reload_lxpanel ();
+        reload_openbox ();
+        reload_pcmanfm ();
+        reload_theme (TRUE);
+    }
+    else gtk_main_quit ();
+    return NULL;
+}
+
+static gboolean cancel_main (GtkButton *button, gpointer data)
+{
+    if (orig_darkmode != cur_conf.darkmode)
+    {
+        if (!system ("pgrep geany > /dev/null"))
+        {
+            message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+            return FALSE;
+        }
+
+        if (!system ("pgrep galculator > /dev/null"))
+        {
+            message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+            return FALSE;
+        }
+    }
+    message (_("Restoring configuration - please wait..."));
+    g_thread_new (NULL, restore_thread, NULL);
+    return FALSE;
+}
+
+static gboolean ok_main (GtkButton *button, gpointer data)
+{
+    gtk_main_quit ();
+    return FALSE;
+}
+
+static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    gtk_main_quit ();
+    return TRUE;
+}
+
 /* The dialog... */
+
+#ifdef PLUGIN_NAME
+GtkBuilder *builder;
+#endif
 
 static gboolean init_config (gpointer data)
 {
+#ifndef PLUGIN_NAME
+    GtkBuilder *builder;
+#endif
     GObject *item;
     GtkWidget *wid;
     GtkLabel *lbl;
@@ -2979,6 +3150,13 @@ static gboolean init_config (gpointer data)
 
     // build the UI
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+    dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
+    g_signal_connect (dlg, "delete_event", G_CALLBACK (close_prog), NULL);
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_ok");
+    g_signal_connect (wid, "clicked", G_CALLBACK (ok_main), NULL);
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_cancel");
+    g_signal_connect (wid, "clicked", G_CALLBACK (cancel_main), NULL);
 
     font = gtk_builder_get_object (builder, "fontbutton1");
     g_signal_connect (font, "font-set", G_CALLBACK (on_desktop_font_set), NULL);
@@ -3134,10 +3312,42 @@ static gboolean init_config (gpointer data)
         }
     }
 
+#ifndef PLUGIN_NAME
+    g_object_unref (builder);
+#endif
+
     set_controls ();
+
+#ifndef PLUGIN_NAME
+    gtk_widget_show (dlg);
+    gtk_widget_destroy (msg_dlg);
+#endif
 
     return FALSE;
 }
+
+static gboolean event (GtkWidget *wid, GdkEventWindowState *ev, gpointer data)
+{
+    if (ev->type == GDK_WINDOW_STATE)
+    {
+        if (ev->changed_mask == GDK_WINDOW_STATE_FOCUSED
+            && ev->new_window_state & GDK_WINDOW_STATE_FOCUSED)
+                g_idle_add (init_config, NULL);
+    }
+    return FALSE;
+}
+
+static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data)
+{
+    g_signal_handler_disconnect (wid, draw_id);
+    g_idle_add (init_config, NULL);
+    return FALSE;
+}
+
+#ifdef PLUGIN_NAME
+/*----------------------------------------------------------------------------*/
+/* Plugin interface */
+/*----------------------------------------------------------------------------*/
 
 void init_plugin (void)
 {
@@ -3203,3 +3413,42 @@ void free_plugin (void)
 {
     g_object_unref (builder);
 }
+
+#else
+
+int main (int argc, char *argv[])
+{
+    setlocale (LC_ALL, "");
+    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
+
+    // read starting tab if there is one
+    if (argc > 1)
+    {
+        if (sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
+    }
+
+    // GTK setup
+    gtk_init (&argc, &argv);
+    gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
+
+    if (getenv ("WAYLAND_DISPLAY"))
+    {
+        if (getenv ("WAYFIRE_CONFIG_FILE")) wm = WM_WAYFIRE;
+        else wm = WM_LABWC;
+    }
+    else wm = WM_OPENBOX;
+
+    message (_("Loading configuration - please wait..."));
+    if (wm != WM_OPENBOX) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
+    else draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
+
+    gtk_main ();
+
+    gtk_widget_destroy (dlg);
+
+    return 0;
+}
+
+#endif

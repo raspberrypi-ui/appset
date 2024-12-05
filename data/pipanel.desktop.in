@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Appearance Settings
+Comment=Configure the appearance of the desktop and windows
+Icon=preferences-desktop-theme
+Exec=pipanel
+Terminal=false
+Categories=Settings;
+StartupNotify=true

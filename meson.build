@@ -1,10 +1,18 @@
-project ('rpcc_appset','c')
+# To build standalone, use 'rasputin'
+#project ('pipanel','c')
+# To build plugin, use 'rpcc_rasputin'
+project ('rpcc_pipanel','c')
 
 share_dir = join_paths(get_option('prefix'), 'share')
-resource_dir = join_paths(share_dir, 'rpcc')
+if meson.project_name().contains('rpcc')
+  resource_dir = join_paths(share_dir, 'rpcc')
+else
+  resource_dir = join_paths(share_dir, meson.project_name())
+endif
 ui_dir = join_paths(resource_dir, 'ui')
 desktop_dir = join_paths(share_dir, 'applications')
 
+i18n = import('i18n')
 gettext_package = meson.project_name()
 
 add_project_arguments('-DGETTEXT_PACKAGE="' + gettext_package + '"', language : [ 'c', 'cpp' ])
