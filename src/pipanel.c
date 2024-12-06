@@ -3312,13 +3312,11 @@ static gboolean init_config (gpointer data)
         }
     }
 
-#ifndef PLUGIN_NAME
-    g_object_unref (builder);
-#endif
-
     set_controls ();
 
 #ifndef PLUGIN_NAME
+    g_object_unref (builder);
+
     gtk_widget_show (dlg);
     gtk_widget_destroy (msg_dlg);
 #endif
