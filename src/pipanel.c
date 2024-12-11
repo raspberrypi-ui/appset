@@ -119,6 +119,7 @@ static wm_type wm;
 
 /* Original theme in use */
 static int orig_darkmode;
+static int orig_csize;
 
 /* Version of Libreoffice installed - affects toolbar icon setting */
 static char lo_ver;
@@ -3147,6 +3148,7 @@ static gboolean init_config (gpointer data)
 
     init_lxsession (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
     backup_config_files ();
+    orig_csize = cur_conf.cursor_size;
 
     // build the UI
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
@@ -3409,6 +3411,7 @@ GtkWidget *get_tab (int tab)
 
 gboolean reboot_needed (void)
 {
+    if (wm == WM_OPENBOX && cur_conf.cursor_size != orig_csize) return TRUE;
     return FALSE;
 }
 
