@@ -803,6 +803,7 @@
                         <property name="label" translatable="yes">Light</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="tooltip-text" translatable="yes">Set the desktop to use light colours</property>
                         <property name="receives-default">False</property>
                         <property name="active">True</property>
                         <property name="draw-indicator">True</property>
@@ -821,6 +822,7 @@
                         <property name="label" translatable="yes">Dark</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="tooltip-text" translatable="yes">Set the desktop to use dark colours</property>
                         <property name="receives-default">False</property>
                         <property name="active">True</property>
                         <property name="draw-indicator">True</property>
