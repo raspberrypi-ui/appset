@@ -37,15 +37,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 extern void reload_wm (void);
-extern void reload_xsettings (void);
+extern void reload_session (void);
 extern char *lxsession_file (gboolean global);
 extern char *xsettings_file (gboolean global);
 extern char *openbox_file (void);
 extern void load_lxsession_settings (void);
-extern void save_obconf_settings (gboolean lw);
-extern void save_lxsession_settings (void);
+extern void save_wm_settings (void);
+extern void save_session_settings (void);
 extern void save_gtk3_settings (void);
-extern void save_xsettings (void);
 extern void save_wayfire_settings (void);
 extern void save_labwc_env_settings (void);
 extern void save_qt_settings (void);

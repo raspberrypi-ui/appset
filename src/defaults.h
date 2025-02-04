@@ -28,15 +28,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Typedefs and macros                                                        */
 /*----------------------------------------------------------------------------*/
 
+#define DEFAULT(x) cur_conf.x=def_med.x
+
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
+
+extern Config def_med;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-extern void reload_gsettings (void);
 extern void create_defaults (void);
 extern void load_defaults_tab (GtkBuilder *builder);
 

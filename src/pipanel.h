@@ -30,15 +30,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MAX_DESKTOPS 9
 
-#define GREY    "#808080"
-
 #define DEFAULT_THEME "PiXflat"
 #define DEFAULT_THEME_DARK "PiXnoir"
 #define DEFAULT_THEME_L "PiXflat_l"
 #define DEFAULT_THEME_DARK_L "PiXnoir_l"
 #define TEMP_THEME    "tPiXflat"
-
-#define DEFAULT(x) cur_conf.x=def_med.x
 
 #define XC(str) ((xmlChar *) str)
 
@@ -88,7 +84,7 @@ wm_type;
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
 
-extern Config cur_conf, def_med;
+extern Config cur_conf;
 extern wm_type wm;
 extern int ndesks;
 extern GtkTreeModel *sortmons;

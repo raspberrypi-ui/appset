@@ -39,8 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern void reload_panel (void);
 extern char *lxpanel_file (gboolean global);
 extern char *wfpanel_file (void);
-extern void save_lxpanel_settings (void);
-extern void save_wfpanel_settings (void);
+extern void save_panel_settings (void);
 extern void set_taskbar_controls (void);
 extern void load_taskbar_tab (GtkBuilder *builder);
 

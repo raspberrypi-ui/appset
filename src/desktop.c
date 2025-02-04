@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 
 #include "pipanel.h"
+#include "defaults.h"
 
 #include "desktop.h"
 
@@ -40,7 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 /* Controls */
-static GtkWidget *colour_desktop, *colour_desktoptext, *combo_mode, *file_picture, *file_folder, *combo_monitor, *toggle_docs, *toggle_trash, *toggle_mnts, *toggle_same;
+static GtkWidget *colour_desktop, *colour_desktoptext, *combo_mode, *file_picture;
+static GtkWidget *file_folder, *combo_monitor, *toggle_docs, *toggle_trash, *toggle_mnts, *toggle_same;
 
 /* Handler IDs */
 static gulong id_mode, id_docs, id_trash, id_mnts, id_folder, id_same, id_monitor;
@@ -436,6 +438,7 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
 
     if (!strcmp (cur_conf.desktops[desktop_n].desktop_mode, "color")) gtk_widget_set_sensitive (GTK_WIDGET (file_picture), FALSE);
     else gtk_widget_set_sensitive (GTK_WIDGET (file_picture), TRUE);
+
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
@@ -444,6 +447,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 {
     char *picture = gtk_file_chooser_get_filename (btn);
     if (picture) cur_conf.desktops[desktop_n].desktop_picture = picture;
+
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
@@ -451,6 +455,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
 static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.desktops[desktop_n].desktop_colour);
+
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
@@ -458,6 +463,7 @@ static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
 static void on_desktop_textcolour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.desktops[desktop_n].desktoptext_colour);
+
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
@@ -470,6 +476,7 @@ static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr)
         if (g_strcmp0 (cur_conf.desktops[desktop_n].desktop_folder, folder))
         {
             cur_conf.desktops[desktop_n].desktop_folder = folder;
+
             save_pcman_settings (desktop_n);
             reload_desktop ();
         }
@@ -479,6 +486,7 @@ static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr)
 static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
 {
     cur_conf.desktops[desktop_n].show_docs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
@@ -486,6 +494,7 @@ static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
 static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr)
 {
     cur_conf.desktops[desktop_n].show_trash = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
@@ -493,6 +502,7 @@ static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr)
 static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
 {
     cur_conf.desktops[desktop_n].show_mnts = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }

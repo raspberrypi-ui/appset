@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Typedefs and macros                                                        */
 /*----------------------------------------------------------------------------*/
 
+#define GREY    "#808080"
+
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
@@ -73,25 +75,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr);
 /*----------------------------------------------------------------------------*/
 /* Helpers                                                                    */
 /*----------------------------------------------------------------------------*/
-
-void reload_gsettings (void)
-{
-    if (wm != WM_OPENBOX)
-    {
-        load_lxsession_settings ();
-        vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
-        vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
-        switch (cur_conf.tb_icon_size)
-        {
-            case 16:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size small");
-                        break;
-            case 48:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size large");
-                        break;
-            default:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size medium");
-                        break;
-        }
-    }
-}
 
 static void delete_file (char *filepath)
 {
@@ -524,7 +507,6 @@ static void reset_to_defaults (void)
     delete_file (".config/labwc/themerc-override");
     delete_file (".gtkrc-2.0");
 
-    reload_gsettings ();
     init_lxsession (TEMP_THEME);
 }
 
@@ -639,25 +621,18 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     // save changes to files if not using medium (the global default)
     if ((long int) ptr != 2)
     {
-        save_lxsession_settings ();
-        save_xsettings ();
+        save_session_settings ();
         save_pcman_g_settings ();
         for (i = 0; i < ndesks; i++)
             save_pcman_settings (i);
         save_libfm_settings ();
-        if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
-        if (wm == WM_LABWC) save_obconf_settings (TRUE);
         save_gtk3_settings ();
-        if (wm == WM_OPENBOX) save_lxpanel_settings ();
         save_qt_settings ();
     }
 
-    if (wm != WM_OPENBOX) save_wfpanel_settings ();
-    if (wm == WM_LABWC)
-    {
-        save_obconf_settings (TRUE);
-        save_labwc_env_settings ();
-    }
+    save_wm_settings ();
+    save_panel_settings ();
+    if (wm == WM_LABWC) save_labwc_env_settings ();
     if (wm == WM_WAYFIRE) save_wayfire_settings ();
 
     // save application-specific config - we don't delete these files first...
@@ -666,11 +641,10 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     save_app_settings ();
 
     // reload everything to reflect the current state
-    reload_xsettings ();
+    reload_session ();
     reload_panel ();
     reload_wm ();
     reload_desktop ();
-    reload_theme (FALSE);
 }
 
 /*----------------------------------------------------------------------------*/

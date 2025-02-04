@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pipanel.h"
 #include "desktop.h"
 #include "system.h"
+#include "defaults.h"
 
 #include "taskbar.h"
 
@@ -57,6 +58,8 @@ static gulong id_size, id_pos, id_monitor;
 
 static void load_lxpanel_settings (void);
 static void load_wfpanel_settings (void);
+static void save_lxpanel_settings (void);
+static void save_wfpanel_settings (void);
 static void on_bar_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr);
@@ -73,7 +76,7 @@ static void on_bar_textcolour_set (GtkColorChooser* btn, gpointer ptr);
 
 void reload_panel (void)
 {
-    if (wm != WM_OPENBOX) vsystem ("lxpanelctl refresh");
+    if (wm == WM_OPENBOX) vsystem ("lxpanelctl refresh");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -185,7 +188,7 @@ static void load_wfpanel_settings (void)
     g_free (user_config_file);
 }
 
-void save_lxpanel_settings (void)
+static void save_lxpanel_settings (void)
 {
     char *user_config_file;
 
@@ -211,7 +214,7 @@ void save_lxpanel_settings (void)
     g_free (user_config_file);
 }
 
-void save_wfpanel_settings (void)
+static void save_wfpanel_settings (void)
 {
     char *user_config_file, *str;
     GKeyFile *kf;
@@ -241,6 +244,12 @@ void save_wfpanel_settings (void)
 
     g_key_file_free (kf);
     g_free (user_config_file);
+}
+
+void save_panel_settings (void)
+{
+    if (wm == WM_OPENBOX) save_lxpanel_settings ();
+    else save_wfpanel_settings ();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -303,12 +312,8 @@ static void on_bar_size_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
 
-    if (wm != WM_OPENBOX)
-    {
-        save_wfpanel_settings ();
-        reload_desktop ();
-    }
-    else save_lxpanel_settings ();
+    save_panel_settings ();
+    if (wm != WM_OPENBOX) reload_desktop ();
     reload_panel ();
 }
 
@@ -317,12 +322,8 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
 
-    if (wm != WM_OPENBOX)
-    {
-        save_wfpanel_settings ();
-        reload_desktop ();
-    }
-    else save_lxpanel_settings ();
+    save_panel_settings ();
+    if (wm != WM_OPENBOX) reload_desktop ();
     reload_panel ();
 }
 
@@ -333,12 +334,8 @@ static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr)
     gtk_combo_box_get_active_iter (cb, &iter);
     gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &cur_conf.monitor, -1);
 
-    if (wm != WM_OPENBOX)
-    {
-        save_wfpanel_settings ();
-        reload_desktop ();
-    }
-    else save_lxpanel_settings ();
+    save_panel_settings ();
+    if (wm != WM_OPENBOX) reload_desktop ();
     reload_panel ();
 }
 

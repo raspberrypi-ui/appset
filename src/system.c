@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pipanel.h"
 #include "taskbar.h"
 #include "desktop.h"
+#include "defaults.h"
 
 #include "system.h"
 
@@ -47,7 +48,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 /* Controls */
-static GtkWidget *colour_hilite, *colour_hilitetext, *font_system, *rb_light, *rb_dark, *combo_cursor, *label_cursor;
+static GtkWidget *colour_hilite, *colour_hilitetext, *font_system, *rb_light;
+static GtkWidget *rb_dark, *combo_cursor, *label_cursor;
 
 /* Handler IDs */
 static gulong id_cursor, id_dark;
@@ -62,6 +64,9 @@ static char *wayfire_file (void);
 static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_gtk3_settings (void);
+static void save_lxsession_settings (void);
+static void save_gsettings (void);
+static void save_xsettings (void);
 static void save_labwc_to_settings (void);
 static int is_dark (void);
 static gboolean restore_theme (gpointer data);
@@ -85,11 +90,25 @@ void reload_wm (void)
     if (wm == WM_OPENBOX) vsystem ("openbox --reconfigure");
 }
 
-void reload_xsettings (void)
+void reload_session (void)
 {
+    reload_theme (FALSE);
+
     if (wm == WM_OPENBOX) return;
 
     vsystem ("pgrep xsettingsd > /dev/null && killall -HUP xsettingsd");
+
+    vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
+    vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
+    switch (cur_conf.tb_icon_size)
+    {
+        case 16:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size small");
+                    break;
+        case 48:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size large");
+                    break;
+        default:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size medium");
+                    break;
+    }
 }
 
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value)
@@ -351,7 +370,7 @@ static void load_gtk3_settings (void)
     }
 }
 
-void save_obconf_settings (gboolean lw)
+void save_wm_settings (void)
 {
     char *user_config_file, *font, *cptr;
     int count, size;
@@ -363,8 +382,10 @@ void save_obconf_settings (gboolean lw)
     xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
 
-    if (lw) user_config_file = labwc_file ();
-    else user_config_file = openbox_file ();
+    if (wm == WM_LABWC) user_config_file = labwc_file ();
+    else if (wm == WM_OPENBOX) user_config_file = openbox_file ();
+    else return;
+
     check_directory (user_config_file);
 
     // set the font description variables for XML from the font name
@@ -479,7 +500,8 @@ void save_obconf_settings (gboolean lw)
             xmlNodeSetContent (cur_node, cur_conf.darkmode ? XC (DEFAULT_THEME_DARK) : XC (DEFAULT_THEME));
     }
 
-    if (!lw)
+    if (wm == WM_LABWC) save_labwc_to_settings ();
+    else
     {
         sprintf (buf, "%d", cur_conf.handle_width);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']"), xpathCtx);
@@ -495,11 +517,7 @@ void save_obconf_settings (gboolean lw)
             cur_node = xpathObj->nodesetval->nodeTab[0];
             xmlNodeSetContent (cur_node, XC (buf));
         }
-    }
 
-    if (lw) save_labwc_to_settings ();
-    else
-    {
         cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']"), xpathCtx);
         if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
@@ -545,7 +563,7 @@ void save_obconf_settings (gboolean lw)
     g_free (user_config_file);
 }
 
-void save_lxsession_settings (void)
+static void save_lxsession_settings (void)
 {
     char *user_config_file, *str, *ostr, *ctheme, *cthemet, *cbar, *cbart;
     GKeyFile *kf;
@@ -626,21 +644,20 @@ void save_lxsession_settings (void)
     g_free (str);
     g_key_file_free (kf);
     g_free (user_config_file);
+}
 
-    if (wm != WM_OPENBOX)
+static void save_gsettings (void)
+{
+    vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
+    vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
+    switch (cur_conf.tb_icon_size)
     {
-        vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
-        vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
-        switch (cur_conf.tb_icon_size)
-        {
-            case 16:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size small");
-                        break;
-            case 48:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size large");
-                        break;
-            default:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size medium");
-                        break;
-        }
-        set_theme (TEMP_THEME);
+        case 16:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size small");
+                    break;
+        case 48:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size large");
+                    break;
+        default:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size medium");
+                    break;
     }
 }
 
@@ -755,7 +772,7 @@ void save_gtk3_settings (void)
     g_free (user_config_file);
 }
 
-void save_xsettings (void)
+static void save_xsettings (void)
 {
     char *user_config_file, *str, *ctheme, *cthemet, *cbar, *cbart;
 
@@ -792,6 +809,14 @@ void save_xsettings (void)
     g_free (cbart);
     g_free (str);
     g_free (user_config_file);
+}
+
+void save_session_settings (void)
+{
+    save_lxsession_settings ();
+    if (wm != WM_OPENBOX) save_gsettings ();
+    save_xsettings ();
+    set_theme (TEMP_THEME);
 }
 
 void save_wayfire_settings (void)
@@ -1108,7 +1133,7 @@ void set_theme (const char *theme)
         user_config_file = xsettings_file (FALSE);
         vsystem ("sed -i s#'Net/ThemeName.*'#'Net/ThemeName \"%s\"'#g %s", theme, user_config_file);
         g_free (user_config_file);
-        reload_xsettings ();
+        reload_session ();
     }
 }
 
@@ -1178,29 +1203,23 @@ void set_system_controls (void)
 static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
-    set_theme (TEMP_THEME);
-    save_lxsession_settings ();
-    save_xsettings ();
-    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
-    if (wm == WM_LABWC) save_obconf_settings (TRUE);
+
+    save_session_settings ();
+    save_wm_settings ();
     save_gtk3_settings ();
-    reload_xsettings ();
+    reload_session ();
     reload_wm ();
-    reload_theme (FALSE);
 }
 
 static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
-    set_theme (TEMP_THEME);
-    save_lxsession_settings ();
-    save_xsettings ();
-    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
-    if (wm == WM_LABWC) save_obconf_settings (TRUE);
+
+    save_session_settings ();
+    save_wm_settings ();
     save_gtk3_settings ();
-    reload_xsettings ();
+    reload_session ();
     reload_wm ();
-    reload_theme (FALSE);
 }
 
 static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
@@ -1223,20 +1242,17 @@ static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
         cur_conf.scrollbar_width = font_height >= LARGE_ICON_THRESHOLD ? 17 : 13;
     }
 
-    save_lxsession_settings ();
-    save_xsettings ();
+    save_session_settings ();
     for (i = 0; i < ndesks; i++)
         save_pcman_settings (i);
-    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
-    if (wm == WM_LABWC) save_obconf_settings (TRUE);
+    save_wm_settings ();
     save_gtk3_settings ();
     save_qt_settings ();
 
-    reload_xsettings ();
+    reload_session ();
     reload_panel ();
     reload_wm ();
     reload_desktop ();
-    reload_theme (FALSE);
 }
 
 static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
@@ -1268,15 +1284,12 @@ static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
     
     set_taskbar_controls ();
 
-    save_lxsession_settings ();
-    save_xsettings ();
-    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
-    if (wm == WM_LABWC) save_obconf_settings (TRUE);
+    save_session_settings ();
+    save_wm_settings ();
     save_gtk3_settings ();
     save_app_settings ();
-    reload_xsettings ();
+    reload_session ();
     reload_wm ();
-    reload_theme (FALSE);
 }
 
 static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
@@ -1291,13 +1304,11 @@ static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
         case 2 :    cur_conf.cursor_size = 24;
                     break;
     }
-    save_lxsession_settings ();
-    save_xsettings ();
-    if (wm == WM_LABWC) save_labwc_env_settings ();
-    if (wm == WM_WAYFIRE) save_wayfire_settings ();
-    reload_xsettings ();
+
+    save_session_settings ();
+    save_wm_settings ();
+    reload_session ();
     reload_wm ();
-    reload_theme (FALSE);
 }
 
 /*----------------------------------------------------------------------------*/
