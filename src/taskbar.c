@@ -45,10 +45,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 /* Controls */
-static GtkWidget *bcol, *btcol, *rb1, *rb2, *isz, *cbbar;
+static GtkWidget *colour_bar, *colour_bartext, *rb_top, *rb_bottom, *combo_size;
+static GtkWidget *combo_monitor;
 
 /* Handler IDs */
-static gulong iid, bpid, blid;
+static gulong id_size, id_pos, id_monitor;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -56,11 +57,11 @@ static gulong iid, bpid, blid;
 
 static void load_lxpanel_settings (void);
 static void load_wfpanel_settings (void);
-static void on_menu_size_set (GtkComboBox* btn, gpointer ptr);
-static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_bar_size_set (GtkComboBox* btn, gpointer ptr);
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
 static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr);
+static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_bar_textcolour_set (GtkColorChooser* btn, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -70,11 +71,9 @@ static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr);
 /* Helpers                                                                    */
 /*----------------------------------------------------------------------------*/
 
-void reload_lxpanel (void)
+void reload_panel (void)
 {
-    if (wm != WM_OPENBOX) return;
-
-    vsystem ("lxpanelctl refresh");
+    if (wm != WM_OPENBOX) vsystem ("lxpanelctl refresh");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -190,10 +189,8 @@ void save_lxpanel_settings (void)
 {
     char *user_config_file;
 
-    // sanity check
-    if (cur_conf.icon_size > MAX_ICON || cur_conf.icon_size < MIN_ICON) return;
-
     user_config_file = lxpanel_file (FALSE);
+
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
         // need a local copy to take the changes
@@ -202,8 +199,11 @@ void save_lxpanel_settings (void)
     }
 
     // use sed to write
-    vsystem ("sed -i s/iconsize=.*/iconsize=%d/g %s", cur_conf.icon_size, user_config_file);
-    vsystem ("sed -i s/height=.*/height=%d/g %s", cur_conf.icon_size, user_config_file);
+    if (cur_conf.icon_size <= MAX_ICON && cur_conf.icon_size >= MIN_ICON)
+    {
+        vsystem ("sed -i s/iconsize=.*/iconsize=%d/g %s", cur_conf.icon_size, user_config_file);
+        vsystem ("sed -i s/height=.*/height=%d/g %s", cur_conf.icon_size, user_config_file);
+    }
     vsystem ("sed -i s/edge=.*/edge=%s/g %s", cur_conf.barpos ? "bottom" : "top", user_config_file);
     vsystem ("sed -i s/MaxTaskWidth=.*/MaxTaskWidth=%d/g %s", cur_conf.task_width, user_config_file);
     vsystem ("sed -i s/monitor=.*/monitor=%d/g %s", cur_conf.monitor, user_config_file);
@@ -252,20 +252,20 @@ void set_taskbar_controls (void)
     GtkTreeIter iter;
     int val;
 
-    g_signal_handler_block (isz, iid);
-    g_signal_handler_block (rb1, bpid);
-    g_signal_handler_block (cbbar, blid);
-    
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
+    g_signal_handler_block (combo_size, id_size);
+    g_signal_handler_block (rb_top, id_pos);
+    g_signal_handler_block (combo_monitor, id_monitor);
 
-    if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 3);
-    else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 2);
-    else if (cur_conf.icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 1);
-    else gtk_combo_box_set_active (GTK_COMBO_BOX (isz), 0);
-    
-    if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb2), TRUE);
-    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb1), TRUE);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bar), &cur_conf.bar_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bartext), &cur_conf.bartext_colour[cur_conf.darkmode]);
+
+    if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 3);
+    else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 2);
+    else if (cur_conf.icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 1);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 0);
+
+    if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_bottom), TRUE);
+    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_top), TRUE);
 
     if (ndesks > 1)
     {
@@ -276,20 +276,19 @@ void set_taskbar_controls (void)
             gtk_tree_model_iter_next (GTK_TREE_MODEL (sortmons), &iter);
             gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
         }
-        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (cbbar), &iter);
+        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo_monitor), &iter);
     }
-    
-    g_signal_handler_unblock (rb1, bpid);
-    g_signal_handler_unblock (cbbar, blid);
-    g_signal_handler_unblock (isz, iid);
-    
+
+    g_signal_handler_unblock (rb_top, id_pos);
+    g_signal_handler_unblock (combo_monitor, id_monitor);
+    g_signal_handler_unblock (combo_size, id_size);
 }
 
 /*----------------------------------------------------------------------------*/
 /* Control handlers                                                           */
 /*----------------------------------------------------------------------------*/
 
-static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
+static void on_bar_size_set (GtkComboBox* btn, gpointer ptr)
 {
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
@@ -303,54 +302,28 @@ static void on_menu_size_set (GtkComboBox* btn, gpointer ptr)
         case 3 :    cur_conf.icon_size = 20;
                     break;
     }
+
     if (wm != WM_OPENBOX)
     {
         save_wfpanel_settings ();
-        reload_pcmanfm ();
+        reload_desktop ();
     }
-    else
-    {
-        save_lxpanel_settings ();
-        reload_lxpanel ();
-    }
-}
-
-static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
-{
-    gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour[cur_conf.darkmode]);
-    set_theme (TEMP_THEME);
-    save_lxsession_settings ();
-    save_xsettings ();
-    save_gtk3_settings ();
-    reload_xsettings ();
-    reload_theme (FALSE);
-}
-
-static void on_bartext_colour_set (GtkColorChooser* btn, gpointer ptr)
-{
-    gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour[cur_conf.darkmode]);
-    set_theme (TEMP_THEME);
-    save_lxsession_settings ();
-    save_xsettings ();
-    save_gtk3_settings ();
-    reload_xsettings ();
-    reload_theme (FALSE);
+    else save_lxpanel_settings ();
+    reload_panel ();
 }
 
 static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
+
     if (wm != WM_OPENBOX)
     {
         save_wfpanel_settings ();
-        reload_pcmanfm ();
+        reload_desktop ();
     }
-    else
-    {
-        save_lxpanel_settings ();
-        reload_lxpanel ();
-    }
+    else save_lxpanel_settings ();
+    reload_panel ();
 }
 
 static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr)
@@ -359,16 +332,30 @@ static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr)
 
     gtk_combo_box_get_active_iter (cb, &iter);
     gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &cur_conf.monitor, -1);
+
     if (wm != WM_OPENBOX)
     {
         save_wfpanel_settings ();
-        reload_pcmanfm ();
+        reload_desktop ();
     }
-    else
-    {
-        save_lxpanel_settings ();
-        reload_lxpanel ();
-    }
+    else save_lxpanel_settings ();
+    reload_panel ();
+}
+
+static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
+{
+    gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour[cur_conf.darkmode]);
+    set_theme (TEMP_THEME);
+    save_gtk3_settings ();
+    reload_theme (FALSE);
+}
+
+static void on_bar_textcolour_set (GtkColorChooser* btn, gpointer ptr)
+{
+    gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour[cur_conf.darkmode]);
+    set_theme (TEMP_THEME);
+    save_gtk3_settings ();
+    reload_theme (FALSE);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -379,30 +366,30 @@ void load_taskbar_tab (GtkBuilder *builder)
 {
     if (wm != WM_OPENBOX) load_wfpanel_settings ();
     else load_lxpanel_settings ();
-    
-    bcol = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton3");
-    g_signal_connect (bcol, "color-set", G_CALLBACK (on_bar_colour_set), NULL);
 
-    btcol = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton4");
-    g_signal_connect (btcol, "color-set", G_CALLBACK (on_bartext_colour_set), NULL);
+    colour_bar = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton3");
+    g_signal_connect (colour_bar, "color-set", G_CALLBACK (on_bar_colour_set), NULL);
 
-    rb1 = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton1");
-    rb2 = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton2");
-    bpid = g_signal_connect (rb1, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+    colour_bartext = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton4");
+    g_signal_connect (colour_bartext, "color-set", G_CALLBACK (on_bar_textcolour_set), NULL);
 
-    cbbar = (GtkWidget *) gtk_builder_get_object (builder, "cb_barmon");
-    blid = g_signal_connect (cbbar, "changed", G_CALLBACK (on_bar_loc_set), NULL);
+    rb_top = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton1");
+    rb_bottom = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton2");
+    id_pos = g_signal_connect (rb_top, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
 
-    isz = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext2");
-    iid = g_signal_connect (isz, "changed", G_CALLBACK (on_menu_size_set), NULL);
+    combo_monitor = (GtkWidget *) gtk_builder_get_object (builder, "cb_barmon");
+    id_monitor = g_signal_connect (combo_monitor, "changed", G_CALLBACK (on_bar_loc_set), NULL);
+
+    combo_size = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext2");
+    id_size = g_signal_connect (combo_size, "changed", G_CALLBACK (on_bar_size_set), NULL);
 
     if (ndesks > 1)
     {
         GtkCellRenderer *rend = gtk_cell_renderer_text_new ();
 
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (cbbar), rend, FALSE);
-        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (cbbar), rend, "text", 1);
-        gtk_combo_box_set_model (GTK_COMBO_BOX (cbbar), GTK_TREE_MODEL (sortmons));
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo_monitor), rend, FALSE);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo_monitor), rend, "text", 1);
+        gtk_combo_box_set_model (GTK_COMBO_BOX (combo_monitor), GTK_TREE_MODEL (sortmons));
 
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
     }

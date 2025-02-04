@@ -645,8 +645,8 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         for (i = 0; i < ndesks; i++)
             save_pcman_settings (i);
         save_libfm_settings ();
-        save_obconf_settings (FALSE);
-        if (wm == WM_LABWC) save_labwc_to_settings ();
+        if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
+        if (wm == WM_LABWC) save_obconf_settings (TRUE);
         save_gtk3_settings ();
         if (wm == WM_OPENBOX) save_lxpanel_settings ();
         save_qt_settings ();
@@ -667,9 +667,9 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
     // reload everything to reflect the current state
     reload_xsettings ();
-    reload_lxpanel ();
-    reload_openbox ();
-    reload_pcmanfm ();
+    reload_panel ();
+    reload_wm ();
+    reload_desktop ();
     reload_theme (FALSE);
 }
 

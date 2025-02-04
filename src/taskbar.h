@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-extern void reload_lxpanel (void);
+extern void reload_panel (void);
 extern char *lxpanel_file (gboolean global);
 extern char *wfpanel_file (void);
 extern void save_lxpanel_settings (void);

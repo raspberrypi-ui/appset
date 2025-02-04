@@ -92,7 +92,6 @@ extern Config cur_conf, def_med;
 extern wm_type wm;
 extern int ndesks;
 extern GtkTreeModel *sortmons;
-extern int st_tab;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */

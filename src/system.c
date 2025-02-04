@@ -47,29 +47,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 /* Controls */
-static GtkWidget *hcol, *htcol, *font, *rb5, *rb6, *csz, *cmsg;
+static GtkWidget *colour_hilite, *colour_hilitetext, *font_system, *rb_light, *rb_dark, *combo_cursor, *label_cursor;
 
 /* Handler IDs */
-static gulong cid, bdid;
+static gulong id_cursor, id_dark;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-static void reload_labwc (void);
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
 static char *wayfire_file (void);
 static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_gtk3_settings (void);
+static void save_labwc_to_settings (void);
 static int is_dark (void);
 static gboolean restore_theme (gpointer data);
 static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr);
-static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr);
-static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr);
+static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr);
+static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr);
+static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -79,14 +79,9 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr);
 /* Helpers                                                                    */
 /*----------------------------------------------------------------------------*/
 
-static void reload_labwc (void)
+void reload_wm (void)
 {
     if (wm == WM_LABWC) vsystem ("labwc --reconfigure");
-}
-
-void reload_openbox (void)
-{
-    reload_labwc ();
     if (wm == WM_OPENBOX) vsystem ("openbox --reconfigure");
 }
 
@@ -502,7 +497,8 @@ void save_obconf_settings (gboolean lw)
         }
     }
 
-    if (!lw)
+    if (lw) save_labwc_to_settings ();
+    else
     {
         cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']"), xpathCtx);
@@ -821,7 +817,7 @@ void save_wayfire_settings (void)
     g_free (user_config_file);
 }
 
-void save_labwc_to_settings (void)
+static void save_labwc_to_settings (void)
 {
     char *user_config_file, *cstrb, *cstrf;
 
@@ -1156,23 +1152,23 @@ void reload_theme (long int quit)
 void set_system_controls (void)
 {
     // block widget handlers
-    g_signal_handler_block (csz, cid);
-    g_signal_handler_block (rb5, bdid);
+    g_signal_handler_block (combo_cursor, id_cursor);
+    g_signal_handler_block (rb_light, id_dark);
 
-    gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font), cur_conf.desktop_font);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
+    gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font_system), cur_conf.desktop_font);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilite), &cur_conf.theme_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.themetext_colour[cur_conf.darkmode]);
 
-    if (cur_conf.cursor_size >= 48) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 0);
-    else if (cur_conf.cursor_size >= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 1);
-    else gtk_combo_box_set_active (GTK_COMBO_BOX (csz), 2);
+    if (cur_conf.cursor_size >= 48) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_cursor), 0);
+    else if (cur_conf.cursor_size >= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_cursor), 1);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (combo_cursor), 2);
 
-    if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
-    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
+    if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dark), TRUE);
+    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_light), TRUE);
 
     // unblock widget handlers
-    g_signal_handler_unblock (csz, cid);
-    g_signal_handler_unblock (rb5, bdid);
+    g_signal_handler_unblock (combo_cursor, id_cursor);
+    g_signal_handler_unblock (rb_light, id_dark);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1185,31 +1181,29 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     set_theme (TEMP_THEME);
     save_lxsession_settings ();
     save_xsettings ();
-    save_obconf_settings (FALSE);
-    if (wm == WM_LABWC) save_labwc_to_settings ();
+    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
+    if (wm == WM_LABWC) save_obconf_settings (TRUE);
     save_gtk3_settings ();
     reload_xsettings ();
-    reload_openbox ();
-    reload_pcmanfm ();
+    reload_wm ();
     reload_theme (FALSE);
 }
 
-static void on_themetext_colour_set (GtkColorChooser* btn, gpointer ptr)
+static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
     set_theme (TEMP_THEME);
     save_lxsession_settings ();
     save_xsettings ();
-    save_obconf_settings (FALSE);
-    if (wm == WM_LABWC) save_labwc_to_settings ();
+    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
+    if (wm == WM_LABWC) save_obconf_settings (TRUE);
     save_gtk3_settings ();
     reload_xsettings ();
-    reload_openbox ();
-    reload_pcmanfm ();
+    reload_wm ();
     reload_theme (FALSE);
 }
 
-static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
+static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
 {
     int i;
     PangoFontDescription *font_desc = gtk_font_chooser_get_font_desc (btn);
@@ -1233,64 +1227,59 @@ static void on_desktop_font_set (GtkFontChooser* btn, gpointer ptr)
     save_xsettings ();
     for (i = 0; i < ndesks; i++)
         save_pcman_settings (i);
-    save_obconf_settings (FALSE);
+    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
     if (wm == WM_LABWC) save_obconf_settings (TRUE);
     save_gtk3_settings ();
     save_qt_settings ();
 
     reload_xsettings ();
-    reload_lxpanel ();
-    reload_openbox ();
-    reload_pcmanfm ();
+    reload_panel ();
+    reload_wm ();
+    reload_desktop ();
     reload_theme (FALSE);
 }
 
-static void on_darkmode_set (GtkRadioButton* btn, gpointer ptr)
+static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
 {
     if (!system ("pgrep geany > /dev/null"))
     {
-        g_signal_handler_block (rb5, bdid);
-        if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
-        else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
+        g_signal_handler_block (rb_light, id_dark);
+        if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dark), TRUE);
+        else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_light), TRUE);
         message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
-        g_signal_handler_unblock (rb5, bdid);
+        g_signal_handler_unblock (rb_light, id_dark);
         return;
     }
 
     if (!system ("pgrep galculator > /dev/null"))
     {
-        g_signal_handler_block (rb5, bdid);
-        if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb6), TRUE);
-        else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb5), TRUE);
+        g_signal_handler_block (rb_light, id_dark);
+        if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dark), TRUE);
+        else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_light), TRUE);
         message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
-        g_signal_handler_unblock (rb5, bdid);
+        g_signal_handler_unblock (rb_light, id_dark);
         return;
     }
 
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.darkmode = 0;
     else cur_conf.darkmode = 1;
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (hcol), &cur_conf.theme_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (htcol), &cur_conf.themetext_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilite), &cur_conf.theme_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.themetext_colour[cur_conf.darkmode]);
     
     set_taskbar_controls ();
-    //gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (bcol), &cur_conf.bar_colour[cur_conf.darkmode]);
-    //gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (btcol), &cur_conf.bartext_colour[cur_conf.darkmode]);
+
     save_lxsession_settings ();
     save_xsettings ();
-    save_obconf_settings (FALSE);
-    if (wm == WM_LABWC)
-    {
-        save_obconf_settings (TRUE);
-        save_labwc_to_settings ();
-    }
+    if (wm == WM_OPENBOX) save_obconf_settings (FALSE);
+    if (wm == WM_LABWC) save_obconf_settings (TRUE);
     save_gtk3_settings ();
     save_app_settings ();
     reload_xsettings ();
-    reload_openbox ();
+    reload_wm ();
     reload_theme (FALSE);
 }
 
-static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
+static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
 {
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
@@ -1307,7 +1296,7 @@ static void on_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     if (wm == WM_LABWC) save_labwc_env_settings ();
     if (wm == WM_WAYFIRE) save_wayfire_settings ();
     reload_xsettings ();
-    reload_labwc ();
+    reload_wm ();
     reload_theme (FALSE);
 }
 
@@ -1321,27 +1310,27 @@ void load_system_tab (GtkBuilder *builder)
     load_obconf_settings ();
     load_gtk3_settings ();
 
-    font = (GtkWidget *) gtk_builder_get_object (builder, "fontbutton1");
-    g_signal_connect (font, "font-set", G_CALLBACK (on_desktop_font_set), NULL);
+    font_system = (GtkWidget *) gtk_builder_get_object (builder, "fontbutton1");
+    g_signal_connect (font_system, "font-set", G_CALLBACK (on_theme_font_set), NULL);
 
-    hcol = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton1");
-    g_signal_connect (hcol, "color-set", G_CALLBACK (on_theme_colour_set), NULL);
+    colour_hilite = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton1");
+    g_signal_connect (colour_hilite, "color-set", G_CALLBACK (on_theme_colour_set), NULL);
 
-    htcol = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton5");
-    g_signal_connect (htcol, "color-set", G_CALLBACK (on_themetext_colour_set), NULL);
+    colour_hilitetext = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton5");
+    g_signal_connect (colour_hilitetext, "color-set", G_CALLBACK (on_theme_textcolour_set), NULL);
 
-    csz = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext3");
-    cid = g_signal_connect (csz, "changed", G_CALLBACK (on_cursor_size_set), NULL);
+    combo_cursor = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext3");
+    id_cursor = g_signal_connect (combo_cursor, "changed", G_CALLBACK (on_theme_cursor_size_set), NULL);
 
     if (is_dark () != -1)
     {
-        rb5 = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton5");
-        rb6 = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton6");
-        bdid = g_signal_connect (rb5, "toggled", G_CALLBACK (on_darkmode_set), NULL);
+        rb_light = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton5");
+        rb_dark = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton6");
+        id_dark = g_signal_connect (rb_light, "toggled", G_CALLBACK (on_theme_dark_set), NULL);
     }
     else gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox35")));
 
-    cmsg = (GtkWidget *) gtk_builder_get_object (builder, "label35");
+    label_cursor = (GtkWidget *) gtk_builder_get_object (builder, "label35");
 }
 
 /* End of file */

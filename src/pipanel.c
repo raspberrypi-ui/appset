@@ -59,9 +59,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
 
-/* Global variables for window values */
-
 Config cur_conf;
+
 /* Flag to indicate window manager in use */
 wm_type wm;
 
@@ -76,16 +75,14 @@ static GtkWidget *dlg, *msg_dlg;
 static GtkListStore *mons;
 GtkTreeModel *sortmons;
 
-/* Starting tab value read from command line */
-int st_tab;
-
-/* Desktop number */
+/* Number of desktops */
 int ndesks;
 
 #ifdef PLUGIN_NAME
 GtkBuilder *builder;
 #else
 static gulong draw_id;
+static int st_tab;          /* Starting tab value read from command line */
 #endif
 
 /*----------------------------------------------------------------------------*/
@@ -439,9 +436,9 @@ static gpointer restore_thread (gpointer ptr)
         set_theme (TEMP_THEME);
         reload_xsettings ();
         reload_gsettings ();
-        reload_lxpanel ();
-        reload_openbox ();
-        reload_pcmanfm ();
+        reload_panel ();
+        reload_wm ();
+        reload_desktop ();
         reload_theme (TRUE);
     }
     else gtk_main_quit ();
@@ -591,7 +588,7 @@ void init_plugin (void)
 
 int plugin_tabs (void)
 {
-    return 3;
+    return 4;
 }
 
 const char *tab_name (int tab)

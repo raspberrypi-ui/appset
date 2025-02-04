@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-extern void reload_openbox (void);
+extern void reload_wm (void);
 extern void reload_xsettings (void);
 extern char *lxsession_file (gboolean global);
 extern char *xsettings_file (gboolean global);
@@ -47,7 +47,6 @@ extern void save_lxsession_settings (void);
 extern void save_gtk3_settings (void);
 extern void save_xsettings (void);
 extern void save_wayfire_settings (void);
-extern void save_labwc_to_settings (void);
 extern void save_labwc_env_settings (void);
 extern void save_qt_settings (void);
 extern void save_app_settings (void);
