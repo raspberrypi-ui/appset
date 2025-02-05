@@ -60,6 +60,7 @@ static gulong id_cursor, id_dark;
 
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
+static char *openbox_file (void);
 static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_lxsession_settings (void);
@@ -232,7 +233,7 @@ static void load_obconf_settings (void)
     g_free (user_config_file);
 }
 
-void load_lxsession_settings (void)
+static void load_lxsession_settings (void)
 {
     char *user_config_file, *ret;
     GKeyFile *kf;

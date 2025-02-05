@@ -56,6 +56,7 @@ static gulong id_size, id_pos, id_monitor;
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
+static char *wfpanel_file (void);
 static void load_lxpanel_settings (void);
 static void load_wfpanel_settings (void);
 static void save_lxpanel_settings (void);
@@ -88,7 +89,7 @@ char *lxpanel_file (gboolean global)
     return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel", session (), "panels/panel", NULL);
 }
 
-char *wfpanel_file (void)
+static char *wfpanel_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
 }
