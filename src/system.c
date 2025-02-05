@@ -63,6 +63,7 @@ static void add_or_amend (const char *conffile, const char *block, const char *p
 static char *wayfire_file (void);
 static char *labwc_file (void);
 static void load_obconf_settings (void);
+static void load_lxsession_settings (void);
 static void load_gtk3_settings (void);
 static void save_lxsession_settings (void);
 static void save_gsettings (void);
@@ -808,6 +809,7 @@ static void save_xsettings (void)
 
 void save_session_settings (void)
 {
+    set_theme (TEMP_THEME);
     save_lxsession_settings ();
     if (wm != WM_OPENBOX) save_gsettings ();
     save_xsettings ();
@@ -1080,35 +1082,6 @@ void save_app_settings (void)
 /* GTK theme manipulation                                                     */
 /*----------------------------------------------------------------------------*/
 
-void init_lxsession (const char *theme)
-{
-    char *user_config_file;
-
-    /* Creates a default lxsession data file with the theme in it - the
-     * system checks this for changes and reloads the theme if a change is detected */
-    if (wm == WM_OPENBOX)
-    {
-        user_config_file = lxsession_file (FALSE);
-        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-        {
-            check_directory (user_config_file);
-            vsystem ("echo '[GTK]\nsNet/ThemeName=%s' >> %s", theme, user_config_file);
-        }
-    }
-    else
-    {
-        vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
-
-        user_config_file = xsettings_file (FALSE);
-        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-        {
-            check_directory (user_config_file);
-            vsystem ("cp /etc/xsettingsd/xsettingsd.conf %s", user_config_file);
-        }
-    }
-    g_free (user_config_file);
-}
-
 void set_theme (const char *theme)
 {
     char *user_config_file;
@@ -1198,7 +1171,6 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
 
-    set_theme (TEMP_THEME);
     save_session_settings ();
     save_wm_settings ();
     save_gtk3_settings ();
@@ -1211,7 +1183,6 @@ static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
 
-    set_theme (TEMP_THEME);
     save_session_settings ();
     save_wm_settings ();
     save_gtk3_settings ();

@@ -443,6 +443,35 @@ static void save_libreoffice_settings (void)
 /* Create and use defaults                                                    */
 /*----------------------------------------------------------------------------*/
 
+void init_lxsession (const char *theme)
+{
+    char *user_config_file;
+
+    /* Creates a default lxsession data file with the theme in it - the
+     * system checks this for changes and reloads the theme if a change is detected */
+    if (wm == WM_OPENBOX)
+    {
+        user_config_file = lxsession_file (FALSE);
+        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+        {
+            check_directory (user_config_file);
+            vsystem ("echo '[GTK]\nsNet/ThemeName=%s' >> %s", theme, user_config_file);
+        }
+    }
+    else
+    {
+        vsystem ("gsettings set org.gnome.desktop.interface gtk-theme %s", theme);
+
+        user_config_file = xsettings_file (FALSE);
+        if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+        {
+            check_directory (user_config_file);
+            vsystem ("cp /etc/xsettingsd/xsettingsd.conf %s", user_config_file);
+        }
+    }
+    g_free (user_config_file);
+}
+
 static void reset_to_defaults (void)
 {
     const char *session_name = session ();

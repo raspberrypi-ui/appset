@@ -96,6 +96,11 @@ static void backup_file (char *filepath);
 static void backup_config_files (void);
 static int restore_file (char *filepath);
 static int restore_config_files (void);
+static gpointer restore_thread (gpointer ptr);
+static gboolean cancel_main (GtkButton *button, gpointer data);
+static gboolean ok_main (GtkButton *button, gpointer data);
+static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data);
+static gboolean init_config (gpointer data);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
