@@ -25,18 +25,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ============================================================================*/
 
-#include <string.h>
-#include <math.h>
 #include <locale.h>
-#include <ctype.h>
-#include <sys/stat.h>
-
-#include <glib.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <libxml/xpath.h>
@@ -59,6 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
 
+/* Current configuration */
 Config cur_conf;
 
 /* Flag to indicate window manager in use */
