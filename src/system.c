@@ -97,6 +97,15 @@ void reload_session (void)
     vsystem ("pgrep xsettingsd > /dev/null && killall -HUP xsettingsd");
 }
 
+void reload_gsettings (void)
+{
+    if (wm != WM_OPENBOX)
+    {
+        load_lxsession_settings ();
+        save_gsettings ();
+    }
+}
+
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value)
 {
     char *str;

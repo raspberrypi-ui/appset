@@ -40,7 +40,6 @@ extern Config def_med;
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-extern void reload_gsettings (void);
 extern void create_defaults (void);
 extern void load_defaults_tab (GtkBuilder *builder);
 
