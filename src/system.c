@@ -64,6 +64,7 @@ static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_lxsession_settings (void);
 static void load_gtk3_settings (void);
+static void save_wm_settings (void);
 static void save_lxsession_settings (void);
 static void save_gsettings (void);
 static void save_xsettings (void);
@@ -84,17 +85,11 @@ static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr);
 /* Helpers                                                                    */
 /*----------------------------------------------------------------------------*/
 
-void reload_wm (void)
-{
-    if (wm == WM_LABWC) vsystem ("labwc --reconfigure");
-    if (wm == WM_OPENBOX) vsystem ("openbox --reconfigure");
-}
-
 void reload_session (void)
 {
-    if (wm == WM_OPENBOX) return;
-
-    vsystem ("pgrep xsettingsd > /dev/null && killall -HUP xsettingsd");
+    if (wm != WM_OPENBOX) vsystem ("pgrep xsettingsd > /dev/null && killall -HUP xsettingsd");
+    if (wm == WM_LABWC) vsystem ("labwc --reconfigure");
+    if (wm == WM_OPENBOX) vsystem ("openbox --reconfigure");
 }
 
 void reload_gsettings (void)
@@ -360,7 +355,7 @@ static void load_gtk3_settings (void)
     }
 }
 
-void save_wm_settings (void)
+static void save_wm_settings (void)
 {
     char *user_config_file, *font, *cptr;
     int count, size;
@@ -807,6 +802,7 @@ void save_session_settings (void)
     save_lxsession_settings ();
     if (wm != WM_OPENBOX) save_gsettings ();
     save_xsettings ();
+    save_wm_settings ();
 }
 
 static void save_labwc_to_settings (void)
@@ -1118,10 +1114,8 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
 
     save_session_settings ();
-    save_wm_settings ();
     save_gtk3_settings ();
     reload_session ();
-    reload_wm ();
     reload_theme (FALSE);
 }
 
@@ -1130,10 +1124,8 @@ static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
 
     save_session_settings ();
-    save_wm_settings ();
     save_gtk3_settings ();
     reload_session ();
-    reload_wm ();
     reload_theme (FALSE);
 }
 
@@ -1160,13 +1152,11 @@ static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
     save_session_settings ();
     for (i = 0; i < ndesks; i++)
         save_pcman_settings (i);
-    save_wm_settings ();
     save_gtk3_settings ();
     save_qt_settings ();
 
     reload_session ();
     reload_panel ();
-    reload_wm ();
     reload_desktop ();
     reload_theme (FALSE);
 }
@@ -1201,11 +1191,9 @@ static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
     set_taskbar_controls ();
 
     save_session_settings ();
-    save_wm_settings ();
     save_gtk3_settings ();
     save_app_settings ();
     reload_session ();
-    reload_wm ();
     reload_theme (FALSE);
 }
 
@@ -1223,9 +1211,7 @@ static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     }
 
     save_session_settings ();
-    save_wm_settings ();
     reload_session ();
-    reload_wm ();
     reload_theme (FALSE);
 }
 

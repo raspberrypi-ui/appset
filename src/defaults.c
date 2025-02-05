@@ -706,7 +706,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     // save changes to files if not using medium (the global default)
     if ((long int) ptr != 2)
     {
-        save_session_settings ();
         save_pcman_g_settings ();
         for (i = 0; i < ndesks; i++)
             save_pcman_settings (i);
@@ -715,7 +714,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         save_qt_settings ();
     }
 
-    save_wm_settings ();
+    save_session_settings ();
     save_panel_settings ();
     if (wm == WM_LABWC) save_labwc_env_settings ();
     if (wm == WM_WAYFIRE) save_wayfire_settings ();
@@ -729,7 +728,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_session ();
     reload_gsettings ();
     reload_panel ();
-    reload_wm ();
     reload_desktop ();
     reload_theme (FALSE);
 }

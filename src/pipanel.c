@@ -442,7 +442,6 @@ static gpointer restore_thread (gpointer ptr)
         reload_session ();
         reload_gsettings ();
         reload_panel ();
-        reload_wm ();
         reload_desktop ();
         reload_theme (TRUE);
     }
