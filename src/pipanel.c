@@ -59,7 +59,9 @@ wm_type wm;
 
 /* Original theme in use */
 static int orig_darkmode;
-static int orig_csize;
+
+/* Original cursor size */
+int orig_csize;
 
 /* Dialogs */
 static GtkWidget *dlg, *msg_dlg;

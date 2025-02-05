@@ -1211,6 +1211,9 @@ static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
                     break;
     }
 
+    if (wm == WM_OPENBOX && cur_conf.cursor_size != orig_csize) gtk_widget_show (label_cursor);
+    else gtk_widget_hide (label_cursor);
+
     save_session_settings ();
     reload_session ();
     reload_theme (FALSE);
@@ -1246,7 +1249,8 @@ void load_system_tab (GtkBuilder *builder)
     }
     else gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox35")));
 
-    label_cursor = (GtkWidget *) gtk_builder_get_object (builder, "label35");
+    label_cursor = (GtkWidget *) gtk_builder_get_object (builder, "label36");
+    gtk_widget_hide (label_cursor);
 }
 
 /* End of file */
