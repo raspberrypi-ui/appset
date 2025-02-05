@@ -435,9 +435,11 @@ static gpointer restore_thread (gpointer ptr)
         cur_conf.darkmode = orig_darkmode;
         set_theme (TEMP_THEME);
         reload_session ();
+        reload_gsettings ();
         reload_panel ();
         reload_wm ();
         reload_desktop ();
+        reload_theme (TRUE);
     }
     else gtk_main_quit ();
     return NULL;

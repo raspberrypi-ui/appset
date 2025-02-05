@@ -76,6 +76,25 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr);
 /* Helpers                                                                    */
 /*----------------------------------------------------------------------------*/
 
+void reload_gsettings (void)
+{
+    if (wm != WM_OPENBOX)
+    {
+        load_lxsession_settings ();
+        vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
+        vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
+        switch (cur_conf.tb_icon_size)
+        {
+            case 16:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size small");
+                        break;
+            case 48:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size large");
+                        break;
+            default:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size medium");
+                        break;
+        }
+    }
+}
+
 static void delete_file (char *filepath)
 {
     char *orig = g_build_filename (g_get_home_dir (), filepath, NULL);
@@ -507,6 +526,7 @@ static void reset_to_defaults (void)
     delete_file (".config/labwc/themerc-override");
     delete_file (".gtkrc-2.0");
 
+    reload_gsettings ();
     init_lxsession (TEMP_THEME);
 }
 
@@ -645,6 +665,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     reload_panel ();
     reload_wm ();
     reload_desktop ();
+    reload_theme (FALSE);
 }
 
 /*----------------------------------------------------------------------------*/

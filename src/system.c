@@ -92,23 +92,9 @@ void reload_wm (void)
 
 void reload_session (void)
 {
-    reload_theme (FALSE);
-
     if (wm == WM_OPENBOX) return;
 
     vsystem ("pgrep xsettingsd > /dev/null && killall -HUP xsettingsd");
-
-    vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
-    vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
-    switch (cur_conf.tb_icon_size)
-    {
-        case 16:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size small");
-                    break;
-        case 48:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size large");
-                    break;
-        default:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size medium");
-                    break;
-    }
 }
 
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value)
@@ -816,7 +802,6 @@ void save_session_settings (void)
     save_lxsession_settings ();
     if (wm != WM_OPENBOX) save_gsettings ();
     save_xsettings ();
-    set_theme (TEMP_THEME);
 }
 
 void save_wayfire_settings (void)
@@ -1204,22 +1189,26 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
 
+    set_theme (TEMP_THEME);
     save_session_settings ();
     save_wm_settings ();
     save_gtk3_settings ();
     reload_session ();
     reload_wm ();
+    reload_theme (FALSE);
 }
 
 static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
 
+    set_theme (TEMP_THEME);
     save_session_settings ();
     save_wm_settings ();
     save_gtk3_settings ();
     reload_session ();
     reload_wm ();
+    reload_theme (FALSE);
 }
 
 static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
@@ -1253,6 +1242,7 @@ static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
     reload_panel ();
     reload_wm ();
     reload_desktop ();
+    reload_theme (FALSE);
 }
 
 static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
@@ -1290,6 +1280,7 @@ static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
     save_app_settings ();
     reload_session ();
     reload_wm ();
+    reload_theme (FALSE);
 }
 
 static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
@@ -1309,6 +1300,7 @@ static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
     save_wm_settings ();
     reload_session ();
     reload_wm ();
+    reload_theme (FALSE);
 }
 
 /*----------------------------------------------------------------------------*/
