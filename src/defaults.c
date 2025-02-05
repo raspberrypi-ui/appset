@@ -507,7 +507,6 @@ static void reset_to_defaults (void)
     delete_file (".config/labwc/themerc-override");
     delete_file (".gtkrc-2.0");
 
-    reload_gsettings ();
     init_lxsession (TEMP_THEME);
 }
 
@@ -643,6 +642,7 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
     // reload everything to reflect the current state
     reload_session ();
+    reload_gsettings ();
     reload_panel ();
     reload_wm ();
     reload_desktop ();
