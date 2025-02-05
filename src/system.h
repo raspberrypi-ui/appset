@@ -45,8 +45,6 @@ extern char *openbox_file (void);
 extern void save_wm_settings (void);
 extern void save_session_settings (void);
 extern void save_gtk3_settings (void);
-extern void save_wayfire_settings (void);
-extern void save_labwc_env_settings (void);
 extern void save_qt_settings (void);
 extern void save_app_settings (void);
 extern void set_theme (const char *theme);

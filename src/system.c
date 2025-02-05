@@ -60,7 +60,6 @@ static gulong id_cursor, id_dark;
 
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
-static char *wayfire_file (void);
 static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_lxsession_settings (void);
@@ -190,11 +189,6 @@ char *openbox_file (void)
     g_free (lc_sess);
     g_free (fname);
     return path;
-}
-
-static char *wayfire_file (void)
-{
-    return g_build_filename (g_get_user_config_dir (), "wayfire.ini", NULL);
 }
 
 static char *labwc_file (void)
@@ -815,29 +809,6 @@ void save_session_settings (void)
     save_xsettings ();
 }
 
-void save_wayfire_settings (void)
-{
-    char *user_config_file, *str;
-    GKeyFile *kf;
-    gsize len;
-
-    user_config_file = wayfire_file ();
-    check_directory (user_config_file);
-
-    // process wayfire config data
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-
-    g_key_file_set_integer (kf, "input", "cursor_size", cur_conf.cursor_size);
-
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-    g_free (str);
-
-    g_key_file_free (kf);
-    g_free (user_config_file);
-}
-
 static void save_labwc_to_settings (void)
 {
     char *user_config_file, *cstrb, *cstrf;
@@ -873,31 +844,6 @@ static void save_labwc_to_settings (void)
 
     g_free (cstrf);
     g_free (cstrb);
-    g_free (user_config_file);
-}
-
-void save_labwc_env_settings (void)
-{
-    char *user_config_file;
-
-    // construct the file path
-    user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "environment", NULL);
-    check_directory (user_config_file);
-
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-    {
-        vsystem ("echo 'XCURSOR_SIZE=%d' >> %s", cur_conf.cursor_size, user_config_file);
-
-        g_free (user_config_file);
-        return;
-    }
-
-    // amend entries already in file, or add if not present
-    if (vsystem ("grep -q XCURSOR_SIZE %s\n", user_config_file))
-        vsystem ("echo 'XCURSOR_SIZE=%d' >> %s", cur_conf.cursor_size, user_config_file);
-    else
-        vsystem ("sed -i s/'XCURSOR_SIZE.*'/'XCURSOR_SIZE=%d'/g %s", cur_conf.cursor_size, user_config_file);
-
     g_free (user_config_file);
 }
 
