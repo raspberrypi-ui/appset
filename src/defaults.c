@@ -670,6 +670,7 @@ void create_defaults (void)
 static void on_set_defaults (GtkButton* btn, gpointer ptr)
 {
     int i;
+
     if (cur_conf.darkmode == 1)
     {
         if (!system ("pgrep geany > /dev/null"))
@@ -710,11 +711,11 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
         for (i = 0; i < ndesks; i++)
             save_pcman_settings (i);
         save_libfm_settings ();
-        save_gtk3_settings ();
         save_qt_settings ();
     }
 
     save_session_settings ();
+    save_gtk3_settings ();
     save_panel_settings ();
     if (wm == WM_LABWC) save_labwc_env_settings ();
     if (wm == WM_WAYFIRE) save_wayfire_settings ();

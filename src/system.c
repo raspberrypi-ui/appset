@@ -800,9 +800,12 @@ static void save_xsettings (void)
 void save_session_settings (void)
 {
     set_theme (TEMP_THEME);
-    save_lxsession_settings ();
-    if (wm != WM_OPENBOX) save_gsettings ();
-    save_xsettings ();
+    if (wm == WM_OPENBOX) save_lxsession_settings ();
+    else 
+    {
+        save_xsettings ();
+        save_gsettings ();
+    }
     save_wm_settings ();
 }
 
@@ -1077,7 +1080,7 @@ static gboolean restore_theme (gpointer data)
 
 void reload_theme (long int quit)
 {
-    g_idle_add (restore_theme, (gpointer) quit);
+    g_timeout_add (100, restore_theme, (gpointer) quit);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1116,6 +1119,7 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
 
     save_session_settings ();
     save_gtk3_settings ();
+
     reload_session ();
     reload_theme (FALSE);
 }
@@ -1126,6 +1130,7 @@ static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
 
     save_session_settings ();
     save_gtk3_settings ();
+
     reload_session ();
     reload_theme (FALSE);
 }
@@ -1153,7 +1158,6 @@ static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
     save_session_settings ();
     for (i = 0; i < ndesks; i++)
         save_pcman_settings (i);
-    save_gtk3_settings ();
     save_qt_settings ();
 
     reload_session ();
@@ -1194,6 +1198,7 @@ static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
     save_session_settings ();
     save_gtk3_settings ();
     save_app_settings ();
+
     reload_session ();
     reload_theme (FALSE);
 }
