@@ -137,6 +137,24 @@ char *get_string (char *cmd)
     return res ? res : g_strdup ("");
 }
 
+char *get_quoted_string (char *cmd)
+{
+    char *line = NULL, *res = NULL;
+    size_t len = 0;
+    FILE *fp = popen (cmd, "r");
+
+    if (fp == NULL) return g_strdup ("");
+    if (getline (&line, &len, fp) > 0)
+    {
+        res = line;
+        while (*res++) if (*res == '\'') *res = 0;
+        res = g_strdup (line + 1);
+    }
+    pclose (fp);
+    g_free (line);
+    return res ? res : g_strdup ("");
+}
+
 char *rgba_to_gdk_color_string (GdkRGBA *col)
 {
     int r, g, b;

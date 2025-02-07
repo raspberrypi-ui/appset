@@ -64,6 +64,7 @@ static char *openbox_file (void);
 static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_lxsession_settings (void);
+static void load_gsettings (void);
 static void load_gtk3_settings (void);
 static void save_wm_settings (void);
 static void save_lxsession_settings (void);
@@ -280,6 +281,32 @@ static void load_lxsession_settings (void)
 
     g_key_file_free (kf);
     g_free (user_config_file);
+}
+
+static void load_gsettings (void)
+{
+    char *res;
+    int val;
+
+    res = get_quoted_string ("gsettings get org.gnome.desktop.interface font-name");
+    if (!res[0]) DEFAULT (desktop_font);
+    else cur_conf.desktop_font = g_strdup (res);
+    g_free (res);
+
+    res = get_string ("gsettings get org.gnome.desktop.interface cursor-size");
+    if (res[0] && sscanf (res, "%d", &val) == 1 && val >= 24 && val <= 48) cur_conf.cursor_size = val;
+    else DEFAULT (cursor_size);
+    g_free (res);
+
+    res = get_string ("gsettings get org.gnome.desktop.interface toolbar-icons-size");
+    if (res[0])
+    {
+        if (!g_strcmp0 (res, "small")) cur_conf.tb_icon_size = 16;
+        else if (!g_strcmp0 (res, "large")) cur_conf.tb_icon_size = 48;
+        else cur_conf.tb_icon_size = 24;
+    }
+    else DEFAULT (tb_icon_size);
+    g_free (res);
 }
 
 static void load_gtk3_settings (void)
@@ -1230,7 +1257,8 @@ static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
 
 void load_system_tab (GtkBuilder *builder)
 {
-    load_lxsession_settings ();
+    if (wm == WM_OPENBOX) load_lxsession_settings ();
+    else load_gsettings ();
     load_obconf_settings ();
     load_gtk3_settings ();
 
