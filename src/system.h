@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 extern void reload_session (void);
-extern void reload_gsettings (void);
+extern void restore_gsettings (void);
 extern char *lxsession_file (gboolean global);
 extern char *xsettings_file (gboolean global);
 extern void save_session_settings (void);

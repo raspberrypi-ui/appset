@@ -54,6 +54,9 @@ static GtkWidget *rb_dark, *combo_cursor, *label_cursor;
 /* Handler IDs */
 static gulong id_cursor, id_dark;
 
+static int orig_csize, orig_tbsize;
+static char *orig_font;
+
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
@@ -94,11 +97,13 @@ void reload_session (void)
     if (wm == WM_OPENBOX) vsystem ("openbox --reconfigure");
 }
 
-void reload_gsettings (void)
+void restore_gsettings (void)
 {
     if (wm != WM_OPENBOX)
     {
-        load_lxsession_settings ();
+        cur_conf.cursor_size = orig_csize;
+        cur_conf.tb_icon_size = orig_tbsize;
+        cur_conf.desktop_font = orig_font;
         save_gsettings ();
     }
 }
@@ -1264,6 +1269,10 @@ void load_system_tab (GtkBuilder *builder)
     else load_gsettings ();
     load_obconf_settings ();
     load_gtk3_settings ();
+
+    orig_csize = cur_conf.cursor_size;
+    orig_tbsize = cur_conf.tb_icon_size;
+    orig_font = g_strdup (cur_conf.desktop_font);
 
     font_system = (GtkWidget *) gtk_builder_get_object (builder, "fontbutton1");
     g_signal_connect (font_system, "font-set", G_CALLBACK (on_theme_font_set), NULL);

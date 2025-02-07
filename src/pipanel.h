@@ -88,7 +88,6 @@ extern Config cur_conf;
 extern wm_type wm;
 extern int ndesks;
 extern GtkTreeModel *sortmons;
-extern int orig_csize;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */

@@ -669,7 +669,6 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
 
     // reload everything to reflect the current state
     reload_session ();
-    reload_gsettings ();
     reload_panel ();
     reload_desktop ();
     reload_theme (FALSE);

@@ -448,12 +448,12 @@ static int restore_config_files (void)
 
 static gpointer restore_thread (gpointer ptr)
 {
+    restore_gsettings ();
     if (restore_config_files ())
     {
         cur_conf.darkmode = orig_darkmode;
         set_theme (TEMP_THEME);
         reload_session ();
-        reload_gsettings ();
         reload_panel ();
         reload_desktop ();
         reload_theme (TRUE);
@@ -556,7 +556,6 @@ static gboolean init_config (gpointer data)
 
     // backup current configuration for cancel
     backup_config_files ();
-    orig_csize = cur_conf.cursor_size;
     orig_darkmode = cur_conf.darkmode;
 
     // set up controls to match current state of data
