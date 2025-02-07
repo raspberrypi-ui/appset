@@ -1134,6 +1134,9 @@ void set_system_controls (void)
     // unblock widget handlers
     g_signal_handler_unblock (combo_cursor, id_cursor);
     g_signal_handler_unblock (rb_light, id_dark);
+
+    if (wm == WM_OPENBOX && cur_conf.cursor_size != orig_csize) gtk_widget_show (label_cursor);
+    else gtk_widget_hide (label_cursor);
 }
 
 /*----------------------------------------------------------------------------*/
