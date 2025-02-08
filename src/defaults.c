@@ -443,7 +443,7 @@ static void save_libreoffice_settings (void)
 /* Create and use defaults                                                    */
 /*----------------------------------------------------------------------------*/
 
-void init_lxsession (const char *theme)
+void init_session (const char *theme)
 {
     char *user_config_file;
 
@@ -536,7 +536,7 @@ static void reset_to_defaults (void)
     delete_file (".config/labwc/themerc-override");
     delete_file (".gtkrc-2.0");
 
-    init_lxsession (TEMP_THEME);
+    init_session (TEMP_THEME);
 }
 
 void create_defaults (void)

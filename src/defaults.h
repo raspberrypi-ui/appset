@@ -40,7 +40,7 @@ extern Config def_med;
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-extern void init_lxsession (const char *theme);
+extern void init_session (const char *theme);
 extern void create_defaults (void);
 extern void load_defaults_tab (GtkBuilder *builder);
 

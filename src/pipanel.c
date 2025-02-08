@@ -552,7 +552,7 @@ static gboolean init_config (gpointer data)
     load_defaults_tab (builder);
 
     // create session file to be tracked
-    init_lxsession (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
+    init_session (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
 
     // backup current configuration for cancel
     backup_config_files ();
