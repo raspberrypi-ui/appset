@@ -1,16 +1,14 @@
 Source: pipanel
 Section: x11
 Priority: optional
-Maintainer: Serge Schneider <serge@raspberrypi.org>
-Build-Depends: debhelper (>= 9.0.0), dh-autoreconf, libgtk-3-dev (>= 3.24), libxml2-dev, intltool (>= 0.40.0)
-Standards-Version: 3.9.6
-Homepage: https://www.raspberrypi.org/
-Vcs-Git: git://git@github.com:raspberrypi/pipanel.git -b debian
-Vcs-Browser: https://github.com/raspberrypi/pipanel/tree/debian
+Maintainer: Simon Long <simon@raspberrypi.com>
+Build-Depends: debhelper-compat (= 13), meson, libgtk-3-dev (>= 3.24), libxml2-dev, intltool (>= 0.40.0)
+Standards-Version: 4.5.1
+Homepage: http://raspberrypi.com/
 
 Package: pipanel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk-3-0 (>= 3.24), libxml2, openbox, lxsession, zenity
-Description: Settings panel for Raspberry Pi desktop appearance
- pipanel is an application which allows the configuration of the LX Desktop
- user interface from one convenient dialog.
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk-3-0 (>= 3.24), libxml2
+Description: Settings application for Raspberry Pi desktop appearance
+ pipanel is an application which allows the configuration of the Raspberry Pi
+ Desktop user interface.
