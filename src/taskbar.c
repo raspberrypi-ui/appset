@@ -1,5 +1,5 @@
 /*============================================================================
-Copyright (c) 2014-2025 Raspberry Pi Holdings Ltd.
+Copyright (c) 2014-2025 Raspberry Pi
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -304,12 +304,16 @@ static void on_bar_size_set (GtkComboBox* btn, gpointer ptr)
     switch (val)
     {
         case 0 :    cur_conf.icon_size = 52;
+                    cur_conf.task_width = 300;
                     break;
         case 1 :    cur_conf.icon_size = 36;
+                    cur_conf.task_width = 200;
                     break;
         case 2 :    cur_conf.icon_size = 28;
+                    cur_conf.task_width = 200;
                     break;
         case 3 :    cur_conf.icon_size = 20;
+                    cur_conf.task_width = 150;
                     break;
     }
 
