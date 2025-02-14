@@ -1208,7 +1208,7 @@ static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
         g_signal_handler_block (rb_light, id_dark);
         if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dark), TRUE);
         else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_light), TRUE);
-        message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+        message (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."), TRUE);
         g_signal_handler_unblock (rb_light, id_dark);
         return;
     }
@@ -1218,7 +1218,7 @@ static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
         g_signal_handler_block (rb_light, id_dark);
         if (cur_conf.darkmode) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dark), TRUE);
         else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_light), TRUE);
-        message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+        message (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."), TRUE);
         g_signal_handler_unblock (rb_light, id_dark);
         return;
     }

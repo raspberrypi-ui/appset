@@ -99,7 +99,7 @@ extern char *get_quoted_string (char *cmd);
 extern char *rgba_to_gdk_color_string (GdkRGBA *col);
 extern const char *session (void);
 extern void check_directory (const char *path);
-extern void message_ok (char *msg);
+extern void message (char *msg, gboolean ok);
 
 /* End of file */
 /*----------------------------------------------------------------------------*/

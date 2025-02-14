@@ -51,20 +51,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
 
+static GtkBuilder *builder;
+
+/* Dialogs */
+static GtkWidget *dlg, *msg_dlg;
+
 /* Current configuration */
 Config cur_conf;
 
 /* Flag to indicate window manager in use */
 wm_type wm;
 
-/* Original theme in use */
-static int orig_darkmode;
-
 /* Original cursor size */
 int orig_csize;
-
-/* Dialogs */
-static GtkWidget *dlg, *msg_dlg;
 
 /* Monitor list for combos */
 static GtkListStore *mons;
@@ -73,11 +72,14 @@ GtkTreeModel *sortmons;
 /* Number of desktops */
 int ndesks;
 
-#ifdef PLUGIN_NAME
-GtkBuilder *builder;
-#else
+#ifndef PLUGIN_NAME
 static gulong draw_id;
-static int st_tab;          /* Starting tab value read from command line */
+
+/* Starting tab value read from command line */
+static int st_tab;
+
+/* Original theme in use */
+static int orig_darkmode;
 #endif
 
 /*----------------------------------------------------------------------------*/
@@ -85,17 +87,19 @@ static int st_tab;          /* Starting tab value read from command line */
 /*----------------------------------------------------------------------------*/
 
 static int n_desktops (void);
-static void message (char *msg);
 static gboolean ok_clicked (GtkButton *button, gpointer data);
+static void init_config (void);
+#ifndef PLUGIN_NAME
 static void backup_file (char *filepath);
 static void backup_config_files (void);
 static int restore_file (char *filepath);
 static int restore_config_files (void);
 static gpointer restore_thread (gpointer ptr);
-static gboolean cancel_main (GtkButton *button, gpointer data);
 static gboolean ok_main (GtkButton *button, gpointer data);
+static gboolean cancel_main (GtkButton *button, gpointer data);
 static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data);
-static gboolean init_config (gpointer data);
+static gboolean init_window (gpointer data);
+#endif
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -200,16 +204,28 @@ void check_directory (const char *path)
 /* Message box                                                                */
 /*----------------------------------------------------------------------------*/
 
-static void message (char *msg)
+void message (char *msg, gboolean ok)
 {
     GtkWidget *wid;
-    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+
+    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
     if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
 
     wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
     gtk_label_set_text (GTK_LABEL (wid), msg);
+
+    if (ok)
+    {
+        wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_buttons");
+        gtk_widget_show (wid);
+
+        wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_ok");
+        gtk_widget_show (wid);
+        g_signal_connect (wid, "clicked", G_CALLBACK (ok_clicked), NULL);
+        gtk_widget_grab_focus (wid);
+    }
 
     gtk_widget_show (msg_dlg);
 
@@ -222,29 +238,132 @@ static gboolean ok_clicked (GtkButton *button, gpointer data)
     return FALSE;
 }
 
-void message_ok (char *msg)
+/*----------------------------------------------------------------------------*/
+/* Initial configuration                                                      */
+/*----------------------------------------------------------------------------*/
+
+static void init_config (void)
 {
-    GtkWidget *wid;
-    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+    int i;
+    char *buf;
 
-    msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
-    if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
+    // find the number of monitors
+    ndesks = n_desktops ();
+    if (ndesks > MAX_DESKTOPS) ndesks = MAX_DESKTOPS;
+    if (wm == WM_OPENBOX && ndesks > MAX_X_DESKTOPS) ndesks = MAX_X_DESKTOPS;
 
-    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
-    gtk_label_set_text (GTK_LABEL (wid), msg);
+    // load monitor names into list store
+    mons = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
+    for (i = 0; i < ndesks; i++)
+    {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+        buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
+#pragma GCC diagnostic pop
+        gtk_list_store_insert_with_values (mons, NULL, i, 0, i, 1, buf, -1);
+        g_free (buf);
+    }
+    sortmons = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (mons));
+    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sortmons), 1, GTK_SORT_ASCENDING);
 
-    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_buttons");
-    gtk_widget_show (wid);
+    // create default data structures
+    create_defaults ();
 
-    wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_ok");
-    gtk_widget_show (wid);
-    g_signal_connect (wid, "clicked", G_CALLBACK (ok_clicked), NULL);
-    gtk_widget_grab_focus (wid);
+    // load current state and controls
+    load_desktop_tab (builder);
+    load_taskbar_tab (builder);
+    load_system_tab (builder);
+    load_defaults_tab (builder);
 
-    gtk_widget_show (msg_dlg);
+    // create session file to be tracked
+    init_session (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
 
+    // set up controls to match current state of data
+    set_desktop_controls ();
+    set_taskbar_controls ();
+    set_system_controls ();
+}
+
+/*----------------------------------------------------------------------------*/
+/* Plugin interface                                                           */
+/*----------------------------------------------------------------------------*/
+
+#ifdef PLUGIN_NAME
+
+void init_plugin (void)
+{
+    setlocale (LC_ALL, "");
+    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
+
+    if (getenv ("WAYLAND_DISPLAY"))
+    {
+        if (getenv ("WAYFIRE_CONFIG_FILE")) wm = WM_WAYFIRE;
+        else wm = WM_LABWC;
+    }
+    else wm = WM_OPENBOX;
+
+    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+
+    init_config ();
+}
+
+int plugin_tabs (void)
+{
+    return 4;
+}
+
+const char *tab_name (int tab)
+{
+    switch (tab)
+    {
+        case 0 : return C_("tab", "Desktop");
+        case 1 : return C_("tab", "Taskbar");
+        case 2 : return C_("tab", "Theme");
+        case 3 : return C_("tab", "Defaults");
+        default : return _("No such tab");
+    }
+}
+
+GtkWidget *get_tab (int tab)
+{
+    GtkWidget *window, *plugin;
+
+    window = (GtkWidget *) gtk_builder_get_object (builder, "notebook1");
+    switch (tab)
+    {
+        case 0 :
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox1");
+            break;
+        case 1 :
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox2");
+            break;
+        case 2 :
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox3");
+            break;
+        case 3 :
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox4");
+            break;
+    }
+
+    gtk_container_remove (GTK_CONTAINER (window), plugin);
+
+    return plugin;
+}
+
+gboolean reboot_needed (void)
+{
+    if (wm == WM_OPENBOX && cur_conf.cursor_size != orig_csize) return TRUE;
+    return FALSE;
+}
+
+void free_plugin (void)
+{
     g_object_unref (builder);
 }
+
+#else
 
 /*----------------------------------------------------------------------------*/
 /* Backup and restore (for cancel)                                            */
@@ -463,8 +582,14 @@ static gpointer restore_thread (gpointer ptr)
 }
 
 /*----------------------------------------------------------------------------*/
-/* Control handlers                                                           */
+/* Main window button handlers                                                */
 /*----------------------------------------------------------------------------*/
+
+static gboolean ok_main (GtkButton *button, gpointer data)
+{
+    gtk_main_quit ();
+    return FALSE;
+}
 
 static gboolean cancel_main (GtkButton *button, gpointer data)
 {
@@ -472,24 +597,18 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
     {
         if (!system ("pgrep geany > /dev/null"))
         {
-            message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+            message (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."), TRUE);
             return FALSE;
         }
 
         if (!system ("pgrep galculator > /dev/null"))
         {
-            message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+            message (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."), TRUE);
             return FALSE;
         }
     }
-    message (_("Restoring configuration - please wait..."));
+    message (_("Restoring configuration - please wait..."), FALSE);
     g_thread_new (NULL, restore_thread, NULL);
-    return FALSE;
-}
-
-static gboolean ok_main (GtkButton *button, gpointer data)
-{
-    gtk_main_quit ();
     return FALSE;
 }
 
@@ -500,38 +619,13 @@ static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 /*----------------------------------------------------------------------------*/
-/* Main window creation                                                       */
+/* Main window                                                                */
 /*----------------------------------------------------------------------------*/
 
-static gboolean init_config (gpointer data)
+static gboolean init_window (gpointer data)
 {
-#ifndef PLUGIN_NAME
-    GtkBuilder *builder;
-#endif
     GtkWidget *wid;
-    int i;
-    char *buf;
 
-    // find the number of monitors
-    ndesks = n_desktops ();
-    if (ndesks > MAX_DESKTOPS) ndesks = MAX_DESKTOPS;
-    if (wm == WM_OPENBOX && ndesks > MAX_X_DESKTOPS) ndesks = MAX_X_DESKTOPS;
-
-    // load monitor names into list store
-    mons = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
-    for (i = 0; i < ndesks; i++)
-    {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
-#pragma GCC diagnostic pop
-        gtk_list_store_insert_with_values (mons, NULL, i, 0, i, 1, buf, -1);
-        g_free (buf);
-    }
-    sortmons = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (mons));
-    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sortmons), 1, GTK_SORT_ASCENDING);
-
-    // build the UI
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
@@ -542,28 +636,12 @@ static gboolean init_config (gpointer data)
     wid = (GtkWidget *) gtk_builder_get_object (builder, "button_cancel");
     g_signal_connect (wid, "clicked", G_CALLBACK (cancel_main), NULL);
 
-    // create default data structures
-    create_defaults ();
-
-    // load current state and controls
-    load_desktop_tab (builder);
-    load_taskbar_tab (builder);
-    load_system_tab (builder);
-    load_defaults_tab (builder);
-
-    // create session file to be tracked
-    init_session (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
+    init_config ();
 
     // backup current configuration for cancel
     backup_config_files ();
     orig_darkmode = cur_conf.darkmode;
 
-    // set up controls to match current state of data
-    set_desktop_controls ();
-    set_taskbar_controls ();
-    set_system_controls ();
-
-#ifndef PLUGIN_NAME
     // set the initial tab
     if (st_tab < 0)
     {
@@ -575,88 +653,9 @@ static gboolean init_config (gpointer data)
 
     gtk_widget_show (dlg);
     gtk_widget_destroy (msg_dlg);
-#endif
 
     return FALSE;
 }
-
-/*----------------------------------------------------------------------------*/
-/* Plugin interface                                                           */
-/*----------------------------------------------------------------------------*/
-#ifdef PLUGIN_NAME
-
-void init_plugin (void)
-{
-    setlocale (LC_ALL, "");
-    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
-
-    if (getenv ("WAYLAND_DISPLAY"))
-    {
-        if (getenv ("WAYFIRE_CONFIG_FILE")) wm = WM_WAYFIRE;
-        else wm = WM_LABWC;
-    }
-    else wm = WM_OPENBOX;
-
-    init_config (NULL);
-}
-
-int plugin_tabs (void)
-{
-    return 4;
-}
-
-const char *tab_name (int tab)
-{
-    switch (tab)
-    {
-        case 0 : return C_("tab", "Desktop");
-        case 1 : return C_("tab", "Taskbar");
-        case 2 : return C_("tab", "Theme");
-        case 3 : return C_("tab", "Defaults");
-        default : return _("No such tab");
-    }
-}
-
-GtkWidget *get_tab (int tab)
-{
-    GtkWidget *window, *plugin;
-
-    window = (GtkWidget *) gtk_builder_get_object (builder, "notebook1");
-    switch (tab)
-    {
-        case 0 :
-            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox1");
-            break;
-        case 1 :
-            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox2");
-            break;
-        case 2 :
-            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox3");
-            break;
-        case 3 :
-            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox4");
-            break;
-    }
-
-    gtk_container_remove (GTK_CONTAINER (window), plugin);
-
-    return plugin;
-}
-
-gboolean reboot_needed (void)
-{
-    if (wm == WM_OPENBOX && cur_conf.cursor_size != orig_csize) return TRUE;
-    return FALSE;
-}
-
-void free_plugin (void)
-{
-    g_object_unref (builder);
-}
-
-#else
 
 static gboolean event (GtkWidget *wid, GdkEventWindowState *ev, gpointer data)
 {
@@ -664,7 +663,7 @@ static gboolean event (GtkWidget *wid, GdkEventWindowState *ev, gpointer data)
     {
         if (ev->changed_mask == GDK_WINDOW_STATE_FOCUSED
             && ev->new_window_state & GDK_WINDOW_STATE_FOCUSED)
-                g_idle_add (init_config, NULL);
+                g_idle_add (init_window, NULL);
     }
     return FALSE;
 }
@@ -672,7 +671,7 @@ static gboolean event (GtkWidget *wid, GdkEventWindowState *ev, gpointer data)
 static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data)
 {
     g_signal_handler_disconnect (wid, draw_id);
-    g_idle_add (init_config, NULL);
+    g_idle_add (init_window, NULL);
     return FALSE;
 }
 
@@ -700,7 +699,7 @@ int main (int argc, char *argv[])
     }
     else wm = WM_OPENBOX;
 
-    message (_("Loading configuration - please wait..."));
+    message (_("Loading configuration - please wait..."), FALSE);
     if (wm != WM_OPENBOX) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
     else draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
 

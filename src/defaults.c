@@ -619,13 +619,13 @@ static void on_set_defaults (GtkButton* btn, gpointer ptr)
     {
         if (!system ("pgrep geany > /dev/null"))
         {
-            message_ok (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."));
+            message (_("The theme for Geany cannot be changed while it is open.\nPlease close it and try again."), TRUE);
             return;
         }
 
         if (!system ("pgrep galculator > /dev/null"))
         {
-            message_ok (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."));
+            message (_("The theme for Calculator cannot be changed while it is open.\nPlease close it and try again."), TRUE);
             return;
         }
     }
