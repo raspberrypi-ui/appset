@@ -47,6 +47,7 @@ extern void save_app_settings (void);
 extern void set_theme (const char *theme);
 extern void reload_theme (long int quit);
 extern void set_system_controls (void);
+extern gboolean system_reboot (void);
 extern void load_system_tab (GtkBuilder *builder);
 
 /* End of file */

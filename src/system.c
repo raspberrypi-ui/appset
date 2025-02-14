@@ -1260,6 +1260,16 @@ static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
 }
 
 /*----------------------------------------------------------------------------*/
+/* Reboot check                                                               */
+/*----------------------------------------------------------------------------*/
+
+gboolean system_reboot (void)
+{
+    if (wm == WM_OPENBOX && cur_conf.cursor_size != orig_csize) return TRUE;
+    else return FALSE;
+}
+
+/*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
 

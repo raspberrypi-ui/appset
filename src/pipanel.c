@@ -62,9 +62,6 @@ Config cur_conf;
 /* Flag to indicate window manager in use */
 wm_type wm;
 
-/* Original cursor size */
-int orig_csize;
-
 /* Monitor list for combos */
 static GtkListStore *mons;
 GtkTreeModel *sortmons;
@@ -354,8 +351,7 @@ GtkWidget *get_tab (int tab)
 
 gboolean reboot_needed (void)
 {
-    if (wm == WM_OPENBOX && cur_conf.cursor_size != orig_csize) return TRUE;
-    return FALSE;
+    return system_reboot ();
 }
 
 void free_plugin (void)
