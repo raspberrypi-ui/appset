@@ -206,7 +206,7 @@ void message (char *msg, gboolean ok)
 {
     GtkWidget *wid;
 
-    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
     if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
