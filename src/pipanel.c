@@ -96,6 +96,7 @@ static gboolean ok_main (GtkButton *button, gpointer data);
 static gboolean cancel_main (GtkButton *button, gpointer data);
 static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data);
 static gboolean init_window (gpointer data);
+static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data);
 #endif
 
 /*----------------------------------------------------------------------------*/
@@ -653,17 +654,6 @@ static gboolean init_window (gpointer data)
     return FALSE;
 }
 
-static gboolean event (GtkWidget *wid, GdkEventWindowState *ev, gpointer data)
-{
-    if (ev->type == GDK_WINDOW_STATE)
-    {
-        if (ev->changed_mask == GDK_WINDOW_STATE_FOCUSED
-            && ev->new_window_state & GDK_WINDOW_STATE_FOCUSED)
-                g_idle_add (init_window, NULL);
-    }
-    return FALSE;
-}
-
 static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data)
 {
     g_signal_handler_disconnect (wid, draw_id);
@@ -696,12 +686,9 @@ int main (int argc, char *argv[])
     else wm = WM_OPENBOX;
 
     message (_("Loading configuration - please wait..."), FALSE);
-    if (wm != WM_OPENBOX) g_signal_connect (msg_dlg, "event", G_CALLBACK (event), NULL);
-    else draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
+    draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
 
     gtk_main ();
-
-    gtk_widget_destroy (dlg);
 
     return 0;
 }
