@@ -302,6 +302,7 @@ void init_plugin (void)
     }
     else wm = WM_OPENBOX;
 
+    main_dlg = NULL;
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     init_config ();
@@ -623,16 +624,6 @@ static gboolean init_window (gpointer data)
 {
     GtkWidget *wid;
 
-    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
-
-    dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
-    g_signal_connect (dlg, "delete_event", G_CALLBACK (close_prog), NULL);
-
-    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_ok");
-    g_signal_connect (wid, "clicked", G_CALLBACK (ok_main), NULL);
-    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_cancel");
-    g_signal_connect (wid, "clicked", G_CALLBACK (cancel_main), NULL);
-
     init_config ();
 
     // backup current configuration for cancel
@@ -663,20 +654,12 @@ static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data)
 
 int main (int argc, char *argv[])
 {
+    GtkWidget *wid;
+
     setlocale (LC_ALL, "");
     bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
-
-    // read starting tab if there is one
-    if (argc > 1)
-    {
-        if (sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
-    }
-
-    // GTK setup
-    gtk_init (&argc, &argv);
-    gtk_icon_theme_prepend_search_path (gtk_icon_theme_get_default(), PACKAGE_DATA_DIR);
 
     if (getenv ("WAYLAND_DISPLAY"))
     {
@@ -685,8 +668,25 @@ int main (int argc, char *argv[])
     }
     else wm = WM_OPENBOX;
 
+    main_dlg = NULL;
+    gtk_init (&argc, &argv);
+
+    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+
+    dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
+    g_signal_connect (dlg, "delete_event", G_CALLBACK (close_prog), NULL);
+
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_ok");
+    g_signal_connect (wid, "clicked", G_CALLBACK (ok_main), NULL);
+    wid = (GtkWidget *) gtk_builder_get_object (builder, "button_cancel");
+    g_signal_connect (wid, "clicked", G_CALLBACK (cancel_main), NULL);
+
     message (_("Loading configuration - please wait..."), FALSE);
     draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
+
+    // read starting tab if there is one
+    st_tab = 0;
+    if (argc > 1 && sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
 
     gtk_main ();
 
