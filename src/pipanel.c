@@ -54,7 +54,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static GtkBuilder *builder;
 
 /* Dialogs */
-static GtkWidget *dlg, *msg_dlg;
+static GtkWidget *main_dlg, *msg_dlg;
 
 /* Current configuration */
 Config cur_conf;
@@ -73,7 +73,7 @@ int ndesks;
 static gulong draw_id;
 
 /* Starting tab value read from command line */
-static int st_tab;
+static char *st_tab;
 
 /* Original theme in use */
 static int orig_darkmode;
@@ -209,7 +209,7 @@ void message (char *msg, gboolean ok)
     GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
-    if (dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (dlg));
+    if (main_dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (main_dlg));
 
     wid = (GtkWidget *) gtk_builder_get_object (builder, "modal_msg");
     gtk_label_set_text (GTK_LABEL (wid), msg);
@@ -322,6 +322,16 @@ const char *tab_name (int tab)
         case 2 : return C_("tab", "Theme");
         case 3 : return C_("tab", "Defaults");
         default : return _("No such tab");
+    }
+}
+
+const char *tab_id (int tab)
+{
+    switch (tab)
+    {
+        case 0 : return "desktop";
+        case 1 : return "taskbar";
+        default : return NULL;
     }
 }
 
@@ -631,15 +641,16 @@ static gboolean init_window (gpointer data)
     orig_darkmode = cur_conf.darkmode;
 
     // set the initial tab
-    if (st_tab < 0)
+    if (st_tab)
     {
         wid = (GtkWidget *) gtk_builder_get_object (builder, "notebook1");
-        gtk_notebook_set_current_page (GTK_NOTEBOOK (wid), 4 + st_tab);
+        if (!g_strcmp0 (st_tab, "desktop")) gtk_notebook_set_current_page (GTK_NOTEBOOK (wid), 0);
+        if (!g_strcmp0 (st_tab, "taskbar")) gtk_notebook_set_current_page (GTK_NOTEBOOK (wid), 1);
     }
 
     g_object_unref (builder);
 
-    gtk_widget_show (dlg);
+    gtk_widget_show (main_dlg);
     gtk_widget_destroy (msg_dlg);
 
     return FALSE;
@@ -673,8 +684,8 @@ int main (int argc, char *argv[])
 
     builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
-    dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
-    g_signal_connect (dlg, "delete_event", G_CALLBACK (close_prog), NULL);
+    main_dlg = (GtkWidget *) gtk_builder_get_object (builder, "main_window");
+    g_signal_connect (main_dlg, "delete_event", G_CALLBACK (close_prog), NULL);
 
     wid = (GtkWidget *) gtk_builder_get_object (builder, "button_ok");
     g_signal_connect (wid, "clicked", G_CALLBACK (ok_main), NULL);
@@ -685,8 +696,8 @@ int main (int argc, char *argv[])
     draw_id = g_signal_connect (msg_dlg, "draw", G_CALLBACK (draw), NULL);
 
     // read starting tab if there is one
-    st_tab = 0;
-    if (argc > 1 && sscanf (argv[1], "%d", &st_tab) != 1) st_tab = 0;
+    if (argc > 1) st_tab = g_strdup (argv[1]);
+    else st_tab = NULL;
 
     gtk_main ();
 
