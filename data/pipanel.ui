@@ -895,8 +895,7 @@
                   <object class="GtkBox" id="hbox41">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="homogeneous">True</property>
-                    <child>
+                     <child>
                       <object class="GtkLabel" id="label41">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -937,7 +936,6 @@
                   <object class="GtkBox" id="hbox42">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="homogeneous">True</property>
                     <child>
                       <object class="GtkLabel" id="label42">
                         <property name="visible">True</property>
@@ -979,7 +977,6 @@
                   <object class="GtkBox" id="hbox43">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="homogeneous">True</property>
                     <child>
                       <object class="GtkLabel" id="label43">
                         <property name="visible">True</property>
