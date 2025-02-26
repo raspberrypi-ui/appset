@@ -16,7 +16,6 @@ gettext_package = meson.project_name()
 
 add_project_arguments('-DGETTEXT_PACKAGE="' + gettext_package + '"', language : 'c' )
 add_project_arguments('-DPACKAGE_LOCALE_DIR="' + share_dir + '/locale"', language : 'c' )
-add_project_link_arguments('-lcrypt', language : 'c' )
 
 subdir('po')
 subdir('src')
