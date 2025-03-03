@@ -205,8 +205,10 @@ void check_directory (const char *path)
 void message (char *msg, gboolean ok)
 {
     GtkWidget *wid;
+    GtkBuilder *builder;
 
-    GtkBuilder *builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
+    textdomain (GETTEXT_PACKAGE);
+    builder = gtk_builder_new_from_file (PACKAGE_DATA_DIR "/ui/pipanel.ui");
 
     msg_dlg = (GtkWidget *) gtk_builder_get_object (builder, "modal");
     if (main_dlg) gtk_window_set_transient_for (GTK_WINDOW (msg_dlg), GTK_WINDOW (main_dlg));
@@ -369,6 +371,13 @@ gboolean reboot_needed (void)
 void free_plugin (void)
 {
     g_object_unref (builder);
+}
+
+const char *dgetfixt (const char *domain, const char *msgctxid)
+{
+    const char *text = dgettext (domain, msgctxid);
+    if (!strchr (text, 0x04)) return text;
+    return dgettext (domain, strchr (msgctxid, 0x04) + 1);
 }
 
 #else
