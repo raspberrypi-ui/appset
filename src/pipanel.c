@@ -356,6 +356,8 @@ GtkWidget *get_tab (int tab)
         case 3 :
             plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox4");
             break;
+        default :
+            plugin = NULL;
     }
 
     gtk_container_remove (GTK_CONTAINER (window), plugin);
