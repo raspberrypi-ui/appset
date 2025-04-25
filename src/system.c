@@ -412,19 +412,59 @@ static void save_wm_settings (void)
     PangoWeight pweight = pango_font_description_get_weight (pfd);
     PangoStyle pstyle = pango_font_description_get_style (pfd);
 
-    if (pweight == PANGO_WEIGHT_BOLD)
+    if (wm == WM_OPENBOX)
     {
-        weight = "Bold";
-        pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_WEIGHT);
-    }
-    else weight = "Normal";
+        // openbox only recognises bold and italic - anything else is ignored
+        if (pweight == PANGO_WEIGHT_BOLD) weight = "Bold";
+        else weight = "Normal";
 
-    if (pstyle == PANGO_STYLE_ITALIC)
-    {
-        style = "Italic";
-        pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STYLE);
+        if (pstyle == PANGO_STYLE_ITALIC) style = "Italic";
+        else style = "Normal";
     }
-    else style = "Normal";
+    else
+    {
+        // labwc (now) recognises all weights and styles
+        switch (pweight)
+        {
+            case PANGO_WEIGHT_THIN :        weight = "Thin";
+                                            break;
+            case PANGO_WEIGHT_ULTRALIGHT :  weight = "Ultralight";
+                                            break;
+            case PANGO_WEIGHT_LIGHT :       weight = "Light";
+                                            break;
+            case PANGO_WEIGHT_SEMILIGHT :   weight = "Semilight";
+                                            break;
+            case PANGO_WEIGHT_BOOK :        weight = "Book";
+                                            break;
+            case PANGO_WEIGHT_NORMAL :      weight = "Normal";
+                                            break;
+            case PANGO_WEIGHT_MEDIUM :      weight = "Medium";
+                                            break;
+            case PANGO_WEIGHT_SEMIBOLD :    weight = "Semibold";
+                                            break;
+            case PANGO_WEIGHT_BOLD :        weight = "Bold";
+                                            break;
+            case PANGO_WEIGHT_ULTRABOLD :   weight = "Ultrabold";
+                                            break;
+            case PANGO_WEIGHT_HEAVY :       weight = "Heavy";
+                                            break;
+            case PANGO_WEIGHT_ULTRAHEAVY :  weight = "Ultraheavy";
+                                            break;
+        }
+
+        switch (pstyle)
+        {
+            case PANGO_STYLE_NORMAL :       style = "Normal";
+                                            break;
+            case PANGO_STYLE_ITALIC :       style = "Italic";
+                                            break;
+            case PANGO_STYLE_OBLIQUE :      style = "Oblique";
+                                            break;
+        }
+    }
+    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_WEIGHT);
+    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STYLE);
+    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STRETCH);
 
     // by this point, Bold and Italic flags will be missing from the font description, so just remove the size...
     font = g_strdup (pango_font_description_to_string (pfd));
