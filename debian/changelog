@@ -1,3 +1,9 @@
+pipanel (1:1.52) bookworm; urgency=medium
+
+  * Add suppport for more font modifiers under labwc
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 29 Apr 2025 13:11:12 +0100
+
 pipanel (1:1.51) bookworm; urgency=medium
 
   * Hybrid build
