@@ -105,7 +105,6 @@ extern int vsystem (const char *fmt, ...);
 extern char *get_string (char *cmd);
 extern char *get_quoted_string (char *cmd);
 extern char *rgba_to_gdk_color_string (GdkRGBA *col);
-extern const char *session (void);
 extern void check_directory (const char *path);
 extern void message (char *msg, gboolean ok);
 

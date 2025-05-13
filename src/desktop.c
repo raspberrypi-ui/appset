@@ -110,7 +110,7 @@ char *pcmanfm_file (gboolean global, int desktop, gboolean write)
     if (cur_conf.common_bg)
     {
         fname = g_strdup_printf ("desktop-items-0.conf");
-        buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
+        buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", "rpd", fname, NULL);
         g_free (fname);
         return buf;
     }
@@ -123,7 +123,7 @@ char *pcmanfm_file (gboolean global, int desktop, gboolean write)
 #pragma GCC diagnostic pop
         fname = g_strdup_printf ("desktop-items-%s.conf", buf);
         g_free (buf);
-        buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
+        buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", "rpd", fname, NULL);
         g_free (fname);
         if (write || access (buf, F_OK) == 0) return buf;
         else g_free (buf);
@@ -131,14 +131,14 @@ char *pcmanfm_file (gboolean global, int desktop, gboolean write)
     }
 
     fname = g_strdup_printf ("desktop-items-%u.conf", desktop);
-    buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), fname, NULL);
+    buf = g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", "rpd", fname, NULL);
     g_free (fname);
     return buf;
 }
 
 char *pcmanfm_g_file (gboolean global)
 {
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", session (), "pcmanfm.conf", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "pcmanfm", "rpd", "pcmanfm.conf", NULL);
 }
 
 static void load_pcman_settings (int desktop)

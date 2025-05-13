@@ -174,7 +174,7 @@ static void add_or_amend (const char *conffile, const char *block, const char *p
 
 char *lxsession_file (gboolean global)
 {
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxsession", session (), "desktop.conf", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxsession", "rpd-x", "desktop.conf", NULL);
 }
 
 char *xsettings_file (gboolean global)
@@ -184,13 +184,7 @@ char *xsettings_file (gboolean global)
 
 char *openbox_file (void)
 {
-    const char *session_name = session ();
-    char *lc_sess = g_ascii_strdown (session_name, -1);
-    char *fname = g_strconcat (lc_sess, "-rc.xml", NULL);
-    char *path = g_build_filename (g_get_user_config_dir (), "openbox", fname, NULL);
-    g_free (lc_sess);
-    g_free (fname);
-    return path;
+    return g_build_filename (g_get_user_config_dir (), "openbox", "rpd-rc.xml", NULL);
 }
 
 static char *labwc_file (void)

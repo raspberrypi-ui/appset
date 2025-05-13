@@ -166,14 +166,6 @@ char *rgba_to_gdk_color_string (GdkRGBA *col)
     return g_strdup_printf ("#%02X%02X%02X", r, g, b);
 }
 
-const char *session (void)
-{
-    const char *session_name =  g_getenv ("DESKTOP_SESSION");
-    if (!session_name) return "LXDE-pi";
-    if (!strncmp (session_name, "LXDE-pi", 7)) return "LXDE-pi";
-    else return session_name;
-}
-
 static int n_desktops (void)
 {
     int n, m;
@@ -398,8 +390,7 @@ static void backup_file (char *filepath)
 
 static void backup_config_files (void)
 {
-    const char *session_name = session ();
-    char *path, *lc_sess, *fname, *monname;
+    char *path, *monname;
     int i;
 
     // delete any old backups and create a new backup directory
@@ -408,29 +399,16 @@ static void backup_config_files (void)
     g_mkdir_with_parents (path, S_IRUSR | S_IWUSR | S_IXUSR);
     g_free (path);
 
-    lc_sess = g_ascii_strdown (session_name, -1);
-    fname = g_strconcat (lc_sess, "-rc.xml", NULL);
-    path = g_build_filename (".config/openbox", fname, NULL);
-    backup_file (path);
-    g_free (path);
-    g_free (fname);
-    g_free (lc_sess);
-
-    path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
-    backup_file (path);
-    g_free (path);
-
-    path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
-    backup_file (path);
-    g_free (path);
+    backup_file (".config/openbox/rpd-rc.xml");
+    backup_file (".config/lxsession/rpd-x/desktop.conf");
+    backup_file (".config/lxpanel/rpd-x/panels/panel");
+    backup_file (".config/pcmanfm/rpd/pcmanfm.conf");
 
     for (i = 0; i < ndesks; i++)
     {
-        fname = g_strdup_printf ("desktop-items-%d.conf", i);
-        path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+        path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%d.conf", i);
         backup_file (path);
         g_free (path);
-        g_free (fname);
 
         if (wm != WM_OPENBOX)
         {
@@ -438,18 +416,12 @@ static void backup_config_files (void)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
 #pragma GCC diagnostic pop
-            fname = g_strdup_printf ("desktop-items-%s.conf", monname);
-            path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+            path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%s.conf", monname);
             backup_file (path);
             g_free (path);
-            g_free (fname);
             g_free (monname);
         }
     }
-
-    path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
-    backup_file (path);
-    g_free (path);
 
     path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
     backup_file (path);
@@ -502,33 +474,19 @@ static int restore_file (char *filepath)
 
 static int restore_config_files (void)
 {
-    const char *session_name = session ();
-    char *path, *lc_sess, *fname, *monname;
+    char *path, *monname;
     int i, changed = 0;
 
-    lc_sess = g_ascii_strdown (session_name, -1);
-    fname = g_strconcat (lc_sess, "-rc.xml", NULL);
-    path = g_build_filename (".config/openbox", fname, NULL);
-    restore_file (path);
-    g_free (path);
-    g_free (fname);
-    g_free (lc_sess);
-
-    path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
-    if (restore_file (path)) changed = 1;
-    g_free (path);
-
-    path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
-    if (restore_file (path)) changed = 1;
-    g_free (path);
+    restore_file (".config/openbox/rpd-rc.xml");
+    if (restore_file (".config/lxsession/rpd-x/desktop.conf")) changed = 1;
+    if (restore_file (".config/lxpanel/rpd-x/panels/panel")) changed = 1;
+    if (restore_file (".config/pcmanfm/rpd/pcmanfm.conf")) changed = 1;
 
     for (i = 0; i < ndesks; i++)
     {
-        fname = g_strdup_printf ("desktop-items-%d.conf", i);
-        path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+        path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%d.conf", i);
         if (restore_file (path)) changed = 1;
         g_free (path);
-        g_free (fname);
 
         if (wm != WM_OPENBOX)
         {
@@ -536,18 +494,12 @@ static int restore_config_files (void)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
 #pragma GCC diagnostic pop
-            fname = g_strdup_printf ("desktop-items-%s.conf", monname);
-            path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+            path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%s.conf", monname);
             if (restore_file (path)) changed = 1;
             g_free (path);
-            g_free (fname);
             g_free (monname);
         }
     }
-
-    path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
-    if (restore_file (path)) changed = 1;
-    g_free (path);
 
     path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
     if (restore_file (path)) changed = 1;

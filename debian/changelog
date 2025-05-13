@@ -1,3 +1,9 @@
+pipanel (1:1.54) bookworm; urgency=medium
+
+  * Update session names
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 13 May 2025 13:25:45 +0100
+
 pipanel (1:1.53) bookworm; urgency=medium
 
   * Update en_GB translation file

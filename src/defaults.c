@@ -474,33 +474,19 @@ void init_session (const char *theme)
 
 static void reset_to_defaults (void)
 {
-    const char *session_name = session ();
-    char *path, *lc_sess, *fname, *monname;
+    char *path, *monname;
     int i;
 
-    lc_sess = g_ascii_strdown (session_name, -1);
-    fname = g_strconcat (lc_sess, "-rc.xml", NULL);
-    path = g_build_filename (".config/openbox", fname, NULL);
-    delete_file (path);
-    g_free (path);
-    g_free (fname);
-    g_free (lc_sess);
-
-    path = g_build_filename (".config/lxsession", session_name, "desktop.conf", NULL);
-    delete_file (path);
-    g_free (path);
-
-    path = g_build_filename (".config/lxpanel", session_name, "panels/panel", NULL);
-    delete_file (path);
-    g_free (path);
+    delete_file (".config/openbox/rpd-rc.xml");
+    delete_file (".config/lxsession/rpd-x/desktop.conf");
+    delete_file (".config/lxpanel/rpd-x/panels/panel");
+    delete_file (".config/pcmanfm/rpd/pcmanfm.conf");
 
     for (i = 0; i < ndesks; i++)
     {
-        fname = g_strdup_printf ("desktop-items-%d.conf", i);
-        path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+        path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%d.conf", i);
         delete_file (path);
         g_free (path);
-        g_free (fname);
 
         if (wm != WM_OPENBOX)
         {
@@ -508,18 +494,12 @@ static void reset_to_defaults (void)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
 #pragma GCC diagnostic pop
-            fname = g_strdup_printf ("desktop-items-%s.conf", monname);
-            path = g_build_filename (".config/pcmanfm", session_name, fname, NULL);
+            path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%s.conf", monname);
             delete_file (path);
             g_free (path);
-            g_free (fname);
             g_free (monname);
         }
     }
-
-    path = g_build_filename (".config/pcmanfm", session_name, "pcmanfm.conf", NULL);
-    delete_file (path);
-    g_free (path);
 
     path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
     delete_file (path);
