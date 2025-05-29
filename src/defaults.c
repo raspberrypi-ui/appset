@@ -479,7 +479,7 @@ static void reset_to_defaults (void)
 
     delete_file (".config/openbox/rpd-rc.xml");
     delete_file (".config/lxsession/rpd-x/desktop.conf");
-    delete_file (".config/lxpanel/rpd-x/panels/panel");
+    delete_file (".config/lxpanel-pi/panels/panel");
     delete_file (".config/pcmanfm/rpd/pcmanfm.conf");
 
     for (i = 0; i < ndesks; i++)
@@ -524,7 +524,7 @@ void create_defaults (void)
     int i;
     // defaults for controls
 
-    // /etc/xdg/lxpanel/LXDE-pi/panels/panel
+    // /etc/xdg/lxpanel-pi/panels/panel
     defaults_lxpanel ();
 
     // /etc/xdg/lxsession/LXDE-pi/desktop.conf

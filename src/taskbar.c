@@ -77,7 +77,7 @@ static void on_bar_textcolour_set (GtkColorChooser* btn, gpointer ptr);
 
 void reload_panel (void)
 {
-    if (wm == WM_OPENBOX) vsystem ("lxpanelctl refresh");
+    if (wm == WM_OPENBOX) vsystem ("lxpanelctl-pi refresh");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -86,7 +86,7 @@ void reload_panel (void)
 
 char *lxpanel_file (gboolean global)
 {
-    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel", "rpd-x", "panels/panel", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel-pi", "panels/panel", NULL);
 }
 
 static char *wfpanel_file (void)
@@ -199,7 +199,7 @@ static void save_lxpanel_settings (void)
     {
         // need a local copy to take the changes
         check_directory (user_config_file);
-        vsystem ("cp /etc/xdg/lxpanel/%s/panels/panel %s", "rpd-x", user_config_file);
+        vsystem ("cp /etc/xdg/lxpanel-pi/panels/panel %s", user_config_file);
     }
 
     // use sed to write

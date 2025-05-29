@@ -401,7 +401,7 @@ static void backup_config_files (void)
 
     backup_file (".config/openbox/rpd-rc.xml");
     backup_file (".config/lxsession/rpd-x/desktop.conf");
-    backup_file (".config/lxpanel/rpd-x/panels/panel");
+    backup_file (".config/lxpanel-pi/panels/panel");
     backup_file (".config/pcmanfm/rpd/pcmanfm.conf");
 
     for (i = 0; i < ndesks; i++)
@@ -479,7 +479,7 @@ static int restore_config_files (void)
 
     restore_file (".config/openbox/rpd-rc.xml");
     if (restore_file (".config/lxsession/rpd-x/desktop.conf")) changed = 1;
-    if (restore_file (".config/lxpanel/rpd-x/panels/panel")) changed = 1;
+    if (restore_file (".config/lxpanel-pi/panels/panel")) changed = 1;
     if (restore_file (".config/pcmanfm/rpd/pcmanfm.conf")) changed = 1;
 
     for (i = 0; i < ndesks; i++)
