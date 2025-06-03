@@ -56,7 +56,7 @@ static gulong id_size, id_pos, id_monitor;
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-static char *wfpanel_file (void);
+static char *wfpanel_file (gboolean global);
 static void load_lxpanel_settings (void);
 static void load_wfpanel_settings (void);
 static void save_lxpanel_settings (void);
@@ -89,9 +89,9 @@ char *lxpanel_file (gboolean global)
     return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "lxpanel-pi", "panels/panel", NULL);
 }
 
-static char *wfpanel_file (void)
+static char *wfpanel_file (gboolean global)
 {
-    return g_build_filename (g_get_user_config_dir (), "wf-panel-pi.ini", NULL);
+    return g_build_filename (global ? "/etc/xdg" : g_get_user_config_dir (), "wf-panel-pi", "wf-panel-pi.ini", NULL);
 }
 
 static void load_lxpanel_settings (void)
@@ -141,7 +141,7 @@ static void load_wfpanel_settings (void)
     gint val;
 
     // read in data from file to a key file
-    user_config_file = wfpanel_file ();
+    user_config_file = wfpanel_file (TRUE);
     kf = g_key_file_new ();
     if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
     {
@@ -187,6 +187,46 @@ static void load_wfpanel_settings (void)
     }
     g_key_file_free (kf);
     g_free (user_config_file);
+
+    user_config_file = wfpanel_file (FALSE);
+    kf = g_key_file_new ();
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        // get data from the key file
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "position", &err);
+        if (err == NULL && ret)
+        {
+            if (!strcmp (ret, "bottom")) cur_conf.barpos = 1;
+            else cur_conf.barpos = 0;
+        }
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        if (err == NULL) cur_conf.task_width = val;
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "monitor", &err);
+        if (err == NULL && ret)
+        {
+            for (val = 0; val < ndesks; val++)
+            {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
+#pragma GCC diagnostic pop
+                if (!g_strcmp0 (buf, ret)) cur_conf.monitor = val;
+                g_free (buf);
+            }
+        }
+    }
+    g_key_file_free (kf);
+    g_free (user_config_file);
 }
 
 static void save_lxpanel_settings (void)
@@ -221,7 +261,7 @@ static void save_wfpanel_settings (void)
     GKeyFile *kf;
     gsize len;
 
-    user_config_file = wfpanel_file ();
+    user_config_file = wfpanel_file (FALSE);
     check_directory (user_config_file);
 
     // process wfpanel config data
