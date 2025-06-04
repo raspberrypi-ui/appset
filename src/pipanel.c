@@ -402,11 +402,11 @@ static void backup_config_files (void)
     backup_file (".config/openbox/rpd-rc.xml");
     backup_file (".config/lxsession/rpd-x/desktop.conf");
     backup_file (".config/lxpanel-pi/panels/panel");
-    backup_file (".config/pcmanfm/rpd/pcmanfm.conf");
+    backup_file (".config/pcmanfm/default/pcmanfm.conf");
 
     for (i = 0; i < ndesks; i++)
     {
-        path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%d.conf", i);
+        path = g_strdup_printf (".config/pcmanfm/default/desktop-items-%d.conf", i);
         backup_file (path);
         g_free (path);
 
@@ -416,7 +416,7 @@ static void backup_config_files (void)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
 #pragma GCC diagnostic pop
-            path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%s.conf", monname);
+            path = g_strdup_printf (".config/pcmanfm/default/desktop-items-%s.conf", monname);
             backup_file (path);
             g_free (path);
             g_free (monname);
@@ -431,7 +431,7 @@ static void backup_config_files (void)
     backup_file (path);
     g_free (path);
 
-    backup_file (".config/wf-panel-pi.ini");
+    backup_file (".config/wf-panel-pi/wf-panel-pi.ini");
     backup_file (".config/libfm/libfm.conf");
     backup_file (".config/gtk-3.0/gtk.css");
     backup_file (".config/qt5ct/qt5ct.conf");
@@ -480,11 +480,11 @@ static int restore_config_files (void)
     restore_file (".config/openbox/rpd-rc.xml");
     if (restore_file (".config/lxsession/rpd-x/desktop.conf")) changed = 1;
     if (restore_file (".config/lxpanel-pi/panels/panel")) changed = 1;
-    if (restore_file (".config/pcmanfm/rpd/pcmanfm.conf")) changed = 1;
+    if (restore_file (".config/pcmanfm/default/pcmanfm.conf")) changed = 1;
 
     for (i = 0; i < ndesks; i++)
     {
-        path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%d.conf", i);
+        path = g_strdup_printf (".config/pcmanfm/default/desktop-items-%d.conf", i);
         if (restore_file (path)) changed = 1;
         g_free (path);
 
@@ -494,7 +494,7 @@ static int restore_config_files (void)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
 #pragma GCC diagnostic pop
-            path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%s.conf", monname);
+            path = g_strdup_printf (".config/pcmanfm/default/desktop-items-%s.conf", monname);
             if (restore_file (path)) changed = 1;
             g_free (path);
             g_free (monname);
@@ -509,7 +509,7 @@ static int restore_config_files (void)
     if (restore_file (path)) changed = 1;
     g_free (path);
 
-    if (restore_file (".config/wf-panel-pi.ini")) changed = 1;
+    if (restore_file (".config/wf-panel-pi/wf-panel-pi.ini")) changed = 1;
     if (restore_file (".config/libfm/libfm.conf")) changed = 1;
     if (restore_file (".config/gtk-3.0/gtk.css")) changed = 1;
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;

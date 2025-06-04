@@ -480,11 +480,12 @@ static void reset_to_defaults (void)
     delete_file (".config/openbox/rpd-rc.xml");
     delete_file (".config/lxsession/rpd-x/desktop.conf");
     delete_file (".config/lxpanel-pi/panels/panel");
-    delete_file (".config/pcmanfm/rpd/pcmanfm.conf");
+    delete_file (".config/wf-panel-pi/wf-panel-pi.ini");
+    delete_file (".config/pcmanfm/default/pcmanfm.conf");
 
     for (i = 0; i < ndesks; i++)
     {
-        path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%d.conf", i);
+        path = g_strdup_printf (".config/pcmanfm/default/desktop-items-%d.conf", i);
         delete_file (path);
         g_free (path);
 
@@ -494,7 +495,7 @@ static void reset_to_defaults (void)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             monname = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), i);
 #pragma GCC diagnostic pop
-            path = g_strdup_printf (".config/pcmanfm/rpd/desktop-items-%s.conf", monname);
+            path = g_strdup_printf (".config/pcmanfm/default/desktop-items-%s.conf", monname);
             delete_file (path);
             g_free (path);
             g_free (monname);
