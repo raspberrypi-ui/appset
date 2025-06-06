@@ -66,7 +66,7 @@ static void save_libfm_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void reset_to_defaults (void);
-static void on_set_defaults (GtkButton* btn, gpointer ptr);
+static void on_set_defaults (GtkButton *btn, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -592,7 +592,7 @@ void create_defaults (void)
 /* Control handlers                                                           */
 /*----------------------------------------------------------------------------*/
 
-static void on_set_defaults (GtkButton* btn, gpointer ptr)
+static void on_set_defaults (GtkButton *btn, gpointer ptr)
 {
     int i;
 

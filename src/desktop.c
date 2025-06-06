@@ -57,16 +57,16 @@ static int desktop_n;
 static void atk_label (GtkWidget *widget, GtkLabel *label);
 static void load_pcman_settings (int desktop);
 static void load_pcman_g_settings (void);
-static void on_desktop_changed (GtkComboBox* cb, gpointer ptr);
-static void on_desktop_same (GtkCheckButton* btn, gpointer ptr);
-static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr);
-static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr);
-static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_desktop_textcolour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr);
-static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr);
-static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr);
-static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr);
+static void on_desktop_changed (GtkComboBox *cb, gpointer ptr);
+static void on_desktop_same (GtkCheckButton *btn, gpointer ptr);
+static void on_desktop_mode_set (GtkComboBox *btn, gpointer ptr);
+static void on_desktop_picture_set (GtkFileChooser *btn, gpointer ptr);
+static void on_desktop_colour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_desktop_textcolour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr);
+static void on_toggle_docs (GtkSwitch *btn, gboolean state, gpointer ptr);
+static void on_toggle_trash (GtkSwitch *btn, gboolean state, gpointer ptr);
+static void on_toggle_mnts (GtkSwitch *btn, gboolean state, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -363,9 +363,9 @@ void set_desktop_controls (void)
     }
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktop), &cur_conf.desktops[desktop_n].desktop_colour);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktoptext), &cur_conf.desktops[desktop_n].desktoptext_colour);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (toggle_docs), cur_conf.desktops[desktop_n].show_docs);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (toggle_trash), cur_conf.desktops[desktop_n].show_trash);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (toggle_mnts), cur_conf.desktops[desktop_n].show_mnts);
+    gtk_switch_set_active (GTK_SWITCH (toggle_docs), cur_conf.desktops[desktop_n].show_docs);
+    gtk_switch_set_active (GTK_SWITCH (toggle_trash), cur_conf.desktops[desktop_n].show_trash);
+    gtk_switch_set_active (GTK_SWITCH (toggle_mnts), cur_conf.desktops[desktop_n].show_mnts);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_folder), cur_conf.desktops[desktop_n].desktop_folder);
 
     g_signal_handler_unblock (toggle_same, id_same);
@@ -381,7 +381,7 @@ void set_desktop_controls (void)
 /* Control handlers                                                           */
 /*----------------------------------------------------------------------------*/
 
-static void on_desktop_changed (GtkComboBox* cb, gpointer ptr)
+static void on_desktop_changed (GtkComboBox *cb, gpointer ptr)
 {
     GtkTreeIter iter;
 
@@ -391,7 +391,7 @@ static void on_desktop_changed (GtkComboBox* cb, gpointer ptr)
     set_desktop_controls ();
 }
 
-static void on_desktop_same (GtkCheckButton* btn, gpointer ptr)
+static void on_desktop_same (GtkCheckButton *btn, gpointer ptr)
 {
     int i;
 
@@ -417,7 +417,7 @@ static void on_desktop_same (GtkCheckButton* btn, gpointer ptr)
     reload_desktop ();
 }
 
-static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
+static void on_desktop_mode_set (GtkComboBox *btn, gpointer ptr)
 {
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
@@ -443,7 +443,7 @@ static void on_desktop_mode_set (GtkComboBox* btn, gpointer ptr)
     reload_desktop ();
 }
 
-static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
+static void on_desktop_picture_set (GtkFileChooser *btn, gpointer ptr)
 {
     char *picture = gtk_file_chooser_get_filename (btn);
     if (picture) cur_conf.desktops[desktop_n].desktop_picture = picture;
@@ -452,7 +452,7 @@ static void on_desktop_picture_set (GtkFileChooser* btn, gpointer ptr)
     reload_desktop ();
 }
 
-static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
+static void on_desktop_colour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.desktops[desktop_n].desktop_colour);
 
@@ -460,7 +460,7 @@ static void on_desktop_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_desktop ();
 }
 
-static void on_desktop_textcolour_set (GtkColorChooser* btn, gpointer ptr)
+static void on_desktop_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.desktops[desktop_n].desktoptext_colour);
 
@@ -468,7 +468,7 @@ static void on_desktop_textcolour_set (GtkColorChooser* btn, gpointer ptr)
     reload_desktop ();
 }
 
-static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr)
+static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr)
 {
     char *folder = gtk_file_chooser_get_filename (btn);
     if (folder)
@@ -483,25 +483,25 @@ static void on_desktop_folder_set (GtkFileChooser* btn, gpointer ptr)
     }
 }
 
-static void on_toggle_docs (GtkCheckButton* btn, gpointer ptr)
+static void on_toggle_docs (GtkSwitch *btn, gboolean state, gpointer ptr)
 {
-    cur_conf.desktops[desktop_n].show_docs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+    cur_conf.desktops[desktop_n].show_docs = state;
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
 
-static void on_toggle_trash (GtkCheckButton* btn, gpointer ptr)
+static void on_toggle_trash (GtkSwitch *btn, gboolean state, gpointer ptr)
 {
-    cur_conf.desktops[desktop_n].show_trash = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+    cur_conf.desktops[desktop_n].show_trash = state;
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
 }
 
-static void on_toggle_mnts (GtkCheckButton* btn, gpointer ptr)
+static void on_toggle_mnts (GtkSwitch *btn, gboolean state, gpointer ptr)
 {
-    cur_conf.desktops[desktop_n].show_mnts = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn));
+    cur_conf.desktops[desktop_n].show_mnts = state;
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
@@ -551,14 +551,14 @@ void load_desktop_tab (GtkBuilder *builder)
     combo_mode = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext1");
     id_mode = g_signal_connect (combo_mode, "changed", G_CALLBACK (on_desktop_mode_set), NULL);
 
-    toggle_docs = (GtkWidget *) gtk_builder_get_object (builder, "checkbutton1");
-    id_docs = g_signal_connect (toggle_docs, "toggled", G_CALLBACK (on_toggle_docs), NULL);
+    toggle_docs = (GtkWidget *) gtk_builder_get_object (builder, "switch1");
+    id_docs = g_signal_connect (toggle_docs, "state-set", G_CALLBACK (on_toggle_docs), NULL);
 
-    toggle_trash = (GtkWidget *) gtk_builder_get_object (builder, "checkbutton2");
-    id_trash = g_signal_connect (toggle_trash, "toggled", G_CALLBACK (on_toggle_trash), NULL);
+    toggle_trash = (GtkWidget *) gtk_builder_get_object (builder, "switch2");
+    id_trash = g_signal_connect (toggle_trash, "state-set", G_CALLBACK (on_toggle_trash), NULL);
 
-    toggle_mnts = (GtkWidget *) gtk_builder_get_object (builder, "checkbutton3");
-    id_mnts = g_signal_connect (toggle_mnts, "toggled", G_CALLBACK (on_toggle_mnts), NULL);
+    toggle_mnts = (GtkWidget *) gtk_builder_get_object (builder, "switch3");
+    id_mnts = g_signal_connect (toggle_mnts, "state-set", G_CALLBACK (on_toggle_mnts), NULL);
 
     file_folder = (GtkWidget *) gtk_builder_get_object (builder, "filechooserbutton4");
     id_folder = g_signal_connect (file_folder, "selection-changed", G_CALLBACK (on_desktop_folder_set), NULL);
@@ -570,7 +570,7 @@ void load_desktop_tab (GtkBuilder *builder)
     id_monitor = g_signal_connect (combo_monitor, "changed", G_CALLBACK (on_desktop_changed), NULL);
 
     // add accessibility label to combo box child of file chooser (yes, I know the previous one attached to a button...)
-    lbl = GTK_LABEL (gtk_builder_get_object (builder, "label16"));
+    lbl = GTK_LABEL (gtk_builder_get_object (builder, "label15"));
     children = gtk_container_get_children (GTK_CONTAINER (file_folder));
     child = children;
     do

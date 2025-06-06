@@ -61,11 +61,11 @@ static void load_lxpanel_settings (void);
 static void load_wfpanel_settings (void);
 static void save_lxpanel_settings (void);
 static void save_wfpanel_settings (void);
-static void on_bar_size_set (GtkComboBox* btn, gpointer ptr);
-static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr);
-static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr);
-static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_bar_textcolour_set (GtkColorChooser* btn, gpointer ptr);
+static void on_bar_size_set (GtkComboBox *btn, gpointer ptr);
+static void on_bar_pos_set (GtkRadioButton *btn, gpointer ptr);
+static void on_bar_loc_set (GtkComboBox *cb, gpointer ptr);
+static void on_bar_colour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_bar_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -338,7 +338,7 @@ void set_taskbar_controls (void)
 /* Control handlers                                                           */
 /*----------------------------------------------------------------------------*/
 
-static void on_bar_size_set (GtkComboBox* btn, gpointer ptr)
+static void on_bar_size_set (GtkComboBox *btn, gpointer ptr)
 {
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
@@ -362,7 +362,7 @@ static void on_bar_size_set (GtkComboBox* btn, gpointer ptr)
     reload_panel ();
 }
 
-static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
+static void on_bar_pos_set (GtkRadioButton *btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
@@ -372,7 +372,7 @@ static void on_bar_pos_set (GtkRadioButton* btn, gpointer ptr)
     reload_panel ();
 }
 
-static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr)
+static void on_bar_loc_set (GtkComboBox *cb, gpointer ptr)
 {
     GtkTreeIter iter;
 
@@ -384,7 +384,7 @@ static void on_bar_loc_set (GtkComboBox* cb, gpointer ptr)
     reload_panel ();
 }
 
-static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
+static void on_bar_colour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour[cur_conf.darkmode]);
     set_theme (TEMP_THEME);
@@ -392,7 +392,7 @@ static void on_bar_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void on_bar_textcolour_set (GtkColorChooser* btn, gpointer ptr)
+static void on_bar_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour[cur_conf.darkmode]);
     set_theme (TEMP_THEME);

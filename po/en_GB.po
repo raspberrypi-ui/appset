@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-01 12:54+0100\n"
+"POT-Creation-Date: 2025-06-06 15:30+0100\n"
 "PO-Revision-Date: 2018-01-10 12:36+0000\n"
 "Last-Translator: Simon Long <simon@raspberrypi.org>\n"
 "Language-Team: English (British)\n"
@@ -17,47 +17,47 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../src/pipanel.c:322
+#: ../src/pipanel.c:314
 msgctxt "tab"
 msgid "Desktop"
 msgstr "Desktop"
 
-#: ../src/pipanel.c:323
+#: ../src/pipanel.c:315
 msgctxt "tab"
 msgid "Taskbar"
 msgstr "Taskbar"
 
-#: ../src/pipanel.c:324
+#: ../src/pipanel.c:316
 msgctxt "tab"
 msgid "Theme"
 msgstr "Theme"
 
-#: ../src/pipanel.c:325
+#: ../src/pipanel.c:317
 msgctxt "tab"
 msgid "Defaults"
 msgstr "Defaults"
 
-#: ../src/pipanel.c:326
+#: ../src/pipanel.c:318
 msgid "No such tab"
 msgstr ""
 
-#: ../src/pipanel.c:612 ../src/defaults.c:622 ../src/system.c:1251
+#: ../src/pipanel.c:576 ../src/defaults.c:603 ../src/system.c:1245
 msgid ""
 "The theme for Geany cannot be changed while it is open.\n"
 "Please close it and try again."
 msgstr ""
 
-#: ../src/pipanel.c:618 ../src/defaults.c:628 ../src/system.c:1261
+#: ../src/pipanel.c:582 ../src/defaults.c:609 ../src/system.c:1255
 msgid ""
 "The theme for Calculator cannot be changed while it is open.\n"
 "Please close it and try again."
 msgstr ""
 
-#: ../src/pipanel.c:622
+#: ../src/pipanel.c:586
 msgid "Restoring configuration - please wait..."
 msgstr ""
 
-#: ../src/pipanel.c:699
+#: ../src/pipanel.c:663
 msgid "Loading configuration - please wait..."
 msgstr ""
 
@@ -150,24 +150,24 @@ msgid "Choose the folder containing files to be shown on the second desktop"
 msgstr "Choose the folder containing files to be shown on the desktop"
 
 #: ../data/pipanel.ui.h:22
-msgid "Documents"
-msgstr "Documents"
+msgid "Show Documents"
+msgstr "Show Documents:"
 
 #: ../data/pipanel.ui.h:23
 msgid "Show the documents folder on the desktop"
 msgstr "Show the documents folder on the desktop"
 
 #: ../data/pipanel.ui.h:24
-msgid "Wastebasket"
-msgstr "Wastebasket"
+msgid "Show Wastebasket"
+msgstr "Show Wastebasket:"
 
 #: ../data/pipanel.ui.h:25
 msgid "Show the wastebasket on the desktop"
 msgstr "Show the wastebasket on the desktop"
 
 #: ../data/pipanel.ui.h:26
-msgid "Mounted Disks"
-msgstr "External Disks"
+msgid "Show Mounted Disks"
+msgstr "Show Mounted Disks:"
 
 #: ../data/pipanel.ui.h:27
 msgid "Show mounted disks on the desktop"
@@ -352,5 +352,3 @@ msgstr ""
 #: ../data/pipanel.ui.h:72
 msgid "_OK"
 msgstr ""
-
-#, c-format

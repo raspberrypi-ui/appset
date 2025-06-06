@@ -76,11 +76,11 @@ static void save_xsettings (void);
 static void save_labwc_to_settings (void);
 static int is_dark (void);
 static gboolean restore_theme (gpointer data);
-static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr);
-static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr);
-static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr);
-static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr);
+static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_theme_font_set (GtkFontChooser *btn, gpointer ptr);
+static void on_theme_dark_set (GtkRadioButton *btn, gpointer ptr);
+static void on_theme_cursor_size_set (GtkComboBox *btn, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -1182,7 +1182,7 @@ void set_system_controls (void)
 /* Control handlers                                                           */
 /*----------------------------------------------------------------------------*/
 
-static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
+static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
 
@@ -1193,7 +1193,7 @@ static void on_theme_colour_set (GtkColorChooser* btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
+static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
 
@@ -1204,7 +1204,7 @@ static void on_theme_textcolour_set (GtkColorChooser* btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
+static void on_theme_font_set (GtkFontChooser *btn, gpointer ptr)
 {
     int i;
     PangoFontDescription *font_desc = gtk_font_chooser_get_font_desc (btn);
@@ -1235,7 +1235,7 @@ static void on_theme_font_set (GtkFontChooser* btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
+static void on_theme_dark_set (GtkRadioButton *btn, gpointer ptr)
 {
     if (!system ("pgrep geany > /dev/null"))
     {
@@ -1272,7 +1272,7 @@ static void on_theme_dark_set (GtkRadioButton* btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void on_theme_cursor_size_set (GtkComboBox* btn, gpointer ptr)
+static void on_theme_cursor_size_set (GtkComboBox *btn, gpointer ptr)
 {
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
