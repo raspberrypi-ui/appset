@@ -323,8 +323,8 @@ const char *icon_name (int tab)
 {
     switch (tab)
     {
-        case 0 : return "user-desktop";
-        case 1 : return "rpi";
+        case 0 : return "appset-desktop";
+        case 1 : return "appset-taskbar";
         case 2 : return "preferences-desktop-theme";
         case 3 : return "applications-utilities";
         default : return NULL;
