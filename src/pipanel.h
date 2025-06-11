@@ -38,11 +38,11 @@ extern const char *dgetfixt (const char *domain, const char *msgctxid);
 
 #define MAX_DESKTOPS 9
 
-#define DEFAULT_THEME "PiXflat"
-#define DEFAULT_THEME_DARK "PiXnoir"
-#define DEFAULT_THEME_L "PiXflat_l"
-#define DEFAULT_THEME_DARK_L "PiXnoir_l"
-#define TEMP_THEME    "tPiXflat"
+#define DEFAULT_THEME "PiXtrix"
+#define DEFAULT_THEME_DARK "PiXonyx"
+#define DEFAULT_THEME_L "PiXtrix_l"
+#define DEFAULT_THEME_DARK_L "PiXonyx_l"
+#define TEMP_THEME "tPiXtrix"
 
 #define XC(str) ((xmlChar *) str)
 
