@@ -557,7 +557,7 @@ void create_defaults (void)
 
     def_lg = def_sm = def_med;
 
-    def_lg.desktop_font = "Nunito Sans Light 16";
+    def_lg.desktop_font = FONT_NAME " 16";
     def_lg.icon_size = 52;
     def_lg.cursor_size = 36;
 
@@ -572,7 +572,7 @@ void create_defaults (void)
     def_lg.handle_width = 20;
     def_lg.scrollbar_width = 17;
 
-    def_sm.desktop_font = "Nunito Sans Light 8";
+    def_sm.desktop_font = FONT_NAME " 8";
     def_sm.icon_size = 20;
     def_sm.cursor_size = 24;
 
