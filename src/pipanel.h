@@ -40,10 +40,11 @@ extern const char *dgetfixt (const char *domain, const char *msgctxid);
 
 #define DEFAULT_THEME "PiXtrix"
 #define DEFAULT_THEME_DARK "PiXonyx"
-#define DEFAULT_THEME_L "PiXtrix_l"
-#define DEFAULT_THEME_DARK_L "PiXonyx_l"
-#define TEMP_THEME "tPiXtrix"
 #define FONT_NAME "Nunito Sans Light"
+
+#define DEFAULT_THEME_L DEFAULT_THEME "_l"
+#define DEFAULT_THEME_DARK_L DEFAULT_THEME_DARK "_l"
+#define TEMP_THEME "t" DEFAULT_THEME
 
 #define XC(str) ((xmlChar *) str)
 
