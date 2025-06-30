@@ -69,6 +69,9 @@ GtkTreeModel *sortmons;
 /* Number of desktops */
 int ndesks;
 
+/* Is new theme available? */
+gboolean trix_theme = FALSE;
+
 #ifndef PLUGIN_NAME
 static gulong draw_id;
 
@@ -190,6 +193,14 @@ void check_directory (const char *path)
     g_free (dir);
 }
 
+const char *theme_name (int dark)
+{
+    if (trix_theme)
+        return dark == TEMP ? "tPiXonyx" : (dark ? "PiXonyx" : "PiXtrix");
+    else
+        return dark == TEMP ? "tPiXflat" : (dark ? "PiXnoir" : "PiXflat");
+}
+
 /*----------------------------------------------------------------------------*/
 /* Message box                                                                */
 /*----------------------------------------------------------------------------*/
@@ -238,6 +249,10 @@ static void init_config (void)
 {
     int i;
     char *buf;
+    struct stat st;
+
+    // check to see if new theme is installed
+    if (stat ("/usr/share/themes/PiXtrix", &st) == 0) trix_theme = TRUE;
 
     // find the number of monitors
     ndesks = n_desktops ();
@@ -268,7 +283,7 @@ static void init_config (void)
     load_defaults_tab (builder);
 
     // create session file to be tracked
-    init_session (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
+    init_session (theme_name (cur_conf.darkmode));
 
     // set up controls to match current state of data
     set_desktop_controls ();
@@ -435,11 +450,11 @@ static void backup_config_files (void)
         }
     }
 
-    path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    path = g_build_filename (".local/share/themes", theme_name (LIGHT), "gtk-3.0/gtk.css", NULL);
     backup_file (path);
     g_free (path);
 
-    path = g_build_filename (".local/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    path = g_build_filename (".local/share/themes", theme_name (DARK), "gtk-3.0/gtk.css", NULL);
     backup_file (path);
     g_free (path);
 
@@ -513,11 +528,11 @@ static int restore_config_files (void)
         }
     }
 
-    path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    path = g_build_filename (".local/share/themes", theme_name (LIGHT), "gtk-3.0/gtk.css", NULL);
     if (restore_file (path)) changed = 1;
     g_free (path);
 
-    path = g_build_filename (".local/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    path = g_build_filename (".local/share/themes", theme_name (DARK), "gtk-3.0/gtk.css", NULL);
     if (restore_file (path)) changed = 1;
     g_free (path);
 
@@ -547,7 +562,7 @@ static gpointer restore_thread (gpointer ptr)
     if (restore_config_files ())
     {
         cur_conf.darkmode = orig_darkmode;
-        set_theme (TEMP_THEME);
+        set_theme (theme_name (TEMP));
         reload_session ();
         reload_panel ();
         reload_desktop ();

@@ -317,14 +317,14 @@ static void load_gtk3_settings (void)
     cur_conf.darkmode = (is_dark () == 1) ? TRUE : FALSE;
 
     cur_conf.scrollbar_width = 13;
-    user_config_file = g_build_filename (g_get_user_data_dir (), "themes", cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    user_config_file = g_build_filename (g_get_user_data_dir (), "themes", theme_name (cur_conf.darkmode), "gtk-3.0/gtk.css", NULL);
     if (!vsystem ("grep -q \"min-width: 17px\" %s 2> /dev/null", user_config_file)) cur_conf.scrollbar_width = 17;
     g_free (user_config_file);
 
     for (dark = 0; dark < 2; dark++)
     {
-        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/!(*-dark).css", NULL);
-        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/*.css", NULL);
+        sys_config_file = g_build_filename ("/usr/share/themes", theme_name (dark), "gtk-3.0/!(*-dark).css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", theme_name (dark), "gtk-3.0/*.css", NULL);
 
         cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);
@@ -385,7 +385,7 @@ static void load_gtk3_settings (void)
 
 static void save_wm_settings (void)
 {
-    char *user_config_file, *font, *cptr;
+    char *user_config_file, *theme, *font, *cptr;
     int count, size;
     const gchar *weight = NULL, *style = NULL;
     char buf[10];
@@ -533,25 +533,21 @@ static void save_wm_settings (void)
     }
     xmlXPathFreeObject (xpathObj);
 
+    theme = g_strdup_printf ("%s%s", theme_name (cur_conf.darkmode), cur_conf.scrollbar_width >= 17 ? "_l" : "");
     xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        if (cur_conf.scrollbar_width >= 17)
-            xmlNewChild (cur_node, NULL, XC ("name"), cur_conf.darkmode ? XC (DEFAULT_THEME_DARK_L) : XC (DEFAULT_THEME_L));
-        else
-            xmlNewChild (cur_node, NULL, XC ("name"), cur_conf.darkmode ? XC (DEFAULT_THEME_DARK) : XC (DEFAULT_THEME));
+        xmlNewChild (cur_node, NULL, XC ("name"), XC (theme));
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        if (cur_conf.scrollbar_width >= 17)
-            xmlNodeSetContent (cur_node, cur_conf.darkmode ? XC (DEFAULT_THEME_DARK_L) : XC (DEFAULT_THEME_L));
-        else
-            xmlNodeSetContent (cur_node, cur_conf.darkmode ? XC (DEFAULT_THEME_DARK) : XC (DEFAULT_THEME));
+        xmlNodeSetContent (cur_node, XC (theme));
     }
+    g_free (theme);
 
     if (wm == WM_LABWC) save_labwc_to_settings ();
     else
@@ -630,7 +626,7 @@ static void save_lxsession_settings (void)
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    g_key_file_set_string (kf, "GTK", "sNet/ThemeName", TEMP_THEME);
+    g_key_file_set_string (kf, "GTK", "sNet/ThemeName", theme_name (TEMP));
 
     // update changed values in the key file
     ctheme = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
@@ -725,10 +721,10 @@ void save_gtk3_settings (void)
     g_free (user_config_file);
 
     // create a temp theme to switch to
-    link1 = g_build_filename (g_get_user_data_dir (), "themes", TEMP_THEME, NULL);
+    link1 = g_build_filename (g_get_user_data_dir (), "themes", theme_name (TEMP), NULL);
     if (!g_file_test (link1, G_FILE_TEST_IS_DIR))
     {
-        link2 = g_build_filename (g_get_user_data_dir (), "themes", DEFAULT_THEME, NULL);
+        link2 = g_build_filename (g_get_user_data_dir (), "themes", theme_name (LIGHT), NULL);
         symlink (link2, link1);
         g_free (link2);
     }
@@ -742,12 +738,12 @@ void save_gtk3_settings (void)
         cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour[dark]);
 
         // construct the file path
-        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", theme_name (dark), "gtk-3.0/gtk.css", NULL);
         check_directory (user_config_file);
 
         if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
         {
-            vsystem ("echo '@import url(\"/usr/share/themes/%s/gtk-3.0/gtk.css\");' >> %s", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, user_config_file);
+            vsystem ("echo '@import url(\"/usr/share/themes/%s/gtk-3.0/gtk.css\");' >> %s", theme_name (dark), user_config_file);
             vsystem ("echo '@define-color theme_selected_bg_color %s;' >> %s", cstrb, user_config_file);
             vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
             vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
@@ -890,7 +886,7 @@ static void save_environment (void)
 
 void save_session_settings (void)
 {
-    set_theme (TEMP_THEME);
+    set_theme (theme_name (TEMP));
     if (wm == WM_OPENBOX) save_lxsession_settings ();
     else 
     {
@@ -1146,17 +1142,17 @@ static int is_dark (void)
 {
     int res;
 
-    char *config_file = g_build_filename ("/usr/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    char *config_file = g_build_filename ("/usr/share/themes", theme_name (DARK), "gtk-3.0/gtk.css", NULL);
     if (access (config_file, F_OK)) return -1;
     g_free (config_file);
 
     if (wm == WM_OPENBOX)
     {
         char *user_config_file = lxsession_file (FALSE);
-        res = vsystem ("grep sNet/ThemeName %s | grep -q %s", user_config_file, DEFAULT_THEME_DARK);
+        res = vsystem ("grep sNet/ThemeName %s | grep -q %s", user_config_file, theme_name (DARK));
         g_free (user_config_file);
     }
-    else res = vsystem ("gsettings get org.gnome.desktop.interface gtk-theme | grep -q %s", DEFAULT_THEME_DARK);
+    else res = vsystem ("gsettings get org.gnome.desktop.interface gtk-theme | grep -q %s", theme_name (DARK));
 
     if (!res) return 1;
     else return 0;
@@ -1165,7 +1161,7 @@ static int is_dark (void)
 static gboolean restore_theme (gpointer data)
 {
     /* Resets the theme to the default, causing it to take effect */
-    set_theme (cur_conf.darkmode ? DEFAULT_THEME_DARK : DEFAULT_THEME);
+    set_theme (theme_name (cur_conf.darkmode));
     if (data) gtk_main_quit ();
     return FALSE;
 }

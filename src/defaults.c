@@ -276,7 +276,7 @@ static void defaults_gtk3 (void)
 
     for (dark = 0; dark < 2; dark++)
     {
-        sys_config_file = g_build_filename ("/usr/share/themes", dark ? DEFAULT_THEME_DARK : DEFAULT_THEME, "gtk-3.0/!(*-dark).css", NULL);
+        sys_config_file = g_build_filename ("/usr/share/themes", theme_name (dark), "gtk-3.0/!(*-dark).css", NULL);
 
         cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
@@ -502,11 +502,11 @@ static void reset_to_defaults (void)
         }
     }
 
-    path = g_build_filename (".local/share/themes", DEFAULT_THEME, "gtk-3.0/gtk.css", NULL);
+    path = g_build_filename (".local/share/themes", theme_name (LIGHT), "gtk-3.0/gtk.css", NULL);
     delete_file (path);
     g_free (path);
 
-    path = g_build_filename (".local/share/themes", DEFAULT_THEME_DARK, "gtk-3.0/gtk.css", NULL);
+    path = g_build_filename (".local/share/themes", theme_name (DARK), "gtk-3.0/gtk.css", NULL);
     delete_file (path);
     g_free (path);
 
@@ -517,7 +517,7 @@ static void reset_to_defaults (void)
     delete_file (".config/labwc/themerc-override");
     delete_file (".gtkrc-2.0");
 
-    init_session (TEMP_THEME);
+    init_session (theme_name (TEMP));
 }
 
 void create_defaults (void)
@@ -557,7 +557,6 @@ void create_defaults (void)
 
     def_lg = def_sm = def_med;
 
-    def_lg.desktop_font = FONT_NAME " 16";
     def_lg.icon_size = 52;
     def_lg.cursor_size = 36;
 
@@ -572,7 +571,6 @@ void create_defaults (void)
     def_lg.handle_width = 20;
     def_lg.scrollbar_width = 17;
 
-    def_sm.desktop_font = FONT_NAME " 8";
     def_sm.icon_size = 20;
     def_sm.cursor_size = 24;
 
@@ -586,6 +584,17 @@ void create_defaults (void)
     def_sm.task_width = 150;
     def_sm.handle_width = 10;
     def_sm.scrollbar_width = 13;
+
+    if (trix_theme)
+    {
+        def_lg.desktop_font = "Nunito Sans Light 16";
+        def_sm.desktop_font = "Nunito Sans Light 8";
+    }
+    else
+    {
+        def_lg.desktop_font = "PibotoLt 16";
+        def_sm.desktop_font = "PibotoLt 8";
+    }
 }
 
 /*----------------------------------------------------------------------------*/

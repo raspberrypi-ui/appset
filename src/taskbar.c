@@ -387,7 +387,7 @@ static void on_bar_loc_set (GtkComboBox *cb, gpointer ptr)
 static void on_bar_colour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bar_colour[cur_conf.darkmode]);
-    set_theme (TEMP_THEME);
+    set_theme (theme_name (TEMP));
     save_gtk3_settings ();
     reload_theme (FALSE);
 }
@@ -395,7 +395,7 @@ static void on_bar_colour_set (GtkColorChooser *btn, gpointer ptr)
 static void on_bar_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.bartext_colour[cur_conf.darkmode]);
-    set_theme (TEMP_THEME);
+    set_theme (theme_name (TEMP));
     save_gtk3_settings ();
     reload_theme (FALSE);
 }

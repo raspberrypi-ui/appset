@@ -38,13 +38,9 @@ extern const char *dgetfixt (const char *domain, const char *msgctxid);
 
 #define MAX_DESKTOPS 9
 
-#define DEFAULT_THEME "PiXtrix"
-#define DEFAULT_THEME_DARK "PiXonyx"
-#define FONT_NAME "Nunito Sans Light"
-
-#define DEFAULT_THEME_L DEFAULT_THEME "_l"
-#define DEFAULT_THEME_DARK_L DEFAULT_THEME_DARK "_l"
-#define TEMP_THEME "t" DEFAULT_THEME
+#define TEMP -1
+#define LIGHT 0
+#define DARK  1
 
 #define XC(str) ((xmlChar *) str)
 
@@ -98,6 +94,7 @@ extern Config cur_conf;
 extern wm_type wm;
 extern int ndesks;
 extern GtkTreeModel *sortmons;
+extern gboolean trix_theme;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -109,6 +106,7 @@ extern char *get_quoted_string (char *cmd);
 extern char *rgba_to_gdk_color_string (GdkRGBA *col);
 extern void check_directory (const char *path);
 extern void message (char *msg, gboolean ok);
+extern const char *theme_name (int dark);
 
 /* End of file */
 /*----------------------------------------------------------------------------*/
