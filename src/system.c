@@ -73,6 +73,7 @@ static void save_wm_settings (void);
 static void save_lxsession_settings (void);
 static void save_gsettings (void);
 static void save_xsettings (void);
+static void save_environment (void);
 static void save_labwc_to_settings (void);
 static int is_dark (void);
 static gboolean restore_theme (gpointer data);
@@ -863,6 +864,30 @@ static void save_xsettings (void)
     g_free (user_config_file);
 }
 
+static void save_environment (void)
+{
+    char *user_config_file;
+
+    // construct the file path
+    user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "environment", NULL);
+    check_directory (user_config_file);
+
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        vsystem ("echo 'XCURSOR_SIZE=%d' >> %s", cur_conf.cursor_size, user_config_file);
+        g_free (user_config_file);
+        return;
+    }
+
+    // amend entry already in file, or add if not present
+    if (vsystem ("grep -q XCURSOR_SIZE %s\n", user_config_file))
+        vsystem ("echo 'XCURSOR_SIZE=%d' >> %s", cur_conf.cursor_size, user_config_file);
+    else
+        vsystem ("sed -i s/'XCURSOR_SIZE.*'/'XCURSOR_SIZE=%d'/g %s", cur_conf.cursor_size, user_config_file);
+
+    g_free (user_config_file);
+}
+
 void save_session_settings (void)
 {
     set_theme (TEMP_THEME);
@@ -871,6 +896,7 @@ void save_session_settings (void)
     {
         save_xsettings ();
         save_gsettings ();
+        save_environment ();
     }
     save_wm_settings ();
 }
