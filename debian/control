@@ -8,7 +8,7 @@ Homepage: http://raspberrypi.com/
 
 Package: pipanel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk-3-0 (>= 3.24), libxml2
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Settings application for Raspberry Pi desktop appearance
  pipanel is an application which allows the configuration of the Raspberry Pi
  Desktop user interface.
