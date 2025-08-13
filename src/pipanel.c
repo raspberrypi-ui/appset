@@ -386,6 +386,11 @@ GtkWidget *get_tab (int tab)
 
 gboolean reboot_needed (void)
 {
+    if (g_file_test (GREETER_TMP, G_FILE_TEST_IS_REGULAR))
+    {
+        system (SUDO_PREFIX "cp " GREETER_TMP " /etc/lightdm/pi-greeter.conf");
+        remove (GREETER_TMP);
+    }
     return system_reboot ();
 }
 

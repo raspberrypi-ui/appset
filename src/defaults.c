@@ -651,6 +651,7 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     save_session_settings ();
     save_gtk3_settings ();
     save_panel_settings ();
+    save_greeter_settings ();
 
     // save application-specific config - we don't delete these files first...
     save_lxterm_settings ();

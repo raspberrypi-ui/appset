@@ -935,6 +935,26 @@ static void save_labwc_to_settings (void)
     g_free (user_config_file);
 }
 
+void save_greeter_settings (void)
+{
+    GKeyFile *kf;
+    char *str;
+    gsize len;
+
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, "/etc/lightdm/pi-greeter.conf", G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_value (kf, "greeter", "wallpaper", cur_conf.darkmode ? "/usr/share/rpd-wallpaper/RPiSystem_dark.png" : "/usr/share/rpd-wallpaper/RPiSystem.png");
+    g_key_file_set_value (kf, "greeter", "gtk-theme-name", cur_conf.darkmode ? "PiXonyx" : "PiXtrix");
+    g_key_file_set_value (kf, "greeter", "gtk-font-name", cur_conf.desktop_font);
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (GREETER_TMP, str, len, NULL);
+
+    g_free (str);
+    g_key_file_free (kf);
+}
+
 void save_qt_settings (void)
 {
     char *user_config_file, *str;
@@ -1250,6 +1270,7 @@ static void on_theme_font_set (GtkFontChooser *btn, gpointer ptr)
     for (i = 0; i < ndesks; i++)
         save_pcman_settings (i);
     save_qt_settings ();
+    save_greeter_settings ();
 
     reload_session ();
     reload_panel ();
@@ -1289,6 +1310,7 @@ static void on_theme_dark_set (GtkRadioButton *btn, gpointer ptr)
     save_session_settings ();
     save_gtk3_settings ();
     save_app_settings ();
+    save_greeter_settings ();
 
     reload_session ();
     reload_theme (FALSE);

@@ -28,6 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Typedefs and macros                                                        */
 /*----------------------------------------------------------------------------*/
 
+#define GREETER_TMP "/tmp/pi-greeter.conf"
+
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
@@ -42,6 +44,7 @@ extern char *lxsession_file (gboolean global);
 extern char *xsettings_file (gboolean global);
 extern void save_session_settings (void);
 extern void save_gtk3_settings (void);
+extern void save_greeter_settings (void);
 extern void save_qt_settings (void);
 extern void save_app_settings (void);
 extern void set_theme (const char *theme);

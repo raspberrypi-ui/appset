@@ -44,6 +44,8 @@ extern const char *dgetfixt (const char *domain, const char *msgctxid);
 
 #define XC(str) ((xmlChar *) str)
 
+#define SUDO_PREFIX "env SUDO_ASKPASS=/usr/bin/sudopwd sudo -A "
+
 typedef struct {
     const char *desktop_folder;
     const char *desktop_picture;
