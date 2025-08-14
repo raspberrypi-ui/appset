@@ -86,6 +86,7 @@ static int orig_darkmode;
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
+static void update_greeter (void);
 static int n_desktops (void);
 static gboolean ok_clicked (GtkButton *button, gpointer data);
 static void init_config (void);
@@ -199,6 +200,15 @@ const char *theme_name (int dark)
         return dark == TEMP ? "tPiXonyx" : (dark ? "PiXonyx" : "PiXtrix");
     else
         return dark == TEMP ? "tPiXflat" : (dark ? "PiXnoir" : "PiXflat");
+}
+
+static void update_greeter (void)
+{
+    if (g_file_test (GREETER_TMP, G_FILE_TEST_IS_REGULAR))
+    {
+        system (SUDO_PREFIX "cp " GREETER_TMP " /etc/lightdm/pi-greeter.conf");
+        remove (GREETER_TMP);
+    }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -386,11 +396,7 @@ GtkWidget *get_tab (int tab)
 
 gboolean reboot_needed (void)
 {
-    if (g_file_test (GREETER_TMP, G_FILE_TEST_IS_REGULAR))
-    {
-        system (SUDO_PREFIX "cp " GREETER_TMP " /etc/lightdm/pi-greeter.conf");
-        remove (GREETER_TMP);
-    }
+    update_greeter ();
     return system_reboot ();
 }
 
@@ -583,6 +589,7 @@ static gpointer restore_thread (gpointer ptr)
 
 static gboolean ok_main (GtkButton *button, gpointer data)
 {
+    update_greeter ();
     gtk_main_quit ();
     return FALSE;
 }
@@ -610,6 +617,7 @@ static gboolean cancel_main (GtkButton *button, gpointer data)
 
 static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+    update_greeter ();
     gtk_main_quit ();
     return TRUE;
 }
