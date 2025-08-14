@@ -197,7 +197,7 @@ void check_directory (const char *path)
 const char *theme_name (int dark)
 {
     if (trix_theme)
-        return dark == TEMP ? "tPiXonyx" : (dark ? "PiXonyx" : "PiXtrix");
+        return dark == TEMP ? "tPiXtrix" : (dark ? "PiXonyx" : "PiXtrix");
     else
         return dark == TEMP ? "tPiXflat" : (dark ? "PiXnoir" : "PiXflat");
 }
