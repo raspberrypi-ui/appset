@@ -945,7 +945,7 @@ void save_greeter_settings (void)
     g_key_file_load_from_file (kf, "/etc/lightdm/pi-greeter.conf", G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_value (kf, "greeter", "wallpaper", cur_conf.darkmode ? "/usr/share/rpd-wallpaper/RPiSystem_dark.png" : "/usr/share/rpd-wallpaper/RPiSystem.png");
-    g_key_file_set_value (kf, "greeter", "gtk-theme-name", cur_conf.darkmode ? "PiXonyx" : "PiXtrix");
+    g_key_file_set_value (kf, "greeter", "gtk-theme-name", theme_name (cur_conf.darkmode));
     g_key_file_set_value (kf, "greeter", "gtk-font-name", cur_conf.desktop_font);
 
     str = g_key_file_to_data (kf, &len, NULL);
