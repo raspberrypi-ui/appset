@@ -196,10 +196,20 @@ void check_directory (const char *path)
 
 const char *theme_name (int dark)
 {
-    if (trix_theme)
-        return dark == TEMP ? "tPiXtrix" : (dark ? "PiXonyx" : "PiXtrix");
+    if (dark == TEMP)
+    {
+        if (trix_theme)
+            return is_dark () ? "tPiXonyx" : "tPiXtrix";
+        else
+            return is_dark () ? "tPiXnoir" : "tPiXflat";
+    }
     else
-        return dark == TEMP ? "tPiXflat" : (dark ? "PiXnoir" : "PiXflat");
+    {
+        if (trix_theme)
+            return dark ? "PiXonyx" : "PiXtrix";
+        else
+            return dark ? "PiXnoir" : "PiXflat";
+    }
 }
 
 static void update_greeter (void)

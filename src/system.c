@@ -75,7 +75,6 @@ static void save_gsettings (void);
 static void save_xsettings (void);
 static void save_environment (void);
 static void save_labwc_to_settings (void);
-static int is_dark (void);
 static gboolean restore_theme (gpointer data);
 static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr);
@@ -724,7 +723,7 @@ void save_gtk3_settings (void)
     link1 = g_build_filename (g_get_user_data_dir (), "themes", theme_name (TEMP), NULL);
     if (!g_file_test (link1, G_FILE_TEST_IS_DIR))
     {
-        link2 = g_build_filename (g_get_user_data_dir (), "themes", theme_name (LIGHT), NULL);
+        link2 = g_build_filename (g_get_user_data_dir (), "themes", theme_name (is_dark () == 1), NULL);
         symlink (link2, link1);
         g_free (link2);
     }
@@ -1158,7 +1157,7 @@ void set_theme (const char *theme)
     }
 }
 
-static int is_dark (void)
+int is_dark (void)
 {
     int res;
 
