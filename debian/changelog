@@ -1,3 +1,9 @@
+pipanel (1:2.2) trixie; urgency=medium
+
+  * Add spacing
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 08 Sep 2025 09:44:34 +0100
+
 pipanel (1:2.1) trixie; urgency=medium
 
   * Fix dependencies
