@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
@@ -956,12 +957,12 @@ void save_greeter_settings (void)
 
 void save_qt_settings (void)
 {
-    char *user_config_file, *str;
+    char *user_config_file, *str, *cstrb, *cstrf;
     GKeyFile *kf;
     gsize len;
     char buffer[100], tbuf[400], *c;
     const char *font;
-    int size, weight, style, nlen, count, index, oind;
+    int size, weight, style, nlen, count, index, oind, dark;
     double sval;
 
     // parse the font description
@@ -1101,6 +1102,13 @@ void save_qt_settings (void)
         // construct the file path
         user_config_file = g_build_filename (g_get_user_config_dir (), index ? "qt6ct/qt6ct.conf" : "qt5ct/qt5ct.conf", NULL);
         check_directory (user_config_file);
+        if (index)
+        {
+            str = g_build_filename (g_get_user_config_dir (), "qt6ct/colors/", NULL);
+            g_mkdir_with_parents (str, S_IRUSR | S_IWUSR | S_IXUSR);
+            vsystem ("cp /etc/xdg/qt6ct/colors/* %s/qt6ct/colors/", g_get_user_config_dir ());
+            g_free (str);
+        }
 
         // read in data from file to a key file - read system defaults first for Qt6, as they aren't inherited...
         kf = g_key_file_new ();
@@ -1115,6 +1123,25 @@ void save_qt_settings (void)
         {
             g_key_file_set_value (kf, "Appearance", "color_scheme_path", cur_conf.darkmode ? "~/.config/qt6ct/colors/pixonyx.conf" : "~/.config/qt6ct/colors/pixtrix.conf");
             g_key_file_set_value (kf, "Appearance", "custom_palette", "true");
+
+            for (dark = 0; dark < 2; dark++)
+            {
+                cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour[dark]);
+                cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour[dark]);
+
+                str = g_strdup_printf ("sed -i 's/#ff%s, #ff%s,/#ff%s, #ff%s,/g' %s/qt6ct/colors/pix%s.conf", 
+                    dark ? "76747c" : "87919b", dark ? "f6f5f4" : "f0f0f0", cstrb + 1, cstrf + 1, g_get_user_config_dir (), dark ? "onyx" : "trix");
+                system (str);
+
+                g_free (str);
+                str = g_strdup_printf ("sed -i 's/#ff%s$/#ff%s/g' %s/qt6ct/colors/pix%s.conf", 
+                    dark ? "76747c" : "87919b", cstrb + 1, g_get_user_config_dir (), dark ? "onyx" : "trix");
+                system (str);
+                g_free (str);
+
+                g_free (cstrb);
+                g_free (cstrf);
+            }
         }
 
         // write the modified key file out
@@ -1242,6 +1269,7 @@ static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr)
 
     save_session_settings ();
     save_gtk3_settings ();
+    save_qt_settings ();
 
     reload_session ();
     reload_theme (FALSE);
@@ -1253,6 +1281,7 @@ static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 
     save_session_settings ();
     save_gtk3_settings ();
+    save_qt_settings ();
 
     reload_session ();
     reload_theme (FALSE);
