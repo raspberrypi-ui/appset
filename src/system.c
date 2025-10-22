@@ -1111,6 +1111,12 @@ void save_qt_settings (void)
         g_key_file_set_value (kf, "Fonts", "fixed", tbuf);
         g_key_file_set_value (kf, "Fonts", "general", tbuf);
 
+        if (index)
+        {
+            g_key_file_set_value (kf, "Appearance", "color_scheme_path", cur_conf.darkmode ? "~/.config/qt6ct/colors/pixonyx.conf" : "~/.config/qt6ct/colors/pixtrix.conf");
+            g_key_file_set_value (kf, "Appearance", "custom_palette", "true");
+        }
+
         // write the modified key file out
         str = g_key_file_to_data (kf, &len, NULL);
         g_file_set_contents (user_config_file, str, len, NULL);
@@ -1315,6 +1321,7 @@ static void on_theme_dark_set (GtkRadioButton *btn, gpointer ptr)
 
     save_session_settings ();
     save_gtk3_settings ();
+    save_qt_settings ();
     save_app_settings ();
     save_greeter_settings ();
 
