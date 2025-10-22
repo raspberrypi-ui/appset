@@ -513,6 +513,7 @@ static void reset_to_defaults (void)
     delete_file (".config/libfm/libfm.conf");
     delete_file (".config/gtk-3.0/gtk.css");
     delete_file (".config/qt5ct/qt5ct.conf");
+    delete_file (".config/qt6ct/qt6ct.conf");
     delete_file (".config/xsettingsd/xsettingsd.conf");
     delete_file (".config/labwc/themerc-override");
     delete_file (".gtkrc-2.0");

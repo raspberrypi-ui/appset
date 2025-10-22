@@ -964,15 +964,7 @@ void save_qt_settings (void)
     int size, weight, style, nlen, count, index, oind;
     double sval;
 
-    // construct the file path
-    user_config_file = g_build_filename (g_get_user_config_dir (), "qt5ct/qt5ct.conf", NULL);
-    check_directory (user_config_file);
-
-    // read in data from file to a key file
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-
-    // create the Qt font representation
+    // parse the font description
     PangoFontDescription *pfd = pango_font_description_from_string (cur_conf.desktop_font);
     font = pango_font_description_get_family (pfd);
     size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
@@ -1012,6 +1004,7 @@ void save_qt_settings (void)
                                     break;
     }
 
+    // create the Qt font representation
     memset (buffer, 0, sizeof (buffer));
 
     // header
@@ -1100,18 +1093,32 @@ void save_qt_settings (void)
     tbuf[oind++] = '"';
     tbuf[oind] = 0;
 
-    // update changed values in the key file
-    g_key_file_set_value (kf, "Fonts", "fixed", tbuf);
-    g_key_file_set_value (kf, "Fonts", "general", tbuf);
-
-    // write the modified key file out
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-
     pango_font_description_free (pfd);
-    g_free (str);
-    g_key_file_free (kf);
-    g_free (user_config_file);
+
+    // write files for Qt5 (index = 0) and Qt6 (1)
+    for (index = 0; index < 2; index++)
+    {
+        // construct the file path
+        user_config_file = g_build_filename (g_get_user_config_dir (), index ? "qt6ct/qt6ct.conf" : "qt5ct/qt5ct.conf", NULL);
+        check_directory (user_config_file);
+
+        // read in data from file to a key file - read system defaults first for Qt6, as they aren't inherited...
+        kf = g_key_file_new ();
+        if (index) g_key_file_load_from_file (kf, "/etc/xdg/qt6ct/qt6ct.conf", G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+        g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+        // update changed values in the key file
+        g_key_file_set_value (kf, "Fonts", "fixed", tbuf);
+        g_key_file_set_value (kf, "Fonts", "general", tbuf);
+
+        // write the modified key file out
+        str = g_key_file_to_data (kf, &len, NULL);
+        g_file_set_contents (user_config_file, str, len, NULL);
+        g_free (user_config_file);
+
+        g_free (str);
+        g_key_file_free (kf);
+    }
 }
 
 void save_app_settings (void)
