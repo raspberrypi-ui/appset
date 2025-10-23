@@ -1121,7 +1121,8 @@ void save_qt_settings (void)
 
         if (index)
         {
-            g_key_file_set_value (kf, "Appearance", "color_scheme_path", cur_conf.darkmode ? "~/.config/qt6ct/colors/pixonyx.conf" : "~/.config/qt6ct/colors/pixtrix.conf");
+            g_key_file_set_value (kf, "Appearance", "color_scheme_path",
+                cur_conf.darkmode ? "~/.config/qt6ct/colors/pixonyx.conf" : "~/.config/qt6ct/colors/pixtrix.conf");
             g_key_file_set_value (kf, "Appearance", "custom_palette", "true");
 
             for (dark = 0; dark < 2; dark++)
@@ -1129,15 +1130,11 @@ void save_qt_settings (void)
                 cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour[dark]);
                 cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour[dark]);
 
-                str = g_strdup_printf ("sed -i 's/#ff%s, #ff%s,/#ff%s, #ff%s,/g' %s/qt6ct/colors/pix%s.conf", 
-                    dark ? "76747c" : "87919b", dark ? "f6f5f4" : "f0f0f0", cstrb + 1, cstrf + 1, g_get_user_config_dir (), dark ? "onyx" : "trix");
-                system (str);
-
-                g_free (str);
-                str = g_strdup_printf ("sed -i 's/#ff%s$/#ff%s/g' %s/qt6ct/colors/pix%s.conf", 
+                vsystem ("sed -i 's/#ff%s, #ff%s,/#ff%s, #ff%s,/g' %s/qt6ct/colors/pix%s.conf",
+                    dark ? "76747c" : "87919b", dark ? "f6f5f4" : "f0f0f0", cstrb + 1, cstrf + 1,
+                    g_get_user_config_dir (), dark ? "onyx" : "trix");
+                vsystem ("sed -i 's/#ff%s$/#ff%s/g' %s/qt6ct/colors/pix%s.conf",
                     dark ? "76747c" : "87919b", cstrb + 1, g_get_user_config_dir (), dark ? "onyx" : "trix");
-                system (str);
-                g_free (str);
 
                 g_free (cstrb);
                 g_free (cstrf);
