@@ -317,7 +317,7 @@ static void init_config (void)
 
 #ifdef PLUGIN_NAME
 
-void init_plugin (void)
+void init_plugin (GtkWidget *)
 {
     setlocale (LC_ALL, "");
     bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
