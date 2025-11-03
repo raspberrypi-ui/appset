@@ -1,3 +1,9 @@
+pipanel (1:2.5) trixie; urgency=medium
+
+  * Add larger icons
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 03 Nov 2025 13:34:32 +0000
+
 pipanel (1:2.4) trixie; urgency=medium
 
   * Add setting fonts for Qt6
