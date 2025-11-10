@@ -1094,6 +1094,8 @@ void save_qt_settings (void)
     tbuf[oind++] = '"';
     tbuf[oind] = 0;
 
+    sprintf (buffer, "\"%s,%d,-1,5,%d,%d,0,0,0,0,0,0,0,0,0,1\"", font, size, pweight, style);
+
     pango_font_description_free (pfd);
 
     // write files for Qt5 (index = 0) and Qt6 (1)
@@ -1116,8 +1118,8 @@ void save_qt_settings (void)
         g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
         // update changed values in the key file
-        g_key_file_set_value (kf, "Fonts", "fixed", tbuf);
-        g_key_file_set_value (kf, "Fonts", "general", tbuf);
+        g_key_file_set_value (kf, "Fonts", "fixed", !index ? tbuf : buffer);
+        g_key_file_set_value (kf, "Fonts", "general", !index ? tbuf : buffer);
 
         if (index)
         {
