@@ -58,6 +58,9 @@ static gulong id_cursor, id_dark;
 static int orig_csize, orig_tbsize;
 static char *orig_font;
 
+/* For Qt5 */
+PangoFontFace *font_face;
+
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
@@ -960,10 +963,9 @@ void save_qt_settings (void)
     char *user_config_file, *str, *cstrb, *cstrf;
     GKeyFile *kf;
     gsize len;
-    char buffer[100], tbuf[400], *c;
+    char *bufqt5, *bufqt6;
     const char *font;
-    int size, weight, style, nlen, count, index, oind, dark;
-    double sval;
+    int size, weight, style, index, dark;
 
     // parse the font description
     PangoFontDescription *pfd = pango_font_description_from_string (cur_conf.desktop_font);
@@ -1005,96 +1007,8 @@ void save_qt_settings (void)
                                     break;
     }
 
-    // create the Qt font representation
-    memset (buffer, 0, sizeof (buffer));
-
-    // header
-    buffer[3] = '@';
-
-    // font family
-    nlen = strlen (font);
-    buffer[7] = nlen * 2;
-    index = 8;
-    for (count = 0; count < nlen; count++)
-    {
-        buffer[index++] = 0;
-        buffer[index++] = font[count];
-    }
-
-    // font size - need to reverse bytes :(
-    sval = size;
-    c = ((char *) &sval) + 7;
-    for (count = 0; count < sizeof (double); count++)
-        buffer[index++] = *c--;
-
-    // padding
-    sprintf (buffer + index, "\xff\xff\xff\xff\x5\x1");
-    index += 7;
-
-    // weight and style
-    buffer[index++] = weight;
-    buffer[index++] = style + 16;
-
-    // convert to text
-    sprintf (tbuf, "\"@Variant(");
-    oind = 10;
-    for (count = 0; count < index; count++)
-    {
-        switch (buffer[count])
-        {
-            case 0 :    tbuf[oind++] = '\\';
-                        tbuf[oind++] = '0';
-                        break;
-
-            case 0x22 :
-            case 0x27 :
-            case 0x3F :
-            case 0x30 :
-            case 0x31 :
-            case 0x32 :
-            case 0x33 :
-            case 0x34 :
-            case 0x35 :
-            case 0x36 :
-            case 0x37 :
-            case 0x38 :
-            case 0x39 :
-            case 0x41 :
-            case 0x42 :
-            case 0x43 :
-            case 0x44 :
-            case 0x45 :
-            case 0x46 :
-            case 0x5C :
-            case 0x61 :
-            case 0x62 :
-            case 0x63 :
-            case 0x64 :
-            case 0x65 :
-            case 0x66 :
-                        tbuf[oind++] = '\\';
-                        tbuf[oind++] = 'x';
-                        sprintf (tbuf + oind, "%02x", buffer[count]);
-                        oind += 2;
-                        break;
-
-            default :   if (buffer[count] >= 32 && buffer[count] <= 126)
-                            tbuf[oind++] = buffer[count];
-                        else
-                        {
-                            tbuf[oind++] = '\\';
-                            tbuf[oind++] = 'x';
-                            sprintf (tbuf + oind, buffer[count] > 9 ? "%02x" : "%x", buffer[count]);
-                            oind += 1 + (buffer[count] > 9);
-                        }
-                        break;
-        }
-    }
-    tbuf[oind++] = ')';
-    tbuf[oind++] = '"';
-    tbuf[oind] = 0;
-
-    sprintf (buffer, "\"%s,%d,-1,5,%d,%d,0,0,0,0,0,0,0,0,0,1\"", font, size, pweight, style);
+    bufqt5 = g_strdup_printf ("\"%s,%d,-1,5,%d,0,0,0,0,0,%s\"", font, size, weight, pango_font_face_get_face_name (font_face));
+    bufqt6 = g_strdup_printf ("\"%s,%d,-1,5,%d,%d,0,0,0,0,0,0,0,0,0,1\"", font, size, pweight, style);
 
     pango_font_description_free (pfd);
 
@@ -1118,8 +1032,8 @@ void save_qt_settings (void)
         g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
         // update changed values in the key file
-        g_key_file_set_value (kf, "Fonts", "fixed", !index ? tbuf : buffer);
-        g_key_file_set_value (kf, "Fonts", "general", !index ? tbuf : buffer);
+        g_key_file_set_value (kf, "Fonts", "fixed", index ? bufqt6 : bufqt5);
+        g_key_file_set_value (kf, "Fonts", "general", index ? bufqt6 : bufqt5);
 
         if (index)
         {
@@ -1151,6 +1065,8 @@ void save_qt_settings (void)
         g_free (str);
         g_key_file_free (kf);
     }
+    g_free (bufqt5);
+    g_free (bufqt6);
 }
 
 void save_app_settings (void)
@@ -1290,6 +1206,7 @@ static void on_theme_font_set (GtkFontChooser *btn, gpointer ptr)
 {
     int i;
     PangoFontDescription *font_desc = gtk_font_chooser_get_font_desc (btn);
+    font_face = gtk_font_chooser_get_font_face (btn);
     const char *font = gtk_font_chooser_get_font (btn);
     if (font)
     {
