@@ -1,3 +1,9 @@
+pipanel (1:2.7) trixie; urgency=medium
+
+  * Set taskbar icon colour for labwc
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 12 Nov 2025 08:33:39 +0000
+
 pipanel (1:2.6) trixie; urgency=medium
 
   * Correct font settings for Qt6
