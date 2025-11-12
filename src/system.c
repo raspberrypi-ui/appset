@@ -1157,6 +1157,7 @@ void set_system_controls (void)
     g_signal_handler_block (rb_light, id_dark);
 
     gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font_system), cur_conf.desktop_font);
+    font_face = gtk_font_chooser_get_font_face (GTK_FONT_CHOOSER (font_system));
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilite), &cur_conf.theme_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.themetext_colour[cur_conf.darkmode]);
 
