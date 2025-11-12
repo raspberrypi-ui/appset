@@ -900,6 +900,12 @@ void save_session_settings (void)
     save_wm_settings ();
 }
 
+#define LABWC_THEME_UPDATE(param,value) \
+    if (vsystem ("grep -q %s %s\n", param, user_config_file)) \
+        vsystem ("echo '%s: %s' >> %s", param, value, user_config_file); \
+    else \
+        vsystem ("sed -i s/'%s.*'/'%s: %s'/g %s", param, param, value, user_config_file);
+
 static void save_labwc_to_settings (void)
 {
     char *user_config_file, *cstrb, *cstrf;
@@ -915,6 +921,12 @@ static void save_labwc_to_settings (void)
     {
         vsystem ("echo 'window.active.title.bg.color: %s' >> %s", cstrb, user_config_file);
         vsystem ("echo 'window.active.label.text.color: %s' >> %s", cstrf, user_config_file);
+        vsystem ("echo 'window.active.button.unpressed.image.color: %s' >> %s", cstrf, user_config_file);
+        vsystem ("echo 'window.active.button.pressed.image.color: %s' >> %s", cstrf, user_config_file);
+        vsystem ("echo 'window.active.button.hover.image.color: %s' >> %s", cstrf, user_config_file);
+        vsystem ("echo 'window.active.button.toggled.unpressed.image.color: %s' >> %s", cstrf, user_config_file);
+        vsystem ("echo 'window.active.button.toggled.pressed.image.color: %s' >> %s", cstrf, user_config_file);
+        vsystem ("echo 'window.active.button.toggled.hover.image.color: %s' >> %s", cstrf, user_config_file);
 
         g_free (cstrf);
         g_free (cstrb);
@@ -923,15 +935,14 @@ static void save_labwc_to_settings (void)
     }
 
     // amend entries already in file, or add if not present
-    if (vsystem ("grep -q window.active.title.bg.color %s\n", user_config_file))
-        vsystem ("echo 'window.active.title.bg.color: %s' >> %s", cstrb, user_config_file);
-    else
-        vsystem ("sed -i s/'window.active.title.bg.color.*'/'window.active.title.bg.color: %s'/g %s", cstrb, user_config_file);
-
-    if (vsystem ("grep -q window.active.label.text.color %s\n", user_config_file))
-        vsystem ("echo 'window.active.label.text.color: %s' >> %s", cstrf, user_config_file);
-    else
-        vsystem ("sed -i s/'window.active.label.text.color.*'/'window.active.label.text.color: %s'/g %s", cstrf, user_config_file);
+    LABWC_THEME_UPDATE ("window.active.title.bg.color", cstrb);
+    LABWC_THEME_UPDATE ("window.active.label.text.color", cstrf);
+    LABWC_THEME_UPDATE ("window.active.button.unpressed.image.color", cstrf);
+    LABWC_THEME_UPDATE ("window.active.button.pressed.image.color", cstrf);
+    LABWC_THEME_UPDATE ("window.active.button.hover.image.color", cstrf);
+    LABWC_THEME_UPDATE ("window.active.button.toggled.unpressed.image.color", cstrf);
+    LABWC_THEME_UPDATE ("window.active.button.toggled.pressed.image.color", cstrf);
+    LABWC_THEME_UPDATE ("window.active.button.toggled.hover.image.color", cstrf);
 
     g_free (cstrf);
     g_free (cstrb);
