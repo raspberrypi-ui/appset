@@ -128,11 +128,22 @@ static void load_labwc_settings (void)
             g_free (place);
         }
     }
+    xmlXPathFreeObject (xpathObj);
 
     g_free (font);
     g_free (size);
     g_free (weight);
     g_free (slant);  
+
+    cur_conf.show_labwc_icon = FALSE;
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']", xpathCtx);
+    node = xpathObj->nodesetval->nodeTab[0];
+    if (node)
+    {
+        xmlChar *layout = xmlNodeGetContent (node);
+        if (strstr (layout, "icon:")) cur_conf.show_labwc_icon = TRUE;
+        xmlFree (layout);
+    }
 
     // cleanup XML
     xmlXPathFreeObject (xpathObj);
@@ -381,9 +392,12 @@ static void save_labwc_to_settings (void)
 
 void set_labwc_controls (void)
 {
+    g_signal_handler_block (toggle_icon, id_icon);
     gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font_system), cur_conf.title_font);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilite), &cur_conf.title_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.titletext_colour[cur_conf.darkmode]);
+    gtk_switch_set_active (GTK_SWITCH (toggle_icon), cur_conf.show_labwc_icon);
+    g_signal_handler_unblock (toggle_icon, id_icon);
 }
 
 /*----------------------------------------------------------------------------*/
