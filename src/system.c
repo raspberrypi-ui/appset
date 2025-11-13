@@ -219,17 +219,19 @@ static void load_obconf_settings (void)
         g_free (user_config_file);
         return;
     }
-
     xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+
     xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
-    xmlNode *node = xpathObj->nodesetval->nodeTab[0];
+    xmlNodePtr node = xpathObj->nodesetval->nodeTab[0];
     if (node)
     {
-         if (sscanf ((const char *) xmlNodeGetContent (node), "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
+        xmlChar *width = xmlNodeGetContent (node);
+        if (sscanf ((const char *) width, "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
+        xmlFree (width);
     }
+    xmlXPathFreeObject (xpathObj);
 
     // cleanup XML
-    xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
@@ -388,15 +390,15 @@ static void load_gtk3_settings (void)
 
 static void save_wm_settings (void)
 {
-    char *user_config_file, *theme, *font, *cptr;
+    char *user_config_file, *theme;
     int count, size;
-    const gchar *weight = NULL, *style = NULL;
+    const gchar *font = NULL, *weight = NULL, *style = NULL;
     char buf[10];
 
     xmlDocPtr xDoc;
-    xmlNodePtr root, cur_node, node;
-    xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr root, cur_node, node;
 
     if (wm == WM_LABWC) user_config_file = labwc_file ();
     else if (wm == WM_OPENBOX) user_config_file = openbox_file ();
@@ -406,7 +408,9 @@ static void save_wm_settings (void)
 
     // set the font description variables for XML from the font name
     PangoFontDescription *pfd = pango_font_description_from_string (cur_conf.desktop_font);
+    font = pango_font_description_get_family (pfd);
     size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
+    sprintf (buf, "%d", size);
     PangoWeight pweight = pango_font_description_get_weight (pfd);
     PangoStyle pstyle = pango_font_description_get_style (pfd);
 
@@ -460,15 +464,6 @@ static void save_wm_settings (void)
                                             break;
         }
     }
-    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_WEIGHT);
-    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STYLE);
-    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STRETCH);
-
-    // by this point, Bold and Italic flags will be missing from the font description, so just remove the size...
-    font = g_strdup (pango_font_description_to_string (pfd));
-    cptr = font + strlen (font) - 1;
-    while (*cptr >= '0' && *cptr <= '9') cptr--;
-    *cptr = 0;
 
     // read in data from XML file
     xmlInitParser ();
@@ -508,7 +503,6 @@ static void save_wm_settings (void)
             cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("font"), NULL);
 
             xmlSetProp (cur_node, XC ("place"), count == 0 ? XC ("ActiveWindow") : XC ("InactiveWindow"));
-            sprintf (buf, "%d", size);
             xmlNewChild (cur_node, NULL, XC ("name"), XC (font));
             xmlNewChild (cur_node, NULL, XC ("size"), XC (buf));
             xmlNewChild (cur_node, NULL, XC ("weight"), XC (weight));
@@ -520,12 +514,10 @@ static void save_wm_settings (void)
         for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
         {
             node = xpathObj->nodesetval->nodeTab[count];
-            cur_node = NULL;
             for (cur_node = node->children; cur_node; cur_node = cur_node->next)
             {
                 if (cur_node->type == XML_ELEMENT_NODE)
                 {
-                    sprintf (buf, "%d", size);
                     if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
                     if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
                     if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
@@ -569,6 +561,7 @@ static void save_wm_settings (void)
             cur_node = xpathObj->nodesetval->nodeTab[0];
             xmlNodeSetContent (cur_node, XC (buf));
         }
+        xmlXPathFreeObject (xpathObj);
 
         cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']"), xpathCtx);
@@ -584,6 +577,7 @@ static void save_wm_settings (void)
             cur_node = xpathObj->nodesetval->nodeTab[0];
             xmlNodeSetContent (cur_node, XC (cptr));
         }
+        xmlXPathFreeObject (xpathObj);
         g_free (cptr);
 
         cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
@@ -601,17 +595,16 @@ static void save_wm_settings (void)
             xmlNodeSetContent (cur_node, XC (cptr));
         }
         g_free (cptr);
+        xmlXPathFreeObject (xpathObj);
     }
 
     // cleanup XML
-    xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
     xmlSaveFile (user_config_file, xDoc);
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
 
     pango_font_description_free (pfd);
-    g_free (font);
     g_free (user_config_file);
 }
 
