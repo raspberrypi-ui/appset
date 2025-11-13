@@ -454,7 +454,7 @@ void load_labwc_tab (GtkBuilder *builder)
 {
     load_labwc_settings ();
     load_labwc_to_settings ();
-    
+
     font_system = (GtkWidget *) gtk_builder_get_object (builder, "fontbutton2");
     g_signal_connect (font_system, "font-set", G_CALLBACK (on_labwc_font_set), NULL);
 
