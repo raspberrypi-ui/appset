@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.h"
 #include "system.h"
 #include "defaults.h"
+#include "labwc.h"
 
 /*----------------------------------------------------------------------------*/
 /* Typedefs and macros                                                        */
@@ -301,6 +302,7 @@ static void init_config (void)
     load_taskbar_tab (builder);
     load_system_tab (builder);
     load_defaults_tab (builder);
+    load_labwc_tab (builder);
 
     // create session file to be tracked
     init_session (theme_name (cur_conf.darkmode));
@@ -309,6 +311,7 @@ static void init_config (void)
     set_desktop_controls ();
     set_taskbar_controls ();
     set_system_controls ();
+    set_labwc_controls ();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -339,7 +342,7 @@ void init_plugin (GtkWidget *)
 
 int plugin_tabs (void)
 {
-    return 4;
+    return wm == WM_LABWC ? 5 : 4;
 }
 
 const char *tab_name (int tab)
@@ -350,6 +353,7 @@ const char *tab_name (int tab)
         case 1 : return C_("tab", "Taskbar");
         case 2 : return C_("tab", "Theme");
         case 3 : return C_("tab", "Defaults");
+        case 4 : return C_("tab", "Active Window");
         default : return _("No such tab");
     }
 }
@@ -394,6 +398,9 @@ GtkWidget *get_tab (int tab)
             break;
         case 3 :
             plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox4");
+            break;
+        case 4 :
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox5");
             break;
         default :
             plugin = NULL;

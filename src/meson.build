@@ -3,7 +3,8 @@ sources = files (
     'desktop.c',
     'taskbar.c',
     'system.c',
-    'defaults.c'
+    'defaults.c',
+    'labwc.c'
 )
 
 add_global_arguments('-Wno-unused-result', language : 'c')

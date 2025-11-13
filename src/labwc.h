@@ -28,90 +28,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Typedefs and macros                                                        */
 /*----------------------------------------------------------------------------*/
 
-#ifdef PLUGIN_NAME
-extern const char *dgetfixt (const char *domain, const char *msgctxid);
-#undef _
-#define _(a) dgettext(GETTEXT_PACKAGE,a)
-#undef C_
-#define C_(a,b) dgetfixt(GETTEXT_PACKAGE,a"\004"b)
-#endif
-
-#define MAX_DESKTOPS 9
-
-#define TEMP -1
-#define LIGHT 0
-#define DARK  1
-
-#define XC(str) ((xmlChar *) str)
-
-#define SUDO_PREFIX "env SUDO_ASKPASS=/usr/bin/sudopwd sudo -A "
-
-typedef struct {
-    const char *desktop_folder;
-    const char *desktop_picture;
-    const char *desktop_mode;
-    GdkRGBA desktop_colour;
-    GdkRGBA desktoptext_colour;
-    int show_docs;
-    int show_trash;
-    int show_mnts;
-} DesktopConfig;
-
-typedef struct {
-    DesktopConfig desktops[MAX_DESKTOPS];
-    const char *desktop_font;
-    const char *terminal_font;
-    const char *title_font;
-    GdkRGBA theme_colour[2];
-    GdkRGBA themetext_colour[2];
-    GdkRGBA bar_colour[2];
-    GdkRGBA bartext_colour[2];
-    GdkRGBA title_colour[2];
-    GdkRGBA titletext_colour[2];
-    int icon_size;
-    int barpos;
-    int folder_size;
-    int thumb_size;
-    int pane_size;
-    int sicon_size;
-    int tb_icon_size;
-    int lo_icon_size;
-    int cursor_size;
-    int task_width;
-    int handle_width;
-    int scrollbar_width;
-    int monitor;
-    int common_bg;
-    int darkmode;
-} Config;
-
-typedef enum {
-    WM_OPENBOX,
-    WM_WAYFIRE,
-    WM_LABWC } 
-wm_type;
-
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
-
-extern Config cur_conf;
-extern wm_type wm;
-extern int ndesks;
-extern GtkTreeModel *sortmons;
-extern gboolean trix_theme;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
-extern int vsystem (const char *fmt, ...);
-extern char *get_string (char *cmd);
-extern char *get_quoted_string (char *cmd);
-extern char *rgba_to_gdk_color_string (GdkRGBA *col);
-extern void check_directory (const char *path);
-extern void message (char *msg, gboolean ok);
-extern const char *theme_name (int dark);
+extern void set_labwc_controls (void);
+extern void load_labwc_tab (GtkBuilder *builder);
 
 /* End of file */
 /*----------------------------------------------------------------------------*/
