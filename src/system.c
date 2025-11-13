@@ -200,6 +200,12 @@ static void load_obconf_settings (void)
 {
     char *user_config_file;
     int val;
+    xmlChar *width;
+
+    xmlDocPtr xDoc;
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr node;
 
     DEFAULT (handle_width);
 
@@ -213,19 +219,19 @@ static void load_obconf_settings (void)
     // read in data from XML file
     xmlInitParser ();
     LIBXML_TEST_VERSION
-    xmlDocPtr xDoc = xmlParseFile (user_config_file);
+    xDoc = xmlParseFile (user_config_file);
     if (xDoc == NULL)
     {
         g_free (user_config_file);
         return;
     }
-    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+    xpathCtx = xmlXPathNewContext (xDoc);
 
-    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
-    xmlNodePtr node = xpathObj->nodesetval->nodeTab[0];
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
+    node = xpathObj->nodesetval->nodeTab[0];
     if (node)
     {
-        xmlChar *width = xmlNodeGetContent (node);
+        width = xmlNodeGetContent (node);
         if (sscanf ((const char *) width, "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
         xmlFree (width);
     }
@@ -527,6 +533,7 @@ static void save_wm_settings (void)
         }
     }
     xmlXPathFreeObject (xpathObj);
+    pango_font_description_free (pfd);
 
     theme = g_strdup_printf ("%s%s", theme_name (cur_conf.darkmode), cur_conf.scrollbar_width >= 17 ? "_l" : "");
     xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']"), xpathCtx);
@@ -594,8 +601,8 @@ static void save_wm_settings (void)
             cur_node = xpathObj->nodesetval->nodeTab[0];
             xmlNodeSetContent (cur_node, XC (cptr));
         }
-        g_free (cptr);
         xmlXPathFreeObject (xpathObj);
+        g_free (cptr);
     }
 
     // cleanup XML
@@ -604,7 +611,6 @@ static void save_wm_settings (void)
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
 
-    pango_font_description_free (pfd);
     g_free (user_config_file);
 }
 
