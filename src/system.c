@@ -201,6 +201,11 @@ static void load_obconf_settings (void)
     char *user_config_file;
     int val;
 
+    xmlDocPtr xDoc;
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr node;
+
     DEFAULT (handle_width);
 
     user_config_file = openbox_file ();
@@ -213,16 +218,16 @@ static void load_obconf_settings (void)
     // read in data from XML file
     xmlInitParser ();
     LIBXML_TEST_VERSION
-    xmlDocPtr xDoc = xmlParseFile (user_config_file);
+    xDoc = xmlParseFile (user_config_file);
     if (xDoc == NULL)
     {
         g_free (user_config_file);
         return;
     }
-    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
+    xpathCtx = xmlXPathNewContext (xDoc);
 
-    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
-    xmlNodePtr node = xpathObj->nodesetval->nodeTab[0];
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
+    node = xpathObj->nodesetval->nodeTab[0];
     if (node)
     {
         xmlChar *width = xmlNodeGetContent (node);
