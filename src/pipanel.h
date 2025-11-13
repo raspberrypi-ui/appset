@@ -83,6 +83,7 @@ typedef struct {
     int monitor;
     int common_bg;
     int darkmode;
+    int show_labwc_icon;
 } Config;
 
 typedef enum {

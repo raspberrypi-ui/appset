@@ -44,7 +44,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 /* Controls */
-static GtkWidget *colour_hilite, *colour_hilitetext, *font_system;
+static GtkWidget *colour_hilite, *colour_hilitetext, *font_system, *toggle_icon;
+
+/* Handler IDs */
+static gulong id_icon;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -58,6 +61,7 @@ static void save_labwc_to_settings (void);
 static void on_labwc_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr);
+static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -82,6 +86,7 @@ static void load_labwc_settings (void)
     int val;
     
     // set a default font here?
+    cur_conf.title_font = g_strdup_printf ("%s %s %s %s", "Nunito Sans", "Normal", "Normal", "12");
 
     user_config_file = labwc_file ();
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -173,9 +178,9 @@ static void load_labwc_to_settings (void)
 
 static void save_labwc_settings (void)
 {
-    char *user_config_file, *font, *cptr;
+    char *user_config_file, *icons;
     int count, size;
-    const gchar *weight = NULL, *style = NULL;
+    const gchar *font = NULL, *weight = NULL, *style = NULL;
     char buf[10];
 
     xmlDocPtr xDoc;
@@ -183,76 +188,54 @@ static void save_labwc_settings (void)
     xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
 
-    if (wm == WM_LABWC) user_config_file = labwc_file ();
-    else return;
-
+    user_config_file = labwc_file ();
     check_directory (user_config_file);
 
     // set the font description variables for XML from the font name
     PangoFontDescription *pfd = pango_font_description_from_string (cur_conf.title_font);
+    font = pango_font_description_get_family (pfd);
     size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
+    sprintf (buf, "%d", size);
     PangoWeight pweight = pango_font_description_get_weight (pfd);
     PangoStyle pstyle = pango_font_description_get_style (pfd);
 
-    if (wm == WM_OPENBOX)
+    switch (pweight)
     {
-        // openbox only recognises bold and italic - anything else is ignored
-        if (pweight == PANGO_WEIGHT_BOLD) weight = "Bold";
-        else weight = "Normal";
-
-        if (pstyle == PANGO_STYLE_ITALIC) style = "Italic";
-        else style = "Normal";
+        case PANGO_WEIGHT_THIN :        weight = "Thin";
+                                        break;
+        case PANGO_WEIGHT_ULTRALIGHT :  weight = "Ultralight";
+                                        break;
+        case PANGO_WEIGHT_LIGHT :       weight = "Light";
+                                        break;
+        case PANGO_WEIGHT_SEMILIGHT :   weight = "Semilight";
+                                        break;
+        case PANGO_WEIGHT_BOOK :        weight = "Book";
+                                        break;
+        case PANGO_WEIGHT_NORMAL :      weight = "Normal";
+                                        break;
+        case PANGO_WEIGHT_MEDIUM :      weight = "Medium";
+                                        break;
+        case PANGO_WEIGHT_SEMIBOLD :    weight = "Semibold";
+                                        break;
+        case PANGO_WEIGHT_BOLD :        weight = "Bold";
+                                        break;
+        case PANGO_WEIGHT_ULTRABOLD :   weight = "Ultrabold";
+                                        break;
+        case PANGO_WEIGHT_HEAVY :       weight = "Heavy";
+                                        break;
+        case PANGO_WEIGHT_ULTRAHEAVY :  weight = "Ultraheavy";
+                                        break;
     }
-    else
+
+    switch (pstyle)
     {
-        // labwc (now) recognises all weights and styles
-        switch (pweight)
-        {
-            case PANGO_WEIGHT_THIN :        weight = "Thin";
-                                            break;
-            case PANGO_WEIGHT_ULTRALIGHT :  weight = "Ultralight";
-                                            break;
-            case PANGO_WEIGHT_LIGHT :       weight = "Light";
-                                            break;
-            case PANGO_WEIGHT_SEMILIGHT :   weight = "Semilight";
-                                            break;
-            case PANGO_WEIGHT_BOOK :        weight = "Book";
-                                            break;
-            case PANGO_WEIGHT_NORMAL :      weight = "Normal";
-                                            break;
-            case PANGO_WEIGHT_MEDIUM :      weight = "Medium";
-                                            break;
-            case PANGO_WEIGHT_SEMIBOLD :    weight = "Semibold";
-                                            break;
-            case PANGO_WEIGHT_BOLD :        weight = "Bold";
-                                            break;
-            case PANGO_WEIGHT_ULTRABOLD :   weight = "Ultrabold";
-                                            break;
-            case PANGO_WEIGHT_HEAVY :       weight = "Heavy";
-                                            break;
-            case PANGO_WEIGHT_ULTRAHEAVY :  weight = "Ultraheavy";
-                                            break;
-        }
-
-        switch (pstyle)
-        {
-            case PANGO_STYLE_NORMAL :       style = "Normal";
-                                            break;
-            case PANGO_STYLE_ITALIC :       style = "Italic";
-                                            break;
-            case PANGO_STYLE_OBLIQUE :      style = "Oblique";
-                                            break;
-        }
+        case PANGO_STYLE_NORMAL :       style = "Normal";
+                                        break;
+        case PANGO_STYLE_ITALIC :       style = "Italic";
+                                        break;
+        case PANGO_STYLE_OBLIQUE :      style = "Oblique";
+                                        break;
     }
-    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_WEIGHT);
-    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STYLE);
-    pango_font_description_unset_fields (pfd, PANGO_FONT_MASK_STRETCH);
-
-    // by this point, Bold and Italic flags will be missing from the font description, so just remove the size...
-    font = g_strdup (pango_font_description_to_string (pfd));
-    cptr = font + strlen (font) - 1;
-    while (*cptr >= '0' && *cptr <= '9') cptr--;
-    *cptr = 0;
 
     // read in data from XML file
     xmlInitParser ();
@@ -287,37 +270,61 @@ static void save_labwc_settings (void)
     {
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-        for (count = 0; count < 2; count ++)
-        {
-            cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("font"), NULL);
-
-            xmlSetProp (cur_node, XC ("place"), count == 0 ? XC ("ActiveWindow") : XC ("InactiveWindow"));
-            sprintf (buf, "%d", size);
-            xmlNewChild (cur_node, NULL, XC ("name"), XC (font));
-            xmlNewChild (cur_node, NULL, XC ("size"), XC (buf));
-            xmlNewChild (cur_node, NULL, XC ("weight"), XC (weight));
-            xmlNewChild (cur_node, NULL, XC ("slant"), XC (style));
-        }
+        cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("font"), NULL);
+        xmlSetProp (cur_node, XC ("place"), XC ("ActiveWindow"));
+        xmlNewChild (cur_node, NULL, XC ("name"), XC (font));
+        xmlNewChild (cur_node, NULL, XC ("size"), XC (buf));
+        xmlNewChild (cur_node, NULL, XC ("weight"), XC (weight));
+        xmlNewChild (cur_node, NULL, XC ("slant"), XC (style));
     }
     else
     {
         for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
         {
             node = xpathObj->nodesetval->nodeTab[count];
-            cur_node = NULL;
-            for (cur_node = node->children; cur_node; cur_node = cur_node->next)
+            xmlChar *place = xmlGetProp (node, XC ("place"));
+            if (!xmlStrcmp (place, XC ("ActiveWindow")))
             {
-                if (cur_node->type == XML_ELEMENT_NODE)
+                for (cur_node = node->children; cur_node; cur_node = cur_node->next)
                 {
-                    sprintf (buf, "%d", size);
-                    if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
-                    if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
-                    if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
-                    if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
+                    if (cur_node->type == XML_ELEMENT_NODE)
+                    {
+                        if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
+                        if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
+                        if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
+                        if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
+                    }
                 }
             }
+            g_free (place);
         }
     }
+    xmlXPathFreeObject (xpathObj);
+    pango_font_description_free (pfd);
+
+    icons = g_strdup_printf ("%s:iconify,max,close", cur_conf.show_labwc_icon ? "icon" : "");
+    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    {
+        xmlXPathFreeObject (xpathObj);
+        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']"), xpathCtx);
+        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        {
+            xmlXPathFreeObject (xpathObj);
+            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
+            xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("titlebar"), NULL);
+            xmlXPathFreeObject (xpathObj);
+            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']"), xpathCtx);
+        }
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNewChild (cur_node, NULL, XC ("layout"), XC (icons));
+    }
+    else
+    {
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNodeSetContent (cur_node, XC (icons));
+    }
+    g_free (icons);
 
     // cleanup XML
     xmlXPathFreeObject (xpathObj);
@@ -326,8 +333,6 @@ static void save_labwc_settings (void)
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
 
-    pango_font_description_free (pfd);
-    g_free (font);
     g_free (user_config_file);
 }
 
@@ -413,6 +418,17 @@ static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr)
     reload_session ();
 }
 
+static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr)
+{
+    cur_conf.show_labwc_icon = state;
+
+    save_labwc_settings ();
+
+    reload_session ();
+
+    return FALSE;
+}
+
 /*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
@@ -430,6 +446,9 @@ void load_labwc_tab (GtkBuilder *builder)
 
     colour_hilitetext = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton8");
     g_signal_connect (colour_hilitetext, "color-set", G_CALLBACK (on_labwc_textcolour_set), NULL);
+
+    toggle_icon = (GtkWidget *) gtk_builder_get_object (builder, "switch4");
+    id_icon = g_signal_connect (toggle_icon, "state-set", G_CALLBACK (on_toggle_icon), NULL);
 }
 
 /* End of file */
