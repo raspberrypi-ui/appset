@@ -396,7 +396,7 @@ static void load_gtk3_settings (void)
 
 static void save_wm_settings (void)
 {
-    char *user_config_file, *theme;
+    char *user_config_file, *cptr;
     int count, size;
     const gchar *font = NULL, *weight = NULL, *style = NULL;
     char buf[10];
@@ -535,21 +535,21 @@ static void save_wm_settings (void)
     xmlXPathFreeObject (xpathObj);
     pango_font_description_free (pfd);
 
-    theme = g_strdup_printf ("%s%s", theme_name (cur_conf.darkmode), cur_conf.scrollbar_width >= 17 ? "_l" : "");
+    cptr = g_strdup_printf ("%s%s", theme_name (cur_conf.darkmode), cur_conf.scrollbar_width >= 17 ? "_l" : "");
     xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("name"), XC (theme));
+        xmlNewChild (cur_node, NULL, XC ("name"), XC (cptr));
     }
     else
     {
         cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, XC (theme));
+        xmlNodeSetContent (cur_node, XC (cptr));
     }
-    g_free (theme);
+    g_free (cptr);
 
     if (wm == WM_LABWC) save_labwc_to_settings ();
     else
