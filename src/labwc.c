@@ -82,11 +82,18 @@ static char *labwc_file (void)
 
 static void load_labwc_settings (void)
 {
-    char *user_config_file, *font, *size, *weight, *slant;
+    char *user_config_file;
     int val;
-    
-    // set a default font here?
+    xmlChar *font, *size, *weight, *slant, *layout, *place;
+
+    xmlDocPtr xDoc;
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr node, cur;
+
+    // set a default font here, read from system defaults... !!!!!
     cur_conf.title_font = g_strdup_printf ("%s %s %s %s", "Nunito Sans", "Normal", "Normal", "12");
+    cur_conf.show_labwc_icon = FALSE; // or read from sys defaults !!!!!
 
     user_config_file = labwc_file ();
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -98,55 +105,53 @@ static void load_labwc_settings (void)
     // read in data from XML file
     xmlInitParser ();
     LIBXML_TEST_VERSION
-    xmlDocPtr xDoc = xmlParseFile (user_config_file);
+    xDoc = xmlParseFile (user_config_file);
     if (xDoc == NULL)
     {
         g_free (user_config_file);
         return;
     }
+    xpathCtx = xmlXPathNewContext (xDoc);
 
-    xmlXPathContextPtr xpathCtx = xmlXPathNewContext (xDoc);
-    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
-    xmlNode *node;
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
     for (val = 0; val < 2; val++)
     {
         node = xpathObj->nodesetval->nodeTab[val];
         if (node)
         {
-            xmlChar *place = xmlGetProp (node, XC ("place"));
+            place = xmlGetProp (node, XC ("place"));
             if (!xmlStrcmp (place, XC ("ActiveWindow")))
             {
-                for (xmlNode *cur = node->children; cur != NULL; cur = cur->next)
+                for (cur = node->children; cur != NULL; cur = cur->next)
                 {
-                    if (!xmlStrcmp (cur->name, XC ("name"))) font = (char *) xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("size"))) size = (char *) xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("weight"))) weight = (char *) xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("slant"))) slant = (char *) xmlNodeGetContent (cur);
+                    if (!xmlStrcmp (cur->name, XC ("name"))) font = xmlNodeGetContent (cur);
+                    if (!xmlStrcmp (cur->name, XC ("size"))) size = xmlNodeGetContent (cur);
+                    if (!xmlStrcmp (cur->name, XC ("weight"))) weight = xmlNodeGetContent (cur);
+                    if (!xmlStrcmp (cur->name, XC ("slant"))) slant = xmlNodeGetContent (cur);
                 }
                 cur_conf.title_font = g_strdup_printf ("%s %s %s %s", font, weight, slant, size);
+
+                xmlFree (font);
+                xmlFree (size);
+                xmlFree (weight);
+                xmlFree (slant);
             }
-            g_free (place);
+            xmlFree (place);
         }
     }
     xmlXPathFreeObject (xpathObj);
 
-    g_free (font);
-    g_free (size);
-    g_free (weight);
-    g_free (slant);  
-
-    cur_conf.show_labwc_icon = FALSE;
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']", xpathCtx);
     node = xpathObj->nodesetval->nodeTab[0];
     if (node)
     {
-        xmlChar *layout = xmlNodeGetContent (node);
-        if (strstr (layout, "icon:")) cur_conf.show_labwc_icon = TRUE;
+        layout = xmlNodeGetContent (node);
+        if (xmlStrstr (layout, XC ("icon:"))) cur_conf.show_labwc_icon = TRUE;
         xmlFree (layout);
     }
+    xmlXPathFreeObject (xpathObj);
 
     // cleanup XML
-    xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
@@ -195,9 +200,10 @@ static void save_labwc_settings (void)
     char buf[10];
 
     xmlDocPtr xDoc;
-    xmlNodePtr root, cur_node, node;
-    xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr root, cur_node, node;
+    xmlChar *place;
 
     user_config_file = labwc_file ();
     check_directory (user_config_file);
@@ -293,7 +299,7 @@ static void save_labwc_settings (void)
         for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
         {
             node = xpathObj->nodesetval->nodeTab[count];
-            xmlChar *place = xmlGetProp (node, XC ("place"));
+            place = xmlGetProp (node, XC ("place"));
             if (!xmlStrcmp (place, XC ("ActiveWindow")))
             {
                 for (cur_node = node->children; cur_node; cur_node = cur_node->next)
@@ -307,7 +313,7 @@ static void save_labwc_settings (void)
                     }
                 }
             }
-            g_free (place);
+            xmlFree (place);
         }
     }
     xmlXPathFreeObject (xpathObj);
@@ -335,10 +341,10 @@ static void save_labwc_settings (void)
         cur_node = xpathObj->nodesetval->nodeTab[0];
         xmlNodeSetContent (cur_node, XC (icons));
     }
+    xmlXPathFreeObject (xpathObj);
     g_free (icons);
 
     // cleanup XML
-    xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
     xmlSaveFile (user_config_file, xDoc);
     xmlFreeDoc (xDoc);
@@ -369,17 +375,14 @@ static void save_labwc_to_settings (void)
         vsystem ("echo 'window.active.title.bg.color: %s' >> %s", cstrb, user_config_file);
         vsystem ("echo 'window.active.label.text.color: %s' >> %s", cstrf, user_config_file);
         vsystem ("echo 'window.active.button.unpressed.image.color: %s' >> %s", cstrf, user_config_file);
-
-        g_free (cstrf);
-        g_free (cstrb);
-        g_free (user_config_file);
-        return;
     }
-
-    // amend entries already in file, or add if not present
-    LABWC_THEME_UPDATE ("window.active.title.bg.color", cstrb);
-    LABWC_THEME_UPDATE ("window.active.label.text.color", cstrf);
-    LABWC_THEME_UPDATE ("window.active.button.unpressed.image.color", cstrf);
+    else
+    {
+        // amend entries already in file, or add if not present
+        LABWC_THEME_UPDATE ("window.active.title.bg.color", cstrb);
+        LABWC_THEME_UPDATE ("window.active.label.text.color", cstrf);
+        LABWC_THEME_UPDATE ("window.active.button.unpressed.image.color", cstrf);
+    }
 
     g_free (cstrf);
     g_free (cstrb);
