@@ -367,11 +367,12 @@ static void save_libreoffice_settings (void)
     char *user_config_file;
     char buf[2];
     gboolean found = FALSE;
+    xmlChar *path, *name;
 
     xmlDocPtr xDoc;
-    xmlNodePtr rootnode, itemnode, propnode, valnode;
-    xmlXPathObjectPtr xpathObj;
     xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr rootnode, itemnode, propnode, valnode;
 
     sprintf (buf, "%d", cur_conf.lo_icon_size);
 
@@ -404,17 +405,29 @@ static void save_libreoffice_settings (void)
 
     for (itemnode = rootnode->children; itemnode; itemnode = itemnode->next)
     {
-        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, XC ("item")) && !xmlStrcmp (xmlGetProp (itemnode, XC ("path")), XC ("/org.openoffice.Office.Common/Misc")))
+        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, XC ("item")))
         {
-            xmlNode *propnode = itemnode->children;
-            if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, XC ("prop")) && !xmlStrcmp (xmlGetProp (propnode, XC ("name")), XC ("SymbolSet")))
+            path = xmlGetProp (itemnode, XC ("path"));
+            if (!xmlStrcmp (path, XC ("/org.openoffice.Office.Common/Misc")))
             {
-                xmlNode *valnode = propnode->children;
-                if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, XC ("value")))
-                    xmlNodeSetContent (valnode, XC (buf));
-                found = TRUE;
-                break;
+                xmlNode *propnode = itemnode->children;
+                if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, XC ("prop")))
+                {
+                    name = xmlGetProp (propnode, XC ("name"));
+                    if (!xmlStrcmp (name, XC ("SymbolSet")))
+                    {
+                        xmlNode *valnode = propnode->children;
+                        if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, XC ("value")))
+                            xmlNodeSetContent (valnode, XC (buf));
+                        found = TRUE;
+                        xmlFree (path);
+                        xmlFree (name);
+                        break;
+                    }
+                    xmlFree (name);
+                }
             }
+            xmlFree (path);
         }
     }
 
