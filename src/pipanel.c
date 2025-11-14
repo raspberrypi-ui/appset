@@ -353,7 +353,7 @@ const char *tab_name (int tab)
         case 1 : return C_("tab", "Taskbar");
         case 2 : return C_("tab", "Theme");
         case 3 : return C_("tab", "Defaults");
-        case 4 : return C_("tab", "Active Window");
+        case 4 : return C_("tab", "Windows");
         default : return _("No such tab");
     }
 }
@@ -366,6 +366,7 @@ const char *icon_name (int tab)
         case 1 : return "appset-taskbar";
         case 2 : return "preferences-desktop-theme";
         case 3 : return "applications-utilities";
+        case 4 : return "file";
         default : return NULL;
     }
 }

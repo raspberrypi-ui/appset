@@ -1128,7 +1128,7 @@
                       <object class="GtkLabel" id="label51">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Titlebar Font</property>
+                        <property name="label" translatable="yes">Show Icon</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -1138,12 +1138,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkFontButton" id="fontbutton2">
+                      <object class="GtkSwitch" id="switch4">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">Choose the font used for the titlebar of the active window</property>
-                        <property name="font">Sans 12</property>
+                        <property name="tooltip-text" translatable="yes">Show application icons on titlebars</property>
                         <accessibility>
                           <relation type="labelled-by" target="label51"/>
                         </accessibility>
@@ -1170,7 +1168,7 @@
                       <object class="GtkLabel" id="label52">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Titlebar Colour</property>
+                        <property name="label" translatable="yes">Customise Active Window</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -1180,11 +1178,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkColorButton" id="colorbutton7">
+                      <object class="GtkSwitch" id="switch5">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">Choose the colour used for the titlebar of the active window</property>
+                        <property name="tooltip-text" translatable="yes">Change the active window titlebar from the system theme</property>
                         <accessibility>
                           <relation type="labelled-by" target="label52"/>
                         </accessibility>
@@ -1211,6 +1208,89 @@
                       <object class="GtkLabel" id="label53">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Titlebar Font</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFontButton" id="fontbutton2">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Choose the font used for the titlebar of the active window</property>
+                        <property name="font">Sans 12</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label53"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="hbox54">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="label54">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Titlebar Colour</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkColorButton" id="colorbutton7">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Choose the colour used for the titlebar of the active window</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label54"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="hbox55">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="label55">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Titlebar Text Colour</property>
                         <property name="xalign">0</property>
                       </object>
@@ -1227,47 +1307,7 @@
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used for text on the titlebar of the active window</property>
                         <accessibility>
-                          <relation type="labelled-by" target="label53"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox54">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="spacing">5</property>
-                    <child>
-                      <object class="GtkLabel" id="label54">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Show Icon</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSwitch" id="switch4">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Show application icons on titlebars</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label54"/>
+                          <relation type="labelled-by" target="label55"/>
                         </accessibility>
                       </object>
                       <packing>
@@ -1294,7 +1334,7 @@
               <object class="GtkLabel" id="tablabel5">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Active Window</property>
+                <property name="label" translatable="yes">Windows</property>
               </object>
               <packing>
                 <property name="position">5</property>
