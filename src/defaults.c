@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.h"
 #include "taskbar.h"
 #include "system.h"
+#include "labwc.h"
 
 #include "defaults.h"
 
@@ -62,6 +63,8 @@ static void defaults_lxsession (void);
 static void defaults_pcman (int desktop);
 static void defaults_pcman_g (void);
 static void defaults_gtk3 (void);
+static void defaults_labwc (void);
+static void defaults_labwc_theme (void);
 static void save_libfm_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
@@ -297,6 +300,98 @@ static void defaults_gtk3 (void)
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[dark], res)) gdk_rgba_parse (&def_med.bartext_colour[dark], GREY);
+
+        g_free (sys_config_file);
+    }
+}
+
+static void defaults_labwc (void)
+{
+    int val;
+    xmlChar *font, *size, *weight, *slant, *layout, *place;
+
+    xmlDocPtr xDoc;
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr node, cur;
+
+    def_med.show_labwc_icon = FALSE;
+
+    // read in data from XML file
+    xmlInitParser ();
+    LIBXML_TEST_VERSION
+    xDoc = xmlParseFile ("/etc/xdg/labwc/rc.xml");
+    if (xDoc == NULL)
+    {
+        def_med.title_font = def_med.desktop_font;
+        return;
+    }
+    xpathCtx = xmlXPathNewContext (xDoc);
+
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
+    for (val = 0; val < 2; val++)
+    {
+        node = xpathObj->nodesetval->nodeTab[val];
+        if (node)
+        {
+            place = xmlGetProp (node, XC ("place"));
+            if (!xmlStrcmp (place, XC ("ActiveWindow")))
+            {
+                for (cur = node->children; cur != NULL; cur = cur->next)
+                {
+                    if (!xmlStrcmp (cur->name, XC ("name"))) font = xmlNodeGetContent (cur);
+                    if (!xmlStrcmp (cur->name, XC ("size"))) size = xmlNodeGetContent (cur);
+                    if (!xmlStrcmp (cur->name, XC ("weight"))) weight = xmlNodeGetContent (cur);
+                    if (!xmlStrcmp (cur->name, XC ("slant"))) slant = xmlNodeGetContent (cur);
+                }
+                def_med.title_font = g_strdup_printf ("%s %s %s %s", font, weight, slant, size);
+
+                xmlFree (font);
+                xmlFree (size);
+                xmlFree (weight);
+                xmlFree (slant);
+            }
+            xmlFree (place);
+        }
+    }
+    xmlXPathFreeObject (xpathObj);
+
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']", xpathCtx);
+    node = xpathObj->nodesetval->nodeTab[0];
+    if (node)
+    {
+        layout = xmlNodeGetContent (node);
+        if (xmlStrstr (layout, XC ("icon:"))) def_med.show_labwc_icon = TRUE;
+        xmlFree (layout);
+    }
+    xmlXPathFreeObject (xpathObj);
+
+    // cleanup XML
+    xmlXPathFreeContext (xpathCtx);
+    xmlFreeDoc (xDoc);
+    xmlCleanupParser ();
+}
+
+static void defaults_labwc_theme (void)
+{
+    char *sys_config_file, *cmdbuf, *res;
+    int dark;
+
+    for (dark = 0; dark < 2; dark++)
+    {
+        sys_config_file = g_build_filename ("/usr/share/themes", theme_name (dark), "openbox-3/themerc", NULL);
+
+        cmdbuf = g_strdup_printf ("grep window.active.title.bg.color %s | cut -d : -f 2 | xargs", sys_config_file);
+        res = get_string (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.title_colour[dark], res)) gdk_rgba_parse (&def_med.title_colour[dark], GREY);
+        g_free (res);
+        g_free (cmdbuf);
+
+        cmdbuf = g_strdup_printf ("grep window.active.label.text.color %s | cut -d : -f 2 | xargs", sys_config_file);
+        res = get_string (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.titletext_colour[dark], res)) gdk_rgba_parse (&def_med.titletext_colour[dark], GREY);
+        g_free (res);
+        g_free (cmdbuf);
 
         g_free (sys_config_file);
     }
@@ -542,6 +637,12 @@ void create_defaults (void)
     // GTK 3 theme defaults
     defaults_gtk3 ();
 
+    // /etc/xdg/labwc/rc.xml
+    defaults_labwc ();
+
+    // openbox theme defaults
+    defaults_labwc_theme ();
+
     // defaults with no dedicated controls - set on defaults buttons only,
     // so the values set in these are only used in the large and small cases
     // medium values provided for reference only...
@@ -638,6 +739,7 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     set_desktop_controls ();
     set_taskbar_controls ();
     set_system_controls ();
+    set_labwc_controls ();
 
     // save changes to files if not using medium (the global default)
     if ((long int) ptr != 2)

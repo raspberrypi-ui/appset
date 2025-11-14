@@ -91,9 +91,8 @@ static void load_labwc_settings (void)
     xmlXPathObjectPtr xpathObj;
     xmlNodePtr node, cur;
 
-    // set a default font here, read from system defaults... !!!!!
-    cur_conf.title_font = g_strdup_printf ("%s %s %s %s", "Nunito Sans", "Normal", "Normal", "12");
-    cur_conf.show_labwc_icon = FALSE; // or read from sys defaults !!!!!
+    DEFAULT (title_font);
+    DEFAULT (show_labwc_icon);
 
     user_config_file = labwc_file ();
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
