@@ -66,8 +66,8 @@ typedef struct {
     GdkRGBA themetext_colour[2];
     GdkRGBA bar_colour[2];
     GdkRGBA bartext_colour[2];
-    GdkRGBA title_colour[2];
-    GdkRGBA titletext_colour[2];
+    GdkRGBA title_colour;
+    GdkRGBA titletext_colour;
     int icon_size;
     int barpos;
     int folder_size;

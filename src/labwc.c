@@ -172,10 +172,10 @@ static void load_labwc_to_settings (void)
     res = get_string (cmdbuf);
     if (res[0])
     {
-        if (!gdk_rgba_parse (&cur_conf.title_colour[cur_conf.darkmode], res))
-            DEFAULT (title_colour[cur_conf.darkmode]);
+        if (!gdk_rgba_parse (&cur_conf.title_colour, res))
+            DEFAULT (title_colour);
     }
-    else DEFAULT (title_colour[cur_conf.darkmode]);
+    else DEFAULT (title_colour);
     g_free (res);
     g_free (cmdbuf);
 
@@ -183,10 +183,10 @@ static void load_labwc_to_settings (void)
     res = get_string (cmdbuf);
     if (res[0])
     {
-        if (!gdk_rgba_parse (&cur_conf.titletext_colour[cur_conf.darkmode], res))
-            DEFAULT (titletext_colour[cur_conf.darkmode]);
+        if (!gdk_rgba_parse (&cur_conf.titletext_colour, res))
+            DEFAULT (titletext_colour);
     }
-    else DEFAULT (titletext_colour[cur_conf.darkmode]);
+    else DEFAULT (titletext_colour);
     g_free (res);
     g_free (cmdbuf);
 
@@ -368,8 +368,8 @@ static void save_labwc_to_settings (void)
     user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "themerc-override", NULL);
     check_directory (user_config_file);
 
-    cstrb = rgba_to_gdk_color_string (&cur_conf.title_colour[cur_conf.darkmode]);
-    cstrf = rgba_to_gdk_color_string (&cur_conf.titletext_colour[cur_conf.darkmode]);
+    cstrb = rgba_to_gdk_color_string (&cur_conf.title_colour);
+    cstrf = rgba_to_gdk_color_string (&cur_conf.titletext_colour);
 
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
@@ -398,8 +398,8 @@ void set_labwc_controls (void)
 {
     g_signal_handler_block (toggle_icon, id_icon);
     gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font_system), cur_conf.title_font);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilite), &cur_conf.title_colour[cur_conf.darkmode]);
-    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.titletext_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilite), &cur_conf.title_colour);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.titletext_colour);
     gtk_switch_set_active (GTK_SWITCH (toggle_icon), cur_conf.show_labwc_icon);
     g_signal_handler_unblock (toggle_icon, id_icon);
 
@@ -408,10 +408,8 @@ void set_labwc_controls (void)
     pfdt = pango_font_description_from_string (cur_conf.title_font);
 
     gboolean cust = FALSE;
-    if (!gdk_rgba_equal (&cur_conf.title_colour[0], &cur_conf.theme_colour[0])) cust = TRUE;
-    //if (!gdk_rgba_equal (&cur_conf.title_colour[1], &cur_conf.theme_colour[1])) cust = TRUE;
-    if (!gdk_rgba_equal (&cur_conf.titletext_colour[0], &cur_conf.themetext_colour[0])) cust = TRUE;
-    //if (!gdk_rgba_equal (&cur_conf.titletext_colour[1], &cur_conf.themetext_colour[1])) cust = TRUE;
+    if (!gdk_rgba_equal (&cur_conf.title_colour, &cur_conf.theme_colour[cur_conf.darkmode])) cust = TRUE;
+    if (!gdk_rgba_equal (&cur_conf.titletext_colour, &cur_conf.themetext_colour[cur_conf.darkmode])) cust = TRUE;
     if (!pango_font_description_equal (pfdt, pfdd)) cust = TRUE;
 
     gtk_switch_set_active (GTK_SWITCH (toggle_cust), cust);
@@ -426,7 +424,7 @@ void set_labwc_controls (void)
 
 static void on_labwc_colour_set (GtkColorChooser *btn, gpointer ptr)
 {
-    gtk_color_chooser_get_rgba (btn, &cur_conf.title_colour[cur_conf.darkmode]);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.title_colour);
 
     save_labwc_to_settings ();
 
@@ -435,7 +433,7 @@ static void on_labwc_colour_set (GtkColorChooser *btn, gpointer ptr)
 
 static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 {
-    gtk_color_chooser_get_rgba (btn, &cur_conf.titletext_colour[cur_conf.darkmode]);
+    gtk_color_chooser_get_rgba (btn, &cur_conf.titletext_colour);
 
     save_labwc_to_settings ();
 
@@ -472,10 +470,8 @@ static gboolean on_toggle_cust (GtkSwitch *btn, gboolean state, gpointer ptr)
     if (!state)
     {
         cur_conf.title_font = cur_conf.desktop_font;
-        cur_conf.title_colour[0] = cur_conf.theme_colour[0];
-        cur_conf.title_colour[1] = cur_conf.theme_colour[1];
-        cur_conf.titletext_colour[0] = cur_conf.themetext_colour[0];
-        cur_conf.titletext_colour[1] = cur_conf.themetext_colour[1];
+        cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
+        cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
 
         set_labwc_controls ();
 

@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.h"
 #include "desktop.h"
 #include "defaults.h"
+#include "labwc.h"
 
 #include "system.h"
 
@@ -1264,6 +1265,7 @@ static void on_theme_dark_set (GtkRadioButton *btn, gpointer ptr)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.themetext_colour[cur_conf.darkmode]);
     
     set_taskbar_controls ();
+    set_labwc_controls ();
 
     save_session_settings ();
     save_gtk3_settings ();

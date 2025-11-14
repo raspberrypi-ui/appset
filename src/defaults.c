@@ -379,26 +379,22 @@ static void defaults_labwc (void)
 static void defaults_labwc_theme (void)
 {
     char *sys_config_file, *cmdbuf, *res;
-    int dark;
 
-    for (dark = 0; dark < 2; dark++)
-    {
-        sys_config_file = g_build_filename ("/usr/share/themes", theme_name (dark), "openbox-3/themerc", NULL);
+    sys_config_file = g_build_filename ("/usr/share/themes", theme_name (cur_conf.darkmode), "openbox-3/themerc", NULL);
 
-        cmdbuf = g_strdup_printf ("grep window.active.title.bg.color %s | cut -d : -f 2 | xargs", sys_config_file);
-        res = get_string (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.title_colour[dark], res)) gdk_rgba_parse (&def_med.title_colour[dark], GREY);
-        g_free (res);
-        g_free (cmdbuf);
+    cmdbuf = g_strdup_printf ("grep window.active.title.bg.color %s | cut -d : -f 2 | xargs", sys_config_file);
+    res = get_string (cmdbuf);
+    if (!res[0] || !gdk_rgba_parse (&def_med.title_colour, res)) gdk_rgba_parse (&def_med.title_colour, GREY);
+    g_free (res);
+    g_free (cmdbuf);
 
-        cmdbuf = g_strdup_printf ("grep window.active.label.text.color %s | cut -d : -f 2 | xargs", sys_config_file);
-        res = get_string (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.titletext_colour[dark], res)) gdk_rgba_parse (&def_med.titletext_colour[dark], GREY);
-        g_free (res);
-        g_free (cmdbuf);
+    cmdbuf = g_strdup_printf ("grep window.active.label.text.color %s | cut -d : -f 2 | xargs", sys_config_file);
+    res = get_string (cmdbuf);
+    if (!res[0] || !gdk_rgba_parse (&def_med.titletext_colour, res)) gdk_rgba_parse (&def_med.titletext_colour, GREY);
+    g_free (res);
+    g_free (cmdbuf);
 
-        g_free (sys_config_file);
-    }
+    g_free (sys_config_file);
 }
 
 static void save_libfm_settings (void)
