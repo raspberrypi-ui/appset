@@ -44,10 +44,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 /* Controls */
-static GtkWidget *colour_hilite, *colour_hilitetext, *font_system, *toggle_icon;
+static GtkWidget *colour_hilite, *colour_hilitetext, *font_system, *toggle_icon, *toggle_cust;
 
 /* Handler IDs */
-static gulong id_icon;
+static gulong id_icon, id_cust;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -62,6 +62,7 @@ static void on_labwc_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr);
 static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr);
+static gboolean on_toggle_cust (GtkSwitch *btn, gboolean state, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -146,6 +147,7 @@ static void load_labwc_settings (void)
     {
         layout = xmlNodeGetContent (node);
         if (xmlStrstr (layout, XC ("icon:"))) cur_conf.show_labwc_icon = TRUE;
+        else cur_conf.show_labwc_icon = FALSE;
         xmlFree (layout);
     }
     xmlXPathFreeObject (xpathObj);
@@ -400,6 +402,22 @@ void set_labwc_controls (void)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.titletext_colour[cur_conf.darkmode]);
     gtk_switch_set_active (GTK_SWITCH (toggle_icon), cur_conf.show_labwc_icon);
     g_signal_handler_unblock (toggle_icon, id_icon);
+
+    PangoFontDescription *pfdd, *pfdt;
+    pfdd = pango_font_description_from_string (cur_conf.desktop_font);
+    pfdt = pango_font_description_from_string (cur_conf.title_font);
+
+    gboolean cust = FALSE;
+    if (!gdk_rgba_equal (&cur_conf.title_colour[0], &cur_conf.theme_colour[0])) cust = TRUE;
+    //if (!gdk_rgba_equal (&cur_conf.title_colour[1], &cur_conf.theme_colour[1])) cust = TRUE;
+    if (!gdk_rgba_equal (&cur_conf.titletext_colour[0], &cur_conf.themetext_colour[0])) cust = TRUE;
+    //if (!gdk_rgba_equal (&cur_conf.titletext_colour[1], &cur_conf.themetext_colour[1])) cust = TRUE;
+    if (!pango_font_description_equal (pfdt, pfdd)) cust = TRUE;
+
+    gtk_switch_set_active (GTK_SWITCH (toggle_cust), cust);
+
+    pango_font_description_free (pfdd);
+    pango_font_description_free (pfdt);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -445,6 +463,29 @@ static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr)
     return FALSE;
 }
 
+static gboolean on_toggle_cust (GtkSwitch *btn, gboolean state, gpointer ptr)
+{
+    gtk_widget_set_sensitive (colour_hilite, state);
+    gtk_widget_set_sensitive (colour_hilitetext, state);
+    gtk_widget_set_sensitive (font_system, state);
+
+    if (!state)
+    {
+        cur_conf.title_font = cur_conf.desktop_font;
+        cur_conf.title_colour[0] = cur_conf.theme_colour[0];
+        cur_conf.title_colour[1] = cur_conf.theme_colour[1];
+        cur_conf.titletext_colour[0] = cur_conf.themetext_colour[0];
+        cur_conf.titletext_colour[1] = cur_conf.themetext_colour[1];
+
+        set_labwc_controls ();
+
+        save_labwc_settings ();
+        save_labwc_to_settings ();
+        reload_session ();
+    }
+    return FALSE;
+}
+
 /*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
@@ -465,6 +506,9 @@ void load_labwc_tab (GtkBuilder *builder)
 
     toggle_icon = (GtkWidget *) gtk_builder_get_object (builder, "switch4");
     id_icon = g_signal_connect (toggle_icon, "state-set", G_CALLBACK (on_toggle_icon), NULL);
+
+    toggle_cust = (GtkWidget *) gtk_builder_get_object (builder, "switch5");
+    id_cust = g_signal_connect (toggle_cust, "state-set", G_CALLBACK (on_toggle_cust), NULL);
 }
 
 /* End of file */

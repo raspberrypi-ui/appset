@@ -1181,6 +1181,7 @@
                       <object class="GtkSwitch" id="switch5">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="active">True</property>
                         <property name="tooltip-text" translatable="yes">Change the active window titlebar from the system theme</property>
                         <accessibility>
                           <relation type="labelled-by" target="label52"/>
