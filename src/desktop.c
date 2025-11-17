@@ -64,9 +64,9 @@ static void on_desktop_picture_set (GtkFileChooser *btn, gpointer ptr);
 static void on_desktop_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_desktop_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr);
-static gboolean on_toggle_docs (GtkSwitch *btn, gpointer, gpointer);
-static gboolean on_toggle_trash (GtkSwitch *btn, gpointer, gpointer);
-static gboolean on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer);
+static void on_toggle_docs (GtkSwitch *btn, gpointer, gpointer);
+static void on_toggle_trash (GtkSwitch *btn, gpointer, gpointer);
+static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -483,34 +483,28 @@ static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr)
     }
 }
 
-static gboolean on_toggle_docs (GtkSwitch *btn, gpointer, gpointer)
+static void on_toggle_docs (GtkSwitch *btn, gpointer, gpointer)
 {
     cur_conf.desktops[desktop_n].show_docs = gtk_switch_get_active (btn);
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
-
-    return FALSE;
 }
 
-static gboolean on_toggle_trash (GtkSwitch *btn, gpointer, gpointer)
+static void on_toggle_trash (GtkSwitch *btn, gpointer, gpointer)
 {
     cur_conf.desktops[desktop_n].show_trash = gtk_switch_get_active (btn);
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
-
-    return FALSE;
 }
 
-static gboolean on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer)
+static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer)
 {
     cur_conf.desktops[desktop_n].show_mnts = gtk_switch_get_active (btn);
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
-
-    return FALSE;
 }
 
 /*----------------------------------------------------------------------------*/
