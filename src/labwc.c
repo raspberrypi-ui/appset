@@ -422,9 +422,9 @@ void set_labwc_controls (void)
 
     if (!cur_conf.custom_tb)
     {
-        gtk_widget_set_tooltip_text (font_system, _("Enable custom titlebar to set font"));
-        gtk_widget_set_tooltip_text (colour_hilite, _("Enable custom titlebar to set colour"));
-        gtk_widget_set_tooltip_text (colour_hilitetext, _("Enable custom titlebar to set colour"));
+        gtk_widget_set_tooltip_text (font_system, _("Turn on 'Customise Active Window' to set font"));
+        gtk_widget_set_tooltip_text (colour_hilite, _("Turn on 'Customise Active Window' to set colour"));
+        gtk_widget_set_tooltip_text (colour_hilitetext, _("Turn on 'Customise Active Window' to set colour"));
     }
     else
     {
