@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-06 15:30+0100\n"
+"POT-Creation-Date: 2025-11-17 08:54+0000\n"
 "PO-Revision-Date: 2018-01-10 12:36+0000\n"
 "Last-Translator: Simon Long <simon@raspberrypi.org>\n"
 "Language-Team: English (British)\n"
@@ -17,47 +17,52 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../src/pipanel.c:314
+#: ../src/pipanel.c:352
 msgctxt "tab"
 msgid "Desktop"
 msgstr "Desktop"
 
-#: ../src/pipanel.c:315
+#: ../src/pipanel.c:353
 msgctxt "tab"
 msgid "Taskbar"
 msgstr "Taskbar"
 
-#: ../src/pipanel.c:316
+#: ../src/pipanel.c:354
 msgctxt "tab"
 msgid "Theme"
 msgstr "Theme"
 
-#: ../src/pipanel.c:317
+#: ../src/pipanel.c:355
 msgctxt "tab"
 msgid "Defaults"
 msgstr "Defaults"
 
-#: ../src/pipanel.c:318
+#: ../src/pipanel.c:356
+msgctxt "tab"
+msgid "Windows"
+msgstr "Windows"
+
+#: ../src/pipanel.c:357
 msgid "No such tab"
 msgstr ""
 
-#: ../src/pipanel.c:576 ../src/defaults.c:603 ../src/system.c:1245
+#: ../src/pipanel.c:623 ../src/defaults.c:728 ../src/system.c:1273
 msgid ""
 "The theme for Geany cannot be changed while it is open.\n"
 "Please close it and try again."
 msgstr ""
 
-#: ../src/pipanel.c:582 ../src/defaults.c:609 ../src/system.c:1255
+#: ../src/pipanel.c:629 ../src/defaults.c:734 ../src/system.c:1283
 msgid ""
 "The theme for Calculator cannot be changed while it is open.\n"
 "Please close it and try again."
 msgstr ""
 
-#: ../src/pipanel.c:586
+#: ../src/pipanel.c:633
 msgid "Restoring configuration - please wait..."
 msgstr ""
 
-#: ../src/pipanel.c:663
+#: ../src/pipanel.c:711
 msgid "Loading configuration - please wait..."
 msgstr ""
 
@@ -346,9 +351,53 @@ msgid "Defaults"
 msgstr "Defaults"
 
 #: ../data/pipanel.ui.h:71
+msgid "Show Icon"
+msgstr "Show Icon:"
+
+#: ../data/pipanel.ui.h:72
+msgid "Show application icons on titlebars"
+msgstr "Show application icons on titlebars"
+
+#: ../data/pipanel.ui.h:73
+msgid "Customise Active Window"
+msgstr "Customise Active Window:"
+
+#: ../data/pipanel.ui.h:74
+msgid "Change the active window titlebar from the system theme"
+msgstr "Change the active window titlebar from the system theme"
+
+#: ../data/pipanel.ui.h:75
+msgid "Titlebar Font"
+msgstr "Titlebar Font:"
+
+#: ../data/pipanel.ui.h:76
+msgid "Choose the font used for the titlebar of the active window"
+msgstr "Choose the font used for the titlebar of the active window"
+
+#: ../data/pipanel.ui.h:77
+msgid "Titlebar Colour"
+msgstr "Titlebar Colour:"
+
+#: ../data/pipanel.ui.h:78
+msgid "Choose the colour used for the titlebar of the active window"
+msgstr "Choose the colour used for the titlebar of the active window"
+
+#: ../data/pipanel.ui.h:79
+msgid "Titlebar Text Colour"
+msgstr "Titlebar Text Colour:"
+
+#: ../data/pipanel.ui.h:80
+msgid "Choose the colour used for text on the titlebar of the active window"
+msgstr "Choose the colour used for text on the titlebar of the active window"
+
+#: ../data/pipanel.ui.h:81
+msgid "Windows"
+msgstr "Windows"
+
+#: ../data/pipanel.ui.h:82
 msgid "_Cancel"
 msgstr ""
 
-#: ../data/pipanel.ui.h:72
+#: ../data/pipanel.ui.h:83
 msgid "_OK"
 msgstr ""
