@@ -64,9 +64,9 @@ static void on_desktop_picture_set (GtkFileChooser *btn, gpointer ptr);
 static void on_desktop_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_desktop_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr);
-static gboolean on_toggle_docs (GtkSwitch *btn, gboolean state, gpointer ptr);
-static gboolean on_toggle_trash (GtkSwitch *btn, gboolean state, gpointer ptr);
-static gboolean on_toggle_mnts (GtkSwitch *btn, gboolean state, gpointer ptr);
+static gboolean on_toggle_docs (GtkSwitch *btn, gpointer ptr);
+static gboolean on_toggle_trash (GtkSwitch *btn, gpointer ptr);
+static gboolean on_toggle_mnts (GtkSwitch *btn, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -483,9 +483,9 @@ static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr)
     }
 }
 
-static gboolean on_toggle_docs (GtkSwitch *btn, gboolean state, gpointer ptr)
+static gboolean on_toggle_docs (GtkSwitch *btn,  gpointer ptr)
 {
-    cur_conf.desktops[desktop_n].show_docs = state;
+    cur_conf.desktops[desktop_n].show_docs = gtk_switch_get_active (btn);;
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
@@ -493,9 +493,9 @@ static gboolean on_toggle_docs (GtkSwitch *btn, gboolean state, gpointer ptr)
     return FALSE;
 }
 
-static gboolean on_toggle_trash (GtkSwitch *btn, gboolean state, gpointer ptr)
+static gboolean on_toggle_trash (GtkSwitch *btn, gpointer ptr)
 {
-    cur_conf.desktops[desktop_n].show_trash = state;
+    cur_conf.desktops[desktop_n].show_trash = gtk_switch_get_active (btn);;
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
@@ -503,9 +503,9 @@ static gboolean on_toggle_trash (GtkSwitch *btn, gboolean state, gpointer ptr)
     return FALSE;
 }
 
-static gboolean on_toggle_mnts (GtkSwitch *btn, gboolean state, gpointer ptr)
+static gboolean on_toggle_mnts (GtkSwitch *btn, gpointer ptr)
 {
-    cur_conf.desktops[desktop_n].show_mnts = state;
+    cur_conf.desktops[desktop_n].show_mnts = gtk_switch_get_active (btn);;
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
@@ -558,13 +558,13 @@ void load_desktop_tab (GtkBuilder *builder)
     id_mode = g_signal_connect (combo_mode, "changed", G_CALLBACK (on_desktop_mode_set), NULL);
 
     toggle_docs = (GtkWidget *) gtk_builder_get_object (builder, "switch1");
-    id_docs = g_signal_connect (toggle_docs, "state-set", G_CALLBACK (on_toggle_docs), NULL);
+    id_docs = g_signal_connect (toggle_docs, "notify::active", G_CALLBACK (on_toggle_docs), NULL);
 
     toggle_trash = (GtkWidget *) gtk_builder_get_object (builder, "switch2");
-    id_trash = g_signal_connect (toggle_trash, "state-set", G_CALLBACK (on_toggle_trash), NULL);
+    id_trash = g_signal_connect (toggle_trash, "notify::active", G_CALLBACK (on_toggle_trash), NULL);
 
     toggle_mnts = (GtkWidget *) gtk_builder_get_object (builder, "switch3");
-    id_mnts = g_signal_connect (toggle_mnts, "state-set", G_CALLBACK (on_toggle_mnts), NULL);
+    id_mnts = g_signal_connect (toggle_mnts, "notify::active", G_CALLBACK (on_toggle_mnts), NULL);
 
     file_folder = (GtkWidget *) gtk_builder_get_object (builder, "filechooserbutton4");
     id_folder = g_signal_connect (file_folder, "selection-changed", G_CALLBACK (on_desktop_folder_set), NULL);
