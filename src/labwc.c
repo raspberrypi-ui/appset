@@ -61,8 +61,8 @@ static void save_labwc_to_settings (void);
 static void on_labwc_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr);
-static gboolean on_toggle_icon (GtkSwitch *btn, gpointer ptr);
-static gboolean on_toggle_cust (GtkSwitch *btn, gpointer ptr);
+static gboolean on_toggle_icon (GtkSwitch *btn, gpointer, gpointer);
+static gboolean on_toggle_cust (GtkSwitch *btn, gpointer, gpointer);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -456,7 +456,7 @@ static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr)
     reload_session ();
 }
 
-static gboolean on_toggle_icon (GtkSwitch *btn, gpointer ptr)
+static gboolean on_toggle_icon (GtkSwitch *btn, gpointer, gpointer)
 {
     cur_conf.show_labwc_icon = gtk_switch_get_active (btn);
 
@@ -467,7 +467,7 @@ static gboolean on_toggle_icon (GtkSwitch *btn, gpointer ptr)
     return FALSE;
 }
 
-static gboolean on_toggle_cust (GtkSwitch *btn, gpointer ptr)
+static gboolean on_toggle_cust (GtkSwitch *btn, gpointer, gpointer)
 {
     gboolean state = gtk_switch_get_active (btn);
     cur_conf.custom_tb = state;
