@@ -4,6 +4,7 @@ src/defaults.c
 src/desktop.c
 src/system.c
 src/taskbar.c
+src/labwc.c
 [type: gettext/glade] data/pipanel.ui
 # files added by intltool-prepare
 data/pipanel.desktop.in

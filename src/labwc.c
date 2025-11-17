@@ -61,8 +61,8 @@ static void save_labwc_to_settings (void);
 static void on_labwc_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr);
-static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr);
-static gboolean on_toggle_cust (GtkSwitch *btn, gboolean state, gpointer ptr);
+static gboolean on_toggle_icon (GtkSwitch *btn, gpointer ptr);
+static gboolean on_toggle_cust (GtkSwitch *btn, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -397,25 +397,31 @@ static void save_labwc_to_settings (void)
 void set_labwc_controls (void)
 {
     g_signal_handler_block (toggle_icon, id_icon);
+    g_signal_handler_block (toggle_cust, id_cust);
     gtk_font_chooser_set_font (GTK_FONT_CHOOSER (font_system), cur_conf.title_font);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilite), &cur_conf.title_colour);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.titletext_colour);
     gtk_switch_set_active (GTK_SWITCH (toggle_icon), cur_conf.show_labwc_icon);
-    g_signal_handler_unblock (toggle_icon, id_icon);
-
-    PangoFontDescription *pfdd, *pfdt;
-    pfdd = pango_font_description_from_string (cur_conf.desktop_font);
-    pfdt = pango_font_description_from_string (cur_conf.title_font);
-
-    cur_conf.custom_tb = FALSE;
-    if (!gdk_rgba_equal (&cur_conf.title_colour, &cur_conf.theme_colour[cur_conf.darkmode])) cur_conf.custom_tb = TRUE;
-    if (!gdk_rgba_equal (&cur_conf.titletext_colour, &cur_conf.themetext_colour[cur_conf.darkmode])) cur_conf.custom_tb = TRUE;
-    if (!pango_font_description_equal (pfdt, pfdd)) cur_conf.custom_tb = TRUE;
-
     gtk_switch_set_active (GTK_SWITCH (toggle_cust), cur_conf.custom_tb);
+    g_signal_handler_unblock (toggle_icon, id_icon);
+    g_signal_handler_unblock (toggle_cust, id_cust);
 
-    pango_font_description_free (pfdd);
-    pango_font_description_free (pfdt);
+    if (!cur_conf.custom_tb)
+    {
+        gtk_widget_set_tooltip_text (font_system, _("Enable custom titlebar to set font"));
+        gtk_widget_set_tooltip_text (colour_hilite, _("Enable custom titlebar to set colour"));
+        gtk_widget_set_tooltip_text (colour_hilitetext, _("Enable custom titlebar to set colour"));
+    }
+    else
+    {
+        gtk_widget_set_tooltip_text (font_system, _("Choose the font used for the titlebar of the active window"));
+        gtk_widget_set_tooltip_text (colour_hilite, _("Choose the colour used for the titlebar of the active window"));
+        gtk_widget_set_tooltip_text (colour_hilitetext, _("Choose the colour used for text on the titlebar of the active window"));
+    }
+
+    gtk_widget_set_sensitive (colour_hilite, cur_conf.custom_tb);
+    gtk_widget_set_sensitive (colour_hilitetext, cur_conf.custom_tb);
+    gtk_widget_set_sensitive (font_system, cur_conf.custom_tb);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -450,9 +456,9 @@ static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr)
     reload_session ();
 }
 
-static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr)
+static gboolean on_toggle_icon (GtkSwitch *btn, gpointer ptr)
 {
-    cur_conf.show_labwc_icon = state;
+    cur_conf.show_labwc_icon = gtk_switch_get_active (btn);
 
     save_labwc_settings ();
 
@@ -461,13 +467,10 @@ static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr)
     return FALSE;
 }
 
-static gboolean on_toggle_cust (GtkSwitch *btn, gboolean state, gpointer ptr)
+static gboolean on_toggle_cust (GtkSwitch *btn, gpointer ptr)
 {
+    gboolean state = gtk_switch_get_active (btn);
     cur_conf.custom_tb = state;
-
-    gtk_widget_set_sensitive (colour_hilite, state);
-    gtk_widget_set_sensitive (colour_hilitetext, state);
-    gtk_widget_set_sensitive (font_system, state);
 
     if (!state)
     {
@@ -475,12 +478,13 @@ static gboolean on_toggle_cust (GtkSwitch *btn, gboolean state, gpointer ptr)
         cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
         cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
 
-        set_labwc_controls ();
-
         save_labwc_settings ();
         save_labwc_to_settings ();
         reload_session ();
     }
+
+    set_labwc_controls ();
+
     return FALSE;
 }
 
@@ -493,6 +497,18 @@ void load_labwc_tab (GtkBuilder *builder)
     load_labwc_settings ();
     load_labwc_to_settings ();
 
+    cur_conf.custom_tb = FALSE;
+
+    if (!gdk_rgba_equal (&cur_conf.title_colour, &cur_conf.theme_colour[cur_conf.darkmode])) cur_conf.custom_tb = TRUE;
+    if (!gdk_rgba_equal (&cur_conf.titletext_colour, &cur_conf.themetext_colour[cur_conf.darkmode])) cur_conf.custom_tb = TRUE;
+
+    PangoFontDescription *pfdd, *pfdt;
+    pfdd = pango_font_description_from_string (cur_conf.desktop_font);
+    pfdt = pango_font_description_from_string (cur_conf.title_font);
+    if (!pango_font_description_equal (pfdt, pfdd)) cur_conf.custom_tb = TRUE;
+    pango_font_description_free (pfdd);
+    pango_font_description_free (pfdt);
+
     font_system = (GtkWidget *) gtk_builder_get_object (builder, "fontbutton2");
     g_signal_connect (font_system, "font-set", G_CALLBACK (on_labwc_font_set), NULL);
 
@@ -503,10 +519,10 @@ void load_labwc_tab (GtkBuilder *builder)
     g_signal_connect (colour_hilitetext, "color-set", G_CALLBACK (on_labwc_textcolour_set), NULL);
 
     toggle_icon = (GtkWidget *) gtk_builder_get_object (builder, "switch4");
-    id_icon = g_signal_connect (toggle_icon, "state-set", G_CALLBACK (on_toggle_icon), NULL);
+    id_icon = g_signal_connect (toggle_icon, "notify::active", G_CALLBACK (on_toggle_icon), NULL);
 
     toggle_cust = (GtkWidget *) gtk_builder_get_object (builder, "switch5");
-    id_cust = g_signal_connect (toggle_cust, "state-set", G_CALLBACK (on_toggle_cust), NULL);
+    id_cust = g_signal_connect (toggle_cust, "notify::active", G_CALLBACK (on_toggle_cust), NULL);
 }
 
 /* End of file */
