@@ -1111,7 +1111,6 @@
                 <property name="tab-fill">False</property>
               </packing>
             </child>
-
             <child>
               <object class="GtkBox" id="vbox5">
                 <property name="visible">True</property>
@@ -1324,8 +1323,6 @@
                     <property name="position">4</property>
                   </packing>
                 </child>
-
-
               </object>
               <packing>
                 <property name="position">5</property>
@@ -1342,10 +1339,6 @@
                 <property name="tab-fill">False</property>
               </packing>
             </child>
-
-
-
-
           </object>
           <packing>
             <property name="expand">True</property>
@@ -1433,6 +1426,8 @@
       <widget name="hbox51"/>
       <widget name="hbox52"/>
       <widget name="hbox53"/>
+      <widget name="hbox54"/>
+      <widget name="hbox55"/>
     </widgets>
   </object>
   <object class="GtkSizeGroup">
