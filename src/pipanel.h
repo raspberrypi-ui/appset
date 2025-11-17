@@ -69,7 +69,7 @@ typedef struct {
     GdkRGBA title_colour;
     GdkRGBA titletext_colour;
     int icon_size;
-    int barpos;
+    gboolean barpos;
     int folder_size;
     int thumb_size;
     int pane_size;
@@ -81,9 +81,10 @@ typedef struct {
     int handle_width;
     int scrollbar_width;
     int monitor;
-    int common_bg;
-    int darkmode;
-    int show_labwc_icon;
+    gboolean common_bg;
+    gboolean darkmode;
+    gboolean show_labwc_icon;
+    gboolean custom_tb;
 } Config;
 
 typedef enum {

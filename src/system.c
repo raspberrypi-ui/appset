@@ -406,6 +406,7 @@ static void save_wm_settings (void)
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
     xmlNodePtr root, cur_node, node;
+    xmlChar *place;
 
     if (wm == WM_LABWC) user_config_file = labwc_file ();
     else if (wm == WM_OPENBOX) user_config_file = openbox_file ();
@@ -505,7 +506,7 @@ static void save_wm_settings (void)
     {
         xmlXPathFreeObject (xpathObj);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-        for (count = 0; count < 2; count ++)
+        for (count = (cur_conf.custom_tb == FALSE ? 0 : 1); count < 2; count ++)
         {
             cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("font"), NULL);
 
@@ -521,16 +522,21 @@ static void save_wm_settings (void)
         for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
         {
             node = xpathObj->nodesetval->nodeTab[count];
-            for (cur_node = node->children; cur_node; cur_node = cur_node->next)
+            place = xmlGetProp (node, XC ("place"));
+            if (!cur_conf.custom_tb || xmlStrcmp (place, XC ("ActiveWindow")))
             {
-                if (cur_node->type == XML_ELEMENT_NODE)
+                for (cur_node = node->children; cur_node; cur_node = cur_node->next)
                 {
-                    if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
-                    if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
-                    if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
-                    if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
+                    if (cur_node->type == XML_ELEMENT_NODE)
+                    {
+                        if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
+                        if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
+                        if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
+                        if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
+                    }
                 }
             }
+            xmlFree (place);
         }
     }
     xmlXPathFreeObject (xpathObj);
@@ -910,6 +916,8 @@ static void save_labwc_to_settings (void)
 {
     char *user_config_file, *cstrb, *cstrf;
 
+    if (cur_conf.custom_tb) return;
+
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "themerc-override", NULL);
     check_directory (user_config_file);
@@ -1184,6 +1192,12 @@ static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.theme_colour[cur_conf.darkmode]);
 
+    if (!cur_conf.custom_tb)
+    {
+        cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
+        set_labwc_controls ();
+    }
+
     save_session_settings ();
     save_gtk3_settings ();
     save_qt_settings ();
@@ -1195,6 +1209,12 @@ static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr)
 static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.themetext_colour[cur_conf.darkmode]);
+
+    if (!cur_conf.custom_tb)
+    {
+        cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
+        set_labwc_controls ();
+    }
 
     save_session_settings ();
     save_gtk3_settings ();
@@ -1223,6 +1243,12 @@ static void on_theme_font_set (GtkFontChooser *btn, gpointer ptr)
         font_height /= PANGO_SCALE;
 
         cur_conf.scrollbar_width = font_height >= LARGE_ICON_THRESHOLD ? 17 : 13;
+    }
+
+    if (!cur_conf.custom_tb)
+    {
+        cur_conf.title_font = cur_conf.desktop_font;
+        set_labwc_controls ();
     }
 
     save_session_settings ();

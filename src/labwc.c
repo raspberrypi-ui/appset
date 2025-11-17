@@ -407,12 +407,12 @@ void set_labwc_controls (void)
     pfdd = pango_font_description_from_string (cur_conf.desktop_font);
     pfdt = pango_font_description_from_string (cur_conf.title_font);
 
-    gboolean cust = FALSE;
-    if (!gdk_rgba_equal (&cur_conf.title_colour, &cur_conf.theme_colour[cur_conf.darkmode])) cust = TRUE;
-    if (!gdk_rgba_equal (&cur_conf.titletext_colour, &cur_conf.themetext_colour[cur_conf.darkmode])) cust = TRUE;
-    if (!pango_font_description_equal (pfdt, pfdd)) cust = TRUE;
+    cur_conf.custom_tb = FALSE;
+    if (!gdk_rgba_equal (&cur_conf.title_colour, &cur_conf.theme_colour[cur_conf.darkmode])) cur_conf.custom_tb = TRUE;
+    if (!gdk_rgba_equal (&cur_conf.titletext_colour, &cur_conf.themetext_colour[cur_conf.darkmode])) cur_conf.custom_tb = TRUE;
+    if (!pango_font_description_equal (pfdt, pfdd)) cur_conf.custom_tb = TRUE;
 
-    gtk_switch_set_active (GTK_SWITCH (toggle_cust), cust);
+    gtk_switch_set_active (GTK_SWITCH (toggle_cust), cur_conf.custom_tb);
 
     pango_font_description_free (pfdd);
     pango_font_description_free (pfdt);
@@ -463,6 +463,8 @@ static gboolean on_toggle_icon (GtkSwitch *btn, gboolean state, gpointer ptr)
 
 static gboolean on_toggle_cust (GtkSwitch *btn, gboolean state, gpointer ptr)
 {
+    cur_conf.custom_tb = state;
+
     gtk_widget_set_sensitive (colour_hilite, state);
     gtk_widget_set_sensitive (colour_hilitetext, state);
     gtk_widget_set_sensitive (font_system, state);
