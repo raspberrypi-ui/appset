@@ -669,6 +669,7 @@ void create_defaults (void)
     def_med.task_width = 200;
     def_med.handle_width = 10;
     def_med.scrollbar_width = 13;
+    def_med.custom_tb = FALSE;
 
     def_lg = def_sm = def_med;
 
