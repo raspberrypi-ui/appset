@@ -92,8 +92,8 @@ static void load_labwc_settings (void)
     xmlXPathObjectPtr xpathObj;
     xmlNodePtr node, cur;
 
-    DEFAULT (title_font);
     DEFAULT (show_labwc_icon);
+    cur_conf.title_font = cur_conf.desktop_font;
 
     user_config_file = labwc_file ();
     if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
@@ -114,41 +114,47 @@ static void load_labwc_settings (void)
     xpathCtx = xmlXPathNewContext (xDoc);
 
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
-    for (val = 0; val < 2; val++)
+    if (xpathObj->nodesetval)
     {
-        node = xpathObj->nodesetval->nodeTab[val];
-        if (node)
+        for (val = 0; val < 2; val++)
         {
-            place = xmlGetProp (node, XC ("place"));
-            if (!xmlStrcmp (place, XC ("ActiveWindow")))
+            node = xpathObj->nodesetval->nodeTab[val];
+            if (node)
             {
-                for (cur = node->children; cur != NULL; cur = cur->next)
+                place = xmlGetProp (node, XC ("place"));
+                if (!xmlStrcmp (place, XC ("ActiveWindow")))
                 {
-                    if (!xmlStrcmp (cur->name, XC ("name"))) font = xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("size"))) size = xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("weight"))) weight = xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("slant"))) slant = xmlNodeGetContent (cur);
-                }
-                cur_conf.title_font = g_strdup_printf ("%s %s %s %s", font, weight, slant, size);
+                    for (cur = node->children; cur != NULL; cur = cur->next)
+                    {
+                        if (!xmlStrcmp (cur->name, XC ("name"))) font = xmlNodeGetContent (cur);
+                        if (!xmlStrcmp (cur->name, XC ("size"))) size = xmlNodeGetContent (cur);
+                        if (!xmlStrcmp (cur->name, XC ("weight"))) weight = xmlNodeGetContent (cur);
+                        if (!xmlStrcmp (cur->name, XC ("slant"))) slant = xmlNodeGetContent (cur);
+                    }
+                    cur_conf.title_font = g_strdup_printf ("%s %s %s %s", font, weight, slant, size);
 
-                xmlFree (font);
-                xmlFree (size);
-                xmlFree (weight);
-                xmlFree (slant);
+                    xmlFree (font);
+                    xmlFree (size);
+                    xmlFree (weight);
+                    xmlFree (slant);
+                }
+                xmlFree (place);
             }
-            xmlFree (place);
         }
     }
     xmlXPathFreeObject (xpathObj);
 
     xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']", xpathCtx);
-    node = xpathObj->nodesetval->nodeTab[0];
-    if (node)
+    if (xpathObj->nodesetval)
     {
-        layout = xmlNodeGetContent (node);
-        if (xmlStrstr (layout, XC ("icon:"))) cur_conf.show_labwc_icon = TRUE;
-        else cur_conf.show_labwc_icon = FALSE;
-        xmlFree (layout);
+        node = xpathObj->nodesetval->nodeTab[0];
+        if (node)
+        {
+            layout = xmlNodeGetContent (node);
+            if (xmlStrstr (layout, XC ("icon:"))) cur_conf.show_labwc_icon = TRUE;
+            else cur_conf.show_labwc_icon = FALSE;
+            xmlFree (layout);
+        }
     }
     xmlXPathFreeObject (xpathObj);
 
@@ -167,6 +173,14 @@ static void load_labwc_to_settings (void)
     // construct the file path
     user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "themerc-override", NULL);
     check_directory (user_config_file);
+
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
+        cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
+        g_free (user_config_file);
+        return;
+    }
 
     cmdbuf = g_strdup_printf ("grep window.active.title.bg.color %s | cut -d : -f 2 | xargs", user_config_file);
     res = get_string (cmdbuf);
