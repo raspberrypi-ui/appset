@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.h"
 #include "system.h"
 #include "defaults.h"
-#include "labwc.h"
+#include "wm.h"
 
 /*----------------------------------------------------------------------------*/
 /* Typedefs and macros                                                        */

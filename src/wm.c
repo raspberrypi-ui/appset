@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "defaults.h"
 #include "system.h"
 
-#include "labwc.h"
+#include "wm.h"
 
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */

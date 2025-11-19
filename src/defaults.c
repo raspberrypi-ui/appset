@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.h"
 #include "taskbar.h"
 #include "system.h"
-#include "labwc.h"
+#include "wm.h"
 
 #include "defaults.h"
 
