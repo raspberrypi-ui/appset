@@ -63,8 +63,8 @@ static void defaults_lxsession (void);
 static void defaults_pcman (int desktop);
 static void defaults_pcman_g (void);
 static void defaults_gtk3 (void);
-static void defaults_labwc (void);
 static void defaults_labwc_theme (void);
+static void defaults_wm (void);
 static void save_libfm_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
@@ -309,73 +309,6 @@ static void defaults_gtk3 (void)
     }
 }
 
-static void defaults_labwc (void)
-{
-    int val;
-    xmlChar *font, *size, *weight, *slant, *layout, *place;
-
-    xmlDocPtr xDoc;
-    xmlXPathContextPtr xpathCtx;
-    xmlXPathObjectPtr xpathObj;
-    xmlNodePtr node, cur;
-
-    def_med.show_labwc_icon = FALSE;
-
-    // read in data from XML file
-    xmlInitParser ();
-    LIBXML_TEST_VERSION
-    xDoc = xmlParseFile ("/etc/xdg/labwc/rc.xml");
-    if (xDoc == NULL)
-    {
-        def_med.title_font = def_med.desktop_font;
-        return;
-    }
-    xpathCtx = xmlXPathNewContext (xDoc);
-
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
-    for (val = 0; val < 2; val++)
-    {
-        node = xpathObj->nodesetval->nodeTab[val];
-        if (node)
-        {
-            place = xmlGetProp (node, XC ("place"));
-            if (!xmlStrcmp (place, XC ("ActiveWindow")))
-            {
-                for (cur = node->children; cur != NULL; cur = cur->next)
-                {
-                    if (!xmlStrcmp (cur->name, XC ("name"))) font = xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("size"))) size = xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("weight"))) weight = xmlNodeGetContent (cur);
-                    if (!xmlStrcmp (cur->name, XC ("slant"))) slant = xmlNodeGetContent (cur);
-                }
-                def_med.title_font = g_strdup_printf ("%s %s %s %s", font, weight, slant, size);
-
-                xmlFree (font);
-                xmlFree (size);
-                xmlFree (weight);
-                xmlFree (slant);
-            }
-            xmlFree (place);
-        }
-    }
-    xmlXPathFreeObject (xpathObj);
-
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']", xpathCtx);
-    node = xpathObj->nodesetval->nodeTab[0];
-    if (node)
-    {
-        layout = xmlNodeGetContent (node);
-        if (xmlStrstr (layout, XC ("icon:"))) def_med.show_labwc_icon = TRUE;
-        xmlFree (layout);
-    }
-    xmlXPathFreeObject (xpathObj);
-
-    // cleanup XML
-    xmlXPathFreeContext (xpathCtx);
-    xmlFreeDoc (xDoc);
-    xmlCleanupParser ();
-}
-
 static void defaults_labwc_theme (void)
 {
     char *sys_config_file, *cmdbuf, *res;
@@ -384,17 +317,111 @@ static void defaults_labwc_theme (void)
 
     cmdbuf = g_strdup_printf ("grep window.active.title.bg.color %s | cut -d : -f 2 | xargs", sys_config_file);
     res = get_string (cmdbuf);
-    if (!res[0] || !gdk_rgba_parse (&def_med.title_colour, res)) gdk_rgba_parse (&def_med.title_colour, GREY);
+    if (!res[0] || !gdk_rgba_parse (&def_med.title_colour, res)) def_med.title_colour = def_med.theme_colour[cur_conf.darkmode];
     g_free (res);
     g_free (cmdbuf);
 
     cmdbuf = g_strdup_printf ("grep window.active.label.text.color %s | cut -d : -f 2 | xargs", sys_config_file);
     res = get_string (cmdbuf);
-    if (!res[0] || !gdk_rgba_parse (&def_med.titletext_colour, res)) gdk_rgba_parse (&def_med.titletext_colour, GREY);
+    if (!res[0] || !gdk_rgba_parse (&def_med.titletext_colour, res)) def_med.titletext_colour = def_med.themetext_colour[cur_conf.darkmode];
     g_free (res);
     g_free (cmdbuf);
 
     g_free (sys_config_file);
+}
+
+static void defaults_wm (void)
+{
+    int val;
+    char *res;
+    xmlChar *font, *size, *weight, *slant, *place, *xstr;
+
+    xmlDocPtr xDoc;
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr node, cur;
+
+    // if no defaults loaded from WM file, use the system defaults
+    def_med.show_labwc_icon = FALSE;
+    def_med.title_font = def_med.desktop_font;
+    def_med.title_colour = def_med.theme_colour[cur_conf.darkmode];
+    def_med.titletext_colour = def_med.themetext_colour[cur_conf.darkmode];
+
+    // read in data from XML file
+    xmlInitParser ();
+    LIBXML_TEST_VERSION
+    xDoc = xmlParseFile (wm == WM_LABWC ? "/etc/xdg/labwc/rc.xml" : "/etc/xdg/openbox/rc-rpd.xml");
+    if (xDoc == NULL) return;
+
+    xpathCtx = xmlXPathNewContext (xDoc);
+
+    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']", xpathCtx);
+    if (xpathObj->nodesetval)
+    {
+        for (val = 0; val < 2; val++)
+        {
+            node = xpathObj->nodesetval->nodeTab[val];
+            if (node)
+            {
+                place = xmlGetProp (node, XC ("place"));
+                if (!xmlStrcmp (place, XC ("ActiveWindow")))
+                {
+                    for (cur = node->children; cur != NULL; cur = cur->next)
+                    {
+                        if (!xmlStrcmp (cur->name, XC ("name"))) font = xmlNodeGetContent (cur);
+                        if (!xmlStrcmp (cur->name, XC ("size"))) size = xmlNodeGetContent (cur);
+                        if (!xmlStrcmp (cur->name, XC ("weight"))) weight = xmlNodeGetContent (cur);
+                        if (!xmlStrcmp (cur->name, XC ("slant"))) slant = xmlNodeGetContent (cur);
+                    }
+                    def_med.title_font = g_strdup_printf ("%s %s %s %s", font, weight, slant, size);
+
+                    xmlFree (font);
+                    xmlFree (size);
+                    xmlFree (weight);
+                    xmlFree (slant);
+                }
+                xmlFree (place);
+            }
+        }
+    }
+    xmlXPathFreeObject (xpathObj);
+
+    if (wm == WM_LABWC)
+    {
+        defaults_labwc_theme ();
+
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']", xpathCtx);
+        if (xpathObj->nodesetval)
+        {
+            node = xpathObj->nodesetval->nodeTab[0];
+            if (node)
+            {
+                xstr = xmlNodeGetContent (node);
+                if (xmlStrstr (xstr, XC ("icon:"))) def_med.show_labwc_icon = TRUE;
+                xmlFree (xstr);
+            }
+        }
+        xmlXPathFreeObject (xpathObj);
+    }
+    else
+    {
+        get_xml_theme_parameter (xpathCtx, "titleColor", &res);
+        if (!gdk_rgba_parse (&def_med.title_colour, res)) def_med.title_colour = def_med.theme_colour[cur_conf.darkmode];
+        g_free (res);
+
+        get_xml_theme_parameter (xpathCtx, "textColor", &res);
+        if (!gdk_rgba_parse (&def_med.titletext_colour, res)) def_med.titletext_colour = def_med.themetext_colour[cur_conf.darkmode];
+        g_free (res);
+
+        get_xml_theme_parameter (xpathCtx, "titleLayout", &res);
+        if (strstr (res, "N")) def_med.show_labwc_icon = TRUE;
+        g_free (res);
+    }
+
+    // cleanup XML
+    xmlXPathFreeContext (xpathCtx);
+    xmlFreeDoc (xDoc);
+    xmlCleanupParser ();
 }
 
 static void save_libfm_settings (void)
@@ -650,11 +677,8 @@ void create_defaults (void)
     // GTK 3 theme defaults
     defaults_gtk3 ();
 
-    // /etc/xdg/labwc/rc.xml
-    defaults_labwc ();
-
-    // openbox theme defaults
-    defaults_labwc_theme ();
+    // window managers
+    defaults_wm ();
 
     // defaults with no dedicated controls - set on defaults buttons only,
     // so the values set in these are only used in the large and small cases
@@ -766,6 +790,7 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     }
 
     save_session_settings ();
+    save_wm_settings ();
     save_gtk3_settings ();
     save_panel_settings ();
     save_greeter_settings ();

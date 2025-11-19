@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
+extern void get_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, char **value);
 extern void save_wm_settings (void);
 extern void set_wm_controls (void);
 extern void load_wm_tab (GtkBuilder *builder);

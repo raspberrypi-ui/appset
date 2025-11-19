@@ -57,7 +57,6 @@ static char *openbox_file (void);
 static char *labwc_file (void);
 static void get_font (const char *desc, char **font, char **weight, char **style, char **size);
 static void set_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, const char *value);
-static void get_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, char **value);
 static void load_wm_settings (void);
 static void load_labwc_to_settings (void);
 static void save_labwc_to_settings (void);
@@ -172,7 +171,7 @@ static void set_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *na
     g_free (path);
 }
 
-static void get_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, char **value)
+void get_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, char **value)
 {
     xmlXPathObjectPtr xpathObj;
     xmlNodePtr node;

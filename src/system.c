@@ -28,6 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
 
 #include "pipanel.h"
 #include "taskbar.h"

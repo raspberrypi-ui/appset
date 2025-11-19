@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
 
 #include "pipanel.h"
 
