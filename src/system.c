@@ -68,13 +68,10 @@ PangoFontFace *font_face;
 
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
-static char *openbox_file (void);
-static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_lxsession_settings (void);
 static void load_gsettings (void);
 static void load_gtk3_settings (void);
-static void save_wm_settings (void);
 static void save_lxsession_settings (void);
 static void save_gsettings (void);
 static void save_xsettings (void);
@@ -192,7 +189,7 @@ char *openbox_file (void)
     return g_build_filename (g_get_user_config_dir (), "openbox", "rpd-rc.xml", NULL);
 }
 
-static char *labwc_file (void)
+char *labwc_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "labwc", "rc.xml", NULL);
 }
@@ -393,232 +390,6 @@ static void load_gtk3_settings (void)
         g_free (user_config_file);
         g_free (sys_config_file);
     }
-}
-
-static void save_wm_settings (void)
-{
-    char *user_config_file, *cptr;
-    int count, size;
-    const gchar *font = NULL, *weight = NULL, *style = NULL;
-    char buf[10];
-
-    xmlDocPtr xDoc;
-    xmlXPathContextPtr xpathCtx;
-    xmlXPathObjectPtr xpathObj;
-    xmlNodePtr root, cur_node, node;
-    xmlChar *place;
-
-    if (wm == WM_LABWC) user_config_file = labwc_file ();
-    else if (wm == WM_OPENBOX) user_config_file = openbox_file ();
-    else return;
-
-    check_directory (user_config_file);
-
-    // set the font description variables for XML from the font name
-    PangoFontDescription *pfd = pango_font_description_from_string (cur_conf.desktop_font);
-    font = pango_font_description_get_family (pfd);
-    size = pango_font_description_get_size (pfd) / (pango_font_description_get_size_is_absolute (pfd) ? 1 : PANGO_SCALE);
-    sprintf (buf, "%d", size);
-    PangoWeight pweight = pango_font_description_get_weight (pfd);
-    PangoStyle pstyle = pango_font_description_get_style (pfd);
-
-    if (wm == WM_OPENBOX)
-    {
-        // openbox only recognises bold and italic - anything else is ignored
-        if (pweight == PANGO_WEIGHT_BOLD) weight = "Bold";
-        else weight = "Normal";
-
-        if (pstyle == PANGO_STYLE_ITALIC) style = "Italic";
-        else style = "Normal";
-    }
-    else
-    {
-        // labwc (now) recognises all weights and styles
-        switch (pweight)
-        {
-            case PANGO_WEIGHT_THIN :        weight = "Thin";
-                                            break;
-            case PANGO_WEIGHT_ULTRALIGHT :  weight = "Ultralight";
-                                            break;
-            case PANGO_WEIGHT_LIGHT :       weight = "Light";
-                                            break;
-            case PANGO_WEIGHT_SEMILIGHT :   weight = "Semilight";
-                                            break;
-            case PANGO_WEIGHT_BOOK :        weight = "Book";
-                                            break;
-            case PANGO_WEIGHT_NORMAL :      weight = "Normal";
-                                            break;
-            case PANGO_WEIGHT_MEDIUM :      weight = "Medium";
-                                            break;
-            case PANGO_WEIGHT_SEMIBOLD :    weight = "Semibold";
-                                            break;
-            case PANGO_WEIGHT_BOLD :        weight = "Bold";
-                                            break;
-            case PANGO_WEIGHT_ULTRABOLD :   weight = "Ultrabold";
-                                            break;
-            case PANGO_WEIGHT_HEAVY :       weight = "Heavy";
-                                            break;
-            case PANGO_WEIGHT_ULTRAHEAVY :  weight = "Ultraheavy";
-                                            break;
-        }
-
-        switch (pstyle)
-        {
-            case PANGO_STYLE_NORMAL :       style = "Normal";
-                                            break;
-            case PANGO_STYLE_ITALIC :       style = "Italic";
-                                            break;
-            case PANGO_STYLE_OBLIQUE :      style = "Oblique";
-                                            break;
-        }
-    }
-
-    // read in data from XML file
-    xmlInitParser ();
-    LIBXML_TEST_VERSION
-    if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-    {
-        xDoc = xmlParseFile (user_config_file);
-        if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
-    }
-    else xDoc = xmlNewDoc ((xmlChar *) "1.0");
-    xpathCtx = xmlXPathNewContext (xDoc);
-
-    // check that the config and theme nodes exist in the document - create them if not
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-    {
-        root = xmlNewNode (NULL, XC ("openbox_config"));
-        xmlDocSetRootElement (xDoc, root);
-        xmlNewNs (root, XC ("http://openbox.org/3.4/rc"), NULL);
-        xmlXPathRegisterNs (xpathCtx, XC ("openbox_config"), XC ("http://openbox.org/3.4/rc"));
-    }
-    else root = xpathObj->nodesetval->nodeTab[0];
-    xmlXPathFreeObject (xpathObj);
-
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval)) xmlNewChild (root, NULL, XC ("theme"), NULL);
-    xmlXPathFreeObject (xpathObj);
-
-    // update relevant nodes with new values
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-    {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-        for (count = (cur_conf.custom_tb == FALSE ? 0 : 1); count < 2; count ++)
-        {
-            cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("font"), NULL);
-
-            xmlSetProp (cur_node, XC ("place"), count == 0 ? XC ("ActiveWindow") : XC ("InactiveWindow"));
-            xmlNewChild (cur_node, NULL, XC ("name"), XC (font));
-            xmlNewChild (cur_node, NULL, XC ("size"), XC (buf));
-            xmlNewChild (cur_node, NULL, XC ("weight"), XC (weight));
-            xmlNewChild (cur_node, NULL, XC ("slant"), XC (style));
-        }
-    }
-    else
-    {
-        for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
-        {
-            node = xpathObj->nodesetval->nodeTab[count];
-            place = xmlGetProp (node, XC ("place"));
-            if (!cur_conf.custom_tb || xmlStrcmp (place, XC ("ActiveWindow")))
-            {
-                for (cur_node = node->children; cur_node; cur_node = cur_node->next)
-                {
-                    if (cur_node->type == XML_ELEMENT_NODE)
-                    {
-                        if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
-                        if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
-                        if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
-                        if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
-                    }
-                }
-            }
-            xmlFree (place);
-        }
-    }
-    xmlXPathFreeObject (xpathObj);
-    pango_font_description_free (pfd);
-
-    cptr = g_strdup_printf ("%s%s", theme_name (cur_conf.darkmode), cur_conf.scrollbar_width >= 17 ? "_l" : "");
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-    {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("name"), XC (cptr));
-    }
-    else
-    {
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, XC (cptr));
-    }
-    g_free (cptr);
-
-    if (wm == WM_LABWC) save_labwc_to_settings ();
-    else
-    {
-        sprintf (buf, "%d", cur_conf.handle_width);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']"), xpathCtx);
-        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("invHandleWidth"), XC (buf));
-        }
-        else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (buf));
-        }
-        xmlXPathFreeObject (xpathObj);
-
-        cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']"), xpathCtx);
-        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("titleColor"), XC (cptr));
-        }
-        else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
-        xmlXPathFreeObject (xpathObj);
-        g_free (cptr);
-
-        cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']"), xpathCtx);
-        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("textColor"), XC (cptr));
-        }
-        else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
-        xmlXPathFreeObject (xpathObj);
-        g_free (cptr);
-    }
-
-    // cleanup XML
-    xmlXPathFreeContext (xpathCtx);
-    xmlSaveFile (user_config_file, xDoc);
-    xmlFreeDoc (xDoc);
-    xmlCleanupParser ();
-
-    g_free (user_config_file);
 }
 
 static void save_lxsession_settings (void)
@@ -903,7 +674,6 @@ void save_session_settings (void)
         save_gsettings ();
         save_environment ();
     }
-    save_wm_settings ();
 }
 
 #define LABWC_THEME_UPDATE(param,value) \
@@ -1199,6 +969,7 @@ static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr)
     }
 
     save_session_settings ();
+    save_wm_settings ();
     save_gtk3_settings ();
     save_qt_settings ();
 
@@ -1217,6 +988,7 @@ static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr)
     }
 
     save_session_settings ();
+    save_wm_settings ();
     save_gtk3_settings ();
     save_qt_settings ();
 
@@ -1252,6 +1024,7 @@ static void on_theme_font_set (GtkFontChooser *btn, gpointer ptr)
     }
 
     save_session_settings ();
+    save_wm_settings ();
     for (i = 0; i < ndesks; i++)
         save_pcman_settings (i);
     save_qt_settings ();

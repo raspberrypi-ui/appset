@@ -302,8 +302,7 @@ static void init_config (void)
     load_taskbar_tab (builder);
     load_system_tab (builder);
     load_defaults_tab (builder);
-    if (wm == WM_LABWC) load_labwc_tab (builder);
-    else cur_conf.custom_tb = FALSE;
+    load_labwc_tab (builder);
 
     // create session file to be tracked
     init_session (theme_name (cur_conf.darkmode));
@@ -343,7 +342,7 @@ void init_plugin (GtkWidget *)
 
 int plugin_tabs (void)
 {
-    return wm == WM_LABWC ? 5 : 4;
+    return 5;
 }
 
 const char *tab_name (int tab)

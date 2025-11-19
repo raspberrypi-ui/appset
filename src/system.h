@@ -42,6 +42,8 @@ extern void reload_session (void);
 extern void restore_gsettings (void);
 extern char *lxsession_file (gboolean global);
 extern char *xsettings_file (gboolean global);
+extern char *openbox_file (void);
+extern char *labwc_file (void);
 extern void save_session_settings (void);
 extern void save_gtk3_settings (void);
 extern void save_greeter_settings (void);

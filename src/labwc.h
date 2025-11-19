@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
+extern void save_wm_settings (void);
 extern void set_labwc_controls (void);
 extern void load_labwc_tab (GtkBuilder *builder);
 
