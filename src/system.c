@@ -28,8 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
-#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
 
 #include "pipanel.h"
 #include "taskbar.h"
@@ -68,7 +66,6 @@ PangoFontFace *font_face;
 
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
-static void load_obconf_settings (void);
 static void load_lxsession_settings (void);
 static void load_gsettings (void);
 static void load_gtk3_settings (void);
@@ -76,7 +73,6 @@ static void save_lxsession_settings (void);
 static void save_gsettings (void);
 static void save_xsettings (void);
 static void save_environment (void);
-static void save_labwc_to_settings (void);
 static gboolean restore_theme (gpointer data);
 static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr);
@@ -182,65 +178,6 @@ char *lxsession_file (gboolean global)
 char *xsettings_file (gboolean global)
 {
     return g_build_filename (global ? "/etc" : g_get_user_config_dir (), "xsettingsd/xsettingsd.conf", NULL);
-}
-
-char *openbox_file (void)
-{
-    return g_build_filename (g_get_user_config_dir (), "openbox", "rpd-rc.xml", NULL);
-}
-
-char *labwc_file (void)
-{
-    return g_build_filename (g_get_user_config_dir (), "labwc", "rc.xml", NULL);
-}
-
-static void load_obconf_settings (void)
-{
-    char *user_config_file;
-    int val;
-    xmlChar *width;
-
-    xmlDocPtr xDoc;
-    xmlXPathContextPtr xpathCtx;
-    xmlXPathObjectPtr xpathObj;
-    xmlNodePtr node;
-
-    DEFAULT (handle_width);
-
-    user_config_file = openbox_file ();
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-    {
-        g_free (user_config_file);
-        return;
-    }
-
-    // read in data from XML file
-    xmlInitParser ();
-    LIBXML_TEST_VERSION
-    xDoc = xmlParseFile (user_config_file);
-    if (xDoc == NULL)
-    {
-        g_free (user_config_file);
-        return;
-    }
-    xpathCtx = xmlXPathNewContext (xDoc);
-
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
-    node = xpathObj->nodesetval->nodeTab[0];
-    if (node)
-    {
-        width = xmlNodeGetContent (node);
-        if (sscanf ((const char *) width, "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
-        xmlFree (width);
-    }
-    xmlXPathFreeObject (xpathObj);
-
-    // cleanup XML
-    xmlXPathFreeContext (xpathCtx);
-    xmlFreeDoc (xDoc);
-    xmlCleanupParser ();
-
-    g_free (user_config_file);
 }
 
 static void load_lxsession_settings (void)
@@ -676,47 +613,6 @@ void save_session_settings (void)
     }
 }
 
-#define LABWC_THEME_UPDATE(param,value) \
-    if (vsystem ("grep -q %s %s\n", param, user_config_file)) \
-        vsystem ("echo '%s: %s' >> %s", param, value, user_config_file); \
-    else \
-        vsystem ("sed -i s/'%s.*'/'%s: %s'/g %s", param, param, value, user_config_file);
-
-static void save_labwc_to_settings (void)
-{
-    char *user_config_file, *cstrb, *cstrf;
-
-    if (cur_conf.custom_tb) return;
-
-    // construct the file path
-    user_config_file = g_build_filename (g_get_user_config_dir (), "labwc", "themerc-override", NULL);
-    check_directory (user_config_file);
-
-    cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
-    cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
-
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-    {
-        vsystem ("echo 'window.active.title.bg.color: %s' >> %s", cstrb, user_config_file);
-        vsystem ("echo 'window.active.label.text.color: %s' >> %s", cstrf, user_config_file);
-        vsystem ("echo 'window.active.button.unpressed.image.color: %s' >> %s", cstrf, user_config_file);
-
-        g_free (cstrf);
-        g_free (cstrb);
-        g_free (user_config_file);
-        return;
-    }
-
-    // amend entries already in file, or add if not present
-    LABWC_THEME_UPDATE ("window.active.title.bg.color", cstrb);
-    LABWC_THEME_UPDATE ("window.active.label.text.color", cstrf);
-    LABWC_THEME_UPDATE ("window.active.button.unpressed.image.color", cstrf);
-
-    g_free (cstrf);
-    g_free (cstrb);
-    g_free (user_config_file);
-}
-
 void save_greeter_settings (void)
 {
     GKeyFile *kf;
@@ -1115,7 +1011,6 @@ void load_system_tab (GtkBuilder *builder)
 {
     if (wm == WM_OPENBOX) load_lxsession_settings ();
     else load_gsettings ();
-    load_obconf_settings ();
     load_gtk3_settings ();
 
     orig_csize = cur_conf.cursor_size;

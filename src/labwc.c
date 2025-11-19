@@ -53,10 +53,13 @@ static gulong id_icon, id_cust;
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
+static char *openbox_file (void);
+static char *labwc_file (void);
 static void load_labwc_settings (void);
 static void load_labwc_to_settings (void);
 static void get_font (const char *desc, char **font, char **weight, char **style, char **size);
 static void save_labwc_to_settings (void);
+static void set_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, const char *value);
 static void on_labwc_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_labwc_font_set (GtkFontChooser *btn, gpointer ptr);
@@ -70,6 +73,16 @@ static void on_toggle_cust (GtkSwitch *btn, gpointer, gpointer);
 /*----------------------------------------------------------------------------*/
 /* Helpers                                                                    */
 /*----------------------------------------------------------------------------*/
+
+static char *openbox_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "openbox", "rpd-rc.xml", NULL);
+}
+
+static char *labwc_file (void)
+{
+    return g_build_filename (g_get_user_config_dir (), "labwc", "rc.xml", NULL);
+}
 
 /*----------------------------------------------------------------------------*/
 /* Load / save data                                                           */
@@ -201,6 +214,16 @@ static void load_labwc_settings (void)
             }
         }
         xmlXPathFreeObject (xpathObj);
+
+        xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
+        node = xpathObj->nodesetval->nodeTab[0];
+        if (node)
+        {
+            xstr = xmlNodeGetContent (node);
+            if (sscanf ((const char *) xstr, "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
+            xmlFree (xstr);
+        }
+        xmlXPathFreeObject (xpathObj);
     }
 
     // cleanup XML
@@ -241,7 +264,6 @@ static void load_labwc_to_settings (void)
 
     g_free (user_config_file);
 }
-
 
 static void get_font (const char *desc, char **font, char **weight, char **style, char **size)
 {
@@ -303,6 +325,31 @@ static void get_font (const char *desc, char **font, char **weight, char **style
         }
     }
     pango_font_description_free (pfd);
+}
+
+static void set_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, const char *value)
+{
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr cur_node;
+
+    char *path = g_strdup_printf ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='%s']", name);
+
+    xpathObj = xmlXPathEvalExpression (XC (path), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    {
+        xmlXPathFreeObject (xpathObj);
+        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNewChild (cur_node, NULL, XC (name), XC (value));
+    }
+    else
+    {
+        cur_node = xpathObj->nodesetval->nodeTab[0];
+        xmlNodeSetContent (cur_node, XC (value));
+    }
+    xmlXPathFreeObject (xpathObj);
+
+    g_free (path);
 }
 
 void save_wm_settings (void)
@@ -412,20 +459,7 @@ void save_wm_settings (void)
     xmlXPathFreeObject (xpathObj);
 
     cptr = g_strdup_printf ("%s%s", theme_name (cur_conf.darkmode), cur_conf.scrollbar_width >= 17 ? "_l" : "");
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-    {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("name"), XC (cptr));
-    }
-    else
-    {
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, XC (cptr));
-    }
-    xmlXPathFreeObject (xpathObj);
+    set_xml_theme_parameter (xpathCtx, "name", cptr);
     g_free (cptr);
 
     if (wm == WM_LABWC)
@@ -460,71 +494,19 @@ void save_wm_settings (void)
     else
     {
         cptr = g_strdup_printf ("%sLIMC", cur_conf.show_labwc_icon ? "N" : "");
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleLayout']"), xpathCtx);
-        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("titleLayout"), XC (cptr));
-        }
-        else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
-        xmlXPathFreeObject (xpathObj);
+        set_xml_theme_parameter (xpathCtx, "titleLayout", cptr);
         g_free (cptr);
 
         cptr = g_strdup_printf ("%d", cur_conf.handle_width);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']"), xpathCtx);
-        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("invHandleWidth"), XC (cptr));
-        }
-        else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
-        xmlXPathFreeObject (xpathObj);
+        set_xml_theme_parameter (xpathCtx, "invHandleWidth", cptr);
         g_free (cptr);
 
         cptr = rgba_to_gdk_color_string (&cur_conf.title_colour);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']"), xpathCtx);
-        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("titleColor"), XC (cptr));
-        }
-        else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
-        xmlXPathFreeObject (xpathObj);
+        set_xml_theme_parameter (xpathCtx, "titleColor", cptr);
         g_free (cptr);
 
         cptr = rgba_to_gdk_color_string (&cur_conf.titletext_colour);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']"), xpathCtx);
-        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("textColor"), XC (cptr));
-        }
-        else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
-        xmlXPathFreeObject (xpathObj);
+        set_xml_theme_parameter (xpathCtx, "textColor", cptr);
         g_free (cptr);
     }
 
@@ -536,9 +518,6 @@ void save_wm_settings (void)
 
     g_free (user_config_file);
 }
-
-
-
 
 #define LABWC_THEME_UPDATE(param,value) \
     if (vsystem ("grep -q %s %s\n", param, user_config_file)) \
