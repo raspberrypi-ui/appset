@@ -302,7 +302,8 @@ static void init_config (void)
     load_taskbar_tab (builder);
     load_system_tab (builder);
     load_defaults_tab (builder);
-    load_labwc_tab (builder);
+    if (wm == WM_LABWC) load_labwc_tab (builder);
+    else cur_conf.custom_tb = FALSE;
 
     // create session file to be tracked
     init_session (theme_name (cur_conf.darkmode));
