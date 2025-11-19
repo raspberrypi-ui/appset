@@ -300,7 +300,7 @@ static void init_config (void)
     load_taskbar_tab (builder);
     load_system_tab (builder);
     load_defaults_tab (builder);
-    load_labwc_tab (builder);
+    load_wm_tab (builder);
 
     // create session file to be tracked
     init_session (theme_name (cur_conf.darkmode));
@@ -309,7 +309,7 @@ static void init_config (void)
     set_desktop_controls ();
     set_taskbar_controls ();
     set_system_controls ();
-    set_labwc_controls ();
+    set_wm_controls ();
 }
 
 /*----------------------------------------------------------------------------*/

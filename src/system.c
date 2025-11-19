@@ -861,7 +861,7 @@ static void on_theme_colour_set (GtkColorChooser *btn, gpointer ptr)
     if (!cur_conf.custom_tb)
     {
         cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
-        set_labwc_controls ();
+        set_wm_controls ();
     }
 
     save_session_settings ();
@@ -880,7 +880,7 @@ static void on_theme_textcolour_set (GtkColorChooser *btn, gpointer ptr)
     if (!cur_conf.custom_tb)
     {
         cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
-        set_labwc_controls ();
+        set_wm_controls ();
     }
 
     save_session_settings ();
@@ -916,7 +916,7 @@ static void on_theme_font_set (GtkFontChooser *btn, gpointer ptr)
     if (!cur_conf.custom_tb)
     {
         cur_conf.title_font = cur_conf.desktop_font;
-        set_labwc_controls ();
+        set_wm_controls ();
     }
 
     save_session_settings ();
@@ -960,7 +960,7 @@ static void on_theme_dark_set (GtkRadioButton *btn, gpointer ptr)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_hilitetext), &cur_conf.themetext_colour[cur_conf.darkmode]);
     
     set_taskbar_controls ();
-    set_labwc_controls ();
+    set_wm_controls ();
 
     save_session_settings ();
     save_gtk3_settings ();

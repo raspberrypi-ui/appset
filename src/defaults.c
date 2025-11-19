@@ -753,7 +753,7 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     set_desktop_controls ();
     set_taskbar_controls ();
     set_system_controls ();
-    set_labwc_controls ();
+    set_wm_controls ();
 
     // save changes to files if not using medium (the global default)
     if ((long int) ptr != 2)

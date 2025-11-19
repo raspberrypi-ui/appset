@@ -37,8 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 extern void save_wm_settings (void);
-extern void set_labwc_controls (void);
-extern void load_labwc_tab (GtkBuilder *builder);
+extern void set_wm_controls (void);
+extern void load_wm_tab (GtkBuilder *builder);
 
 /* End of file */
 /*----------------------------------------------------------------------------*/

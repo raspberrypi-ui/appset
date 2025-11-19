@@ -58,12 +58,12 @@ static char *labwc_file (void);
 static void get_font (const char *desc, char **font, char **weight, char **style, char **size);
 static void set_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, const char *value);
 static void get_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *name, char **value);
-static void load_labwc_settings (void);
+static void load_wm_settings (void);
 static void load_labwc_to_settings (void);
 static void save_labwc_to_settings (void);
-static void on_labwc_colour_set (GtkColorChooser *btn, gpointer);
-static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer);
-static void on_labwc_font_set (GtkFontChooser *btn, gpointer);
+static void on_wm_colour_set (GtkColorChooser *btn, gpointer);
+static void on_wm_textcolour_set (GtkColorChooser *btn, gpointer);
+static void on_wm_font_set (GtkFontChooser *btn, gpointer);
 static void on_toggle_icon (GtkSwitch *btn, gpointer, gpointer);
 static void on_toggle_cust (GtkSwitch *btn, gpointer, gpointer);
 
@@ -200,7 +200,7 @@ static void get_xml_theme_parameter (xmlXPathContextPtr xpathCtx, const char *na
 /* Load / save data                                                           */
 /*----------------------------------------------------------------------------*/
 
-static void load_labwc_settings (void)
+static void load_wm_settings (void)
 {
     char *user_config_file, *res;
     int val;
@@ -211,10 +211,10 @@ static void load_labwc_settings (void)
     xmlXPathObjectPtr xpathObj;
     xmlNodePtr node, cur;
 
-    DEFAULT (show_labwc_icon);
     cur_conf.title_font = cur_conf.desktop_font;
     cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
     cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
+    DEFAULT (show_labwc_icon);
 
     if (wm == WM_LABWC) user_config_file = labwc_file ();
     else if (wm == WM_OPENBOX) user_config_file = openbox_file ();
@@ -459,19 +459,12 @@ void save_wm_settings (void)
         save_labwc_to_settings ();
 
         cptr = g_strdup_printf ("%s:iconify,max,close", cur_conf.show_labwc_icon ? "icon" : "");
+        set_xml_theme_parameter (xpathCtx, "titlebar", NULL);
         xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']/*[local-name()='layout']"), xpathCtx);
         if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
         {
             xmlXPathFreeObject (xpathObj);
             xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']"), xpathCtx);
-            if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-            {
-                xmlXPathFreeObject (xpathObj);
-                xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-                xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("titlebar"), NULL);
-                xmlXPathFreeObject (xpathObj);
-                xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titlebar']"), xpathCtx);
-            }
             cur_node = xpathObj->nodesetval->nodeTab[0];
             xmlNewChild (cur_node, NULL, XC ("layout"), XC (cptr));
         }
@@ -485,20 +478,20 @@ void save_wm_settings (void)
     }
     else
     {
-        cptr = g_strdup_printf ("%sLIMC", cur_conf.show_labwc_icon ? "N" : "");
-        set_xml_theme_parameter (xpathCtx, "titleLayout", cptr);
-        g_free (cptr);
-
-        cptr = g_strdup_printf ("%d", cur_conf.handle_width);
-        set_xml_theme_parameter (xpathCtx, "invHandleWidth", cptr);
-        g_free (cptr);
-
         cptr = rgba_to_gdk_color_string (&cur_conf.title_colour);
         set_xml_theme_parameter (xpathCtx, "titleColor", cptr);
         g_free (cptr);
 
         cptr = rgba_to_gdk_color_string (&cur_conf.titletext_colour);
         set_xml_theme_parameter (xpathCtx, "textColor", cptr);
+        g_free (cptr);
+
+        cptr = g_strdup_printf ("%sLIMC", cur_conf.show_labwc_icon ? "N" : "");
+        set_xml_theme_parameter (xpathCtx, "titleLayout", cptr);
+        g_free (cptr);
+
+        cptr = g_strdup_printf ("%d", cur_conf.handle_width);
+        set_xml_theme_parameter (xpathCtx, "invHandleWidth", cptr);
         g_free (cptr);
     }
 
@@ -551,7 +544,7 @@ static void save_labwc_to_settings (void)
 /* Set controls to match data                                                 */
 /*----------------------------------------------------------------------------*/
 
-void set_labwc_controls (void)
+void set_wm_controls (void)
 {
     g_signal_handler_block (toggle_icon, id_icon);
     g_signal_handler_block (toggle_cust, id_cust);
@@ -585,7 +578,7 @@ void set_labwc_controls (void)
 /* Control handlers                                                           */
 /*----------------------------------------------------------------------------*/
 
-static void on_labwc_colour_set (GtkColorChooser *btn, gpointer)
+static void on_wm_colour_set (GtkColorChooser *btn, gpointer)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.title_colour);
 
@@ -593,7 +586,7 @@ static void on_labwc_colour_set (GtkColorChooser *btn, gpointer)
     reload_session ();
 }
 
-static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer)
+static void on_wm_textcolour_set (GtkColorChooser *btn, gpointer)
 {
     gtk_color_chooser_get_rgba (btn, &cur_conf.titletext_colour);
 
@@ -601,7 +594,7 @@ static void on_labwc_textcolour_set (GtkColorChooser *btn, gpointer)
     reload_session ();
 }
 
-static void on_labwc_font_set (GtkFontChooser *btn, gpointer)
+static void on_wm_font_set (GtkFontChooser *btn, gpointer)
 {
     const char *font = gtk_font_chooser_get_font (btn);
     if (font) cur_conf.title_font = font;
@@ -632,16 +625,16 @@ static void on_toggle_cust (GtkSwitch *btn, gpointer, gpointer)
         reload_session ();
     }
 
-    set_labwc_controls ();
+    set_wm_controls ();
 }
 
 /*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
 
-void load_labwc_tab (GtkBuilder *builder)
+void load_wm_tab (GtkBuilder *builder)
 {
-    load_labwc_settings ();
+    load_wm_settings ();
 
     cur_conf.custom_tb = FALSE;
 
@@ -656,13 +649,13 @@ void load_labwc_tab (GtkBuilder *builder)
     pango_font_description_free (pfdt);
 
     font_system = (GtkWidget *) gtk_builder_get_object (builder, "fontbutton2");
-    g_signal_connect (font_system, "font-set", G_CALLBACK (on_labwc_font_set), NULL);
+    g_signal_connect (font_system, "font-set", G_CALLBACK (on_wm_font_set), NULL);
 
     colour_hilite = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton7");
-    g_signal_connect (colour_hilite, "color-set", G_CALLBACK (on_labwc_colour_set), NULL);
+    g_signal_connect (colour_hilite, "color-set", G_CALLBACK (on_wm_colour_set), NULL);
 
     colour_hilitetext = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton8");
-    g_signal_connect (colour_hilitetext, "color-set", G_CALLBACK (on_labwc_textcolour_set), NULL);
+    g_signal_connect (colour_hilitetext, "color-set", G_CALLBACK (on_wm_textcolour_set), NULL);
 
     toggle_icon = (GtkWidget *) gtk_builder_get_object (builder, "switch4");
     id_icon = g_signal_connect (toggle_icon, "notify::active", G_CALLBACK (on_toggle_icon), NULL);
