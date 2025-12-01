@@ -287,11 +287,11 @@ static void load_wm_settings (void)
     else if (wm == WM_OPENBOX)
     {
         get_xml_theme_parameter (xpathCtx, "titleColor", &res);
-        if (!gdk_rgba_parse (&cur_conf.title_colour, res)) cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
+        if (!res || !gdk_rgba_parse (&cur_conf.title_colour, res)) cur_conf.title_colour = cur_conf.theme_colour[cur_conf.darkmode];
         g_free (res);
 
         get_xml_theme_parameter (xpathCtx, "textColor", &res);
-        if (!gdk_rgba_parse (&cur_conf.titletext_colour, res)) cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
+        if (!res || !gdk_rgba_parse (&cur_conf.titletext_colour, res)) cur_conf.titletext_colour = cur_conf.themetext_colour[cur_conf.darkmode];
         g_free (res);
 
         get_xml_theme_parameter (xpathCtx, "titleLayout", &res);

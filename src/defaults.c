@@ -406,11 +406,11 @@ static void defaults_wm (void)
     else
     {
         get_xml_theme_parameter (xpathCtx, "titleColor", &res);
-        if (!gdk_rgba_parse (&def_med.title_colour, res)) def_med.title_colour = def_med.theme_colour[cur_conf.darkmode];
+        if (!res || !gdk_rgba_parse (&def_med.title_colour, res)) def_med.title_colour = def_med.theme_colour[cur_conf.darkmode];
         g_free (res);
 
         get_xml_theme_parameter (xpathCtx, "textColor", &res);
-        if (!gdk_rgba_parse (&def_med.titletext_colour, res)) def_med.titletext_colour = def_med.themetext_colour[cur_conf.darkmode];
+        if (!res || !gdk_rgba_parse (&def_med.titletext_colour, res)) def_med.titletext_colour = def_med.themetext_colour[cur_conf.darkmode];
         g_free (res);
 
         get_xml_theme_parameter (xpathCtx, "titleLayout", &res);
