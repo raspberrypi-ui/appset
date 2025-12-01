@@ -800,7 +800,7 @@ int is_dark (void)
     if (wm == WM_OPENBOX)
     {
         char *user_config_file = lxsession_file (FALSE);
-        res = vsystem ("grep sNet/ThemeName %s | grep -q %s", user_config_file, theme_name (DARK));
+        res = vsystem ("grep sNet/ThemeName %s 2> /dev/null | grep -q %s", user_config_file, theme_name (DARK));
         g_free (user_config_file);
     }
     else res = vsystem ("gsettings get org.gnome.desktop.interface gtk-theme | grep -q %s", theme_name (DARK));
