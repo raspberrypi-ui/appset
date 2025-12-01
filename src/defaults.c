@@ -350,7 +350,7 @@ static void defaults_wm (void)
     // read in data from XML file
     xmlInitParser ();
     LIBXML_TEST_VERSION
-    xDoc = xmlParseFile (wm == WM_LABWC ? "/etc/xdg/labwc/rc.xml" : "/etc/xdg/openbox/rc-rpd.xml");
+    xDoc = xmlParseFile (wm == WM_LABWC ? "/etc/xdg/labwc/rc.xml" : "/etc/xdg/openbox/rpd-rc.xml");
     if (xDoc == NULL) return;
 
     xpathCtx = xmlXPathNewContext (xDoc);
