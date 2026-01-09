@@ -1,0 +1,357 @@
+# Brazilian Portuguese translations for pipanel package.
+# Copyright (C) 2025 Raspberry Pi
+# This file is distributed under the same license as the pipanel package.
+# Eduardo Addad de Oliveira <eduardo@addadtech.com.br>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pipanel 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-06 15:30+0100\n"
+"PO-Revision-Date: 2026-01-08 23:03-0300\n"
+"Last-Translator: Eduardo Addad de Oliveira <eduardo@addadtech.com.br>\n"
+"Language-Team: Portuguese (Brazil)\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.8\n"
+
+#: ../src/pipanel.c:314
+msgctxt "tab"
+msgid "Desktop"
+msgstr "Área de Trabalho"
+
+#: ../src/pipanel.c:315
+msgctxt "tab"
+msgid "Taskbar"
+msgstr "Barra de tarefas"
+
+#: ../src/pipanel.c:316
+msgctxt "tab"
+msgid "Theme"
+msgstr "Tema"
+
+#: ../src/pipanel.c:317
+msgctxt "tab"
+msgid "Defaults"
+msgstr "Padrões"
+
+#: ../src/pipanel.c:318
+msgid "No such tab"
+msgstr "Não existe tal guia"
+
+#: ../src/pipanel.c:576 ../src/defaults.c:603 ../src/system.c:1245
+msgid ""
+"The theme for Geany cannot be changed while it is open.\n"
+"Please close it and try again."
+msgstr ""
+"O tema do Geany não pode ser alterado enquanto ele estiver aberto.\n"
+"Feche-o e tente novamente."
+
+#: ../src/pipanel.c:582 ../src/defaults.c:609 ../src/system.c:1255
+msgid ""
+"The theme for Calculator cannot be changed while it is open.\n"
+"Please close it and try again."
+msgstr ""
+"O tema da Calculadora não pode ser alterado enquanto ela estiver aberta.\n"
+"Feche-a e tente novamente."
+
+#: ../src/pipanel.c:586
+msgid "Restoring configuration - please wait..."
+msgstr "Restaurando configuração - por favor espere..."
+
+#: ../src/pipanel.c:663
+msgid "Loading configuration - please wait..."
+msgstr "Carregando configuração - por favor espere..."
+
+#. End of file
+#. ----------------------------------------------------------------------------
+#: ../data/pipanel.ui.h:1
+msgid "Appearance Settings"
+msgstr "Configurações de aparência"
+
+#: ../data/pipanel.ui.h:2
+msgid "Desktop Number"
+msgstr "Número da área de trabalho"
+
+#: ../data/pipanel.ui.h:3
+msgid "Choose the desktop to configure"
+msgstr "Escolha a área de trabalho para configurar"
+
+#: ../data/pipanel.ui.h:4
+msgid "Show identical desktop on second monitor"
+msgstr "Mostrar área de trabalho idêntica no segundo monitor"
+
+#: ../data/pipanel.ui.h:5
+msgid "Check this box to show the same desktop image and icons on both monitors"
+msgstr "Marque esta caixa para mostrar a mesma imagem e ícones da área de trabalho em ambos os monitores"
+
+#: ../data/pipanel.ui.h:6
+msgid "Layout"
+msgstr "Layout"
+
+#: ../data/pipanel.ui.h:7
+msgid "Set how the wallpaper should be fitted to the screen"
+msgstr "Defina como o papel de parede deve ser ajustado à tela"
+
+#: ../data/pipanel.ui.h:8
+msgid "No image"
+msgstr "Sem imagem"
+
+#: ../data/pipanel.ui.h:9
+msgid "Centre image on screen"
+msgstr "Centralizar imagem na tela"
+
+#: ../data/pipanel.ui.h:10
+msgid "Fit image onto screen"
+msgstr "Ajustar imagem à tela"
+
+#: ../data/pipanel.ui.h:11
+msgid "Fill screen with image"
+msgstr "Preencher tela com imagem"
+
+#: ../data/pipanel.ui.h:12
+msgid "Stretch to cover screen"
+msgstr "Estique para cobrir a tela"
+
+#: ../data/pipanel.ui.h:13
+msgid "Tile image"
+msgstr "Imagem do mosaico"
+
+#: ../data/pipanel.ui.h:14
+msgid "Picture"
+msgstr "Foto"
+
+#: ../data/pipanel.ui.h:15
+msgid "Choose image file to use as wallpaper"
+msgstr "Escolha o arquivo de imagem a ser usado como papel de parede"
+
+#: ../data/pipanel.ui.h:16
+msgid "Colour"
+msgstr "Cor"
+
+#: ../data/pipanel.ui.h:17
+msgid "Choose the colour of the desktop background"
+msgstr "Escolha a cor do fundo da área de trabalho"
+
+#: ../data/pipanel.ui.h:18
+msgid "Text Colour"
+msgstr "Cor do texto"
+
+#: ../data/pipanel.ui.h:19
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr "Escolha a cor do texto usado para os rótulos dos ícones da área de trabalho"
+
+#: ../data/pipanel.ui.h:20
+msgid "Desktop Folder"
+msgstr "Pasta da área de trabalho"
+
+#: ../data/pipanel.ui.h:21
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "Selecione a pasta que contém os arquivos a serem exibidos na segunda área de trabalho"
+
+#: ../data/pipanel.ui.h:22
+msgid "Show Documents"
+msgstr "Mostrar documentos"
+
+#: ../data/pipanel.ui.h:23
+msgid "Show the documents folder on the desktop"
+msgstr "Mostra a pasta de documentos na área de trabalho"
+
+#: ../data/pipanel.ui.h:24
+msgid "Show Wastebasket"
+msgstr "Mostrar cesto de lixo"
+
+#: ../data/pipanel.ui.h:25
+msgid "Show the wastebasket on the desktop"
+msgstr "Mostra a lixeira na área de trabalho"
+
+#: ../data/pipanel.ui.h:26
+msgid "Show Mounted Disks"
+msgstr "Mostrar discos montados"
+
+#: ../data/pipanel.ui.h:27
+msgid "Show mounted disks on the desktop"
+msgstr "Mostra discos montados na área de trabalho"
+
+#: ../data/pipanel.ui.h:28
+msgid "Desktop"
+msgstr "Área de trabalho"
+
+#: ../data/pipanel.ui.h:29
+msgid "Size"
+msgstr "Tamanho"
+
+#: ../data/pipanel.ui.h:30
+msgid "Set the size of icons used on the toolbar and menu"
+msgstr "Defina o tamanho dos ícones usados na barra de ferramentas e no menu"
+
+#: ../data/pipanel.ui.h:31
+msgid "Very large (48x48)"
+msgstr "Muito grande (48x48)"
+
+#: ../data/pipanel.ui.h:32
+msgid "Large (32x32)"
+msgstr "Grande (32x32)"
+
+#: ../data/pipanel.ui.h:33
+msgid "Medium (24x24)"
+msgstr "Médio (24x24)"
+
+#: ../data/pipanel.ui.h:34
+msgid "Small (16x16)"
+msgstr "Pequeno (16x16)"
+
+#: ../data/pipanel.ui.h:35
+msgid "Position"
+msgstr "Posição"
+
+#: ../data/pipanel.ui.h:36
+msgid "Top"
+msgstr "Superior"
+
+#: ../data/pipanel.ui.h:37
+msgid "Show the taskbar at the top of the screen"
+msgstr "Mostra a barra de tarefas na parte superior da tela"
+
+#: ../data/pipanel.ui.h:38
+msgid "Bottom"
+msgstr "Inferior"
+
+#: ../data/pipanel.ui.h:39
+msgid "Show the taskbar at the bottom of the screen"
+msgstr "Mostra a barra de tarefas na parte inferior da tela"
+
+#: ../data/pipanel.ui.h:40
+msgid "Choose the colour of the taskbar background"
+msgstr "Escolha a cor do fundo da barra de tarefas"
+
+#: ../data/pipanel.ui.h:41
+msgid "Choose the colour of text used on the taskbar"
+msgstr "Escolha a cor do texto usado na barra de tarefas"
+
+#: ../data/pipanel.ui.h:42
+msgid "Location"
+msgstr "Localização"
+
+#: ../data/pipanel.ui.h:43
+msgid "Choose the screen where the taskbar is shown"
+msgstr "Escolha a tela onde a barra de tarefas é exibida"
+
+#: ../data/pipanel.ui.h:44
+msgid "Menu Bar"
+msgstr "Barra de menu"
+
+#: ../data/pipanel.ui.h:45
+msgid "Font"
+msgstr "Fonte"
+
+#: ../data/pipanel.ui.h:46
+msgid "Choose the font used for labels and menus"
+msgstr "Escolha a fonte usada para rótulos e menus"
+
+#: ../data/pipanel.ui.h:47
+msgid "Highlight Colour"
+msgstr "Cor de destaque"
+
+#: ../data/pipanel.ui.h:48
+msgid "Choose the colour used to highlight active elements"
+msgstr "Escolha a cor usada para destacar os elementos ativos"
+
+#: ../data/pipanel.ui.h:49
+msgid "Highlight Text Colour"
+msgstr "Cor do texto destacado"
+
+#: ../data/pipanel.ui.h:50
+msgid "Choose the colour used for text on active elements"
+msgstr "Escolha a cor usada para o texto nos elementos ativos"
+
+#: ../data/pipanel.ui.h:51
+msgid "Mouse Cursor"
+msgstr "Cursor do mouse"
+
+#: ../data/pipanel.ui.h:52
+msgid "Set the size of the mouse cursor"
+msgstr "Definir o tamanho do cursor do mouse"
+
+#: ../data/pipanel.ui.h:53
+msgid "Large"
+msgstr "Grande"
+
+#: ../data/pipanel.ui.h:54
+msgid "Medium"
+msgstr "Médio"
+
+#: ../data/pipanel.ui.h:55
+msgid "Small"
+msgstr "Pequeno"
+
+#: ../data/pipanel.ui.h:56
+msgid "Theme"
+msgstr "Tema"
+
+#: ../data/pipanel.ui.h:57
+msgid "Light"
+msgstr "Claro"
+
+#: ../data/pipanel.ui.h:58
+msgid "Set the desktop to use light colours"
+msgstr "Configure a área de trabalho para usar cores claras"
+
+#: ../data/pipanel.ui.h:59
+msgid "Dark"
+msgstr "Escuro"
+
+#: ../data/pipanel.ui.h:60
+msgid "Set the desktop to use dark colours"
+msgstr "Configure a área de trabalho para usar cores escuras"
+
+#: ../data/pipanel.ui.h:61
+msgid "New mouse cursor size will take effect at reboot"
+msgstr "O novo tamanho do cursor do mouse entrará em vigor após a reinicialização"
+
+#: ../data/pipanel.ui.h:62
+msgid "System"
+msgstr "Sistema"
+
+#: ../data/pipanel.ui.h:63
+msgid "For large screens:"
+msgstr "Para telas grandes:"
+
+#: ../data/pipanel.ui.h:64
+msgid "Set Defaults"
+msgstr "Definir padrões"
+
+#: ../data/pipanel.ui.h:65
+msgid "Set to default values for high-resolution displays"
+msgstr "Definir valores padrão para monitores de alta resolução"
+
+#: ../data/pipanel.ui.h:66
+msgid "For medium screens:"
+msgstr "Para telas médias:"
+
+#: ../data/pipanel.ui.h:67
+msgid "Set to default values for medium-resolution displays"
+msgstr "Definir valores padrão para monitores de resolução média"
+
+#: ../data/pipanel.ui.h:68
+msgid "For small screens:"
+msgstr "Para tela pequenas:"
+
+#: ../data/pipanel.ui.h:69
+msgid "Set to default values for low-resolution displays"
+msgstr "Definir valores padrão para monitores de baixa resolução"
+
+#: ../data/pipanel.ui.h:70
+msgid "Defaults"
+msgstr "Padrões"
+
+#: ../data/pipanel.ui.h:71
+msgid "_Cancel"
+msgstr "_Cancelar"
+
+#: ../data/pipanel.ui.h:72
+msgid "_OK"
+msgstr "_OK"
