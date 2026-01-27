@@ -1,3 +1,9 @@
+pipanel (1:2.8) trixie; urgency=medium
+
+  * Add Brazilian translation
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 27 Jan 2026 09:57:58 +0000
+
 pipanel (1:2.7) trixie; urgency=medium
 
   * Set taskbar icon colour for labwc
