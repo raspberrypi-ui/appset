@@ -206,9 +206,9 @@ static void defaults_pcman (int desktop)
         g_free (ret);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "*", "show_documents", &err);
-        if (err == NULL && val >= 0 && val <= 1) def_med.desktops[desktop].show_docs = val;
-        else def_med.desktops[desktop].show_docs = 0;
+        val = g_key_file_get_integer (kf, "*", "show_home", &err);
+        if (err == NULL && val >= 0 && val <= 1) def_med.desktops[desktop].show_home = val;
+        else def_med.desktops[desktop].show_home = 0;
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_trash", &err);
@@ -232,7 +232,7 @@ static void defaults_pcman (int desktop)
         def_med.desktops[desktop].desktop_mode = "color";
         gdk_rgba_parse (&def_med.desktops[desktop].desktop_colour, GREY);
         gdk_rgba_parse (&def_med.desktops[desktop].desktoptext_colour, GREY);
-        def_med.desktops[desktop].show_docs = 0;
+        def_med.desktops[desktop].show_home = 0;
         def_med.desktops[desktop].show_trash = 0;
         def_med.desktops[desktop].show_mnts = 0;
         def_med.desktops[desktop].desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);

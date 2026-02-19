@@ -52,7 +52,7 @@ typedef struct {
     const char *desktop_mode;
     GdkRGBA desktop_colour;
     GdkRGBA desktoptext_colour;
-    int show_docs;
+    int show_home;
     int show_trash;
     int show_mnts;
 } DesktopConfig;

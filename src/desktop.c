@@ -42,10 +42,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Controls */
 static GtkWidget *colour_desktop, *colour_desktoptext, *combo_mode, *file_picture;
-static GtkWidget *file_folder, *combo_monitor, *toggle_docs, *toggle_trash, *toggle_mnts, *toggle_same;
+static GtkWidget *file_folder, *combo_monitor, *toggle_home, *toggle_trash, *toggle_mnts, *toggle_same;
 
 /* Handler IDs */
-static gulong id_mode, id_docs, id_trash, id_mnts, id_folder, id_same, id_monitor;
+static gulong id_mode, id_home, id_trash, id_mnts, id_folder, id_same, id_monitor;
 
 /* Currently-selected desktop */
 static int desktop_n;
@@ -64,7 +64,7 @@ static void on_desktop_picture_set (GtkFileChooser *btn, gpointer ptr);
 static void on_desktop_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_desktop_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr);
-static void on_toggle_docs (GtkSwitch *btn, gpointer, gpointer);
+static void on_toggle_home (GtkSwitch *btn, gpointer, gpointer);
 static void on_toggle_trash (GtkSwitch *btn, gpointer, gpointer);
 static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer);
 
@@ -187,9 +187,9 @@ static void load_pcman_settings (int desktop)
         g_free (ret);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "*", "show_documents", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.desktops[desktop].show_docs = val;
-        else DEFAULT (desktops[desktop].show_docs);
+        val = g_key_file_get_integer (kf, "*", "show_home", &err);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.desktops[desktop].show_home = val;
+        else DEFAULT (desktops[desktop].show_home);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "*", "show_trash", &err);
@@ -213,7 +213,7 @@ static void load_pcman_settings (int desktop)
         DEFAULT (desktops[desktop].desktoptext_colour);
         DEFAULT (desktops[desktop].desktop_picture);
         DEFAULT (desktops[desktop].desktop_mode);
-        DEFAULT (desktops[desktop].show_docs);
+        DEFAULT (desktops[desktop].show_home);
         DEFAULT (desktops[desktop].show_trash);
         DEFAULT (desktops[desktop].show_mnts);
         DEFAULT (desktops[desktop].desktop_folder);
@@ -273,7 +273,7 @@ void save_pcman_settings (int desktop)
     g_key_file_set_string (kf, "*", "desktop_font", cur_conf.desktop_font);
     g_key_file_set_string (kf, "*", "wallpaper", cur_conf.desktops[desktop].desktop_picture);
     g_key_file_set_string (kf, "*", "wallpaper_mode", cur_conf.desktops[desktop].desktop_mode);
-    g_key_file_set_integer (kf, "*", "show_documents", cur_conf.desktops[desktop].show_docs);
+    g_key_file_set_integer (kf, "*", "show_home", cur_conf.desktops[desktop].show_home);
     g_key_file_set_integer (kf, "*", "show_trash", cur_conf.desktops[desktop].show_trash);
     g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.desktops[desktop].show_mnts);
     g_key_file_set_string (kf, "*", "folder", cur_conf.desktops[desktop].desktop_folder);
@@ -319,7 +319,7 @@ void set_desktop_controls (void)
     int val;
 
     g_signal_handler_block (combo_mode, id_mode);
-    g_signal_handler_block (toggle_docs, id_docs);
+    g_signal_handler_block (toggle_home, id_home);
     g_signal_handler_block (toggle_trash, id_trash);
     g_signal_handler_block (toggle_mnts, id_mnts);
     g_signal_handler_block (file_folder, id_folder);
@@ -363,7 +363,7 @@ void set_desktop_controls (void)
     }
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktop), &cur_conf.desktops[desktop_n].desktop_colour);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktoptext), &cur_conf.desktops[desktop_n].desktoptext_colour);
-    gtk_switch_set_active (GTK_SWITCH (toggle_docs), cur_conf.desktops[desktop_n].show_docs);
+    gtk_switch_set_active (GTK_SWITCH (toggle_home), cur_conf.desktops[desktop_n].show_home);
     gtk_switch_set_active (GTK_SWITCH (toggle_trash), cur_conf.desktops[desktop_n].show_trash);
     gtk_switch_set_active (GTK_SWITCH (toggle_mnts), cur_conf.desktops[desktop_n].show_mnts);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_folder), cur_conf.desktops[desktop_n].desktop_folder);
@@ -371,7 +371,7 @@ void set_desktop_controls (void)
     g_signal_handler_unblock (toggle_same, id_same);
     g_signal_handler_unblock (combo_monitor, id_monitor);
     g_signal_handler_unblock (combo_mode, id_mode);
-    g_signal_handler_unblock (toggle_docs, id_docs);
+    g_signal_handler_unblock (toggle_home, id_home);
     g_signal_handler_unblock (toggle_trash, id_trash);
     g_signal_handler_unblock (toggle_mnts, id_mnts);
     g_signal_handler_unblock (file_folder, id_folder);
@@ -483,9 +483,9 @@ static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr)
     }
 }
 
-static void on_toggle_docs (GtkSwitch *btn, gpointer, gpointer)
+static void on_toggle_home (GtkSwitch *btn, gpointer, gpointer)
 {
-    cur_conf.desktops[desktop_n].show_docs = gtk_switch_get_active (btn);
+    cur_conf.desktops[desktop_n].show_home = gtk_switch_get_active (btn);
 
     save_pcman_settings (desktop_n);
     reload_desktop ();
@@ -551,8 +551,8 @@ void load_desktop_tab (GtkBuilder *builder)
     combo_mode = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext1");
     id_mode = g_signal_connect (combo_mode, "changed", G_CALLBACK (on_desktop_mode_set), NULL);
 
-    toggle_docs = (GtkWidget *) gtk_builder_get_object (builder, "switch1");
-    id_docs = g_signal_connect (toggle_docs, "notify::active", G_CALLBACK (on_toggle_docs), NULL);
+    toggle_home = (GtkWidget *) gtk_builder_get_object (builder, "switch1");
+    id_home = g_signal_connect (toggle_home, "notify::active", G_CALLBACK (on_toggle_home), NULL);
 
     toggle_trash = (GtkWidget *) gtk_builder_get_object (builder, "switch2");
     id_trash = g_signal_connect (toggle_trash, "notify::active", G_CALLBACK (on_toggle_trash), NULL);
