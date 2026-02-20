@@ -1,3 +1,9 @@
+pipanel (1:2.9) trixie; urgency=medium
+
+  * Offer home folder on desktop instead of documents
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 20 Feb 2026 12:25:36 +0000
+
 pipanel (1:2.8) trixie; urgency=medium
 
   * Add Brazilian translation
