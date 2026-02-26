@@ -193,7 +193,6 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of the desktop background</property>
-                        <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Desktop Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label13"/>
@@ -236,7 +235,6 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
-                        <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Desktop Text Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label14"/>
@@ -761,7 +759,6 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used to highlight active elements</property>
-                        <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Highlight Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label32"/>
@@ -804,7 +801,6 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used for text on active elements</property>
-                        <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Highlight Text Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label33"/>
