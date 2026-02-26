@@ -314,7 +314,7 @@
                       <object class="GtkSwitch" id="switch1">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Show the documents folder on the desktop</property>
+                        <property name="tooltip-text" translatable="yes">Show the current user's home folder on the desktop</property>
                         <accessibility>
                           <relation type="labelled-by" target="label16"/>
                         </accessibility>

@@ -154,8 +154,8 @@ msgid "Show Home Folder"
 msgstr "Show Home Folder:"
 
 #: ../data/pipanel.ui.h:23
-msgid "Show the documents folder on the desktop"
-msgstr "Show the documents folder on the desktop"
+msgid "Show the current user's home folder on the desktop"
+msgstr "Show the current user's home folder on the desktop"
 
 #: ../data/pipanel.ui.h:24
 msgid "Show Wastebasket"
