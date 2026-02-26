@@ -193,6 +193,8 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of the desktop background</property>
+                        <property name="use-alpha">True</property>
+                        <property name="title" translatable="yes">Desktop Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label13"/>
                         </accessibility>
@@ -234,6 +236,8 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
+                        <property name="use-alpha">True</property>
+                        <property name="title" translatable="yes">Desktop Text Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label14"/>
                         </accessibility>
@@ -566,6 +570,8 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of the taskbar background</property>
+                        <property name="use-alpha">True</property>
+                        <property name="title" translatable="yes">Taskbar Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label23"/>
                         </accessibility>
@@ -607,6 +613,8 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of text used on the taskbar</property>
+                        <property name="use-alpha">True</property>
+                        <property name="title" translatable="yes">Taskbar Text Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label24"/>
                         </accessibility>
@@ -753,6 +761,8 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used to highlight active elements</property>
+                        <property name="use-alpha">True</property>
+                        <property name="title" translatable="yes">Highlight Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label32"/>
                         </accessibility>
@@ -794,6 +804,8 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used for text on active elements</property>
+                        <property name="use-alpha">True</property>
+                        <property name="title" translatable="yes">Highlight Text Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label33"/>
                         </accessibility>
