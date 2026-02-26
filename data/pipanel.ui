@@ -759,7 +759,7 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used to highlight active elements</property>
-                        <property name="title" translatable="yes">Highlight Colour</property>
+                        <property name="title" translatable="yes">Theme Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label32"/>
                         </accessibility>
@@ -801,7 +801,7 @@
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used for text on active elements</property>
-                        <property name="title" translatable="yes">Highlight Text Colour</property>
+                        <property name="title" translatable="yes">Theme Text Colour</property>
                         <accessibility>
                           <relation type="labelled-by" target="label33"/>
                         </accessibility>
