@@ -1196,7 +1196,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Show the taskbar at the top of the screen</property>
+                        <property name="tooltip-text" translatable="yes">Show the dock at the top of the screen</property>
                         <property name="active">True</property>
                         <property name="draw-indicator">True</property>
                         <accessibility>
@@ -1215,7 +1215,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Show the taskbar at the bottom of the screen</property>
+                        <property name="tooltip-text" translatable="yes">Show the dock at the bottom of the screen</property>
                         <property name="active">True</property>
                         <property name="draw-indicator">True</property>
                         <property name="group">radiobutton3</property>
@@ -1259,7 +1259,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">Choose the colour of the taskbar background</property>
+                        <property name="tooltip-text" translatable="yes">Choose the colour of the dock background</property>
                         <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Taskbar Colour</property>
                         <accessibility>
@@ -1302,7 +1302,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">Choose the colour of text used on the taskbar</property>
+                        <property name="tooltip-text" translatable="yes">Choose the colour of text used on the dock</property>
                         <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Taskbar Text Colour</property>
                         <accessibility>
