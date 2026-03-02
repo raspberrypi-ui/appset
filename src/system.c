@@ -389,6 +389,32 @@ static void load_gtk3_settings (void)
         }
         g_free (res);
 
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sdock_bg_color\\s)[^;]*' %s 2> /dev/null", user_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.dock_colour[dark], res))
+        {
+            g_free (res);
+            cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sdock_bg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
+            res = get_string (cmdbuf);
+            g_free (cmdbuf);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.dock_colour[dark], res)) DEFAULT (dock_colour[dark]);
+        }
+        g_free (res);
+
+        cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sdock_fg_color\\s)[^;]*' %s 2> /dev/null", user_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&cur_conf.docktext_colour[dark], res))
+        {
+            g_free (res);
+            cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sdock_fg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
+            res = get_string (cmdbuf);
+            g_free (cmdbuf);
+            if (!res[0] || !gdk_rgba_parse (&cur_conf.docktext_colour[dark], res)) DEFAULT (docktext_colour[dark]);
+        }
+        g_free (res);
+
         g_free (user_config_file);
         g_free (sys_config_file);
     }
@@ -714,7 +740,7 @@ static void save_gsettings (void)
 
 void save_gtk3_settings (void)
 {
-    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *link1, *link2, *repl;
+    char *user_config_file, *cstrb, *cstrf, *cstrbb, *cstrbf, *cstrdb, *cstrdf, *link1, *link2, *repl;
     int dark;
 
     // delete old file used to store general overrides
@@ -738,6 +764,8 @@ void save_gtk3_settings (void)
         cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour[dark]);
         cstrbb = rgba_to_gdk_color_string (&cur_conf.bar_colour[dark]);
         cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour[dark]);
+        cstrdb = rgba_to_gdk_color_string (&cur_conf.dock_colour[dark]);
+        cstrdf = rgba_to_gdk_color_string (&cur_conf.docktext_colour[dark]);
 
         // construct the file path
         user_config_file = g_build_filename (g_get_user_data_dir (), "themes", theme_name (dark), "gtk-3.0/gtk.css", NULL);
@@ -750,6 +778,8 @@ void save_gtk3_settings (void)
             vsystem ("echo '@define-color theme_selected_fg_color %s;' >> %s", cstrf, user_config_file);
             vsystem ("echo '@define-color bar_bg_color %s;' >> %s", cstrbb, user_config_file);
             vsystem ("echo '@define-color bar_fg_color %s;' >> %s", cstrbf, user_config_file);
+            vsystem ("echo '@define-color dock_bg_color %s;' >> %s", cstrdb, user_config_file);
+            vsystem ("echo '@define-color dock_fg_color %s;' >> %s", cstrdf, user_config_file);
             vsystem ("echo '\nscrollbar button {\n\tmin-width: %dpx;\n\tmin-height: %dpx;\n}' >> %s", cur_conf.scrollbar_width, cur_conf.scrollbar_width, user_config_file);
             vsystem ("echo '\nscrollbar slider {\n\tmin-width: %dpx;\n\tmin-height: %dpx;\n}' >> %s", cur_conf.scrollbar_width - 6, cur_conf.scrollbar_width - 6, user_config_file);
 
@@ -757,6 +787,8 @@ void save_gtk3_settings (void)
             g_free (cstrb);
             g_free (cstrbf);
             g_free (cstrbb);
+            g_free (cstrdf);
+            g_free (cstrdb);
             g_free (user_config_file);
             return;
         }
@@ -782,10 +814,22 @@ void save_gtk3_settings (void)
         else
             vsystem ("sed -i s/'bar_fg_color .*'/'bar_fg_color %s;'/g %s", cstrbf, user_config_file);
 
+        if (vsystem ("grep -q dock_bg_color %s\n", user_config_file))
+            vsystem ("echo '@define-color dock_bg_color %s;' >> %s", cstrdb, user_config_file);
+        else
+            vsystem ("sed -i s/'dock_bg_color .*'/'dock_bg_color %s;'/g %s", cstrdb, user_config_file);
+
+        if (vsystem ("grep -q dock_fg_color %s\n", user_config_file))
+            vsystem ("echo '@define-color dock_fg_color %s;' >> %s", cstrdf, user_config_file);
+        else
+            vsystem ("sed -i s/'dock_fg_color .*'/'dock_fg_color %s;'/g %s", cstrdf, user_config_file);
+
         g_free (cstrf);
         g_free (cstrb);
         g_free (cstrbf);
         g_free (cstrbb);
+        g_free (cstrdf);
+        g_free (cstrdb);
 
         // check if the scrollbar button entry is in the file - if not, add it...
         repl = g_strdup_printf ("min-width: %dpx;", cur_conf.scrollbar_width);

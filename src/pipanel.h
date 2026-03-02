@@ -65,6 +65,8 @@ typedef struct {
     GdkRGBA themetext_colour[2];
     GdkRGBA bar_colour[2];
     GdkRGBA bartext_colour[2];
+    GdkRGBA dock_colour[2];
+    GdkRGBA docktext_colour[2];
     int icon_size;
     int barpos;
     int folder_size;
@@ -80,6 +82,7 @@ typedef struct {
     int monitor;
     int common_bg;
     int darkmode;
+    int dock_icon_size;
 } Config;
 
 typedef enum {

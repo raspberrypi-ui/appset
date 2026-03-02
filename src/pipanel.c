@@ -339,7 +339,8 @@ void init_plugin (GtkWidget *)
 
 int plugin_tabs (void)
 {
-    return 4;
+    if (wm != WM_OPENBOX) return 5;
+    else return 4;
 }
 
 const char *tab_name (int tab)
@@ -350,6 +351,7 @@ const char *tab_name (int tab)
         case 1 : return C_("tab", "Taskbar");
         case 2 : return C_("tab", "Theme");
         case 3 : return C_("tab", "Defaults");
+        case 4 : return C_("tab", "Dock");
         default : return _("No such tab");
     }
 }
@@ -362,6 +364,7 @@ const char *icon_name (int tab)
         case 1 : return "appset-taskbar";
         case 2 : return "preferences-desktop-theme";
         case 3 : return "applications-utilities";
+        case 4 : return "appset-taskbar";
         default : return NULL;
     }
 }
@@ -394,6 +397,9 @@ GtkWidget *get_tab (int tab)
             break;
         case 3 :
             plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox4");
+            break;
+        case 4 :
+            plugin = (GtkWidget *) gtk_builder_get_object (builder, "vbox5");
             break;
         default :
             plugin = NULL;

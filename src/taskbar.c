@@ -47,10 +47,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Controls */
 static GtkWidget *colour_bar, *colour_bartext, *rb_top, *rb_bottom, *combo_size;
+static GtkWidget *colour_dock, *colour_docktext, *rb_dtop, *rb_dbottom, *combo_docksize;
 static GtkWidget *combo_monitor;
 
 /* Handler IDs */
-static gulong id_size, id_pos, id_monitor;
+static gulong id_size, id_pos, id_monitor, id_dsize, id_dpos;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -66,6 +67,11 @@ static void on_bar_pos_set (GtkRadioButton *btn, gpointer ptr);
 static void on_bar_loc_set (GtkComboBox *cb, gpointer ptr);
 static void on_bar_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_bar_textcolour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_dock_size_set (GtkComboBox *btn, gpointer ptr);
+static void on_dock_colour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_dock_textcolour_set (GtkColorChooser *btn, gpointer ptr);
+static void on_dock_pos_set (GtkRadioButton *btn, gpointer ptr);
+static void sync_pos_rbs (void);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -158,6 +164,11 @@ static void load_wfpanel_settings (void)
         else DEFAULT (icon_size);
 
         err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "dock_icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
+        else DEFAULT (dock_icon_size);
+
+        err = NULL;
         val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
         if (err == NULL) cur_conf.task_width = val;
         else DEFAULT (task_width);
@@ -205,6 +216,10 @@ static void load_wfpanel_settings (void)
         err = NULL;
         val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
         if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "dock_icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
 
         err = NULL;
         val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
@@ -270,6 +285,7 @@ static void save_wfpanel_settings (void)
 
     g_key_file_set_string (kf, "panel", "position", cur_conf.barpos ? "bottom" : "top");
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
+    g_key_file_set_integer (kf, "panel", "dock_icon_size", cur_conf.dock_icon_size - 4);
     g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
 
 #pragma GCC diagnostic push
@@ -303,19 +319,37 @@ void set_taskbar_controls (void)
     int val;
 
     g_signal_handler_block (combo_size, id_size);
+    g_signal_handler_block (combo_docksize, id_dsize);
     g_signal_handler_block (rb_top, id_pos);
+    g_signal_handler_block (rb_dtop, id_dpos);
     g_signal_handler_block (combo_monitor, id_monitor);
 
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bar), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bartext), &cur_conf.bartext_colour[cur_conf.darkmode]);
+
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_dock), &cur_conf.dock_colour[cur_conf.darkmode]);
+    gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_docktext), &cur_conf.docktext_colour[cur_conf.darkmode]);
 
     if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 3);
     else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 2);
     else if (cur_conf.icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 1);
     else gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 0);
 
-    if (cur_conf.barpos) gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_bottom), TRUE);
-    else gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_top), TRUE);
+    if (cur_conf.dock_icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 3);
+    else if (cur_conf.dock_icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 2);
+    else if (cur_conf.dock_icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 1);
+    else gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 0);
+
+    if (cur_conf.barpos)
+    {
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_bottom), TRUE);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dtop), TRUE);
+    }
+    else
+    {
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_top), TRUE);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dbottom), TRUE);
+    }
 
     if (ndesks > 1)
     {
@@ -329,8 +363,10 @@ void set_taskbar_controls (void)
         gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo_monitor), &iter);
     }
 
+    g_signal_handler_unblock (rb_dtop, id_dpos);
     g_signal_handler_unblock (rb_top, id_pos);
     g_signal_handler_unblock (combo_monitor, id_monitor);
+    g_signal_handler_unblock (combo_docksize, id_dsize);
     g_signal_handler_unblock (combo_size, id_size);
 }
 
@@ -367,6 +403,8 @@ static void on_bar_pos_set (GtkRadioButton *btn, gpointer ptr)
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
 
+    sync_pos_rbs ();
+
     save_panel_settings ();
     if (wm != WM_OPENBOX) reload_desktop ();
     reload_panel ();
@@ -400,6 +438,71 @@ static void on_bar_textcolour_set (GtkColorChooser *btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
+static void on_dock_size_set (GtkComboBox *btn, gpointer ptr)
+{
+    gint val = gtk_combo_box_get_active (btn);
+    switch (val)
+    {
+        case 0 :    cur_conf.dock_icon_size = 52;
+                    break;
+        case 1 :    cur_conf.dock_icon_size = 36;
+                    break;
+        case 2 :    cur_conf.dock_icon_size = 28;
+                    break;
+        case 3 :    cur_conf.dock_icon_size = 20;
+                    break;
+    }
+
+    save_panel_settings ();
+    reload_panel ();
+}
+
+static void on_dock_colour_set (GtkColorChooser *btn, gpointer ptr)
+{
+    gtk_color_chooser_get_rgba (btn, &cur_conf.dock_colour[cur_conf.darkmode]);
+    set_theme (theme_name (TEMP));
+    save_gtk3_settings ();
+    reload_theme (FALSE);
+}
+
+static void on_dock_textcolour_set (GtkColorChooser *btn, gpointer ptr)
+{
+    gtk_color_chooser_get_rgba (btn, &cur_conf.docktext_colour[cur_conf.darkmode]);
+    set_theme (theme_name (TEMP));
+    save_gtk3_settings ();
+    reload_theme (FALSE);
+}
+
+static void on_dock_pos_set (GtkRadioButton *btn, gpointer ptr)
+{
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 1;
+    else cur_conf.barpos = 0;
+
+    sync_pos_rbs ();
+
+    save_panel_settings ();
+    if (wm != WM_OPENBOX) reload_desktop ();
+    reload_panel ();
+}
+
+static void sync_pos_rbs (void)
+{
+    g_signal_handler_block (rb_top, id_pos);
+    g_signal_handler_block (rb_dtop, id_dpos);
+    if (cur_conf.barpos)
+    {
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_bottom), TRUE);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dtop), TRUE);
+    }
+    else
+    {
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_top), TRUE);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dbottom), TRUE);
+    }
+    g_signal_handler_unblock (rb_top, id_pos);
+    g_signal_handler_unblock (rb_dtop, id_dpos);
+}
+
 /*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
@@ -415,15 +518,28 @@ void load_taskbar_tab (GtkBuilder *builder)
     colour_bartext = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton4");
     g_signal_connect (colour_bartext, "color-set", G_CALLBACK (on_bar_textcolour_set), NULL);
 
+    colour_dock = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton7");
+    g_signal_connect (colour_dock, "color-set", G_CALLBACK (on_dock_colour_set), NULL);
+
+    colour_docktext = (GtkWidget *) gtk_builder_get_object (builder, "colorbutton8");
+    g_signal_connect (colour_docktext, "color-set", G_CALLBACK (on_dock_textcolour_set), NULL);
+
     rb_top = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton1");
     rb_bottom = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton2");
     id_pos = g_signal_connect (rb_top, "toggled", G_CALLBACK (on_bar_pos_set), NULL);
+
+    rb_dtop = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton3");
+    rb_dbottom = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton4");
+    id_dpos = g_signal_connect (rb_dtop, "toggled", G_CALLBACK (on_dock_pos_set), NULL);
 
     combo_monitor = (GtkWidget *) gtk_builder_get_object (builder, "cb_barmon");
     id_monitor = g_signal_connect (combo_monitor, "changed", G_CALLBACK (on_bar_loc_set), NULL);
 
     combo_size = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext2");
     id_size = g_signal_connect (combo_size, "changed", G_CALLBACK (on_bar_size_set), NULL);
+
+    combo_docksize = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext4");
+    id_dsize = g_signal_connect (combo_docksize, "changed", G_CALLBACK (on_dock_size_set), NULL);
 
     if (ndesks > 1)
     {
