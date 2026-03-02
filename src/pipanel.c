@@ -375,6 +375,7 @@ const char *tab_id (int tab)
     {
         case 0 : return "desktop";
         case 1 : return "taskbar";
+        case 4 : return "dock";
         default : return NULL;
     }
 }
