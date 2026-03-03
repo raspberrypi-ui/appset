@@ -286,6 +286,7 @@ static void save_wfpanel_settings (void)
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
     g_key_file_set_integer (kf, "panel", "dock_icon_size", cur_conf.dock_icon_size - 4);
     g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
+    g_key_file_set_integer (kf, "panel", "tlist_max_width", cur_conf.task_width);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
