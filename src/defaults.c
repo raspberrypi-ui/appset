@@ -127,6 +127,69 @@ static void defaults_lxpanel (void)
     g_free (user_config_file);
 }
 
+static void defaults_wfpanel (void)
+{
+    char *user_config_file, *ret;
+    GKeyFile *kf;
+    GError *err;
+    gint val;
+
+    // read in data from file to a key file
+    user_config_file = wfpanel_file (TRUE);
+    kf = g_key_file_new ();
+    if (g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL))
+    {
+        // get data from the key file
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "position", &err);
+        if (err == NULL && ret && !strcmp (ret, "bottom")) def_med.barpos = 1;
+        else def_med.barpos = 0;
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) def_med.icon_size = val + 4;
+        else def_med.icon_size = 36;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "dock_icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) def_med.dock_icon_size = val + 4;
+        else def_med.dock_icon_size = 52;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        if (err == NULL) def_med.task_width = val;
+        else def_med.task_width = 200;
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "monitor", &err);
+        DEFAULT (monitor);
+        if (err == NULL && ret)
+        {
+            for (val = 0; val < ndesks; val++)
+            {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
+#pragma GCC diagnostic pop
+                if (!g_strcmp0 (buf, ret)) def_med.monitor = val;
+                else def_med.monitor = 0;
+                g_free (buf);
+            }
+        }
+    }
+    else
+    {
+        def_med.barpos = 0;
+        def_med.icon_size = 36;
+        def_med.dock_icon_size = 52;
+        def_med.monitor = 0;
+        def_med.task_width = 200;
+    }
+    g_key_file_free (kf);
+    g_free (user_config_file);
+}
+
 static void defaults_lxsession (void)
 {
     char *user_config_file, *ret;
@@ -544,7 +607,8 @@ void create_defaults (void)
     // defaults for controls
 
     // /etc/xdg/lxpanel-pi/panels/panel
-    defaults_lxpanel ();
+    if (wm == WM_OPENBOX) defaults_lxpanel ();
+    else defaults_wfpanel ();
 
     // /etc/xdg/lxsession/LXDE-pi/desktop.conf
     defaults_lxsession ();
