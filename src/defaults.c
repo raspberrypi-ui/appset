@@ -778,6 +778,7 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
 
     g_key_file_set_string (kf, "panel", "widgets_left", "");
     g_key_file_set_string (kf, "panel", "dock_widgets", "nmenu spacing0 launchers spacing0 tlist");
+    g_key_file_set_string (kf, "panel", "layer", "background");
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
