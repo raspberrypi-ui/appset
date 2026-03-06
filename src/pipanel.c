@@ -167,6 +167,15 @@ char *rgba_to_gdk_color_string (GdkRGBA *col)
     r = col->red * 255;
     g = col->green * 255;
     b = col->blue * 255;
+    return g_strdup_printf ("#%02X%02X%02X", r, g, b);
+}
+
+char *rgba_alpha_to_gdk_color_string (GdkRGBA *col)
+{
+    int r, g, b;
+    r = col->red * 255;
+    g = col->green * 255;
+    b = col->blue * 255;
     return g_strdup_printf ("rgba(%d,%d,%d,%.2f)", r, g, b, col->alpha);
 }
 

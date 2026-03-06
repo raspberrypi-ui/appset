@@ -109,6 +109,7 @@ extern int vsystem (const char *fmt, ...);
 extern char *get_string (char *cmd);
 extern char *get_quoted_string (char *cmd);
 extern char *rgba_to_gdk_color_string (GdkRGBA *col);
+extern char *rgba_alpha_to_gdk_color_string (GdkRGBA *col);
 extern void check_directory (const char *path);
 extern void message (char *msg, gboolean ok);
 extern const char *theme_name (int dark);

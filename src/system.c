@@ -760,12 +760,12 @@ void save_gtk3_settings (void)
 
     for (dark = 0; dark < 2; dark++)
     {
-        cstrb = rgba_to_gdk_color_string (&cur_conf.theme_colour[dark]);
-        cstrf = rgba_to_gdk_color_string (&cur_conf.themetext_colour[dark]);
-        cstrbb = rgba_to_gdk_color_string (&cur_conf.bar_colour[dark]);
-        cstrbf = rgba_to_gdk_color_string (&cur_conf.bartext_colour[dark]);
-        cstrdb = rgba_to_gdk_color_string (&cur_conf.dock_colour[dark]);
-        cstrdf = rgba_to_gdk_color_string (&cur_conf.docktext_colour[dark]);
+        cstrb = rgba_alpha_to_gdk_color_string (&cur_conf.theme_colour[dark]);
+        cstrf = rgba_alpha_to_gdk_color_string (&cur_conf.themetext_colour[dark]);
+        cstrbb = rgba_alpha_to_gdk_color_string (&cur_conf.bar_colour[dark]);
+        cstrbf = rgba_alpha_to_gdk_color_string (&cur_conf.bartext_colour[dark]);
+        cstrdb = rgba_alpha_to_gdk_color_string (&cur_conf.dock_colour[dark]);
+        cstrdf = rgba_alpha_to_gdk_color_string (&cur_conf.docktext_colour[dark]);
 
         // construct the file path
         user_config_file = g_build_filename (g_get_user_data_dir (), "themes", theme_name (dark), "gtk-3.0/gtk.css", NULL);
