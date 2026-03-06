@@ -68,7 +68,6 @@ PangoFontFace *font_face;
 static void set_config_param (const char *file, const char *section, const char *tag, const char *value);
 static void add_or_amend (const char *conffile, const char *block, const char *param, const char *repl);
 static char *openbox_file (void);
-static char *labwc_file (void);
 static void load_obconf_settings (void);
 static void load_lxsession_settings (void);
 static void load_gsettings (void);
@@ -186,12 +185,12 @@ char *xsettings_file (gboolean global)
     return g_build_filename (global ? "/etc" : g_get_user_config_dir (), "xsettingsd/xsettingsd.conf", NULL);
 }
 
-char *openbox_file (void)
+static char *openbox_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "openbox", "rpd-rc.xml", NULL);
 }
 
-static char *labwc_file (void)
+char *labwc_file (void)
 {
     return g_build_filename (g_get_user_config_dir (), "labwc", "rc.xml", NULL);
 }

@@ -817,6 +817,75 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     set_theme (theme_name (TEMP));
     save_gtk3_settings ();
     reload_theme (FALSE);
+
+    // set the new menu shortcut
+    int count;
+
+    xmlDocPtr xDoc;
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlNodePtr root, cur_node, node;
+
+    user_config_file = labwc_file ();
+    check_directory (user_config_file);
+
+    // read in data from XML file
+    xmlInitParser ();
+    LIBXML_TEST_VERSION
+    if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        xDoc = xmlParseFile (user_config_file);
+        if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    }
+    else xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    xpathCtx = xmlXPathNewContext (xDoc);
+
+    // check that the config and keyboard nodes exist in the document - create them if not
+    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    {
+        root = xmlNewNode (NULL, XC ("openbox_config"));
+        xmlDocSetRootElement (xDoc, root);
+        xmlNewNs (root, XC ("http://openbox.org/3.4/rc"), NULL);
+        xmlXPathRegisterNs (xpathCtx, XC ("openbox_config"), XC ("http://openbox.org/3.4/rc"));
+    }
+    else root = xpathObj->nodesetval->nodeTab[0];
+    xmlXPathFreeObject (xpathObj);
+
+    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='keyboard']"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval)) xmlNewChild (root, NULL, XC ("keyboard"), NULL);
+    xmlXPathFreeObject (xpathObj);
+
+    // update relevant nodes with new values
+    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='keyboard']/*[local-name()='keybind']"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    {
+        xmlXPathFreeObject (xpathObj);
+        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='keyboard']"), xpathCtx);
+        cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("keybind"), NULL);
+        xmlSetProp (cur_node, XC ("key"), XC ("Super_L"));
+        xmlSetProp (cur_node, XC ("onRelease"), XC ("yes"));
+        node = xmlNewChild (cur_node, NULL, XC ("action"), NULL);
+        xmlSetProp (node, XC ("name"), XC ("Execute"));
+        xmlNewChild (node, NULL, XC ("command"), XC ("wfpanelctl nmenu menu"));
+    }
+    else
+    {
+        for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
+        {
+            node = xpathObj->nodesetval->nodeTab[count];
+            // do some stuff here to update the existing node...
+        }
+    }
+    xmlXPathFreeObject (xpathObj);
+
+    // cleanup XML
+    xmlXPathFreeContext (xpathCtx);
+    xmlSaveFile (user_config_file, xDoc);
+    xmlFreeDoc (xDoc);
+    xmlCleanupParser ();
+
+    g_free (user_config_file);
 }
 
 /*----------------------------------------------------------------------------*/
