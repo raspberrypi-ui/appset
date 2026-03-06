@@ -1102,6 +1102,48 @@
                     <property name="position">2</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkBox" id="hbox44">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="label44">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">For Dock:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="defs_dock">
+                        <property name="label" translatable="yes">Set Defaults</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Set to default values for desktop with dock</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label44"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="position">4</property>
@@ -1487,6 +1529,7 @@
       <widget name="defs_lg"/>
       <widget name="defs_med"/>
       <widget name="defs_sml"/>
+      <widget name="defs_dock"/>
       <widget name="colorbutton7"/>
       <widget name="colorbutton8"/>
       <widget name="comboboxtext4"/>

@@ -341,28 +341,40 @@ static void defaults_gtk3 (void)
     {
         sys_config_file = g_build_filename ("/usr/share/themes", theme_name (dark), "gtk-3.0/!(*-dark).css", NULL);
 
-        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.theme_colour[dark], res)) gdk_rgba_parse (&def_med.theme_colour[dark], GREY);
         g_free (res);
 
-        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\stheme_selected_fg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.themetext_colour[dark], res)) gdk_rgba_parse (&def_med.themetext_colour[dark], GREY);
         g_free (res);
 
-        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_bg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_bg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[dark], res)) gdk_rgba_parse (&def_med.bar_colour[dark], GREY);
         g_free (res);
 
-        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_fg_color\\s)#[0-9A-Fa-f]{6}' %s 2> /dev/null\"", sys_config_file);
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sbar_fg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
         if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[dark], res)) gdk_rgba_parse (&def_med.bartext_colour[dark], GREY);
+        g_free (res);
+
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sdock_bg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[dark], res)) gdk_rgba_parse (&def_med.dock_colour[dark], GREY);
+        g_free (res);
+
+        cmdbuf = g_strdup_printf ("bash -O extglob -c \"grep -hPo '(?<=@define-color\\sdock_fg_color\\s)[^;]*' %s 2> /dev/null\"", sys_config_file);
+        res = get_string (cmdbuf);
+        g_free (cmdbuf);
+        if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[dark], res)) gdk_rgba_parse (&def_med.docktext_colour[dark], GREY);
         g_free (res);
 
         g_free (sys_config_file);
@@ -747,6 +759,66 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
+static void on_set_dock (GtkButton *btn, gpointer ptr)
+{
+    // start with the medium defaults
+    on_set_defaults (NULL, (void *) 2);
+
+    // add the dock to wf-panel-pi.ini
+    char *user_config_file, *str;
+    GKeyFile *kf;
+    gsize len;
+
+    user_config_file = wfpanel_file (FALSE);
+    check_directory (user_config_file);
+
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_string (kf, "panel", "widgets_left", "");
+    g_key_file_set_string (kf, "panel", "dock_widgets", "nmenu spacing0 launchers spacing0 tlist");
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+    g_free (str);
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
+
+    // set the desktop
+    int desktop = 0;
+    user_config_file = pcmanfm_file (FALSE, desktop, TRUE);
+    check_directory (user_config_file);
+
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    cur_conf.desktops[desktop].desktop_picture = g_strdup ("/usr/share/rpd-wallpaper/shadows.jpg");
+    cur_conf.desktops[desktop].show_home = FALSE;
+    cur_conf.desktops[desktop].show_trash = FALSE;
+    cur_conf.desktops[desktop].show_mnts = FALSE;
+    g_key_file_set_string (kf, "*", "wallpaper", cur_conf.desktops[desktop].desktop_picture);
+    g_key_file_set_integer (kf, "*", "show_home", cur_conf.desktops[desktop].show_home);
+    g_key_file_set_integer (kf, "*", "show_trash", cur_conf.desktops[desktop].show_trash);
+    g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.desktops[desktop].show_mnts);
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+    g_free (str);
+
+    g_key_file_free (kf);
+    g_free (user_config_file);
+
+    reload_desktop ();
+
+    // set the theme colours
+    int dark = 0;
+    gdk_rgba_parse (&cur_conf.bar_colour[dark], "rgba(0,0,0,0)");
+    set_theme (theme_name (TEMP));
+    save_gtk3_settings ();
+    reload_theme (FALSE);
+}
+
 /*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
@@ -763,6 +835,9 @@ void load_defaults_tab (GtkBuilder *builder)
 
     item = gtk_builder_get_object (builder, "defs_sml");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 1);
+
+    item = gtk_builder_get_object (builder, "defs_dock");
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_dock), NULL);
 }
 
 /* End of file */
