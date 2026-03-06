@@ -608,6 +608,7 @@ static void reset_to_defaults (void)
     delete_file (".config/qt6ct/qt6ct.conf");
     delete_file (".config/xsettingsd/xsettingsd.conf");
     delete_file (".config/labwc/themerc-override");
+    delete_file (".config/labwc/rc.xml");
     delete_file (".gtkrc-2.0");
 
     init_session (theme_name (TEMP));
