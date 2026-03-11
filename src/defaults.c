@@ -779,7 +779,9 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     g_key_file_set_string (kf, "panel", "widgets_left", "");
     g_key_file_set_string (kf, "panel", "dock_widgets", "nmenu spacing0 launchers spacing0 tlist");
     g_key_file_set_string (kf, "panel", "layer", "background");
-
+    g_key_file_set_string (kf, "panel", "layer", "background");
+    g_key_file_set_string (kf, "panel", "nmenu_overlay_text_col", "rgb(255,255,255)");
+    g_key_file_set_string (kf, "panel", "nmenu_overlay_col", "rgba(0,0,0,0.0)");
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
     g_free (str);
@@ -795,11 +797,13 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    cur_conf.desktops[desktop].desktop_picture = g_strdup ("/usr/share/rpd-wallpaper/shadows.jpg");
+    cur_conf.desktops[desktop].desktop_picture = g_strdup ("/usr/share/rpd-wallpaper/turbines.jpg");
     cur_conf.desktops[desktop].show_home = FALSE;
     cur_conf.desktops[desktop].show_trash = FALSE;
     cur_conf.desktops[desktop].show_mnts = FALSE;
+    cur_conf.desktops[desktop].desktop_mode = "stretch";
     g_key_file_set_string (kf, "*", "wallpaper", cur_conf.desktops[desktop].desktop_picture);
+    g_key_file_set_string (kf, "*", "wallpaper_mode", cur_conf.desktops[desktop].desktop_mode);
     g_key_file_set_integer (kf, "*", "show_home", cur_conf.desktops[desktop].show_home);
     g_key_file_set_integer (kf, "*", "show_trash", cur_conf.desktops[desktop].show_trash);
     g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.desktops[desktop].show_mnts);
