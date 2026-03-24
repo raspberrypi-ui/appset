@@ -1,3 +1,9 @@
+pipanel (1:2.10) trixie; urgency=medium
+
+  * Tweak switches
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 24 Mar 2026 15:03:42 +0000
+
 pipanel (1:2.9) trixie; urgency=medium
 
   * Offer home folder on desktop instead of documents
