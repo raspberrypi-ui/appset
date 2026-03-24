@@ -311,13 +311,25 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="switch1">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Show the current user's home folder on the desktop</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label16"/>
-                        </accessibility>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkSwitch" id="switch1">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="tooltip-text" translatable="yes">Show the current user's home folder on the desktop</property>
+                            <accessibility>
+                              <relation type="labelled-by" target="label16"/>
+                            </accessibility>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -351,13 +363,25 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="switch2">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Show the wastebasket on the desktop</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label17"/>
-                        </accessibility>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkSwitch" id="switch2">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="tooltip-text" translatable="yes">Show the wastebasket on the desktop</property>
+                            <accessibility>
+                              <relation type="labelled-by" target="label17"/>
+                            </accessibility>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -391,13 +415,25 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="switch3">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Show mounted disks on the desktop</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label18"/>
-                        </accessibility>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkSwitch" id="switch3">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="tooltip-text" translatable="yes">Show mounted disks on the desktop</property>
+                            <accessibility>
+                              <relation type="labelled-by" target="label18"/>
+                            </accessibility>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
