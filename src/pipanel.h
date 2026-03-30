@@ -69,6 +69,7 @@ typedef struct {
     GdkRGBA docktext_colour[2];
     int icon_size;
     int barpos;
+    int dockpos;
     int folder_size;
     int thumb_size;
     int pane_size;
@@ -80,6 +81,7 @@ typedef struct {
     int handle_width;
     int scrollbar_width;
     int monitor;
+    int dmonitor;
     int common_bg;
     int darkmode;
     int dock_icon_size;

@@ -1559,6 +1559,7 @@
       <widget name="colorbutton3"/>
       <widget name="colorbutton4"/>
       <widget name="cb_barmon"/>
+      <widget name="cb_dockmon"/>
       <widget name="fontbutton1"/>
       <widget name="colorbutton1"/>
       <widget name="colorbutton5"/>

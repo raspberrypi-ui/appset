@@ -48,10 +48,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Controls */
 static GtkWidget *colour_bar, *colour_bartext, *rb_top, *rb_bottom, *combo_size;
 static GtkWidget *colour_dock, *colour_docktext, *rb_dtop, *rb_dbottom, *combo_docksize;
-static GtkWidget *combo_monitor;
+static GtkWidget *combo_monitor, *combo_dmonitor;
 
 /* Handler IDs */
-static gulong id_size, id_pos, id_monitor, id_dsize, id_dpos;
+static gulong id_size, id_pos, id_monitor, id_dsize, id_dpos, id_dmonitor;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -70,7 +70,7 @@ static void on_dock_size_set (GtkComboBox *btn, gpointer ptr);
 static void on_dock_colour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_dock_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_dock_pos_set (GtkRadioButton *btn, gpointer ptr);
-static void sync_pos_rbs (void);
+static void on_dock_loc_set (GtkComboBox *cb, gpointer ptr);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -173,6 +173,12 @@ static void load_wfpanel_settings (void)
         else DEFAULT (task_width);
 
         err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_position", &err);
+        if (err == NULL && ret && !strcmp (ret, "top")) cur_conf.dockpos = 0;
+        else DEFAULT (dockpos);
+        g_free (ret);
+
+        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "monitor", &err);
         DEFAULT (monitor);
         if (err == NULL && ret)
@@ -187,6 +193,22 @@ static void load_wfpanel_settings (void)
                 g_free (buf);
             }
         }
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_monitor", &err);
+        DEFAULT (dmonitor);
+        if (err == NULL && ret)
+        {
+            for (val = 0; val < ndesks; val++)
+            {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
+#pragma GCC diagnostic pop
+                if (!g_strcmp0 (buf, ret)) cur_conf.dmonitor = val;
+                g_free (buf);
+            }
+        }
     }
     else
     {
@@ -194,6 +216,8 @@ static void load_wfpanel_settings (void)
         DEFAULT (icon_size);
         DEFAULT (task_width);
         DEFAULT (monitor);
+        DEFAULT (dockpos);
+        DEFAULT (dmonitor);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -225,6 +249,15 @@ static void load_wfpanel_settings (void)
         if (err == NULL) cur_conf.task_width = val;
 
         err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_position", &err);
+        if (err == NULL && ret)
+        {
+            if (!strcmp (ret, "bottom")) cur_conf.dockpos = 1;
+            else cur_conf.dockpos = 0;
+        }
+         g_free (ret);
+
+        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "monitor", &err);
         if (err == NULL && ret)
         {
@@ -235,6 +268,21 @@ static void load_wfpanel_settings (void)
                 char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
 #pragma GCC diagnostic pop
                 if (!g_strcmp0 (buf, ret)) cur_conf.monitor = val;
+                g_free (buf);
+            }
+        }
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_monitor", &err);
+        if (err == NULL && ret)
+        {
+            for (val = 0; val < ndesks; val++)
+            {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
+#pragma GCC diagnostic pop
+                if (!g_strcmp0 (buf, ret)) cur_conf.dmonitor = val;
                 g_free (buf);
             }
         }
@@ -271,7 +319,7 @@ static void save_lxpanel_settings (void)
 
 static void save_wfpanel_settings (void)
 {
-    char *user_config_file, *str;
+    char *user_config_file, *str, *buf;
     GKeyFile *kf;
     gsize len;
 
@@ -287,12 +335,20 @@ static void save_wfpanel_settings (void)
     g_key_file_set_integer (kf, "panel", "dock_icon_size", cur_conf.dock_icon_size - 4);
     g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
     g_key_file_set_integer (kf, "panel", "tlist_max_width", cur_conf.task_width);
+    g_key_file_set_string (kf, "panel", "dock_position", cur_conf.dockpos ? "bottom" : "top");
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), cur_conf.monitor);
+    buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), cur_conf.monitor);
 #pragma GCC diagnostic pop
     g_key_file_set_string (kf, "panel", "monitor", buf);
+    g_free (buf);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), cur_conf.dmonitor);
+#pragma GCC diagnostic pop
+    g_key_file_set_string (kf, "panel", "dock_monitor", buf);
     g_free (buf);
 
     str = g_key_file_to_data (kf, &len, NULL);
@@ -323,6 +379,7 @@ void set_taskbar_controls (void)
     g_signal_handler_block (rb_top, id_pos);
     g_signal_handler_block (rb_dtop, id_dpos);
     g_signal_handler_block (combo_monitor, id_monitor);
+    g_signal_handler_block (combo_dmonitor, id_dmonitor);
 
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bar), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bartext), &cur_conf.bartext_colour[cur_conf.darkmode]);
@@ -341,15 +398,14 @@ void set_taskbar_controls (void)
     else gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 0);
 
     if (cur_conf.barpos)
-    {
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_bottom), TRUE);
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dtop), TRUE);
-    }
     else
-    {
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_top), TRUE);
+
+    if (cur_conf.dockpos)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dbottom), TRUE);
-    }
+    else
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dtop), TRUE);
 
     if (ndesks > 1)
     {
@@ -361,10 +417,20 @@ void set_taskbar_controls (void)
             gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
         }
         gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo_monitor), &iter);
+
+        gtk_tree_model_get_iter_first (GTK_TREE_MODEL (sortmons), &iter);
+        gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+        while (val != cur_conf.dmonitor)
+        {
+            gtk_tree_model_iter_next (GTK_TREE_MODEL (sortmons), &iter);
+            gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &val, -1);
+        }
+        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo_dmonitor), &iter);
     }
 
     g_signal_handler_unblock (rb_dtop, id_dpos);
     g_signal_handler_unblock (rb_top, id_pos);
+    g_signal_handler_unblock (combo_dmonitor, id_dmonitor);
     g_signal_handler_unblock (combo_monitor, id_monitor);
     g_signal_handler_unblock (combo_docksize, id_dsize);
     g_signal_handler_unblock (combo_size, id_size);
@@ -402,8 +468,6 @@ static void on_bar_pos_set (GtkRadioButton *btn, gpointer ptr)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 0;
     else cur_conf.barpos = 1;
-
-    sync_pos_rbs ();
 
     save_panel_settings ();
     if (wm != WM_OPENBOX) reload_desktop ();
@@ -475,32 +539,24 @@ static void on_dock_textcolour_set (GtkColorChooser *btn, gpointer ptr)
 
 static void on_dock_pos_set (GtkRadioButton *btn, gpointer ptr)
 {
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.barpos = 1;
-    else cur_conf.barpos = 0;
-
-    sync_pos_rbs ();
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) cur_conf.dockpos = 0;
+    else cur_conf.dockpos = 1;
 
     save_panel_settings ();
     if (wm != WM_OPENBOX) reload_desktop ();
     reload_panel ();
 }
 
-static void sync_pos_rbs (void)
+static void on_dock_loc_set (GtkComboBox *cb, gpointer ptr)
 {
-    g_signal_handler_block (rb_top, id_pos);
-    g_signal_handler_block (rb_dtop, id_dpos);
-    if (cur_conf.barpos)
-    {
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_bottom), TRUE);
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dtop), TRUE);
-    }
-    else
-    {
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_top), TRUE);
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dbottom), TRUE);
-    }
-    g_signal_handler_unblock (rb_top, id_pos);
-    g_signal_handler_unblock (rb_dtop, id_dpos);
+    GtkTreeIter iter;
+
+    gtk_combo_box_get_active_iter (cb, &iter);
+    gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &cur_conf.dmonitor, -1);
+
+    save_panel_settings ();
+    if (wm != WM_OPENBOX) reload_desktop ();
+    reload_panel ();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -535,6 +591,9 @@ void load_taskbar_tab (GtkBuilder *builder)
     combo_monitor = (GtkWidget *) gtk_builder_get_object (builder, "cb_barmon");
     id_monitor = g_signal_connect (combo_monitor, "changed", G_CALLBACK (on_bar_loc_set), NULL);
 
+    combo_dmonitor = (GtkWidget *) gtk_builder_get_object (builder, "cb_dockmon");
+    id_dmonitor = g_signal_connect (combo_dmonitor, "changed", G_CALLBACK (on_dock_loc_set), NULL);
+
     combo_size = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext2");
     id_size = g_signal_connect (combo_size, "changed", G_CALLBACK (on_bar_size_set), NULL);
 
@@ -549,11 +608,17 @@ void load_taskbar_tab (GtkBuilder *builder)
         gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo_monitor), rend, "text", 1);
         gtk_combo_box_set_model (GTK_COMBO_BOX (combo_monitor), GTK_TREE_MODEL (sortmons));
 
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo_dmonitor), rend, FALSE);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo_dmonitor), rend, "text", 1);
+        gtk_combo_box_set_model (GTK_COMBO_BOX (combo_dmonitor), GTK_TREE_MODEL (sortmons));
+
         gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
+        gtk_widget_show_all (GTK_WIDGET (gtk_builder_get_object (builder, "hbox55")));
     }
     else
     {
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox25")));
+        gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox55")));
     }
 }
 

@@ -129,7 +129,7 @@ static void defaults_lxpanel (void)
 
 static void defaults_wfpanel (void)
 {
-    char *user_config_file, *ret;
+    char *user_config_file, *ret, *buf;
     GKeyFile *kf;
     GError *err;
     gint val;
@@ -162,6 +162,12 @@ static void defaults_wfpanel (void)
         else def_med.task_width = 200;
 
         err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_position", &err);
+        if (err == NULL && ret && !strcmp (ret, "top")) def_med.dockpos = 0;
+        else def_med.dockpos = 1;
+        g_free (ret);
+
+        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "monitor", &err);
         DEFAULT (monitor);
         if (err == NULL && ret)
@@ -170,10 +176,27 @@ static void defaults_wfpanel (void)
             {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-                char *buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
+                buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
 #pragma GCC diagnostic pop
                 if (!g_strcmp0 (buf, ret)) def_med.monitor = val;
                 else def_med.monitor = 0;
+                g_free (buf);
+            }
+        }
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_monitor", &err);
+        DEFAULT (dmonitor);
+        if (err == NULL && ret)
+        {
+            for (val = 0; val < ndesks; val++)
+            {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+                buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), val);
+#pragma GCC diagnostic pop
+                if (!g_strcmp0 (buf, ret)) def_med.dmonitor = val;
+                else def_med.dmonitor = 0;
                 g_free (buf);
             }
         }
@@ -184,6 +207,8 @@ static void defaults_wfpanel (void)
         def_med.icon_size = 36;
         def_med.dock_icon_size = 52;
         def_med.monitor = 0;
+        def_med.dockpos = 1;
+        def_med.dmonitor = 0;
         def_med.task_width = 200;
     }
     g_key_file_free (kf);
@@ -777,7 +802,7 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_string (kf, "panel", "widgets_left", "");
-    g_key_file_set_string (kf, "panel", "dock_widgets", "nmenu spacing0 launchers spacing0 tlist");
+    g_key_file_set_string (kf, "panel", "dock_widgets", "nmenu spacing0 tlist");
     g_key_file_set_string (kf, "panel", "layer", "bottom");
     g_key_file_set_string (kf, "panel", "nmenu_overlay_text_col", "rgb(255,255,255)");
     g_key_file_set_string (kf, "panel", "nmenu_overlay_col", "rgba(0,0,0,0)");
