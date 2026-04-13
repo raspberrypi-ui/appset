@@ -334,7 +334,7 @@ static void load_gtk3_settings (void)
     for (dark = 0; dark < 2; dark++)
     {
         sys_config_file = g_build_filename ("/usr/share/themes", theme_name (dark), "gtk-3.0", "gtk-colours.css", NULL);
-        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", theme_name (dark), "gtk-3.0", "gtk-colours.css", NULL);
+        user_config_file = g_build_filename (g_get_user_data_dir (), "themes", theme_name (dark), "gtk-3.0", "gtk.css", NULL);
 
         cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\stheme_selected_bg_color\\s)[^;]*' %s 2> /dev/null", user_config_file);
         res = get_string (cmdbuf);

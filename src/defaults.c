@@ -393,13 +393,13 @@ static void defaults_gtk3 (void)
         cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sdock_bg_color\\s)[^;]*' %s 2> /dev/null", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.bar_colour[dark], res)) gdk_rgba_parse (&def_med.dock_colour[dark], GREY);
+        if (!res[0] || !gdk_rgba_parse (&def_med.dock_colour[dark], res)) gdk_rgba_parse (&def_med.dock_colour[dark], GREY);
         g_free (res);
 
         cmdbuf = g_strdup_printf ("grep -hPo '(?<=@define-color\\sdock_fg_color\\s)[^;]*' %s 2> /dev/null", sys_config_file);
         res = get_string (cmdbuf);
         g_free (cmdbuf);
-        if (!res[0] || !gdk_rgba_parse (&def_med.bartext_colour[dark], res)) gdk_rgba_parse (&def_med.docktext_colour[dark], GREY);
+        if (!res[0] || !gdk_rgba_parse (&def_med.docktext_colour[dark], res)) gdk_rgba_parse (&def_med.docktext_colour[dark], GREY);
         g_free (res);
 
         g_free (sys_config_file);
