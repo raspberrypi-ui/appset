@@ -83,6 +83,7 @@ static void on_dock_loc_set (GtkComboBox *cb, gpointer ptr);
 void reload_panel (void)
 {
     if (wm == WM_OPENBOX) vsystem ("lxpanelctl-pi refresh");
+    else vsystem ("wfpanelctl nmenu bg");
 }
 
 /*----------------------------------------------------------------------------*/

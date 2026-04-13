@@ -79,6 +79,7 @@ static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer);
 void reload_desktop (void)
 {
     vsystem ("pcmanfm --reconfigure");
+    if (wm != WM_OPENBOX) vsystem ("wfpanelctl nmenu bg");
 }
 
 /* Create a labelled-by relationship between a widget and a label */
