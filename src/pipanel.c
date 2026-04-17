@@ -373,7 +373,7 @@ const char *icon_name (int tab)
         case 1 : return "appset-taskbar";
         case 2 : return "preferences-desktop-theme";
         case 3 : return "applications-utilities";
-        case 4 : return "appset-taskbar";
+        case 4 : return "appset-dock";
         default : return NULL;
     }
 }
