@@ -841,6 +841,26 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
 
     reload_desktop ();
 
+    // configure libfm
+    user_config_file = libfm_file ();
+    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
+    {
+        check_directory (user_config_file);
+        vsystem ("cp /etc/xdg/libfm/libfm.conf %s", user_config_file);
+    }
+
+    kf = g_key_file_new ();
+    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+
+    g_key_file_set_integer (kf, "places", "places_trash", 1);
+
+    str = g_key_file_to_data (kf, &len, NULL);
+    g_file_set_contents (user_config_file, str, len, NULL);
+
+    g_free (str);
+    g_key_file_free (kf);
+    g_free (user_config_file);
+
     // set the theme colours
     gdk_rgba_parse (&cur_conf.bar_colour[0], "rgba(0,0,0,0)");
     gdk_rgba_parse (&cur_conf.bar_colour[1], "rgba(0,0,0,0)");
