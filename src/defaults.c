@@ -168,6 +168,30 @@ static void defaults_wfpanel (void)
         g_free (ret);
 
         err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "autohide", &err);
+        if (err == NULL && ret && !strcmp (ret, "true")) def_med.barahide = 1;
+        else def_med.barahide = 0;
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "exclusive", &err);
+        if (err == NULL && ret && !strcmp (ret, "false")) def_med.barexcl = 0;
+        else def_med.barexcl = 1;
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_autohide", &err);
+        if (err == NULL && ret && !strcmp (ret, "true")) def_med.dockahide = 1;
+        else def_med.dockahide = 0;
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "dock_exclusive", &err);
+        if (err == NULL && ret && !strcmp (ret, "true")) def_med.dockexcl = 1;
+        else def_med.dockexcl = 0;
+        g_free (ret);
+
+        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "monitor", &err);
         DEFAULT (monitor);
         if (err == NULL && ret)

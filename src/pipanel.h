@@ -85,6 +85,10 @@ typedef struct {
     int common_bg;
     int darkmode;
     int dock_icon_size;
+    int barahide;
+    int dockahide;
+    int barexcl;
+    int dockexcl;
 } Config;
 
 typedef enum {
