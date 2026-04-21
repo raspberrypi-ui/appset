@@ -237,6 +237,12 @@ msgstr "Location:"
 msgid "Choose the screen where the taskbar is shown"
 msgstr "Choose the screen where the taskbar is shown"
 
+msgid "Autohide"
+msgstr "Autohide:"
+
+msgid "Exclusive"
+msgstr "Exclusive:"
+
 #: ../data/pipanel.ui.h:44
 msgid "Menu Bar"
 msgstr "Taskbar"
