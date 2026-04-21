@@ -726,6 +726,10 @@
                       <object class="GtkSwitch" id="sw_bar_ahide">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="tooltip-text" translatable="yes">Automatically show and hide the taskbar</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label26"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -761,6 +765,10 @@
                       <object class="GtkSwitch" id="sw_bar_excl">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="tooltip-text" translatable="yes">Prevent other windows overlapping the taskbar</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label27"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1531,6 +1539,10 @@
                       <object class="GtkSwitch" id="sw_dock_ahide">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="tooltip-text" translatable="yes">Automatically show and hide the dock</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label56"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1566,6 +1578,10 @@
                       <object class="GtkSwitch" id="sw_dock_excl">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="tooltip-text" translatable="yes">Prevent other windows overlapping the dock</property>
+                         <accessibility>
+                          <relation type="labelled-by" target="label57"/>
+                        </accessibility>
                       </object>
                       <packing>
                         <property name="expand">False</property>
