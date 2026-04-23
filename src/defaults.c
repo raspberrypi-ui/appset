@@ -147,30 +147,31 @@ static void defaults_wfpanel (void)
         g_free (ret);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) def_med.icon_size = val + 4;
-        else def_med.icon_size = 36;
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "dock_icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) def_med.dock_icon_size = val + 4;
-        else def_med.dock_icon_size = 52;
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
-        if (err == NULL) def_med.task_width = val;
-        else def_med.task_width = 200;
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_position", &err);
+        ret = g_key_file_get_string (kf, "dock", "position", &err);
         if (err == NULL && ret && !strcmp (ret, "top")) def_med.dockpos = 0;
         else def_med.dockpos = 1;
         g_free (ret);
 
         err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) def_med.icon_size = val + 4;
+        else def_med.icon_size = 36;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "dock", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) def_med.dock_icon_size = val + 4;
+        else def_med.dock_icon_size = 52;
+
+        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "autohide", &err);
         if (err == NULL && ret && !strcmp (ret, "true")) def_med.barahide = 1;
         else def_med.barahide = 0;
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "autohide", &err);
+        if (err == NULL && ret && !strcmp (ret, "true")) def_med.dockahide = 1;
+        else def_med.dockahide = 0;
         g_free (ret);
 
         err = NULL;
@@ -180,13 +181,7 @@ static void defaults_wfpanel (void)
         g_free (ret);
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_autohide", &err);
-        if (err == NULL && ret && !strcmp (ret, "true")) def_med.dockahide = 1;
-        else def_med.dockahide = 0;
-        g_free (ret);
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_exclusive", &err);
+        ret = g_key_file_get_string (kf, "dock", "exclusive", &err);
         if (err == NULL && ret && !strcmp (ret, "true")) def_med.dockexcl = 1;
         else def_med.dockexcl = 0;
         g_free (ret);
@@ -207,9 +202,10 @@ static void defaults_wfpanel (void)
                 g_free (buf);
             }
         }
+        g_free (ret);
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_monitor", &err);
+        ret = g_key_file_get_string (kf, "dock", "monitor", &err);
         DEFAULT (dmonitor);
         if (err == NULL && ret)
         {
@@ -224,6 +220,12 @@ static void defaults_wfpanel (void)
                 g_free (buf);
             }
         }
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        if (err == NULL) def_med.task_width = val;
+        else def_med.task_width = 200;
     }
     else
     {

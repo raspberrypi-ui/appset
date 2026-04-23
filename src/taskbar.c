@@ -164,30 +164,31 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
-        else DEFAULT (icon_size);
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "dock_icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
-        else DEFAULT (dock_icon_size);
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
-        if (err == NULL) cur_conf.task_width = val;
-        else DEFAULT (task_width);
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_position", &err);
+        ret = g_key_file_get_string (kf, "dock", "position", &err);
         if (err == NULL && ret && !strcmp (ret, "top")) cur_conf.dockpos = 0;
         else DEFAULT (dockpos);
         g_free (ret);
 
         err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
+        else DEFAULT (icon_size);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "dock", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
+        else DEFAULT (dock_icon_size);
+
+        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "autohide", &err);
         if (err == NULL && ret && !strcmp (ret, "true")) cur_conf.barahide = 1;
         else DEFAULT (barahide);
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "autohide", &err);
+        if (err == NULL && ret && !strcmp (ret, "true")) cur_conf.dockahide = 1;
+        else DEFAULT (dockahide);
         g_free (ret);
 
         err = NULL;
@@ -197,13 +198,7 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_autohide", &err);
-        if (err == NULL && ret && !strcmp (ret, "true")) cur_conf.dockahide = 1;
-        else DEFAULT (dockahide);
-        g_free (ret);
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_exclusive", &err);
+        ret = g_key_file_get_string (kf, "dock", "exclusive", &err);
         if (err == NULL && ret && !strcmp (ret, "true")) cur_conf.dockexcl = 1;
         else DEFAULT (dockexcl);
         g_free (ret);
@@ -225,7 +220,7 @@ static void load_wfpanel_settings (void)
         }
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_monitor", &err);
+        ret = g_key_file_get_string (kf, "dock", "monitor", &err);
         DEFAULT (dmonitor);
         if (err == NULL && ret)
         {
@@ -239,6 +234,11 @@ static void load_wfpanel_settings (void)
                 g_free (buf);
             }
         }
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        if (err == NULL) cur_conf.task_width = val;
+        else DEFAULT (task_width);
     }
     else
     {
@@ -267,19 +267,7 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "dock_icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
-
-        err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
-        if (err == NULL) cur_conf.task_width = val;
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_position", &err);
+        ret = g_key_file_get_string (kf, "dock", "position", &err);
         if (err == NULL && ret)
         {
             if (!strcmp (ret, "bottom")) cur_conf.dockpos = 1;
@@ -288,11 +276,28 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "dock", "icon_size", &err);
+        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
+
+        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "autohide", &err);
         if (err == NULL && ret)
         {
             if (!strcmp (ret, "true")) cur_conf.barahide = 1;
             else cur_conf.barahide = 0;
+        }
+        g_free (ret);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "autohide", &err);
+        if (err == NULL && ret)
+        {
+            if (!strcmp (ret, "true")) cur_conf.dockahide = 1;
+            else cur_conf.dockahide = 0;
         }
         g_free (ret);
 
@@ -306,16 +311,7 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_autohide", &err);
-        if (err == NULL && ret)
-        {
-            if (!strcmp (ret, "true")) cur_conf.dockahide = 1;
-            else cur_conf.dockahide = 0;
-        }
-        g_free (ret);
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_exclusive", &err);
+        ret = g_key_file_get_string (kf, "dock", "exclusive", &err);
         if (err == NULL && ret)
         {
             if (!strcmp (ret, "true")) cur_conf.dockexcl = 1;
@@ -337,9 +333,10 @@ static void load_wfpanel_settings (void)
                 g_free (buf);
             }
         }
+        g_free (ret);
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "dock_monitor", &err);
+        ret = g_key_file_get_string (kf, "dock", "monitor", &err);
         if (err == NULL && ret)
         {
             for (val = 0; val < ndesks; val++)
@@ -352,6 +349,11 @@ static void load_wfpanel_settings (void)
                 g_free (buf);
             }
         }
+        g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        if (err == NULL) cur_conf.task_width = val;
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -397,15 +399,13 @@ static void save_wfpanel_settings (void)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_string (kf, "panel", "position", cur_conf.barpos ? "bottom" : "top");
+    g_key_file_set_string (kf, "dock", "position", cur_conf.dockpos ? "bottom" : "top");
     g_key_file_set_integer (kf, "panel", "icon_size", cur_conf.icon_size - 4);
-    g_key_file_set_integer (kf, "panel", "dock_icon_size", cur_conf.dock_icon_size - 4);
-    g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
-    g_key_file_set_integer (kf, "panel", "tlist_max_width", cur_conf.task_width);
-    g_key_file_set_string (kf, "panel", "dock_position", cur_conf.dockpos ? "bottom" : "top");
+    g_key_file_set_integer (kf, "dock", "icon_size", cur_conf.dock_icon_size - 4);
     g_key_file_set_string (kf, "panel", "autohide", cur_conf.barahide ? "true" : "false");
+    g_key_file_set_string (kf, "dock", "autohide", cur_conf.dockahide ? "true" : "false");
     g_key_file_set_string (kf, "panel", "exclusive", cur_conf.barexcl ? "true" : "false");
-    g_key_file_set_string (kf, "panel", "dock_autohide", cur_conf.dockahide ? "true" : "false");
-    g_key_file_set_string (kf, "panel", "dock_exclusive", cur_conf.dockexcl ? "true" : "false");
+    g_key_file_set_string (kf, "dock", "exclusive", cur_conf.dockexcl ? "true" : "false");
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -418,8 +418,11 @@ static void save_wfpanel_settings (void)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     buf = gdk_screen_get_monitor_plug_name (gdk_display_get_default_screen (gdk_display_get_default ()), cur_conf.dmonitor);
 #pragma GCC diagnostic pop
-    g_key_file_set_string (kf, "panel", "dock_monitor", buf);
+    g_key_file_set_string (kf, "dock", "monitor", buf);
     g_free (buf);
+
+    g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
+    g_key_file_set_integer (kf, "panel", "tlist_max_width", cur_conf.task_width);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
