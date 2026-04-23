@@ -828,7 +828,7 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_string (kf, "panel", "widgets_left", "");
-    g_key_file_set_string (kf, "panel", "dock_widgets", "nmenu spacing0 tlist");
+    g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
     g_key_file_set_string (kf, "panel", "layer", "bottom");
     g_key_file_set_string (kf, "panel", "nmenu_overlay_text_col", "rgb(255,255,255)");
     g_key_file_set_string (kf, "panel", "nmenu_overlay_col", "rgba(0,0,0,0)");
