@@ -891,6 +891,8 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     // set the theme colours
     gdk_rgba_parse (&cur_conf.bar_colour[0], "rgba(0,0,0,0)");
     gdk_rgba_parse (&cur_conf.bar_colour[1], "rgba(0,0,0,0)");
+    gdk_rgba_parse (&cur_conf.bartext_colour[0], "rgb(255,255,255)");
+    gdk_rgba_parse (&cur_conf.bartext_colour[1], "rgb(255,255,255)");
     set_theme (theme_name (TEMP));
     save_gtk3_settings ();
     reload_theme (FALSE);
