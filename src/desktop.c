@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ============================================================================*/
 
 #include <gtk/gtk.h>
+#include <glib/gi18n.h>
 
 #include "pipanel.h"
 #include "defaults.h"
@@ -330,6 +331,7 @@ void set_desktop_controls (void)
 {
     GtkTreeIter iter;
     int val;
+    gboolean passive;
 
     g_signal_handler_block (combo_mode, id_mode);
     g_signal_handler_block (toggle_home, id_home);
@@ -377,16 +379,25 @@ void set_desktop_controls (void)
     }
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktop), &cur_conf.desktops[desktop_n].desktop_colour);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktoptext), &cur_conf.desktops[desktop_n].desktoptext_colour);
-    gtk_switch_set_active (GTK_SWITCH (toggle_home), cur_conf.passive_desktop && wm != WM_OPENBOX ? FALSE : cur_conf.desktops[desktop_n].show_home);
-    gtk_switch_set_active (GTK_SWITCH (toggle_trash), cur_conf.passive_desktop && wm != WM_OPENBOX ? FALSE : cur_conf.desktops[desktop_n].show_trash);
-    gtk_switch_set_active (GTK_SWITCH (toggle_mnts), cur_conf.passive_desktop && wm != WM_OPENBOX ? FALSE : cur_conf.desktops[desktop_n].show_mnts);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_folder), cur_conf.desktops[desktop_n].desktop_folder);
     gtk_switch_set_active (GTK_SWITCH (toggle_passive), cur_conf.passive_desktop);
 
-    gtk_widget_set_sensitive (toggle_home, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
-    gtk_widget_set_sensitive (toggle_trash, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
-    gtk_widget_set_sensitive (toggle_mnts, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
-    gtk_widget_set_sensitive (file_folder, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
+    if (cur_conf.passive_desktop && wm != WM_OPENBOX) passive = TRUE;
+    else passive = FALSE;
+
+    gtk_widget_set_sensitive (toggle_home, !passive);
+    gtk_widget_set_sensitive (toggle_trash, !passive);
+    gtk_widget_set_sensitive (toggle_mnts, !passive);
+    gtk_widget_set_sensitive (file_folder, !passive);
+
+    gtk_switch_set_active (GTK_SWITCH (toggle_home), passive ? FALSE : cur_conf.desktops[desktop_n].show_home);
+    gtk_switch_set_active (GTK_SWITCH (toggle_trash), passive ? FALSE : cur_conf.desktops[desktop_n].show_trash);
+    gtk_switch_set_active (GTK_SWITCH (toggle_mnts), passive ? FALSE : cur_conf.desktops[desktop_n].show_mnts);
+
+    gtk_widget_set_tooltip_text (toggle_home, passive ? _("Not available in passive desktop") : _("Show the current user's home folder on the desktop"));
+    gtk_widget_set_tooltip_text (toggle_trash, passive ? _("Not available in passive desktop") : _("Show the wastebasket on the desktop"));
+    gtk_widget_set_tooltip_text (toggle_mnts, passive ? _("Not available in passive desktop") : _("Show mounted disks on the desktop"));
+    gtk_widget_set_tooltip_text (file_folder, passive ? _("Not available in passive desktop") : _("Choose the folder containing files to be shown on the second desktop"));
 
     g_signal_handler_unblock (toggle_same, id_same);
     g_signal_handler_unblock (combo_monitor, id_monitor);
