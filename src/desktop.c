@@ -58,6 +58,7 @@ static int desktop_n;
 static void atk_label (GtkWidget *widget, GtkLabel *label);
 static void load_pcman_settings (int desktop);
 static void load_pcman_g_settings (void);
+static void set_fb_tooltip (GtkWidget *wid, const char *tip);
 static void on_desktop_changed (GtkComboBox *cb, gpointer ptr);
 static void on_desktop_same (GtkCheckButton *btn, gpointer ptr);
 static void on_desktop_mode_set (GtkComboBox *btn, gpointer ptr);
