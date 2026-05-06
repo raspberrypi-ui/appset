@@ -372,10 +372,16 @@ static void defaults_pcman_g (void)
         val = g_key_file_get_integer (kf, "ui", "common_bg", &err);
         if (err == NULL && val >= 0 && val <= 1) def_med.common_bg = val;
         else def_med.common_bg = 0;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "use_swaybg", &err);
+        if (err == NULL && val >= 0 && val <= 1) def_med.passive_desktop = val;
+        else def_med.passive_desktop = 0;
     }
     else
     {
         def_med.common_bg = 0;
+        def_med.passive_desktop = 0;
     }
     g_key_file_free (kf);
     g_free (user_config_file);

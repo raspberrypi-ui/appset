@@ -42,10 +42,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Controls */
 static GtkWidget *colour_desktop, *colour_desktoptext, *combo_mode, *file_picture;
-static GtkWidget *file_folder, *combo_monitor, *toggle_home, *toggle_trash, *toggle_mnts, *toggle_same;
+static GtkWidget *file_folder, *combo_monitor, *toggle_home, *toggle_trash, *toggle_mnts, *toggle_same, *toggle_passive;
 
 /* Handler IDs */
-static gulong id_mode, id_home, id_trash, id_mnts, id_folder, id_same, id_monitor;
+static gulong id_mode, id_home, id_trash, id_mnts, id_folder, id_same, id_monitor, id_passive;
 
 /* Currently-selected desktop */
 static int desktop_n;
@@ -78,8 +78,13 @@ static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer);
 
 void reload_desktop (void)
 {
-    vsystem ("pcmanfm --reconfigure");
+    vsystem ("if pgrep swaybg > /dev/null ; then pkill swaybg ; else pcmanfm --reconfigure; fi");
     if (wm != WM_OPENBOX) vsystem ("wfpanelctl nmenu bg");
+}
+
+static void restart_desktop (void)
+{
+    vsystem ("if pgrep swaybg > /dev/null ; then pkill swaybg ; else pkill pcmanfm ; fi");
 }
 
 /* Create a labelled-by relationship between a widget and a label */
@@ -240,10 +245,16 @@ static void load_pcman_g_settings (void)
         val = g_key_file_get_integer (kf, "ui", "common_bg", &err);
         if (err == NULL && val >= 0 && val <= 1) cur_conf.common_bg = val;
         else DEFAULT (common_bg);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "use_swaybg", &err);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.passive_desktop = val;
+        else DEFAULT (passive_desktop);
     }
     else
     {
         DEFAULT (common_bg);
+        DEFAULT (passive_desktop);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -301,6 +312,7 @@ void save_pcman_g_settings (void)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_integer (kf, "ui", "common_bg", cur_conf.common_bg);
+    g_key_file_set_integer (kf, "ui", "use_swaybg", cur_conf.passive_desktop);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
@@ -326,6 +338,7 @@ void set_desktop_controls (void)
     g_signal_handler_block (file_folder, id_folder);
     g_signal_handler_block (toggle_same, id_same);
     g_signal_handler_block (combo_monitor, id_monitor);
+    g_signal_handler_block (toggle_passive, id_passive);
     
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (toggle_same), cur_conf.common_bg);
     if (ndesks > 1)
@@ -364,10 +377,16 @@ void set_desktop_controls (void)
     }
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktop), &cur_conf.desktops[desktop_n].desktop_colour);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktoptext), &cur_conf.desktops[desktop_n].desktoptext_colour);
-    gtk_switch_set_active (GTK_SWITCH (toggle_home), cur_conf.desktops[desktop_n].show_home);
-    gtk_switch_set_active (GTK_SWITCH (toggle_trash), cur_conf.desktops[desktop_n].show_trash);
-    gtk_switch_set_active (GTK_SWITCH (toggle_mnts), cur_conf.desktops[desktop_n].show_mnts);
+    gtk_switch_set_active (GTK_SWITCH (toggle_home), cur_conf.passive_desktop && wm != WM_OPENBOX ? FALSE : cur_conf.desktops[desktop_n].show_home);
+    gtk_switch_set_active (GTK_SWITCH (toggle_trash), cur_conf.passive_desktop && wm != WM_OPENBOX ? FALSE : cur_conf.desktops[desktop_n].show_trash);
+    gtk_switch_set_active (GTK_SWITCH (toggle_mnts), cur_conf.passive_desktop && wm != WM_OPENBOX ? FALSE : cur_conf.desktops[desktop_n].show_mnts);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_folder), cur_conf.desktops[desktop_n].desktop_folder);
+    gtk_switch_set_active (GTK_SWITCH (toggle_passive), cur_conf.passive_desktop);
+
+    gtk_widget_set_sensitive (toggle_home, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
+    gtk_widget_set_sensitive (toggle_trash, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
+    gtk_widget_set_sensitive (toggle_mnts, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
+    gtk_widget_set_sensitive (file_folder, !(cur_conf.passive_desktop && wm != WM_OPENBOX));
 
     g_signal_handler_unblock (toggle_same, id_same);
     g_signal_handler_unblock (combo_monitor, id_monitor);
@@ -376,6 +395,7 @@ void set_desktop_controls (void)
     g_signal_handler_unblock (toggle_trash, id_trash);
     g_signal_handler_unblock (toggle_mnts, id_mnts);
     g_signal_handler_unblock (file_folder, id_folder);
+    g_signal_handler_unblock (toggle_passive, id_passive);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -508,6 +528,15 @@ static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer)
     reload_desktop ();
 }
 
+static void on_toggle_passive (GtkSwitch *btn, gpointer, gpointer)
+{
+    cur_conf.passive_desktop = gtk_switch_get_active (btn);
+
+    save_pcman_g_settings ();
+    restart_desktop ();
+    set_desktop_controls ();
+}
+
 /*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
@@ -570,6 +599,9 @@ void load_desktop_tab (GtkBuilder *builder)
     combo_monitor = (GtkWidget *) gtk_builder_get_object (builder, "cb_desktop");
     id_monitor = g_signal_connect (combo_monitor, "changed", G_CALLBACK (on_desktop_changed), NULL);
 
+    toggle_passive = (GtkWidget *) gtk_builder_get_object (builder, "switch4");
+    id_passive = g_signal_connect (toggle_passive, "notify::active", G_CALLBACK (on_toggle_passive), NULL);
+
     // add accessibility label to combo box child of file chooser (yes, I know the previous one attached to a button...)
     lbl = GTK_LABEL (gtk_builder_get_object (builder, "label15"));
     children = gtk_container_get_children (GTK_CONTAINER (file_folder));
@@ -599,6 +631,8 @@ void load_desktop_tab (GtkBuilder *builder)
     {
         gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox10")));
     }
+
+    if (wm == WM_OPENBOX) gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox19")));
 }
 
 /* End of file */

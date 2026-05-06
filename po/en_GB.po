@@ -358,3 +358,6 @@ msgstr ""
 #: ../data/pipanel.ui.h:72
 msgid "_OK"
 msgstr ""
+
+msgid "Passive Desktop"
+msgstr "Passive Desktop:"
