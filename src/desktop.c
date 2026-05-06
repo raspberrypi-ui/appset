@@ -327,6 +327,11 @@ void save_pcman_g_settings (void)
 /* Set controls to match data                                                 */
 /*----------------------------------------------------------------------------*/
 
+static void set_fb_tooltip (GtkWidget *wid, const char *tip)
+{
+    gtk_widget_set_tooltip_text (wid, tip);
+}
+
 void set_desktop_controls (void)
 {
     GtkTreeIter iter;
@@ -397,7 +402,7 @@ void set_desktop_controls (void)
     gtk_widget_set_tooltip_text (toggle_home, passive ? _("Not available in passive desktop") : _("Show the current user's home folder on the desktop"));
     gtk_widget_set_tooltip_text (toggle_trash, passive ? _("Not available in passive desktop") : _("Show the wastebasket on the desktop"));
     gtk_widget_set_tooltip_text (toggle_mnts, passive ? _("Not available in passive desktop") : _("Show mounted disks on the desktop"));
-    gtk_widget_set_tooltip_text (file_folder, passive ? _("Not available in passive desktop") : _("Choose the folder containing files to be shown on the second desktop"));
+    gtk_container_foreach (GTK_CONTAINER (file_folder), (GtkCallback) set_fb_tooltip, passive ? _("Not available in passive desktop") : _("Choose the folder containing files to be shown on the second desktop"));
 
     g_signal_handler_unblock (toggle_same, id_same);
     g_signal_handler_unblock (combo_monitor, id_monitor);
