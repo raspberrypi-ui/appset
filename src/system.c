@@ -964,6 +964,8 @@ static void save_labwc_to_settings (void)
         vsystem ("echo 'window.active.title.bg.color: %s' >> %s", cstrb, user_config_file);
         vsystem ("echo 'window.active.label.text.color: %s' >> %s", cstrf, user_config_file);
         vsystem ("echo 'window.active.button.unpressed.image.color: %s' >> %s", cstrf, user_config_file);
+        vsystem ("echo 'menu.items.active.bg.color: %s' >> %s", cstrb, user_config_file);
+        vsystem ("echo 'menu.items.active.text.color: %s' >> %s", cstrf, user_config_file);
 
         g_free (cstrf);
         g_free (cstrb);
@@ -975,6 +977,8 @@ static void save_labwc_to_settings (void)
     LABWC_THEME_UPDATE ("window.active.title.bg.color", cstrb);
     LABWC_THEME_UPDATE ("window.active.label.text.color", cstrf);
     LABWC_THEME_UPDATE ("window.active.button.unpressed.image.color", cstrf);
+    LABWC_THEME_UPDATE ("menu.items.active.bg.color", cstrb);
+    LABWC_THEME_UPDATE ("menu.items.active.text.color", cstrf);
 
     g_free (cstrf);
     g_free (cstrb);
