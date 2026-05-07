@@ -498,13 +498,11 @@ static void save_libreoffice_settings (void)
 {
     char *user_config_file;
     char buf[2];
-    gboolean found = FALSE;
-    xmlChar *path, *name;
 
     xmlDocPtr xDoc;
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
-    xmlNodePtr rootnode, itemnode, propnode, valnode;
+    xmlNodePtr node;
 
     sprintf (buf, "%d", cur_conf.lo_icon_size);
 
@@ -518,70 +516,42 @@ static void save_libreoffice_settings (void)
     if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
         xDoc = xmlParseFile (user_config_file);
-        if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+        if (!xDoc) xDoc = xmlNewDoc (XC ("1.0"));
     }
-    else xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    else xDoc = xmlNewDoc (XC ("1.0"));
     xpathCtx = xmlXPathNewContext (xDoc);
+    xmlXPathRegisterNs (xpathCtx, XC ("oor"), XC ("http://openoffice.org/2001/registry"));
 
-    // check that the oor:items node exists in the document - create it if not
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[name()='oor:items']", xpathCtx);
+    // create root node if needed
+    xpathObj = xmlXPathEvalExpression (XC ("/oor:items"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
-        rootnode = xmlNewNode (NULL, (xmlChar *) XC ("oor:items"));
-        xmlSetProp (rootnode, XC ("xmlns:oor"), XC ("http://openoffice.org/2001/registry"));
-        xmlSetProp (rootnode, XC ("xmlns:xs"), XC ("http://www.w3.org/2001/XMLSchema"));
-        xmlSetProp (rootnode, XC ("xmlns:xsi"), XC ("http://www.w3.org/2001/XMLSchema-instance"));
-        xmlDocSetRootElement (xDoc, rootnode);
+        node = xmlNewNode (NULL, XC ("oor:items"));
+        xmlNewNs (node, XC ("http://openoffice.org/2001/registry"), XC ("oor"));
+        xmlNewNs (node, XC ("http://www.w3.org/2001/XMLSchema"), XC ("xs"));
+        xmlNewNs (node, XC ("http://www.w3.org/2001/XMLSchema-instance"), XC ("xsi"));
+        xmlDocSetRootElement (xDoc, node);
     }
-    else rootnode = xpathObj->nodesetval->nodeTab[0];
+    else node = xpathObj->nodesetval->nodeTab[0];
+    xmlXPathFreeObject (xpathObj);
 
-    for (itemnode = rootnode->children; itemnode; itemnode = itemnode->next)
+    // update value node or create if needed
+    xpathObj = xmlXPathEvalExpression (XC ("/oor:items/item[@oor:path='/org.openoffice.Office.Common/Misc']/prop[@oor:name='SymbolSet']/value"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
-        if (itemnode->type == XML_ELEMENT_NODE && !xmlStrcmp (itemnode->name, XC ("item")))
-        {
-            path = xmlGetProp (itemnode, XC ("path"));
-            if (!xmlStrcmp (path, XC ("/org.openoffice.Office.Common/Misc")))
-            {
-                xmlNode *propnode = itemnode->children;
-                if (propnode->type == XML_ELEMENT_NODE && !xmlStrcmp (propnode->name, XC ("prop")))
-                {
-                    name = xmlGetProp (propnode, XC ("name"));
-                    if (!xmlStrcmp (name, XC ("SymbolSet")))
-                    {
-                        xmlNode *valnode = propnode->children;
-                        if (valnode->type == XML_ELEMENT_NODE && !xmlStrcmp (valnode->name, XC ("value")))
-                            xmlNodeSetContent (valnode, XC (buf));
-                        found = TRUE;
-                        xmlFree (path);
-                        xmlFree (name);
-                        break;
-                    }
-                    xmlFree (name);
-                }
-            }
-            xmlFree (path);
-        }
+        node = xmlNewChild (node, NULL, XC ("item"), NULL);
+        xmlSetProp (node, XC ("oor:path"), XC ("/org.openoffice.Office.Common/Misc"));
+        node = xmlNewChild (node, NULL, XC ("prop"), NULL);
+        xmlSetProp (node, XC ("oor:name"), XC ("SymbolSet"));
+        xmlSetProp (node, XC ("oor:op"), XC ("fuse"));
+        xmlNewChild (node, NULL, XC ("value"), XC (buf));
     }
-
-    // if node not found, add it with desired value
-    if (!found)
-    {
-        itemnode = xmlNewNode (NULL, XC ("item"));
-        xmlSetProp (itemnode, XC ("oor:path"), XC ("/org.openoffice.Office.Common/Misc"));
-        propnode = xmlNewNode (NULL, XC ("prop"));
-        xmlSetProp (propnode, XC ("oor:name"), XC ("SymbolSet"));
-        xmlSetProp (propnode, XC ("oor:op"), XC ("fuse"));
-        xmlAddChild (itemnode, propnode);
-        valnode = xmlNewNode (NULL, XC ("value"));
-        xmlNodeSetContent (valnode, XC (buf));
-        xmlAddChild (propnode, valnode);
-        xmlAddChild (rootnode, itemnode);
-    }
+    else xmlNodeSetContent (xpathObj->nodesetval->nodeTab[0], XC (buf));
+    xmlXPathFreeObject (xpathObj);
 
     // cleanup XML
-    xmlXPathFreeObject (xpathObj);
     xmlXPathFreeContext (xpathCtx);
-    xmlSaveFile (user_config_file, xDoc);
+    xmlSaveFormatFile (user_config_file, xDoc, 1);
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
 
@@ -904,12 +874,10 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     reload_theme (FALSE);
 
     // set the new menu shortcut
-    int count;
-
     xmlDocPtr xDoc;
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
-    xmlNodePtr root, cur_node, node;
+    xmlNodePtr root, cur_node;
 
     user_config_file = labwc_file ();
     check_directory (user_config_file);
@@ -920,53 +888,47 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
         xDoc = xmlParseFile (user_config_file);
-        if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+        if (!xDoc) xDoc = xmlNewDoc (XC ("1.0"));
     }
-    else xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    else xDoc = xmlNewDoc (XC ("1.0"));
     xpathCtx = xmlXPathNewContext (xDoc);
+    xmlXPathRegisterNs (xpathCtx, XC ("o"), XC ("http://openbox.org/3.4/rc"));
 
     // check that the config and keyboard nodes exist in the document - create them if not
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']"), xpathCtx);
+    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
         root = xmlNewNode (NULL, XC ("openbox_config"));
-        xmlDocSetRootElement (xDoc, root);
         xmlNewNs (root, XC ("http://openbox.org/3.4/rc"), NULL);
-        xmlXPathRegisterNs (xpathCtx, XC ("openbox_config"), XC ("http://openbox.org/3.4/rc"));
+        xmlDocSetRootElement (xDoc, root);
     }
     else root = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
 
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='keyboard']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval)) xmlNewChild (root, NULL, XC ("keyboard"), NULL);
+    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:keyboard"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        cur_node = xmlNewChild (root, NULL, XC ("keyboard"), NULL);
+    else
+        cur_node = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
 
-    // update relevant nodes with new values
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='keyboard']/*[local-name()='keybind']"), xpathCtx);
+    // create relevant nodes with new values
+    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:keyboard/o:keybind"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='keyboard']"), xpathCtx);
-        cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("keybind"), NULL);
+        cur_node = xmlNewChild (cur_node, NULL, XC ("keybind"), NULL);
         xmlSetProp (cur_node, XC ("key"), XC ("Super_L"));
         xmlSetProp (cur_node, XC ("onRelease"), XC ("yes"));
-        node = xmlNewChild (cur_node, NULL, XC ("action"), NULL);
-        xmlSetProp (node, XC ("name"), XC ("Execute"));
-        xmlNewChild (node, NULL, XC ("command"), XC ("wfpanelctl nmenu menu"));
-    }
-    else
-    {
-        for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
-        {
-            node = xpathObj->nodesetval->nodeTab[count];
-            // do some stuff here to update the existing node...
-        }
+
+        cur_node = xmlNewChild (cur_node, NULL, XC ("action"), NULL);
+        xmlSetProp (cur_node, XC ("name"), XC ("Execute"));
+        xmlNewChild (cur_node, NULL, XC ("command"), XC ("wfpanelctl nmenu menu"));
     }
     xmlXPathFreeObject (xpathObj);
 
     // cleanup XML
     xmlXPathFreeContext (xpathCtx);
-    xmlSaveFile (user_config_file, xDoc);
+    xmlSaveFormatFile (user_config_file, xDoc, 1);
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
 

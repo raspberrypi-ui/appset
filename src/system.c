@@ -199,12 +199,11 @@ static void load_obconf_settings (void)
 {
     char *user_config_file;
     int val;
-    xmlChar *width;
 
     xmlDocPtr xDoc;
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
-    xmlNodePtr node;
+    xmlChar *cont;
 
     DEFAULT (handle_width);
 
@@ -221,18 +220,20 @@ static void load_obconf_settings (void)
     xDoc = xmlParseFile (user_config_file);
     if (xDoc == NULL)
     {
+        xmlCleanupParser ();
         g_free (user_config_file);
         return;
     }
-    xpathCtx = xmlXPathNewContext (xDoc);
 
-    xpathObj = xmlXPathEvalExpression ((xmlChar *) "/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']", xpathCtx);
-    node = xpathObj->nodesetval->nodeTab[0];
-    if (node)
+    xpathCtx = xmlXPathNewContext (xDoc);
+    xmlXPathRegisterNs (xpathCtx, XC ("o"), XC ("http://openbox.org/3.4/rc"));
+
+    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:theme/o:invHandleWidth"), xpathCtx);
+    if (!xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
-        width = xmlNodeGetContent (node);
-        if (sscanf ((const char *) width, "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
-        xmlFree (width);
+        cont = xmlNodeGetContent (xpathObj->nodesetval->nodeTab[0]);
+        if (sscanf ((const char *) cont, "%d", &val) == 1 && val > 0) cur_conf.handle_width = val;
+        xmlFree (cont);
     }
     xmlXPathFreeObject (xpathObj);
 
@@ -422,14 +423,14 @@ static void load_gtk3_settings (void)
 static void save_wm_settings (void)
 {
     char *user_config_file, *cptr;
-    int count, size;
+    int count, size, place;
     const gchar *font = NULL, *weight = NULL, *style = NULL;
     char buf[10];
 
     xmlDocPtr xDoc;
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
-    xmlNodePtr root, cur_node, node;
+    xmlNodePtr root, tnode, cur_node;
 
     if (wm == WM_LABWC) user_config_file = labwc_file ();
     else if (wm == WM_OPENBOX) user_config_file = openbox_file ();
@@ -502,137 +503,112 @@ static void save_wm_settings (void)
     if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
         xDoc = xmlParseFile (user_config_file);
-        if (!xDoc) xDoc = xmlNewDoc ((xmlChar *) "1.0");
+        if (!xDoc) xDoc = xmlNewDoc (XC ("1.0"));
     }
-    else xDoc = xmlNewDoc ((xmlChar *) "1.0");
+    else xDoc = xmlNewDoc (XC ("1.0"));
     xpathCtx = xmlXPathNewContext (xDoc);
+    xmlXPathRegisterNs (xpathCtx, XC ("o"), XC ("http://openbox.org/3.4/rc"));
 
     // check that the config and theme nodes exist in the document - create them if not
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']"), xpathCtx);
+    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
         root = xmlNewNode (NULL, XC ("openbox_config"));
-        xmlDocSetRootElement (xDoc, root);
         xmlNewNs (root, XC ("http://openbox.org/3.4/rc"), NULL);
-        xmlXPathRegisterNs (xpathCtx, XC ("openbox_config"), XC ("http://openbox.org/3.4/rc"));
+        xmlDocSetRootElement (xDoc, root);
     }
     else root = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
 
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval)) xmlNewChild (root, NULL, XC ("theme"), NULL);
+    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:theme"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        tnode = xmlNewChild (root, NULL, XC ("theme"), NULL);
+    else
+        tnode = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
 
     // update relevant nodes with new values
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='font']"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-    {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-        for (count = 0; count < 2; count ++)
-        {
-            cur_node = xmlNewChild (xpathObj->nodesetval->nodeTab[0], NULL, XC ("font"), NULL);
+    const char *places[4] = { "ActiveWindow", "InactiveWindow", "OnScreenDisplay", "MenuItem" };
 
-            xmlSetProp (cur_node, XC ("place"), count == 0 ? XC ("ActiveWindow") : XC ("InactiveWindow"));
+    for (place = 0; place < 4; place++)
+    {
+        cptr = g_strdup_printf ("/o:openbox_config/o:theme/o:font[@place = '%s']", places[place]);
+        xpathObj = xmlXPathEvalExpression (XC (cptr), xpathCtx);
+        g_free (cptr);
+
+        if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        {
+            cur_node = xmlNewChild (tnode, NULL, XC ("font"), NULL);
+
+            xmlSetProp (cur_node, XC ("place"), XC (places[place]));
             xmlNewChild (cur_node, NULL, XC ("name"), XC (font));
             xmlNewChild (cur_node, NULL, XC ("size"), XC (buf));
             xmlNewChild (cur_node, NULL, XC ("weight"), XC (weight));
             xmlNewChild (cur_node, NULL, XC ("slant"), XC (style));
         }
-    }
-    else
-    {
-        for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
+        else
         {
-            node = xpathObj->nodesetval->nodeTab[count];
-            for (cur_node = node->children; cur_node; cur_node = cur_node->next)
+            for (count = 0; count < xpathObj->nodesetval->nodeNr; count++)
             {
-                if (cur_node->type == XML_ELEMENT_NODE)
+                for (cur_node = xpathObj->nodesetval->nodeTab[count]->children; cur_node; cur_node = cur_node->next)
                 {
-                    if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
-                    if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
-                    if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
-                    if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
+                    if (cur_node->type == XML_ELEMENT_NODE)
+                    {
+                        if (!xmlStrcmp (cur_node->name, XC ("name"))) xmlNodeSetContent (cur_node, XC (font));
+                        if (!xmlStrcmp (cur_node->name, XC ("size"))) xmlNodeSetContent (cur_node, XC (buf));
+                        if (!xmlStrcmp (cur_node->name, XC ("weight"))) xmlNodeSetContent (cur_node, XC (weight));
+                        if (!xmlStrcmp (cur_node->name, XC ("slant")))  xmlNodeSetContent (cur_node, XC (style));
+                    }
                 }
             }
         }
+        xmlXPathFreeObject (xpathObj);
     }
-    xmlXPathFreeObject (xpathObj);
     pango_font_description_free (pfd);
 
     cptr = g_strdup_printf ("%s%s", theme_name (cur_conf.darkmode), cur_conf.scrollbar_width >= 17 ? "_l" : "");
-    xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='name']"), xpathCtx);
+    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:theme/o:name"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-    {
-        xmlXPathFreeObject (xpathObj);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNewChild (cur_node, NULL, XC ("name"), XC (cptr));
-    }
+        xmlNewChild (tnode, NULL, XC ("name"), XC (cptr));
     else
-    {
-        cur_node = xpathObj->nodesetval->nodeTab[0];
-        xmlNodeSetContent (cur_node, XC (cptr));
-    }
+        xmlNodeSetContent (xpathObj->nodesetval->nodeTab[0], XC (cptr));
+    xmlXPathFreeObject (xpathObj);
     g_free (cptr);
 
     if (wm == WM_LABWC) save_labwc_to_settings ();
     else
     {
-        sprintf (buf, "%d", cur_conf.handle_width);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='invHandleWidth']"), xpathCtx);
+        cptr = g_strdup_printf ("%d", cur_conf.handle_width);
+        xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:theme/o:invHandleWidth"), xpathCtx);
         if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("invHandleWidth"), XC (buf));
-        }
+            xmlNewChild (tnode, NULL, XC ("invHandleWidth"), XC (cptr));
         else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (buf));
-        }
+            xmlNodeSetContent (xpathObj->nodesetval->nodeTab[0], XC (buf));
         xmlXPathFreeObject (xpathObj);
+        g_free (cptr);
 
         cptr = rgba_to_gdk_color_string (&cur_conf.theme_colour[cur_conf.darkmode]);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='titleColor']"), xpathCtx);
+        xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:theme/o:titleColor"), xpathCtx);
         if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("titleColor"), XC (cptr));
-        }
+            xmlNewChild (tnode, NULL, XC ("titleColor"), XC (cptr));
         else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
+            xmlNodeSetContent (xpathObj->nodesetval->nodeTab[0], XC (cptr));
         xmlXPathFreeObject (xpathObj);
         g_free (cptr);
 
         cptr = rgba_to_gdk_color_string (&cur_conf.themetext_colour[cur_conf.darkmode]);
-        xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']/*[local-name()='textColor']"), xpathCtx);
+        xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:theme/o:textColor"), xpathCtx);
         if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        {
-            xmlXPathFreeObject (xpathObj);
-            xpathObj = xmlXPathEvalExpression (XC ("/*[local-name()='openbox_config']/*[local-name()='theme']"), xpathCtx);
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNewChild (cur_node, NULL, XC ("textColor"), XC (cptr));
-        }
+            xmlNewChild (tnode, NULL, XC ("textColor"), XC (cptr));
         else
-        {
-            cur_node = xpathObj->nodesetval->nodeTab[0];
-            xmlNodeSetContent (cur_node, XC (cptr));
-        }
+            xmlNodeSetContent (xpathObj->nodesetval->nodeTab[0], XC (cptr));
         xmlXPathFreeObject (xpathObj);
         g_free (cptr);
     }
 
     // cleanup XML
     xmlXPathFreeContext (xpathCtx);
-    xmlSaveFile (user_config_file, xDoc);
+    xmlSaveFormatFile (user_config_file, xDoc, 1);
     xmlFreeDoc (xDoc);
     xmlCleanupParser ();
 
