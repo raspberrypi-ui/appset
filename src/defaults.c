@@ -515,7 +515,7 @@ static void save_libreoffice_settings (void)
     LIBXML_TEST_VERSION
     if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        xDoc = xmlParseFile (user_config_file);
+        xDoc = xmlReadFile (user_config_file, NULL, 0);
         if (!xDoc) xDoc = xmlNewDoc (XC ("1.0"));
     }
     else xDoc = xmlNewDoc (XC ("1.0"));
@@ -887,7 +887,7 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     LIBXML_TEST_VERSION
     if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        xDoc = xmlParseFile (user_config_file);
+        xDoc = xmlReadFile (user_config_file, NULL, 0);
         if (!xDoc) xDoc = xmlNewDoc (XC ("1.0"));
     }
     else xDoc = xmlNewDoc (XC ("1.0"));
