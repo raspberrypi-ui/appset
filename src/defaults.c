@@ -724,10 +724,10 @@ void create_defaults (void)
     def_vlg.cursor_size = 48;
 
     def_vlg.terminal_font = "Monospace 20";
-    def_vlg.folder_size = 80;
-    def_vlg.thumb_size = 160;
-    def_vlg.pane_size = 32;
-    def_vlg.sicon_size = 32;
+    def_vlg.folder_size = 96;
+    def_vlg.thumb_size = 192;
+    def_vlg.pane_size = 48;
+    def_vlg.sicon_size = 48;
     def_vlg.tb_icon_size = 48;
     def_vlg.lo_icon_size = 3;
     def_vlg.task_width = 300;
