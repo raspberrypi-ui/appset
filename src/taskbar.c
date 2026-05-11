@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 #define MIN_ICON 16
-#define MAX_ICON 68
+#define MAX_ICON 100
 
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */
