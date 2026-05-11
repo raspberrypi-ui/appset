@@ -90,6 +90,7 @@ typedef struct {
     int barexcl;
     int dockexcl;
     int passive_desktop;
+    int dock;
 } Config;
 
 typedef enum {

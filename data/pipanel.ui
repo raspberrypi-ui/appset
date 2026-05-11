@@ -543,10 +543,12 @@
                         <property name="can-focus">False</property>
                         <property name="tooltip-text" translatable="yes">Set the size of icons used on the toolbar and menu</property>
                         <items>
-                          <item translatable="yes">Very large (48x48)</item>
-                          <item translatable="yes">Large (32x32)</item>
-                          <item translatable="yes">Medium (24x24)</item>
-                          <item translatable="yes">Small (16x16)</item>
+                          <item translatable="no">96x96</item>
+                          <item translatable="no">64x64</item>
+                          <item translatable="no">48x48</item>
+                          <item translatable="no">32x32</item>
+                          <item translatable="no">24x24</item>
+                          <item translatable="no">16x16</item>
                         </items>
                         <accessibility>
                           <relation type="labelled-by" target="label21"/>
@@ -1142,6 +1144,112 @@
                 <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
                 <child>
+                  <object class="GtkBox" id="hbox44">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="label44">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Style:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="radiobutton7">
+                        <property name="label" translatable="yes">Classic</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="tooltip-text" translatable="yes">Use the classic style desktop</property>
+                        <property name="active">True</property>
+                        <property name="draw-indicator">True</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label44"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="radiobutton8">
+                        <property name="label" translatable="yes">Dock</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="tooltip-text" translatable="yes">Use the new desktop style with a dock</property>
+                        <property name="active">True</property>
+                        <property name="draw-indicator">True</property>
+                        <property name="group">radiobutton7</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label44"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="hbox45">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="label45">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">For very large screens:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="defs_vlg">
+                        <property name="label" translatable="yes">Set Defaults</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Set to default values for very high-resolution displays</property>
+                        <accessibility>
+                          <relation type="labelled-by" target="label41"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkBox" id="hbox41">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -1180,7 +1288,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -1222,7 +1330,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -1264,49 +1372,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox44">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="spacing">5</property>
-                    <child>
-                      <object class="GtkLabel" id="label44">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">For Dock:</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="defs_dock">
-                        <property name="label" translatable="yes">Set Defaults</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">Set to default values for desktop with dock</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label44"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </object>
@@ -1356,10 +1422,12 @@
                         <property name="can-focus">False</property>
                         <property name="tooltip-text" translatable="yes">Set the size of icons used on the dock</property>
                         <items>
-                          <item translatable="yes">Very large (48x48)</item>
-                          <item translatable="yes">Large (32x32)</item>
-                          <item translatable="yes">Medium (24x24)</item>
-                          <item translatable="yes">Small (16x16)</item>
+                          <item translatable="no">96x96</item>
+                          <item translatable="no">64x64</item>
+                          <item translatable="no">48x48</item>
+                          <item translatable="no">32x32</item>
+                          <item translatable="no">24x24</item>
+                          <item translatable="no">16x16</item>
                         </items>
                         <accessibility>
                           <relation type="labelled-by" target="label51"/>
@@ -1750,6 +1818,7 @@
       <widget name="hbox42"/>
       <widget name="hbox43"/>
       <widget name="hbox44"/>
+      <widget name="hbox45"/>
       <widget name="hbox51"/>
       <widget name="hbox52"/>
       <widget name="hbox53"/>
@@ -1775,10 +1844,10 @@
       <widget name="colorbutton1"/>
       <widget name="colorbutton5"/>
       <widget name="comboboxtext3"/>
+      <widget name="defs_vlg"/>
       <widget name="defs_lg"/>
       <widget name="defs_med"/>
       <widget name="defs_sml"/>
-      <widget name="defs_dock"/>
       <widget name="colorbutton7"/>
       <widget name="colorbutton8"/>
       <widget name="comboboxtext4"/>
@@ -1792,6 +1861,8 @@
       <widget name="radiobutton4"/>
       <widget name="radiobutton5"/>
       <widget name="radiobutton6"/>
+      <widget name="radiobutton7"/>
+      <widget name="radiobutton8"/>
     </widgets>
   </object>
   <object class="GtkWindow" id="modal">

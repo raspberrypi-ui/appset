@@ -171,12 +171,12 @@ static void load_wfpanel_settings (void)
 
         err = NULL;
         val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
+        if (err == NULL && val >= 16 && val <= 96) cur_conf.icon_size = val + 4;
         else DEFAULT (icon_size);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "dock", "icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
+        if (err == NULL && val >= 16 && val <= 96) cur_conf.dock_icon_size = val + 4;
         else DEFAULT (dock_icon_size);
 
         err = NULL;
@@ -239,6 +239,12 @@ static void load_wfpanel_settings (void)
         val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
         if (err == NULL) cur_conf.task_width = val;
         else DEFAULT (task_width);
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
+        if (err == NULL && ret && strlen (ret)) cur_conf.dock = 1;
+        else DEFAULT (dock);
+        g_free (ret);
     }
     else
     {
@@ -248,6 +254,7 @@ static void load_wfpanel_settings (void)
         DEFAULT (monitor);
         DEFAULT (dockpos);
         DEFAULT (dmonitor);
+        DEFAULT (dock);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -277,11 +284,11 @@ static void load_wfpanel_settings (void)
 
         err = NULL;
         val = g_key_file_get_integer (kf, "panel", "icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.icon_size = val + 4;
+        if (err == NULL && val >= 16 && val <= 96) cur_conf.icon_size = val + 4;
 
         err = NULL;
         val = g_key_file_get_integer (kf, "dock", "icon_size", &err);
-        if (err == NULL && val >= 16 && val <= 48) cur_conf.dock_icon_size = val + 4;
+        if (err == NULL && val >= 16 && val <= 96) cur_conf.dock_icon_size = val + 4;
 
         err = NULL;
         ret = g_key_file_get_string (kf, "panel", "autohide", &err);
@@ -354,6 +361,15 @@ static void load_wfpanel_settings (void)
         err = NULL;
         val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
         if (err == NULL) cur_conf.task_width = val;
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
+        if (err == NULL && ret)
+        {
+            if (strlen (ret)) cur_conf.dock = 1;
+            else cur_conf.dock = 0;
+        }
+        g_free (ret);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -464,14 +480,18 @@ void set_taskbar_controls (void)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_dock), &cur_conf.dock_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_docktext), &cur_conf.docktext_colour[cur_conf.darkmode]);
 
-    if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 3);
-    else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 2);
-    else if (cur_conf.icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 1);
+    if (cur_conf.icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 5);
+    else if (cur_conf.icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 4);
+    else if (cur_conf.icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 3);
+    else if (cur_conf.icon_size <= 52) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 2);
+    else if (cur_conf.icon_size <= 68) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 1);
     else gtk_combo_box_set_active (GTK_COMBO_BOX (combo_size), 0);
 
-    if (cur_conf.dock_icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 3);
-    else if (cur_conf.dock_icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 2);
-    else if (cur_conf.dock_icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 1);
+    if (cur_conf.dock_icon_size <= 20) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 5);
+    else if (cur_conf.dock_icon_size <= 28) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 4);
+    else if (cur_conf.dock_icon_size <= 36) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 3);
+    else if (cur_conf.dock_icon_size <= 52) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 2);
+    else if (cur_conf.dock_icon_size <= 68) gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 1);
     else gtk_combo_box_set_active (GTK_COMBO_BOX (combo_docksize), 0);
 
     if (cur_conf.barpos)
@@ -531,16 +551,22 @@ static void on_bar_size_set (GtkComboBox *btn, gpointer ptr)
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
     {
-        case 0 :    cur_conf.icon_size = 52;
+        case 0 :    cur_conf.icon_size = 100;
+                    cur_conf.task_width = 400;
+                    break;
+        case 1 :    cur_conf.icon_size = 68;
                     cur_conf.task_width = 300;
                     break;
-        case 1 :    cur_conf.icon_size = 36;
+        case 2 :    cur_conf.icon_size = 52;
+                    cur_conf.task_width = 275;
+                    break;
+        case 3 :    cur_conf.icon_size = 36;
                     cur_conf.task_width = 200;
                     break;
-        case 2 :    cur_conf.icon_size = 28;
+        case 4 :    cur_conf.icon_size = 28;
                     cur_conf.task_width = 200;
                     break;
-        case 3 :    cur_conf.icon_size = 20;
+        case 5 :    cur_conf.icon_size = 20;
                     cur_conf.task_width = 150;
                     break;
     }
@@ -593,13 +619,17 @@ static void on_dock_size_set (GtkComboBox *btn, gpointer ptr)
     gint val = gtk_combo_box_get_active (btn);
     switch (val)
     {
-        case 0 :    cur_conf.dock_icon_size = 52;
+        case 0 :    cur_conf.dock_icon_size = 100;
                     break;
-        case 1 :    cur_conf.dock_icon_size = 36;
+        case 1 :    cur_conf.dock_icon_size = 68;
                     break;
-        case 2 :    cur_conf.dock_icon_size = 28;
+        case 2 :    cur_conf.dock_icon_size = 52;
                     break;
-        case 3 :    cur_conf.dock_icon_size = 20;
+        case 3 :    cur_conf.dock_icon_size = 36;
+                    break;
+        case 4 :    cur_conf.dock_icon_size = 28;
+                    break;
+        case 5 :    cur_conf.dock_icon_size = 20;
                     break;
     }
 

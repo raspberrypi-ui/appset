@@ -49,7 +49,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 Config def_med;
-static Config def_lg, def_sm;
+static Config def_vlg, def_lg, def_sm;
+
+static GtkWidget *rb_classic, *rb_dock;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -67,6 +69,7 @@ static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void reset_to_defaults (void);
 static void on_set_defaults (GtkButton *btn, gpointer ptr);
+static void enable_dock (void);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -226,6 +229,12 @@ static void defaults_wfpanel (void)
         val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
         if (err == NULL) def_med.task_width = val;
         else def_med.task_width = 200;
+
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
+        if (err == NULL && ret && strlen (ret)) def_med.dock = 1;
+        else def_med.dock = 0;
+        g_free (ret);
     }
     else
     {
@@ -236,6 +245,7 @@ static void defaults_wfpanel (void)
         def_med.dockpos = 1;
         def_med.dmonitor = 0;
         def_med.task_width = 200;
+        def_med.dock = 0;
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -677,9 +687,10 @@ void create_defaults (void)
     def_med.handle_width = 10;
     def_med.scrollbar_width = 13;
 
-    def_lg = def_sm = def_med;
+    def_vlg = def_lg = def_sm = def_med;
 
     def_lg.icon_size = 52;
+    def_lg.dock_icon_size = 68;
     def_lg.cursor_size = 36;
 
     def_lg.terminal_font = "Monospace 15";
@@ -694,6 +705,7 @@ void create_defaults (void)
     def_lg.scrollbar_width = 17;
 
     def_sm.icon_size = 20;
+    def_sm.dock_icon_size = 28;
     def_sm.cursor_size = 24;
 
     def_sm.terminal_font = "Monospace 8";
@@ -707,13 +719,30 @@ void create_defaults (void)
     def_sm.handle_width = 10;
     def_sm.scrollbar_width = 13;
 
+    def_vlg.icon_size = 68;
+    def_vlg.dock_icon_size = 100;
+    def_vlg.cursor_size = 48;
+
+    def_vlg.terminal_font = "Monospace 20";
+    def_vlg.folder_size = 80;
+    def_vlg.thumb_size = 160;
+    def_vlg.pane_size = 32;
+    def_vlg.sicon_size = 32;
+    def_vlg.tb_icon_size = 48;
+    def_vlg.lo_icon_size = 3;
+    def_vlg.task_width = 300;
+    def_vlg.handle_width = 20;
+    def_vlg.scrollbar_width = 17;
+
     if (trix_theme)
     {
+        def_vlg.desktop_font = "Nunito Sans Light 24";
         def_lg.desktop_font = "Nunito Sans Light 16";
         def_sm.desktop_font = "Nunito Sans Light 8";
     }
     else
     {
+        def_lg.desktop_font = "PibotoLt 24";
         def_lg.desktop_font = "PibotoLt 16";
         def_sm.desktop_font = "PibotoLt 8";
     }
@@ -748,6 +777,8 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     // set config structure to a default
     switch ((long int) ptr)
     {
+        case 4 :    cur_conf = def_vlg;
+                    break;
         case 3 :    cur_conf = def_lg;
                     break;
         case 1 :    cur_conf = def_sm;
@@ -780,6 +811,13 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     save_libreoffice_settings ();
     save_app_settings ();
 
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rb_dock)))
+    {
+        cur_conf.dock = TRUE;
+        enable_dock ();
+    }
+    else cur_conf.dock = FALSE;
+
     // reload everything to reflect the current state
     reload_session ();
     reload_panel ();
@@ -787,11 +825,8 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void on_set_dock (GtkButton *btn, gpointer ptr)
+static void enable_dock (void)
 {
-    // start with the medium defaults
-    on_set_defaults (NULL, (void *) 2);
-
     // add the dock to wf-panel-pi.ini
     char *user_config_file, *str;
     GKeyFile *kf;
@@ -935,6 +970,21 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
     g_free (user_config_file);
 }
 
+static void on_switch_dock (GtkRadioButton *btn, gpointer ptr)
+{
+    switch (cur_conf.icon_size)
+    {
+        case 20 :   on_set_defaults (NULL, (void *) 1);
+                    break;
+        case 52 :   on_set_defaults (NULL, (void *) 3);
+                    break;
+        case 68 :   on_set_defaults (NULL, (void *) 4);
+                    break;
+        default :   on_set_defaults (NULL, (void *) 2);
+                    break;
+    }
+}
+
 /*----------------------------------------------------------------------------*/
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
@@ -942,6 +992,9 @@ static void on_set_dock (GtkButton *btn, gpointer ptr)
 void load_defaults_tab (GtkBuilder *builder)
 {
     GObject *item;
+
+    item = gtk_builder_get_object (builder, "defs_vlg");
+    g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 4);
 
     item = gtk_builder_get_object (builder, "defs_lg");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 3);
@@ -952,8 +1005,11 @@ void load_defaults_tab (GtkBuilder *builder)
     item = gtk_builder_get_object (builder, "defs_sml");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 1);
 
-    item = gtk_builder_get_object (builder, "defs_dock");
-    g_signal_connect (item, "clicked", G_CALLBACK (on_set_dock), NULL);
+    rb_classic = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton7");
+    rb_dock = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton8");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dock), cur_conf.dock);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_classic), !cur_conf.dock);
+    g_signal_connect (rb_classic, "clicked", G_CALLBACK (on_switch_dock), NULL);
 }
 
 /* End of file */

@@ -319,6 +319,12 @@ msgstr "New mouse cursor size will take effect at reboot"
 msgid "System"
 msgstr "System"
 
+msgid "For very large screens:"
+msgstr "For Very Large Screens:"
+
+msgid "Style:"
+msgstr "Style:"
+
 #: ../data/pipanel.ui.h:63
 msgid "For large screens:"
 msgstr "For Large Screens:"
