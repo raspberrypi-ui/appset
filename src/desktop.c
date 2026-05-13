@@ -84,7 +84,7 @@ void reload_desktop (void)
     if (wm != WM_OPENBOX) vsystem ("wfpanelctl nmenu bg");
 }
 
-static void restart_desktop (void)
+void restart_desktop (void)
 {
     vsystem ("if pgrep swaybg > /dev/null ; then pkill swaybg ; else pkill pcmanfm ; fi");
 }

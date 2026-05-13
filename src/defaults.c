@@ -852,32 +852,14 @@ static void enable_dock (void)
     g_free (user_config_file);
 
     // set the desktop
-    int desktop = 0;
-    user_config_file = pcmanfm_file (FALSE, desktop, TRUE);
-    check_directory (user_config_file);
+    cur_conf.passive_desktop = TRUE;
+    save_pcman_g_settings ();
 
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
+    cur_conf.desktops[0].desktop_picture = g_strdup ("/usr/share/rpd-wallpaper/turbines.jpg");
+    cur_conf.desktops[0].desktop_mode = "stretch";
+    save_pcman_settings (0);
 
-    cur_conf.desktops[desktop].desktop_picture = g_strdup ("/usr/share/rpd-wallpaper/turbines.jpg");
-    cur_conf.desktops[desktop].show_home = FALSE;
-    cur_conf.desktops[desktop].show_trash = FALSE;
-    cur_conf.desktops[desktop].show_mnts = FALSE;
-    cur_conf.desktops[desktop].desktop_mode = "stretch";
-    g_key_file_set_string (kf, "*", "wallpaper", cur_conf.desktops[desktop].desktop_picture);
-    g_key_file_set_string (kf, "*", "wallpaper_mode", cur_conf.desktops[desktop].desktop_mode);
-    g_key_file_set_integer (kf, "*", "show_home", cur_conf.desktops[desktop].show_home);
-    g_key_file_set_integer (kf, "*", "show_trash", cur_conf.desktops[desktop].show_trash);
-    g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.desktops[desktop].show_mnts);
-
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-    g_free (str);
-
-    g_key_file_free (kf);
-    g_free (user_config_file);
-
-    reload_desktop ();
+    restart_desktop ();
 
     // configure libfm
     user_config_file = libfm_file ();

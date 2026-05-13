@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*----------------------------------------------------------------------------*/
 
 extern void reload_desktop (void);
+extern void restart_desktop (void);
 extern char *pcmanfm_file (gboolean global, int desktop, gboolean write);
 extern char *pcmanfm_g_file (gboolean global);
 extern void save_pcman_settings (int desktop);
