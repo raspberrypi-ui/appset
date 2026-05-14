@@ -525,7 +525,7 @@ static void save_libreoffice_settings (void)
     LIBXML_TEST_VERSION
     if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        xDoc = xmlReadFile (user_config_file, NULL, 0);
+        xDoc = xmlReadFile (user_config_file, NULL, XML_PARSE_NOBLANKS);
         if (!xDoc) xDoc = xmlNewDoc (XC ("1.0"));
     }
     else xDoc = xmlNewDoc (XC ("1.0"));
@@ -839,11 +839,9 @@ static void enable_dock (void)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_string (kf, "panel", "widgets_left", "");
-    g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
     g_key_file_set_string (kf, "panel", "layer", "bottom");
-    g_key_file_set_string (kf, "panel", "nmenu_overlay_text_col", "rgb(255,255,255)");
-    g_key_file_set_string (kf, "panel", "nmenu_overlay_col", "rgba(0,0,0,0)");
     g_key_file_set_boolean (kf, "panel", "exclusive", FALSE);
+    g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
     g_free (str);
@@ -856,7 +854,6 @@ static void enable_dock (void)
     save_pcman_g_settings ();
 
     cur_conf.desktops[0].desktop_picture = g_strdup ("/usr/share/rpd-wallpaper/turbines.jpg");
-    cur_conf.desktops[0].desktop_mode = "stretch";
     save_pcman_settings (0);
 
     restart_desktop ();
@@ -894,7 +891,7 @@ static void enable_dock (void)
     xmlDocPtr xDoc;
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
-    xmlNodePtr root, cur_node;
+    xmlNodePtr cur_node;
 
     user_config_file = labwc_file ();
     check_directory (user_config_file);
@@ -904,7 +901,7 @@ static void enable_dock (void)
     LIBXML_TEST_VERSION
     if (g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
     {
-        xDoc = xmlReadFile (user_config_file, NULL, 0);
+        xDoc = xmlReadFile (user_config_file, NULL, XML_PARSE_NOBLANKS);
         if (!xDoc) xDoc = xmlNewDoc (XC ("1.0"));
     }
     else xDoc = xmlNewDoc (XC ("1.0"));
@@ -915,32 +912,46 @@ static void enable_dock (void)
     xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
-        root = xmlNewNode (NULL, XC ("openbox_config"));
-        xmlNewNs (root, XC ("http://openbox.org/3.4/rc"), NULL);
-        xmlDocSetRootElement (xDoc, root);
+        cur_node = xmlNewNode (NULL, XC ("openbox_config"));
+        xmlNewNs (cur_node, XC ("http://openbox.org/3.4/rc"), NULL);
+        xmlDocSetRootElement (xDoc, cur_node);
     }
-    else root = xpathObj->nodesetval->nodeTab[0];
+    else cur_node = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
 
-    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:keyboard"), xpathCtx);
+    xpathObj = xmlXPathEvalExpression (XC ("./o:keyboard"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        cur_node = xmlNewChild (root, NULL, XC ("keyboard"), NULL);
-    else
-        cur_node = xpathObj->nodesetval->nodeTab[0];
+    {
+        cur_node = xmlNewChild (cur_node, NULL, XC ("keyboard"), NULL);
+    }
+    else cur_node = xpathObj->nodesetval->nodeTab[0];
     xmlXPathFreeObject (xpathObj);
 
     // create relevant nodes with new values
-    xpathObj = xmlXPathEvalExpression (XC ("/o:openbox_config/o:keyboard/o:keybind"), xpathCtx);
+    xpathObj = xmlXPathEvalExpression (XC ("./o:keybind[@key = 'Super_L']"), xpathCtx);
     if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
     {
         cur_node = xmlNewChild (cur_node, NULL, XC ("keybind"), NULL);
         xmlSetProp (cur_node, XC ("key"), XC ("Super_L"));
         xmlSetProp (cur_node, XC ("onRelease"), XC ("yes"));
+    }
+    else cur_node = xpathObj->nodesetval->nodeTab[0];
+    xmlXPathFreeObject (xpathObj);
 
+    xpathObj = xmlXPathEvalExpression (XC ("./o:action[@name = 'Execute']"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+    {
         cur_node = xmlNewChild (cur_node, NULL, XC ("action"), NULL);
         xmlSetProp (cur_node, XC ("name"), XC ("Execute"));
-        xmlNewChild (cur_node, NULL, XC ("command"), XC ("wfpanelctl nmenu menu"));
     }
+    else cur_node = xpathObj->nodesetval->nodeTab[0];
+    xmlXPathFreeObject (xpathObj);
+
+    xpathObj = xmlXPathEvalExpression (XC ("./o:command"), xpathCtx);
+    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
+        xmlNewChild (cur_node, NULL, XC ("command"), XC ("wfpanelctl nmenu menu"));
+    else
+        xmlNodeSetContent (xpathObj->nodesetval->nodeTab[0], XC ("wfpanelctl nmenu menu"));
     xmlXPathFreeObject (xpathObj);
 
     // cleanup XML
