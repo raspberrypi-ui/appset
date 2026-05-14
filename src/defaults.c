@@ -842,6 +842,8 @@ static void enable_dock (void)
     g_key_file_set_string (kf, "panel", "layer", "bottom");
     g_key_file_set_boolean (kf, "panel", "exclusive", FALSE);
     g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
+    g_key_file_set_string (kf, "panel", "nmenu_overlay_text_col", "rgb(255,255,255)");
+
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
     g_free (str);
