@@ -33,7 +33,7 @@
                       <object class="GtkLabel" id="label19">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Passive Desktop</property>
+                        <property name="label" translatable="yes">Active Desktop</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -51,7 +51,7 @@
                           <object class="GtkSwitch" id="switch4">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
-                            <property name="tooltip-text" translatable="yes">Do not display any icons on the desktop</property>
+                            <property name="tooltip-text" translatable="yes">Display icons on the desktop</property>
                             <accessibility>
                               <relation type="labelled-by" target="label19"/>
                             </accessibility>

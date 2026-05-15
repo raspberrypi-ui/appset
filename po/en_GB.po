@@ -365,5 +365,5 @@ msgstr ""
 msgid "_OK"
 msgstr ""
 
-msgid "Passive Desktop"
-msgstr "Passive Desktop:"
+msgid "Active Desktop"
+msgstr "Active Desktop:"

@@ -43,10 +43,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Controls */
 static GtkWidget *colour_desktop, *colour_desktoptext, *combo_mode, *file_picture;
-static GtkWidget *file_folder, *combo_monitor, *toggle_home, *toggle_trash, *toggle_mnts, *toggle_same, *toggle_passive;
+static GtkWidget *file_folder, *combo_monitor, *toggle_home, *toggle_trash, *toggle_mnts, *toggle_same, *toggle_active;
 
 /* Handler IDs */
-static gulong id_mode, id_home, id_trash, id_mnts, id_folder, id_same, id_monitor, id_passive;
+static gulong id_mode, id_home, id_trash, id_mnts, id_folder, id_same, id_monitor, id_active;
 
 /* Currently-selected desktop */
 static int desktop_n;
@@ -69,6 +69,7 @@ static void on_desktop_folder_set (GtkFileChooser *btn, gpointer ptr);
 static void on_toggle_home (GtkSwitch *btn, gpointer, gpointer);
 static void on_toggle_trash (GtkSwitch *btn, gpointer, gpointer);
 static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer);
+static void on_toggle_active (GtkSwitch *btn, gpointer, gpointer);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -346,7 +347,7 @@ void set_desktop_controls (void)
     g_signal_handler_block (file_folder, id_folder);
     g_signal_handler_block (toggle_same, id_same);
     g_signal_handler_block (combo_monitor, id_monitor);
-    g_signal_handler_block (toggle_passive, id_passive);
+    g_signal_handler_block (toggle_active, id_active);
     
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (toggle_same), cur_conf.common_bg);
     if (ndesks > 1)
@@ -386,11 +387,12 @@ void set_desktop_controls (void)
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktop), &cur_conf.desktops[desktop_n].desktop_colour);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_desktoptext), &cur_conf.desktops[desktop_n].desktoptext_colour);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_folder), cur_conf.desktops[desktop_n].desktop_folder);
-    gtk_switch_set_active (GTK_SWITCH (toggle_passive), cur_conf.passive_desktop);
+    gtk_switch_set_active (GTK_SWITCH (toggle_active), !cur_conf.passive_desktop);
 
     if (cur_conf.passive_desktop && wm != WM_OPENBOX) passive = TRUE;
     else passive = FALSE;
 
+    gtk_widget_set_sensitive (colour_desktoptext, !passive);
     gtk_widget_set_sensitive (toggle_home, !passive);
     gtk_widget_set_sensitive (toggle_trash, !passive);
     gtk_widget_set_sensitive (toggle_mnts, !passive);
@@ -400,10 +402,11 @@ void set_desktop_controls (void)
     gtk_switch_set_active (GTK_SWITCH (toggle_trash), passive ? FALSE : cur_conf.desktops[desktop_n].show_trash);
     gtk_switch_set_active (GTK_SWITCH (toggle_mnts), passive ? FALSE : cur_conf.desktops[desktop_n].show_mnts);
 
-    gtk_widget_set_tooltip_text (toggle_home, passive ? _("Not available in passive desktop") : _("Show the current user's home folder on the desktop"));
-    gtk_widget_set_tooltip_text (toggle_trash, passive ? _("Not available in passive desktop") : _("Show the wastebasket on the desktop"));
-    gtk_widget_set_tooltip_text (toggle_mnts, passive ? _("Not available in passive desktop") : _("Show mounted disks on the desktop"));
-    gtk_container_foreach (GTK_CONTAINER (file_folder), (GtkCallback) set_fb_tooltip, passive ? _("Not available in passive desktop") : _("Choose the folder containing files to be shown on the second desktop"));
+    gtk_widget_set_tooltip_text (colour_desktoptext, passive ? _("Only available in active desktop") : _("Choose the colour of the text used for desktop icon labels"));
+    gtk_widget_set_tooltip_text (toggle_home, passive ? _("Only available in active desktop") : _("Show the current user's home folder on the desktop"));
+    gtk_widget_set_tooltip_text (toggle_trash, passive ? _("Only available in active desktop") : _("Show the wastebasket on the desktop"));
+    gtk_widget_set_tooltip_text (toggle_mnts, passive ? _("Only available in active desktop") : _("Show mounted disks on the desktop"));
+    gtk_container_foreach (GTK_CONTAINER (file_folder), (GtkCallback) set_fb_tooltip, passive ? _("Only available in active desktop") : _("Choose the folder containing files to be shown on the second desktop"));
 
     g_signal_handler_unblock (toggle_same, id_same);
     g_signal_handler_unblock (combo_monitor, id_monitor);
@@ -412,7 +415,7 @@ void set_desktop_controls (void)
     g_signal_handler_unblock (toggle_trash, id_trash);
     g_signal_handler_unblock (toggle_mnts, id_mnts);
     g_signal_handler_unblock (file_folder, id_folder);
-    g_signal_handler_unblock (toggle_passive, id_passive);
+    g_signal_handler_unblock (toggle_active, id_active);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -545,9 +548,9 @@ static void on_toggle_mnts (GtkSwitch *btn, gpointer, gpointer)
     reload_desktop ();
 }
 
-static void on_toggle_passive (GtkSwitch *btn, gpointer, gpointer)
+static void on_toggle_active (GtkSwitch *btn, gpointer, gpointer)
 {
-    cur_conf.passive_desktop = gtk_switch_get_active (btn);
+    cur_conf.passive_desktop = gtk_switch_get_active (btn) ? 0 : 1;
 
     save_pcman_g_settings ();
     restart_desktop ();
@@ -616,8 +619,8 @@ void load_desktop_tab (GtkBuilder *builder)
     combo_monitor = (GtkWidget *) gtk_builder_get_object (builder, "cb_desktop");
     id_monitor = g_signal_connect (combo_monitor, "changed", G_CALLBACK (on_desktop_changed), NULL);
 
-    toggle_passive = (GtkWidget *) gtk_builder_get_object (builder, "switch4");
-    id_passive = g_signal_connect (toggle_passive, "notify::active", G_CALLBACK (on_toggle_passive), NULL);
+    toggle_active = (GtkWidget *) gtk_builder_get_object (builder, "switch4");
+    id_active = g_signal_connect (toggle_active, "notify::active", G_CALLBACK (on_toggle_active), NULL);
 
     // add accessibility label to combo box child of file chooser (yes, I know the previous one attached to a button...)
     lbl = GTK_LABEL (gtk_builder_get_object (builder, "label15"));
