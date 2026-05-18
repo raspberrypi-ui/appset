@@ -1,0 +1,356 @@
+# Polish translations for pipanel package.
+# Copyright (C) 2026 Raspberry Pi
+# This file is distributed under the same license as the pipanel package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pipanel\n"
+"POT-Creation-Date: 2026-04-12 16:44+0200\n"
+"PO-Revision-Date: 2026-04-13 11:23+0200\n"
+"Last-Translator: Skotniczny <skotniczny@outlook.com>\n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../src/pipanel.c:349
+msgctxt "tab"
+msgid "Desktop"
+msgstr "Pulpit"
+
+#: ../src/pipanel.c:350
+msgctxt "tab"
+msgid "Taskbar"
+msgstr "Pasek zadań"
+
+#: ../src/pipanel.c:351
+msgctxt "tab"
+msgid "Theme"
+msgstr "Motyw"
+
+#: ../src/pipanel.c:352
+msgctxt "tab"
+msgid "Defaults"
+msgstr "Domyślne"
+
+#: ../src/pipanel.c:353
+msgid "No such tab"
+msgstr "Nie ma takiej zakładki"
+
+#: ../src/pipanel.c:615 ../src/defaults.c:630 ../src/system.c:1246
+msgid ""
+"The theme for Geany cannot be changed while it is open.\n"
+"Please close it and try again."
+msgstr ""
+"Nie można zmienić motywu programu Geany, gdy jest on otwarty.\n"
+"Zamknij program i spróbuj ponownie."
+
+#: ../src/pipanel.c:621 ../src/defaults.c:636 ../src/system.c:1256
+msgid ""
+"The theme for Calculator cannot be changed while it is open.\n"
+"Please close it and try again."
+msgstr ""
+"Nie można zmienić motywu Kalkulatora, gdy jest on otwarty.\n"
+"Zamknij program i spróbuj ponownie."
+
+#: ../src/pipanel.c:625
+msgid "Restoring configuration - please wait..."
+msgstr "Przywracanie konfiguracji – proszę czekać…"
+
+#: ../src/pipanel.c:703
+msgid "Loading configuration - please wait..."
+msgstr "Wczytywanie konfiguracji – proszę czekać…"
+
+#. End of file
+#. ----------------------------------------------------------------------------
+#: ../data/pipanel.ui.h:1
+msgid "Appearance Settings"
+msgstr "Ustawienia wyglądu"
+
+#: ../data/pipanel.ui.h:2
+msgid "Desktop Number"
+msgstr "Numer pulpitu"
+
+#: ../data/pipanel.ui.h:3
+msgid "Choose the desktop to configure"
+msgstr "Wybierz pulpit do skonfigurowania"
+
+#: ../data/pipanel.ui.h:4
+msgid "Show identical desktop on second monitor"
+msgstr "Pokaż identyczny pulpit na drugim monitorze"
+
+#: ../data/pipanel.ui.h:5
+msgid ""
+"Check this box to show the same desktop image and icons on both monitors"
+msgstr ""
+"Zaznacz to pole, aby wyświetlać ten sam obraz pulpitu i ikony na obu monitorach"
+
+#: ../data/pipanel.ui.h:6
+msgid "Layout"
+msgstr "Układ"
+
+#: ../data/pipanel.ui.h:7
+msgid "Set how the wallpaper should be fitted to the screen"
+msgstr "Ustaw sposób dopasowania tapety do ekranu"
+
+#: ../data/pipanel.ui.h:8
+msgid "No image"
+msgstr "Bez obrazu"
+
+#: ../data/pipanel.ui.h:9
+msgid "Centre image on screen"
+msgstr "Wyśrodkuj obraz na ekranie"
+
+#: ../data/pipanel.ui.h:10
+msgid "Fit image onto screen"
+msgstr "Dopasuj obraz do ekranu"
+
+#: ../data/pipanel.ui.h:11
+msgid "Fill screen with image"
+msgstr "Wypełnij ekran obrazem"
+
+#: ../data/pipanel.ui.h:12
+msgid "Stretch to cover screen"
+msgstr "Rozciągnij na cały ekran"
+
+#: ../data/pipanel.ui.h:13
+msgid "Tile image"
+msgstr "Kafelkuj obraz"
+
+#: ../data/pipanel.ui.h:14
+msgid "Picture"
+msgstr "Obraz"
+
+#: ../data/pipanel.ui.h:15
+msgid "Choose image file to use as wallpaper"
+msgstr "Wybierz obraz tapety"
+
+#: ../data/pipanel.ui.h:16
+msgid "Colour"
+msgstr "Kolor"
+
+#: ../data/pipanel.ui.h:17
+msgid "Choose the colour of the desktop background"
+msgstr "Wybierz kolor tła pulpitu"
+
+#: ../data/pipanel.ui.h:18
+msgid "Text Colour"
+msgstr "Kolor tekstu"
+
+#: ../data/pipanel.ui.h:19
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr "Wybierz kolor tekstu używanego dla etykiet ikon pulpitu"
+
+#: ../data/pipanel.ui.h:20
+msgid "Desktop Folder"
+msgstr "Folder pulpitu"
+
+#: ../data/pipanel.ui.h:21
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "Wybierz folder zawierający pliki wyświetlane na drugim pulpicie"
+
+#: ../data/pipanel.ui.h:22
+msgid "Show Home Folder"
+msgstr "Pokaż katalog domowy"
+
+#: ../data/pipanel.ui.h:23
+msgid "Show the current user's home folder on the desktop"
+msgstr "Pokaż katalog domowy użytkownika na pulpicie"
+
+#: ../data/pipanel.ui.h:24
+msgid "Show Wastebasket"
+msgstr "Pokaż kosz"
+
+#: ../data/pipanel.ui.h:25
+msgid "Show the wastebasket on the desktop"
+msgstr "Pokaż kosz na pulpicie"
+
+#: ../data/pipanel.ui.h:26
+msgid "Show Mounted Disks"
+msgstr "Pokaż zamontowane dyski"
+
+#: ../data/pipanel.ui.h:27
+msgid "Show mounted disks on the desktop"
+msgstr "Pokaż zamontowane dyski na pulpicie"
+
+#: ../data/pipanel.ui.h:28
+msgid "Desktop"
+msgstr "Pulpit"
+
+#: ../data/pipanel.ui.h:29
+msgid "Size"
+msgstr "Rozmiar"
+
+#: ../data/pipanel.ui.h:30
+msgid "Set the size of icons used on the toolbar and menu"
+msgstr "Ustaw rozmiar ikon używanych na pasku narzędzi i w menu"
+
+#: ../data/pipanel.ui.h:31
+msgid "Very large (48x48)"
+msgstr "Bardzo duże (48x48)"
+
+#: ../data/pipanel.ui.h:32
+msgid "Large (32x32)"
+msgstr "Duże (32x32)"
+
+#: ../data/pipanel.ui.h:33
+msgid "Medium (24x24)"
+msgstr "Średnie (24x24)"
+
+#: ../data/pipanel.ui.h:34
+msgid "Small (16x16)"
+msgstr "Małe (16x16)"
+
+#: ../data/pipanel.ui.h:35
+msgid "Position"
+msgstr "Pozycja"
+
+#: ../data/pipanel.ui.h:36
+msgid "Top"
+msgstr "Góra"
+
+#: ../data/pipanel.ui.h:37
+msgid "Show the taskbar at the top of the screen"
+msgstr "Pokaż pasek zadań na górze ekranu"
+
+#: ../data/pipanel.ui.h:38
+msgid "Bottom"
+msgstr "Dół"
+
+#: ../data/pipanel.ui.h:39
+msgid "Show the taskbar at the bottom of the screen"
+msgstr "Pokaż pasek zadań na dole ekranu"
+
+#: ../data/pipanel.ui.h:40
+msgid "Choose the colour of the taskbar background"
+msgstr "Wybierz kolor tła paska zadań"
+
+#: ../data/pipanel.ui.h:41
+msgid "Choose the colour of text used on the taskbar"
+msgstr "Wybierz kolor tekstu używanego na pasku zadań"
+
+#: ../data/pipanel.ui.h:42
+msgid "Location"
+msgstr "Położenie"
+
+#: ../data/pipanel.ui.h:43
+msgid "Choose the screen where the taskbar is shown"
+msgstr "Wybierz ekran, na którym wyświetlany jest pasek zadań"
+
+#: ../data/pipanel.ui.h:44
+msgid "Menu Bar"
+msgstr "Pasek menu"
+
+#: ../data/pipanel.ui.h:45
+msgid "Font"
+msgstr "Czcionka"
+
+#: ../data/pipanel.ui.h:46
+msgid "Choose the font used for labels and menus"
+msgstr "Wybierz czcionkę używaną dla etykiet i menu"
+
+#: ../data/pipanel.ui.h:47
+msgid "Highlight Colour"
+msgstr "Kolor podświetlenia"
+
+#: ../data/pipanel.ui.h:48
+msgid "Choose the colour used to highlight active elements"
+msgstr "Wybierz kolor używany do podświetlania aktywnych elementów"
+
+#: ../data/pipanel.ui.h:49
+msgid "Highlight Text Colour"
+msgstr "Kolor podświetlonego tekstu"
+
+#: ../data/pipanel.ui.h:50
+msgid "Choose the colour used for text on active elements"
+msgstr "Wybierz kolor tekstu aktywnych elementów"
+
+#: ../data/pipanel.ui.h:51
+msgid "Mouse Cursor"
+msgstr "Kursor myszy"
+
+#: ../data/pipanel.ui.h:52
+msgid "Set the size of the mouse cursor"
+msgstr "Ustaw rozmiar kursora myszy"
+
+#: ../data/pipanel.ui.h:53
+msgid "Large"
+msgstr "Duży"
+
+#: ../data/pipanel.ui.h:54
+msgid "Medium"
+msgstr "Średni"
+
+#: ../data/pipanel.ui.h:55
+msgid "Small"
+msgstr "Mały"
+
+#: ../data/pipanel.ui.h:56
+msgid "Theme"
+msgstr "Motyw"
+
+#: ../data/pipanel.ui.h:57
+msgid "Light"
+msgstr "Jasny"
+
+#: ../data/pipanel.ui.h:58
+msgid "Set the desktop to use light colours"
+msgstr "Jasny motyw systemu"
+
+#: ../data/pipanel.ui.h:59
+msgid "Dark"
+msgstr "Ciemny"
+
+#: ../data/pipanel.ui.h:60
+msgid "Set the desktop to use dark colours"
+msgstr "Ciemny motyw systemu"
+
+#: ../data/pipanel.ui.h:61
+msgid "New mouse cursor size will take effect at reboot"
+msgstr "Nowy rozmiar kursora myszy zostanie zastosowany po ponownym uruchomieniu"
+
+#: ../data/pipanel.ui.h:62
+msgid "System"
+msgstr "System"
+
+#: ../data/pipanel.ui.h:63
+msgid "For large screens:"
+msgstr "Dla dużych ekranów:"
+
+#: ../data/pipanel.ui.h:64
+msgid "Set Defaults"
+msgstr "Ustaw domyślne"
+
+#: ../data/pipanel.ui.h:65
+msgid "Set to default values for high-resolution displays"
+msgstr "Ustaw domyślne wartości dla wyświetlaczy wysokiej rozdzielczości"
+
+#: ../data/pipanel.ui.h:66
+msgid "For medium screens:"
+msgstr "Dla średnich ekranów:"
+
+#: ../data/pipanel.ui.h:67
+msgid "Set to default values for medium-resolution displays"
+msgstr "Ustaw domyślne wartości dla wyświetlaczy średniej rozdzielczości"
+
+#: ../data/pipanel.ui.h:68
+msgid "For small screens:"
+msgstr "Dla małych ekranów:"
+
+#: ../data/pipanel.ui.h:69
+msgid "Set to default values for low-resolution displays"
+msgstr "Ustaw domyślne wartości dla wyświetlaczy niskiej rozdzielczości"
+
+#: ../data/pipanel.ui.h:70
+msgid "Defaults"
+msgstr "Domyślne"
+
+#: ../data/pipanel.ui.h:71
+msgid "_Cancel"
+msgstr "_Anuluj"
+
+#: ../data/pipanel.ui.h:72
+msgid "_OK"
+msgstr "_OK"
