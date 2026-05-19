@@ -786,11 +786,6 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
         default :   cur_conf = def_med;
     }
 
-    // reset the GUI controls to match the variables
-    set_desktop_controls ();
-    set_taskbar_controls ();
-    set_system_controls ();
-
     // save changes to files if not using medium (the global default)
     if ((long int) ptr != 2)
     {
@@ -817,6 +812,11 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
         enable_dock ();
     }
     else cur_conf.dock = FALSE;
+
+    // reset the GUI controls to match the variables
+    set_desktop_controls ();
+    set_taskbar_controls ();
+    set_system_controls ();
 
     // reload everything to reflect the current state
     reload_session ();
