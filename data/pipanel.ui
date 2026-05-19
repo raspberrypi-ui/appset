@@ -244,6 +244,7 @@
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of the desktop background</property>
                         <property name="title" translatable="yes">Desktop Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label13"/>
                         </accessibility>
@@ -286,6 +287,7 @@
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour of the text used for desktop icon labels</property>
                         <property name="title" translatable="yes">Desktop Text Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label14"/>
                         </accessibility>
@@ -543,12 +545,12 @@
                         <property name="can-focus">False</property>
                         <property name="tooltip-text" translatable="yes">Set the size of icons used on the toolbar and menu</property>
                         <items>
-                          <item translatable="no">96x96</item>
-                          <item translatable="no">64x64</item>
-                          <item translatable="no">48x48</item>
-                          <item translatable="no">32x32</item>
-                          <item translatable="no">24x24</item>
-                          <item translatable="no">16x16</item>
+                          <item>96x96</item>
+                          <item>64x64</item>
+                          <item>48x48</item>
+                          <item>32x32</item>
+                          <item>24x24</item>
+                          <item>16x16</item>
                         </items>
                         <accessibility>
                           <relation type="labelled-by" target="label21"/>
@@ -658,6 +660,7 @@
                         <property name="tooltip-text" translatable="yes">Choose the colour of the taskbar background</property>
                         <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Taskbar Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label23"/>
                         </accessibility>
@@ -701,6 +704,7 @@
                         <property name="tooltip-text" translatable="yes">Choose the colour of text used on the taskbar</property>
                         <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Taskbar Text Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label24"/>
                         </accessibility>
@@ -926,6 +930,7 @@
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used to highlight active elements</property>
                         <property name="title" translatable="yes">Theme Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label32"/>
                         </accessibility>
@@ -968,6 +973,7 @@
                         <property name="receives-default">True</property>
                         <property name="tooltip-text" translatable="yes">Choose the colour used for text on active elements</property>
                         <property name="title" translatable="yes">Theme Text Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label33"/>
                         </accessibility>
@@ -1422,12 +1428,12 @@
                         <property name="can-focus">False</property>
                         <property name="tooltip-text" translatable="yes">Set the size of icons used on the dock</property>
                         <items>
-                          <item translatable="no">96x96</item>
-                          <item translatable="no">64x64</item>
-                          <item translatable="no">48x48</item>
-                          <item translatable="no">32x32</item>
-                          <item translatable="no">24x24</item>
-                          <item translatable="no">16x16</item>
+                          <item>96x96</item>
+                          <item>64x64</item>
+                          <item>48x48</item>
+                          <item>32x32</item>
+                          <item>24x24</item>
+                          <item>16x16</item>
                         </items>
                         <accessibility>
                           <relation type="labelled-by" target="label51"/>
@@ -1537,6 +1543,7 @@
                         <property name="tooltip-text" translatable="yes">Choose the colour of the dock background</property>
                         <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Taskbar Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label53"/>
                         </accessibility>
@@ -1580,6 +1587,7 @@
                         <property name="tooltip-text" translatable="yes">Choose the colour of text used on the dock</property>
                         <property name="use-alpha">True</property>
                         <property name="title" translatable="yes">Taskbar Text Colour</property>
+                        <property name="show-editor">True</property>
                         <accessibility>
                           <relation type="labelled-by" target="label54"/>
                         </accessibility>
