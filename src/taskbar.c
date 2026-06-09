@@ -49,10 +49,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static GtkWidget *colour_bar, *colour_bartext, *rb_top, *rb_bottom, *combo_size;
 static GtkWidget *colour_dock, *colour_docktext, *rb_dtop, *rb_dbottom, *combo_docksize;
 static GtkWidget *combo_monitor, *combo_dmonitor;
-static GtkWidget *sw_bar_ahide, *sw_bar_excl, *sw_dock_ahide, *sw_dock_excl;
+static GtkWidget *sw_bar_ahide, *sw_dock_ahide;
 
 /* Handler IDs */
-static gulong id_size, id_pos, id_monitor, id_dsize, id_dpos, id_dmonitor, id_bara, id_bare, id_doca, id_doce;
+static gulong id_size, id_pos, id_monitor, id_dsize, id_dpos, id_dmonitor, id_bara, id_doca;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -73,9 +73,7 @@ static void on_dock_textcolour_set (GtkColorChooser *btn, gpointer ptr);
 static void on_dock_pos_set (GtkRadioButton *btn, gpointer ptr);
 static void on_dock_loc_set (GtkComboBox *cb, gpointer ptr);
 static void on_toggle_bar_ahide (GtkSwitch *btn, gpointer, gpointer);
-static void on_toggle_bar_excl (GtkSwitch *btn, gpointer, gpointer);
 static void on_toggle_dock_ahide (GtkSwitch *btn, gpointer, gpointer);
-static void on_toggle_dock_excl (GtkSwitch *btn, gpointer, gpointer);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -192,18 +190,6 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "exclusive", &err);
-        if (err == NULL && ret && !strcmp (ret, "false")) cur_conf.barexcl = 0;
-        else DEFAULT (barexcl);
-        g_free (ret);
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "dock", "exclusive", &err);
-        if (err == NULL && ret && !strcmp (ret, "true")) cur_conf.dockexcl = 1;
-        else DEFAULT (dockexcl);
-        g_free (ret);
-
-        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "monitor", &err);
         DEFAULT (monitor);
         if (err == NULL && ret)
@@ -309,24 +295,6 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "panel", "exclusive", &err);
-        if (err == NULL && ret)
-        {
-            if (!strcmp (ret, "false")) cur_conf.barexcl = 0;
-            else cur_conf.barexcl = 1;
-        }
-        g_free (ret);
-
-        err = NULL;
-        ret = g_key_file_get_string (kf, "dock", "exclusive", &err);
-        if (err == NULL && ret)
-        {
-            if (!strcmp (ret, "true")) cur_conf.dockexcl = 1;
-            else cur_conf.dockexcl = 0;
-        }
-        g_free (ret);
-
-        err = NULL;
         ret = g_key_file_get_string (kf, "panel", "monitor", &err);
         if (err == NULL && ret)
         {
@@ -420,8 +388,6 @@ static void save_wfpanel_settings (void)
     g_key_file_set_integer (kf, "dock", "icon_size", cur_conf.dock_icon_size - 4);
     g_key_file_set_string (kf, "panel", "autohide", cur_conf.barahide ? "true" : "false");
     g_key_file_set_string (kf, "dock", "autohide", cur_conf.dockahide ? "true" : "false");
-    g_key_file_set_string (kf, "panel", "exclusive", cur_conf.barexcl ? "true" : "false");
-    g_key_file_set_string (kf, "dock", "exclusive", cur_conf.dockexcl ? "true" : "false");
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -470,9 +436,7 @@ void set_taskbar_controls (void)
     g_signal_handler_block (combo_monitor, id_monitor);
     g_signal_handler_block (combo_dmonitor, id_dmonitor);
     g_signal_handler_block (sw_bar_ahide, id_bara);
-    g_signal_handler_block (sw_bar_excl, id_bare);
     g_signal_handler_block (sw_dock_ahide, id_doca);
-    g_signal_handler_block (sw_dock_excl, id_doce);
 
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bar), &cur_conf.bar_colour[cur_conf.darkmode]);
     gtk_color_chooser_set_rgba (GTK_COLOR_CHOOSER (colour_bartext), &cur_conf.bartext_colour[cur_conf.darkmode]);
@@ -526,9 +490,7 @@ void set_taskbar_controls (void)
     }
 
     gtk_switch_set_active (GTK_SWITCH (sw_bar_ahide), cur_conf.barahide);
-    gtk_switch_set_active (GTK_SWITCH (sw_bar_excl), cur_conf.barexcl);
     gtk_switch_set_active (GTK_SWITCH (sw_dock_ahide), cur_conf.dockahide);
-    gtk_switch_set_active (GTK_SWITCH (sw_dock_excl), cur_conf.dockexcl);
 
     g_signal_handler_unblock (rb_dtop, id_dpos);
     g_signal_handler_unblock (rb_top, id_pos);
@@ -537,9 +499,7 @@ void set_taskbar_controls (void)
     g_signal_handler_unblock (combo_docksize, id_dsize);
     g_signal_handler_unblock (combo_size, id_size);
     g_signal_handler_unblock (sw_bar_ahide, id_bara);
-    g_signal_handler_unblock (sw_bar_excl, id_bare);
     g_signal_handler_unblock (sw_dock_ahide, id_doca);
-    g_signal_handler_unblock (sw_dock_excl, id_doce);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -683,25 +643,9 @@ static void on_toggle_bar_ahide (GtkSwitch *btn, gpointer, gpointer)
     reload_panel ();
 }
 
-static void on_toggle_bar_excl (GtkSwitch *btn, gpointer, gpointer)
-{
-    cur_conf.barexcl = gtk_switch_get_active (btn);
-
-    save_panel_settings ();
-    reload_panel ();
-}
-
 static void on_toggle_dock_ahide (GtkSwitch *btn, gpointer, gpointer)
 {
     cur_conf.dockahide = gtk_switch_get_active (btn);
-
-    save_panel_settings ();
-    reload_panel ();
-}
-
-static void on_toggle_dock_excl (GtkSwitch *btn, gpointer, gpointer)
-{
-    cur_conf.dockexcl = gtk_switch_get_active (btn);
 
     save_panel_settings ();
     reload_panel ();
@@ -753,12 +697,6 @@ void load_taskbar_tab (GtkBuilder *builder)
 
     sw_dock_ahide = (GtkWidget *) gtk_builder_get_object (builder, "sw_dock_ahide");
     id_doca = g_signal_connect (sw_dock_ahide, "notify::active", G_CALLBACK (on_toggle_dock_ahide), NULL);
-
-    sw_bar_excl = (GtkWidget *) gtk_builder_get_object (builder, "sw_bar_excl");
-    id_bare = g_signal_connect (sw_bar_excl, "notify::active", G_CALLBACK (on_toggle_bar_excl), NULL);
-
-    sw_dock_excl = (GtkWidget *) gtk_builder_get_object (builder, "sw_dock_excl");
-    id_doce = g_signal_connect (sw_dock_excl, "notify::active", G_CALLBACK (on_toggle_dock_excl), NULL);
 
     if (ndesks > 1)
     {

@@ -801,45 +801,6 @@
                     <property name="position">5</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkBox" id="hbox27">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label27">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Exclusive</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSwitch" id="sw_bar_excl">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Prevent other windows overlapping the taskbar</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label27"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="position">2</property>
@@ -1684,45 +1645,6 @@
                     <property name="position">5</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkBox" id="hbox57">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label57">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Exclusive</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSwitch" id="sw_dock_excl">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Prevent other windows overlapping the dock</property>
-                        <accessibility>
-                          <relation type="labelled-by" target="label57"/>
-                        </accessibility>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="position">5</property>
@@ -1816,7 +1738,6 @@
       <widget name="hbox24"/>
       <widget name="hbox25"/>
       <widget name="hbox26"/>
-      <widget name="hbox27"/>
       <widget name="hbox31"/>
       <widget name="hbox32"/>
       <widget name="hbox33"/>
@@ -1833,7 +1754,6 @@
       <widget name="hbox54"/>
       <widget name="hbox55"/>
       <widget name="hbox56"/>
-      <widget name="hbox57"/>
     </widgets>
   </object>
   <object class="GtkSizeGroup">
