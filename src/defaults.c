@@ -839,9 +839,11 @@ static void enable_dock (void)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
     g_key_file_set_string (kf, "panel", "widgets_left", "");
-    g_key_file_set_string (kf, "panel", "layer", "bottom");
-    g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
+    g_key_file_set_string (kf, "panel", "widgets_right", "");
+    g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist spacing0 clock spacing0");
+    g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter power tray bluetooth connect");
     g_key_file_set_string (kf, "panel", "nmenu_overlay_text_col", "rgb(255,255,255)");
+    g_key_file_set_string (kf, "panel", "clock_analogue", "1");
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
