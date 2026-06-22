@@ -1,3 +1,9 @@
+pipanel (1:2.12) trixie; urgency=medium
+
+  * Reinstate exclusive switching
+
+ -- Simon Long <simon@raspberrypi.com>  Mon, 22 Jun 2026 07:46:17 +0100
+
 pipanel (1:2.11) trixie; urgency=medium
 
   * Test package for dock features
