@@ -946,15 +946,9 @@ static void enable_dock (void)
     {
         cur_node = xmlNewChild (cur_node, NULL, XC ("action"), NULL);
         xmlSetProp (cur_node, XC ("name"), XC ("Execute"));
+        xmlSetProp (cur_node, XC ("command"), XC ("wfpanelctl nmenu menu"));
     }
     else cur_node = xpathObj->nodesetval->nodeTab[0];
-    xmlXPathFreeObject (xpathObj);
-
-    xpathObj = xmlXPathEvalExpression (XC ("./o:command"), xpathCtx);
-    if (xmlXPathNodeSetIsEmpty (xpathObj->nodesetval))
-        xmlNewChild (cur_node, NULL, XC ("command"), XC ("wfpanelctl nmenu menu"));
-    else
-        xmlNodeSetContent (xpathObj->nodesetval->nodeTab[0], XC ("wfpanelctl nmenu menu"));
     xmlXPathFreeObject (xpathObj);
 
     // cleanup XML
