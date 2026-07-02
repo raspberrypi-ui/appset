@@ -308,7 +308,7 @@ static void init_config (void)
     // load current state and controls
     load_desktop_tab (builder);
     load_taskbar_tab (builder);
-    load_system_tab (builder);
+    load_theme_tab (builder);
     load_defaults_tab (builder);
 
     // create session file to be tracked

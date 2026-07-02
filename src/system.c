@@ -1333,7 +1333,7 @@ gboolean system_reboot (void)
 /* Initialisation                                                             */
 /*----------------------------------------------------------------------------*/
 
-void load_system_tab (GtkBuilder *builder)
+void load_theme_tab (GtkBuilder *builder)
 {
     if (wm == WM_OPENBOX) load_lxsession_settings ();
     else load_gsettings ();

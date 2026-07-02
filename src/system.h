@@ -53,7 +53,7 @@ extern int is_dark (void);
 extern void reload_theme (long int quit);
 extern void set_system_controls (void);
 extern gboolean system_reboot (void);
-extern void load_system_tab (GtkBuilder *builder);
+extern void load_theme_tab (GtkBuilder *builder);
 
 /* End of file */
 /*----------------------------------------------------------------------------*/
