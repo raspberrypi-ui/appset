@@ -236,7 +236,7 @@ static void load_wfpanel_settings (void)
         }
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        val = g_key_file_get_integer (kf, "window-list", "max_width", &err);
         if (err == NULL) cur_conf.task_width = val;
         else DEFAULT (task_width);
 
@@ -359,7 +359,7 @@ static void load_wfpanel_settings (void)
         g_free (ret);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        val = g_key_file_get_integer (kf, "window-list", "max_width", &err);
         if (err == NULL) cur_conf.task_width = val;
 
         err = NULL;
@@ -437,8 +437,8 @@ static void save_wfpanel_settings (void)
     g_key_file_set_string (kf, "dock", "monitor", buf);
     g_free (buf);
 
-    g_key_file_set_integer (kf, "panel", "window-list_max_width", cur_conf.task_width);
-    g_key_file_set_integer (kf, "panel", "tlist_max_width", cur_conf.task_width);
+    g_key_file_set_integer (kf, "window-list", "max_width", cur_conf.task_width);
+    g_key_file_set_integer (kf, "tlist", "max_width", cur_conf.task_width);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);

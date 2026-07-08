@@ -226,7 +226,7 @@ static void defaults_wfpanel (void)
         g_free (ret);
 
         err = NULL;
-        val = g_key_file_get_integer (kf, "panel", "window-list_max_width", &err);
+        val = g_key_file_get_integer (kf, "window-list", "max_width", &err);
         if (err == NULL) def_med.task_width = val;
         else def_med.task_width = 200;
 
@@ -842,8 +842,8 @@ static void enable_dock (void)
     g_key_file_set_string (kf, "panel", "widgets_right", "");
     g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist spacing0 clock spacing0");
     g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter power tray bluetooth connect");
-    g_key_file_set_string (kf, "panel", "nmenu_overlay_text_col", "rgb(255,255,255)");
-    g_key_file_set_string (kf, "panel", "clock_analogue", "1");
+    g_key_file_set_string (kf, "nmenu", "overlay_text_col", "rgb(255,255,255)");
+    g_key_file_set_string (kf, "clock", "analogue", "1");
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
