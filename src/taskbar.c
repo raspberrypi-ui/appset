@@ -438,7 +438,6 @@ static void save_wfpanel_settings (void)
     g_free (buf);
 
     g_key_file_set_integer (kf, "window-list", "max_width", cur_conf.task_width);
-    g_key_file_set_integer (kf, "tlist", "max_width", cur_conf.task_width);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
