@@ -1,3 +1,9 @@
+pipanel (1:2.13) trixie; urgency=medium
+
+  * Modify for new plugin XML
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 10 Jul 2026 10:45:07 +0100
+
 pipanel (1:2.12) trixie; urgency=medium
 
   * Reinstate exclusive switching
