@@ -95,9 +95,8 @@ typedef struct {
 
 typedef enum {
     WM_OPENBOX,
-    WM_WAYFIRE,
-    WM_LABWC } 
-wm_type;
+    WM_LABWC
+} wm_type;
 
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */
