@@ -497,7 +497,6 @@ static void backup_config_files (void)
     backup_file (".config/qt5ct/qt5ct.conf");
     backup_file (".config/qt6ct/qt6ct.conf");
     backup_file (".config/xsettingsd/xsettingsd.conf");
-    backup_file (".config/wayfire.ini");
     backup_file (".config/labwc/themerc-override");
     backup_file (".config/labwc/rc.xml");
     backup_file (".config/labwc/environment");
@@ -576,7 +575,6 @@ static int restore_config_files (void)
     if (restore_file (".config/qt5ct/qt5ct.conf")) changed = 1;
     if (restore_file (".config/qt6ct/qt6ct.conf")) changed = 1;
     if (restore_file (".config/xsettingsd/xsettingsd.conf")) changed = 1;
-    if (restore_file (".config/wayfire.ini")) changed = 1;
     if (restore_file (".config/labwc/themerc-override")) changed = 1;
     if (restore_file (".config/labwc/rc.xml")) changed = 1;
     if (restore_file (".config/labwc/environment")) changed = 1;
