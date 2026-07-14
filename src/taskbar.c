@@ -150,6 +150,7 @@ static void load_wfpanel_settings (void)
     GKeyFile *kf;
     GError *err;
     gint val;
+    int panl, panr, docl, docr;
 
     // read in data from file to a key file
     user_config_file = wfpanel_file (TRUE);
@@ -241,9 +242,24 @@ static void load_wfpanel_settings (void)
         else DEFAULT (task_width);
 
         err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "widgets_left", &err);
+        if (err == NULL && ret && strlen (ret)) panl = 1;
+        else panl = 0;
+        g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "widgets_right", &err);
+        if (err == NULL && ret && strlen (ret)) panr = 1;
+        else panr = 0;
+        g_free (ret);
+        err = NULL;
         ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
-        if (err == NULL && ret && strlen (ret)) cur_conf.dock = 1;
-        else DEFAULT (dock);
+        if (err == NULL && ret && strlen (ret)) docl = 1;
+        else docl = 0;
+        g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_right", &err);
+        if (err == NULL && ret && strlen (ret)) docr = 1;
+        else docr = 0;
         g_free (ret);
     }
     else
@@ -363,13 +379,25 @@ static void load_wfpanel_settings (void)
         if (err == NULL) cur_conf.task_width = val;
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
-        if (err == NULL && ret)
-        {
-            if (strlen (ret)) cur_conf.dock = 1;
-            else cur_conf.dock = 0;
-        }
+        ret = g_key_file_get_string (kf, "panel", "widgets_left", &err);
+        if (err == NULL && ret) panl = strlen (ret) ? 1 : 0;
         g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "widgets_right", &err);
+        if (err == NULL && ret) panr = strlen (ret) ? 1 : 0;
+        g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
+        if (err == NULL && ret) docl = strlen (ret) ? 1 : 0;
+        g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_right", &err);
+        if (err == NULL && ret) docr = strlen (ret) ? 1 : 0;
+        g_free (ret);
+
+        cur_conf.dock = 0;
+        if (docl || docr) cur_conf.dock++;
+        if (!panl && !panr) cur_conf.dock++;
     }
     g_key_file_free (kf);
     g_free (user_config_file);

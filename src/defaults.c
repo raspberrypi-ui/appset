@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Config def_med;
 static Config def_vlg, def_lg, def_sm;
 
-static GtkWidget *rb_classic, *rb_dock;
+static GtkWidget *rb_classic, *rb_dock, *rb_hybrid;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -69,7 +69,7 @@ static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void reset_to_defaults (void);
 static void on_set_defaults (GtkButton *btn, gpointer ptr);
-static void enable_dock (void);
+static void enable_dock (gboolean hybrid);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -136,6 +136,7 @@ static void defaults_wfpanel (void)
     GKeyFile *kf;
     GError *err;
     gint val;
+    int panl, panr, docl, docr;
 
     // read in data from file to a key file
     user_config_file = wfpanel_file (TRUE);
@@ -231,10 +232,29 @@ static void defaults_wfpanel (void)
         else def_med.task_width = 200;
 
         err = NULL;
-        ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
-        if (err == NULL && ret && strlen (ret)) def_med.dock = 1;
-        else def_med.dock = 0;
+        ret = g_key_file_get_string (kf, "panel", "widgets_left", &err);
+        if (err == NULL && ret && strlen (ret)) panl = 1;
+        else panl = 0;
         g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "panel", "widgets_right", &err);
+        if (err == NULL && ret && strlen (ret)) panr = 1;
+        else panr = 0;
+        g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
+        if (err == NULL && ret && strlen (ret)) docl = 1;
+        else docl = 0;
+        g_free (ret);
+        err = NULL;
+        ret = g_key_file_get_string (kf, "dock", "widgets_right", &err);
+        if (err == NULL && ret && strlen (ret)) docr = 1;
+        else docr = 0;
+        g_free (ret);
+
+        def_med.dock = 0;
+        if (docl || docr) def_med.dock++;
+        if (!panl && !panr) def_med.dock++;
     }
     else
     {
@@ -808,10 +828,15 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
 
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rb_dock)))
     {
-        cur_conf.dock = TRUE;
-        enable_dock ();
+        cur_conf.dock = 2;
+        enable_dock (FALSE);
     }
-    else cur_conf.dock = FALSE;
+    else if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rb_hybrid)))
+    {
+        cur_conf.dock = 1;
+        enable_dock (TRUE);
+    }
+    else cur_conf.dock = 0;
 
     // reset the GUI controls to match the variables
     set_desktop_controls ();
@@ -825,7 +850,7 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void enable_dock (void)
+static void enable_dock (gboolean hybrid)
 {
     // add the dock to wf-panel-pi.ini
     char *user_config_file, *str;
@@ -837,14 +862,17 @@ static void enable_dock (void)
 
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-
     g_key_file_set_string (kf, "panel", "widgets_left", "");
-    g_key_file_set_string (kf, "panel", "widgets_right", "");
-    g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist spacing0 clock spacing0");
-    g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter power tray bluetooth connect");
     g_key_file_set_string (kf, "nmenu", "overlay_text_col", "rgb(255,255,255)");
-    g_key_file_set_string (kf, "clock", "analogue", "1");
-
+    if (hybrid)
+        g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
+    else
+    {
+        g_key_file_set_string (kf, "panel", "widgets_right", "");
+        g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist spacing0 clock spacing0");
+        g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter power tray bluetooth connect");
+        g_key_file_set_string (kf, "clock", "analogue", "1");
+    }
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
     g_free (str);
@@ -962,6 +990,7 @@ static void enable_dock (void)
 
 static void on_switch_dock (GtkRadioButton *btn, gpointer ptr)
 {
+    if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) return;
     switch (cur_conf.icon_size)
     {
         case 20 :   on_set_defaults (NULL, (void *) 1);
@@ -996,9 +1025,13 @@ void load_defaults_tab (GtkBuilder *builder)
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 1);
 
     rb_classic = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton7");
-    rb_dock = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton8");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dock), cur_conf.dock);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_classic), !cur_conf.dock);
+    rb_hybrid = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton8");
+    rb_dock = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton9");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dock), cur_conf.dock == 2);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_hybrid), cur_conf.dock == 1);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_classic), cur_conf.dock == 0);
+    g_signal_connect (rb_dock, "clicked", G_CALLBACK (on_switch_dock), NULL);
+    g_signal_connect (rb_hybrid, "clicked", G_CALLBACK (on_switch_dock), NULL);
     g_signal_connect (rb_classic, "clicked", G_CALLBACK (on_switch_dock), NULL);
 }
 
