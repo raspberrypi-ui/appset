@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Config def_med;
 static Config def_vlg, def_lg, def_sm;
 
-static GtkWidget *rb_classic, *rb_dock, *rb_hybrid;
+static GtkWidget *combo_style;
 
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
@@ -826,17 +826,8 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     save_libreoffice_settings ();
     save_app_settings ();
 
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rb_dock)))
-    {
-        cur_conf.dock = 2;
-        enable_dock (FALSE);
-    }
-    else if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rb_hybrid)))
-    {
-        cur_conf.dock = 1;
-        enable_dock (TRUE);
-    }
-    else cur_conf.dock = 0;
+    cur_conf.dock = gtk_combo_box_get_active (GTK_COMBO_BOX (combo_style));
+    if (cur_conf.dock) enable_dock (cur_conf.dock == 1);
 
     // reset the GUI controls to match the variables
     set_desktop_controls ();
@@ -988,9 +979,8 @@ static void enable_dock (gboolean hybrid)
     g_free (user_config_file);
 }
 
-static void on_switch_dock (GtkRadioButton *btn, gpointer ptr)
+static void on_switch_dock (GtkComboBox *, gpointer)
 {
-    if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (btn))) return;
     switch (cur_conf.icon_size)
     {
         case 20 :   on_set_defaults (NULL, (void *) 1);
@@ -1024,15 +1014,9 @@ void load_defaults_tab (GtkBuilder *builder)
     item = gtk_builder_get_object (builder, "defs_sml");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 1);
 
-    rb_classic = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton7");
-    rb_hybrid = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton8");
-    rb_dock = (GtkWidget *) gtk_builder_get_object (builder, "radiobutton9");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_dock), cur_conf.dock == 2);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_hybrid), cur_conf.dock == 1);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb_classic), cur_conf.dock == 0);
-    g_signal_connect (rb_dock, "clicked", G_CALLBACK (on_switch_dock), NULL);
-    g_signal_connect (rb_hybrid, "clicked", G_CALLBACK (on_switch_dock), NULL);
-    g_signal_connect (rb_classic, "clicked", G_CALLBACK (on_switch_dock), NULL);
+    combo_style = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext5");
+    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_style), cur_conf.dock);
+    g_signal_connect (combo_style, "changed", G_CALLBACK (on_switch_dock), NULL);
 }
 
 /* End of file */
