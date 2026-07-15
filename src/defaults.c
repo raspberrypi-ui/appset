@@ -69,7 +69,7 @@ static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void reset_to_defaults (void);
 static void on_set_defaults (GtkButton *btn, gpointer ptr);
-static void enable_dock (gboolean hybrid);
+static void enable_dock (int style);
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
@@ -827,7 +827,7 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     save_app_settings ();
 
     cur_conf.dock = gtk_combo_box_get_active (GTK_COMBO_BOX (combo_style));
-    if (cur_conf.dock) enable_dock (cur_conf.dock == 1);
+    enable_dock (cur_conf.dock);
 
     // reset the GUI controls to match the variables
     set_desktop_controls ();
@@ -841,12 +841,14 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     reload_theme (FALSE);
 }
 
-static void enable_dock (gboolean hybrid)
+static void enable_dock (int style)
 {
     // add the dock to wf-panel-pi.ini
     char *user_config_file, *str;
     GKeyFile *kf;
     gsize len;
+
+    if (!style) return;
 
     user_config_file = wfpanel_file (FALSE);
     check_directory (user_config_file);
@@ -855,7 +857,7 @@ static void enable_dock (gboolean hybrid)
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
     g_key_file_set_string (kf, "panel", "widgets_left", "");
     g_key_file_set_string (kf, "nmenu", "overlay_text_col", "rgb(255,255,255)");
-    if (hybrid)
+    if (style == 1)
         g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
     else
     {
