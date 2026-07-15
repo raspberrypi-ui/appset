@@ -843,13 +843,13 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
 
 static void enable_dock (int style)
 {
-    // add the dock to wf-panel-pi.ini
     char *user_config_file, *str;
     GKeyFile *kf;
     gsize len;
 
     if (!style) return;
 
+    // set up the dock in wf-panel-pi.ini
     user_config_file = wfpanel_file (FALSE);
     check_directory (user_config_file);
 
@@ -876,10 +876,6 @@ static void enable_dock (int style)
     // set the desktop
     cur_conf.passive_desktop = TRUE;
     save_pcman_g_settings ();
-
-    cur_conf.desktops[0].desktop_picture = g_strdup ("/usr/share/rpd-wallpaper/turbines.jpg");
-    save_pcman_settings (0);
-
     restart_desktop ();
 
     // configure libfm
