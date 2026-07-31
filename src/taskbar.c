@@ -150,7 +150,7 @@ static void load_wfpanel_settings (void)
     GKeyFile *kf;
     GError *err;
     gint val;
-    int panl, panr, docl, docr;
+    int panl = 0, panr = 0, docl = 0, docr = 0;
 
     // read in data from file to a key file
     user_config_file = wfpanel_file (TRUE);
@@ -244,22 +244,21 @@ static void load_wfpanel_settings (void)
         err = NULL;
         ret = g_key_file_get_string (kf, "panel", "widgets_left", &err);
         if (err == NULL && ret && strlen (ret)) panl = 1;
-        else panl = 0;
         g_free (ret);
+
         err = NULL;
         ret = g_key_file_get_string (kf, "panel", "widgets_right", &err);
         if (err == NULL && ret && strlen (ret)) panr = 1;
-        else panr = 0;
         g_free (ret);
+
         err = NULL;
         ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
         if (err == NULL && ret && strlen (ret)) docl = 1;
-        else docl = 0;
         g_free (ret);
+
         err = NULL;
         ret = g_key_file_get_string (kf, "dock", "widgets_right", &err);
         if (err == NULL && ret && strlen (ret)) docr = 1;
-        else docr = 0;
         g_free (ret);
     }
     else
