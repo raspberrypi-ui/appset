@@ -64,7 +64,6 @@ static void defaults_lxsession (void);
 static void defaults_pcman (int desktop);
 static void defaults_pcman_g (void);
 static void defaults_gtk3 (void);
-static void save_libfm_settings (void);
 static void save_lxterm_settings (void);
 static void save_libreoffice_settings (void);
 static void reset_to_defaults (void);
@@ -468,36 +467,6 @@ static void defaults_gtk3 (void)
     }
 }
 
-static void save_libfm_settings (void)
-{
-    char *user_config_file, *str;
-    GKeyFile *kf;
-    gsize len;
-
-    // process libfm config data
-    user_config_file = libfm_file ();
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-    {
-        check_directory (user_config_file);
-        vsystem ("cp /etc/xdg/libfm/libfm.conf %s", user_config_file);
-    }
-
-    kf = g_key_file_new ();
-    g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-
-    g_key_file_set_integer (kf, "ui", "big_icon_size", cur_conf.folder_size);
-    g_key_file_set_integer (kf, "ui", "thumbnail_size", cur_conf.thumb_size);
-    g_key_file_set_integer (kf, "ui", "pane_icon_size", cur_conf.pane_size);
-    g_key_file_set_integer (kf, "ui", "small_icon_size", cur_conf.sicon_size);
-
-    str = g_key_file_to_data (kf, &len, NULL);
-    g_file_set_contents (user_config_file, str, len, NULL);
-
-    g_free (str);
-    g_key_file_free (kf);
-    g_free (user_config_file);
-}
-
 static void save_lxterm_settings (void)
 {
     char *user_config_file, *str;
@@ -812,7 +781,6 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
         save_pcman_g_settings ();
         for (i = 0; i < ndesks; i++)
             save_pcman_settings (i);
-        save_libfm_settings ();
         save_qt_settings ();
     }
 

@@ -316,6 +316,10 @@ void save_pcman_g_settings (void)
 
     g_key_file_set_integer (kf, "ui", "common_bg", cur_conf.common_bg);
     g_key_file_set_integer (kf, "ui", "use_swaybg", cur_conf.passive_desktop);
+    g_key_file_set_integer (kf, "ui", "big_icon_size", cur_conf.folder_size);
+    g_key_file_set_integer (kf, "ui", "thumbnail_size", cur_conf.thumb_size);
+    g_key_file_set_integer (kf, "ui", "pane_icon_size", cur_conf.pane_size);
+    g_key_file_set_integer (kf, "ui", "small_icon_size", cur_conf.sicon_size);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
