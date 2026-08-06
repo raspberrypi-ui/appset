@@ -913,9 +913,9 @@ void save_session_settings (void)
     else 
     {
         save_xsettings ();
-        save_gsettings ();
         save_environment ();
     }
+    save_gsettings ();
     save_wm_settings ();
 }
 
