@@ -701,6 +701,7 @@ static void save_lxsession_settings (void)
 static void save_gsettings (void)
 {
     vsystem ("gsettings set org.gnome.desktop.interface font-name \"%s\"", cur_conf.desktop_font);
+    vsystem ("gsettings set org.gnome.desktop.interface monospace-font-name \"%s\"", cur_conf.terminal_font);
     vsystem ("gsettings set org.gnome.desktop.interface cursor-size %d", cur_conf.cursor_size);
     switch (cur_conf.tb_icon_size)
     {
@@ -1094,11 +1095,24 @@ void save_qt_settings (void)
 
 void save_app_settings (void)
 {
-    char *config_file;
+    char *config_file, *str;
+    int val;
 
-    // geany colour theme
+    // geany
     config_file = g_build_filename (g_get_user_config_dir (), "geany/geany.conf", NULL);
     set_config_param (config_file, "geany", "color_scheme", cur_conf.darkmode ? "pixnoir.conf" : "");
+
+    set_config_param (config_file, "geany", "editor_font", cur_conf.terminal_font);
+    sscanf (cur_conf.terminal_font, "Monospace %d", &val);
+
+    str = g_strdup_printf ("Sans %d", val - 1);
+    set_config_param (config_file, "geany", "tagbar_font", str);
+    g_free (str);
+
+    str = g_strdup_printf ("Monospace %d", val - 1);
+    set_config_param (config_file, "geany", "msgwin_font", str);
+    g_free (str);
+
     g_free (config_file);
 
     // galculator display colours
