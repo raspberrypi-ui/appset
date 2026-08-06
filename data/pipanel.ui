@@ -1171,13 +1171,13 @@
                       <object class="GtkComboBoxText" id="comboboxtext5">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="tooltip-text" translatable="yes">Select a panel- or dock-based style for the desktop</property>
+                        <property name="tooltip-text" translatable="yes">Select a taskbar- or dock-based style for the desktop</property>
                         <accessibility>
                           <relation type="labelled-by" target="label44"/>
                         </accessibility>
                         <items>
-                          <item id="0" translatable="yes">Panel</item>
-                          <item id="1" translatable="yes">Panel / Dock</item>
+                          <item id="0" translatable="yes">Taskbar</item>
+                          <item id="1" translatable="yes">Taskbar / Dock</item>
                           <item id="2" translatable="yes">Dock</item>
                         </items>
                       </object>
