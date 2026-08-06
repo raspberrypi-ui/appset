@@ -1,3 +1,9 @@
+pipanel (1:2.15) trixie; urgency=medium
+
+  * Modifications for monolithic pcmanfm; set monospace font; refer to taskbar instead of panel
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 06 Aug 2026 13:54:06 +0100
+
 pipanel (1:2.14) trixie; urgency=medium
 
   * Don't set menu shortcut for dock; now handled by wildcard
