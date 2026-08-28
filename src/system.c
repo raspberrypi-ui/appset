@@ -304,6 +304,11 @@ static void load_gsettings (void)
     else cur_conf.desktop_font = g_strdup (res);
     g_free (res);
 
+    res = get_quoted_string ("gsettings get org.gnome.desktop.interface monospace-font-name");
+    if (!res[0]) DEFAULT (terminal_font);
+    else cur_conf.terminal_font = g_strdup (res);
+    g_free (res);
+
     res = get_string ("gsettings get org.gnome.desktop.interface cursor-size");
     if (res[0] && sscanf (res, "%d", &val) == 1 && val >= 24 && val <= 48) cur_conf.cursor_size = val;
     else DEFAULT (cursor_size);
@@ -712,6 +717,7 @@ static void save_gsettings (void)
         default:    vsystem ("gsettings set org.gnome.desktop.interface toolbar-icons-size medium");
                     break;
     }
+    vsystem ("gsettings set org.gnome.desktop.interface color-scheme %s", cur_conf.darkmode ? "'prefer-dark'" : "'prefer-light'");
 }
 
 void save_gtk3_settings (void)
