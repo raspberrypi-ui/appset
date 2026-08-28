@@ -58,7 +58,6 @@ static GtkWidget *combo_style;
 /*----------------------------------------------------------------------------*/
 
 static void delete_file (char *filepath);
-static char *libfm_file (void);
 static void defaults_lxpanel (void);
 static void defaults_lxsession (void);
 static void defaults_pcman (int desktop);
@@ -92,11 +91,6 @@ static void delete_file (char *filepath)
 /*----------------------------------------------------------------------------*/
 /* Load / save data                                                           */
 /*----------------------------------------------------------------------------*/
-
-static char *libfm_file (void)
-{
-    return g_build_filename (g_get_user_config_dir (), "libfm/libfm.conf", NULL);
-}
 
 static void defaults_lxpanel (void)
 {
@@ -794,8 +788,11 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     save_libreoffice_settings ();
     save_app_settings ();
 
-    cur_conf.dock = gtk_combo_box_get_active (GTK_COMBO_BOX (combo_style));
-    enable_dock (cur_conf.dock);
+    if (wm == WM_LABWC)
+    {
+        cur_conf.dock = gtk_combo_box_get_active (GTK_COMBO_BOX (combo_style));
+        enable_dock (cur_conf.dock);
+    }
 
     // reset the GUI controls to match the variables
     set_desktop_controls ();
@@ -844,16 +841,9 @@ static void enable_dock (int style)
     // set the desktop
     cur_conf.passive_desktop = TRUE;
     save_pcman_g_settings ();
-    restart_desktop ();
 
-    // configure libfm
-    user_config_file = libfm_file ();
-    if (!g_file_test (user_config_file, G_FILE_TEST_IS_REGULAR))
-    {
-        check_directory (user_config_file);
-        vsystem ("cp /etc/xdg/libfm/libfm.conf %s", user_config_file);
-    }
-
+    // add wastebasket to places
+    user_config_file = pcmanfm_g_file (FALSE);
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
@@ -865,6 +855,8 @@ static void enable_dock (int style)
     g_free (str);
     g_key_file_free (kf);
     g_free (user_config_file);
+
+    restart_desktop ();
 
     // set the theme colours
     gdk_rgba_parse (&cur_conf.bar_colour[0], "rgba(0,0,0,0)");
@@ -912,9 +904,13 @@ void load_defaults_tab (GtkBuilder *builder)
     item = gtk_builder_get_object (builder, "defs_sml");
     g_signal_connect (item, "clicked", G_CALLBACK (on_set_defaults), (void *) 1);
 
-    combo_style = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext5");
-    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_style), cur_conf.dock);
-    g_signal_connect (combo_style, "changed", G_CALLBACK (on_switch_dock), NULL);
+    if (wm == WM_LABWC)
+    {
+        combo_style = (GtkWidget *) gtk_builder_get_object (builder, "comboboxtext5");
+        gtk_combo_box_set_active (GTK_COMBO_BOX (combo_style), cur_conf.dock);
+        g_signal_connect (combo_style, "changed", G_CALLBACK (on_switch_dock), NULL);
+    }
+    else gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (builder, "hbox44")));
 }
 
 /* End of file */
