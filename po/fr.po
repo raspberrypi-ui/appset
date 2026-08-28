@@ -1,0 +1,358 @@
+# rpcc_appset French translation file.
+# Copyright (C) 2026 Raspberry Pi Ltd
+# This file is distributed under the same license as the rpcc_appset package.
+# Pierre Gobin <p.dev@gobin.cc>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: rpcc_appset\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-06 21:19+0200\n"
+"PO-Revision-Date: 2026-08-06 22:39+0200\n"
+"Last-Translator: Pierre Gobin <p.dev@gobin.cc>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+
+#: src/pipanel.c:349
+msgctxt "tab"
+msgid "Desktop"
+msgstr "Bureau"
+
+#: src/pipanel.c:350
+msgctxt "tab"
+msgid "Taskbar"
+msgstr "Barre des tâches"
+
+#: src/pipanel.c:351
+msgctxt "tab"
+msgid "Theme"
+msgstr "Thème"
+
+#: src/pipanel.c:352
+msgctxt "tab"
+msgid "Defaults"
+msgstr "Réglages de base"
+
+#: src/pipanel.c:353
+msgid "No such tab"
+msgstr "Onglet inexistant"
+
+#: src/pipanel.c:615 src/defaults.c:630 src/system.c:1246
+msgid ""
+"The theme for Geany cannot be changed while it is open.\n"
+"Please close it and try again."
+msgstr ""
+"Il n’est pas possible de modifier le thème de Geany tant que le programme est ouvert.\n"
+"Veuillez le fermer et réessayer."
+
+#: src/pipanel.c:621 src/defaults.c:636 src/system.c:1256
+msgid ""
+"The theme for Calculator cannot be changed while it is open.\n"
+"Please close it and try again."
+msgstr ""
+"Il n’est pas possible de modifier le thème de la Calculatrice tant que le programme est ouvert.\n"
+"Veuillez la fermer et réessayer."
+
+#: src/pipanel.c:625
+msgid "Restoring configuration - please wait..."
+msgstr "Restauration de la configuration - veuillez patienter..."
+
+#: src/pipanel.c:703
+msgid "Loading configuration - please wait..."
+msgstr "Chargement de la configuration - veuillez patienter..."
+
+#: data/pipanel.ui:9 data/pipanel.ui:1355 data/pipanel.desktop.in:3
+msgid "Appearance Settings"
+msgstr "Paramètres d’apparence"
+
+#: data/pipanel.ui:38
+msgid "Desktop Number"
+msgstr "Numéro du bureau"
+
+#: data/pipanel.ui:51
+msgid "Choose the desktop to configure"
+msgstr "Choisir le bureau à configurer"
+
+#: data/pipanel.ui:65
+msgid "Show identical desktop on second monitor"
+msgstr "Afficher un bureau identique sur le second écran"
+
+#: data/pipanel.ui:69
+msgid "Check this box to show the same desktop image and icons on both monitors"
+msgstr "Cocher cette case pour afficher la même image de bureau et les mêmes icônes sur tous les écrans"
+
+#: data/pipanel.ui:95
+msgid "Layout"
+msgstr "Disposition"
+
+#: data/pipanel.ui:108
+msgid "Set how the wallpaper should be fitted to the screen"
+msgstr "Définit comment le fond d’écran doit être ajusté par rapport à l’écran"
+
+#: data/pipanel.ui:110
+msgid "No image"
+msgstr "Aucune image"
+
+#: data/pipanel.ui:111
+msgid "Centre image on screen"
+msgstr "Centrer l’image sur l’écran"
+
+#: data/pipanel.ui:112
+msgid "Fit image onto screen"
+msgstr "Adapter l’image à l’écran"
+
+#: data/pipanel.ui:113
+msgid "Fill screen with image"
+msgstr "Remplir l’écran avec l’image"
+
+#: data/pipanel.ui:114
+msgid "Stretch to cover screen"
+msgstr "Étirer l’image pour remplir l’écran"
+
+#: data/pipanel.ui:115
+msgid "Tile image"
+msgstr "Image en mosaïque"
+
+#: data/pipanel.ui:144
+msgid "Picture"
+msgstr "Image"
+
+#: data/pipanel.ui:157
+msgid "Choose image file to use as wallpaper"
+msgstr "Choix de l’image à utiliser comme fond d’écran"
+
+#: data/pipanel.ui:181 data/pipanel.ui:590
+msgid "Colour"
+msgstr "Couleur"
+
+#: data/pipanel.ui:195
+msgid "Choose the colour of the desktop background"
+msgstr "Choix de la couleur d’arrière-plan du bureau"
+
+#: data/pipanel.ui:222 data/pipanel.ui:631
+msgid "Text Colour"
+msgstr "Couleur du texte"
+
+#: data/pipanel.ui:236
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr "Choix de la couleur du texte utilisé pour les libellés des icônes du bureau"
+
+#: data/pipanel.ui:263
+msgid "Desktop Folder"
+msgstr "Dossier du Bureau"
+
+#: data/pipanel.ui:276
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr "Choix du dossier dont les fichiers doivent être affichés sur le bureau"
+
+#: data/pipanel.ui:304
+msgid "Show Home Folder"
+msgstr "Afficher le dossier personnel"
+
+#: data/pipanel.ui:322
+msgid "Show the current user's home folder on the desktop"
+msgstr "Afficher le dossier personnel de l’utilisateur courant sur le bureau"
+
+#: data/pipanel.ui:356
+msgid "Show Wastebasket"
+msgstr "Afficher la corbeille"
+
+#: data/pipanel.ui:374
+msgid "Show the wastebasket on the desktop"
+msgstr "Afficher la corbeille sur le bureau"
+
+#: data/pipanel.ui:408
+msgid "Show Mounted Disks"
+msgstr "Afficher les disques montés"
+
+#: data/pipanel.ui:426
+msgid "Show mounted disks on the desktop"
+msgstr "Afficher les disques montés sur le bureau"
+
+#: data/pipanel.ui:457
+msgid "Desktop"
+msgstr "Bureau"
+
+#: data/pipanel.ui:479
+msgid "Size"
+msgstr "Taille"
+
+#: data/pipanel.ui:492
+msgid "Set the size of icons used on the toolbar and menu"
+msgstr "Définit la taille des icônes utilisées dans la barre d’outils et le menu"
+
+#: data/pipanel.ui:494
+msgid "Very large (48x48)"
+msgstr "Très large (48×48)"
+
+#: data/pipanel.ui:495
+msgid "Large (32x32)"
+msgstr "Large (32×32)"
+
+#: data/pipanel.ui:496
+msgid "Medium (24x24)"
+msgstr "Moyen (24×24)"
+
+#: data/pipanel.ui:497
+msgid "Small (16x16)"
+msgstr "Petit (16×16)"
+
+#: data/pipanel.ui:526
+msgid "Position"
+msgstr "Position"
+
+#: data/pipanel.ui:537
+msgid "Top"
+msgstr "Haut"
+
+#: data/pipanel.ui:541
+msgid "Show the taskbar at the top of the screen"
+msgstr "Affiche la barre des tâches en haut de l’écran"
+
+#: data/pipanel.ui:556
+msgid "Bottom"
+msgstr "Bas"
+
+#: data/pipanel.ui:560
+msgid "Show the taskbar at the bottom of the screen"
+msgstr "Affiche la barre des tâches en bas de l’écran"
+
+#: data/pipanel.ui:604
+msgid "Choose the colour of the taskbar background"
+msgstr "Choix de la couleur d’arrière-plan de la barre des tâches"
+
+#: data/pipanel.ui:645
+msgid "Choose the colour of text used on the taskbar"
+msgstr "Choix de la couleur du texte utilisé dans la barre des tâches"
+
+#: data/pipanel.ui:672
+msgid "Location"
+msgstr "Localisation"
+
+#: data/pipanel.ui:685
+msgid "Choose the screen where the taskbar is shown"
+msgstr "Choix de l’écran sur lequel la barre des tâches est affichée"
+
+#: data/pipanel.ui:712
+msgid "Menu Bar"
+msgstr "Barre de menu"
+
+#: data/pipanel.ui:735
+msgid "Font"
+msgstr "Police"
+
+#: data/pipanel.ui:749
+msgid "Choose the font used for labels and menus"
+msgstr "Choix de la police utilisée pour les libellés et les menus"
+
+#: data/pipanel.ui:777
+msgid "Highlight Colour"
+msgstr "Couleur de mise en évidence"
+
+#: data/pipanel.ui:791
+msgid "Choose the colour used to highlight active elements"
+msgstr "Choix de la couleur utilisée pour mettre en évidence les éléments actifs"
+
+#: data/pipanel.ui:818
+msgid "Highlight Text Colour"
+msgstr "Couleur de mise en évidence du texte"
+
+#: data/pipanel.ui:832
+msgid "Choose the colour used for text on active elements"
+msgstr "Choix de la couleur utilisée pour le texte des éléments actifs"
+
+#: data/pipanel.ui:859
+msgid "Mouse Cursor"
+msgstr "Curseur de souris"
+
+#: data/pipanel.ui:872
+msgid "Set the size of the mouse cursor"
+msgstr "Définit la taille du curseur de souris"
+
+#: data/pipanel.ui:874
+msgid "Large"
+msgstr "Large"
+
+#: data/pipanel.ui:875
+msgid "Medium"
+msgstr "Moyen"
+
+#: data/pipanel.ui:876
+msgid "Small"
+msgstr "Petit"
+
+#: data/pipanel.ui:905
+msgid "Theme"
+msgstr "Thème"
+
+#: data/pipanel.ui:916
+msgid "Light"
+msgstr "Clair"
+
+#: data/pipanel.ui:920
+msgid "Set the desktop to use light colours"
+msgstr "Règle le bureau pour utiliser des couleurs claires"
+
+#: data/pipanel.ui:935
+msgid "Dark"
+msgstr "Sombre"
+
+#: data/pipanel.ui:939
+msgid "Set the desktop to use dark colours"
+msgstr "Règle le bureau pour utiliser des couleurs sombres"
+
+#: data/pipanel.ui:969
+msgid "New mouse cursor size will take effect at reboot"
+msgstr "La nouvelle taille du curseur de souris prendra effet après redémarrage"
+
+#: data/pipanel.ui:994
+msgid "System"
+msgstr "Système"
+
+#: data/pipanel.ui:1017
+msgid "For large screens:"
+msgstr "Pour écrans larges :"
+
+#: data/pipanel.ui:1028 data/pipanel.ui:1070 data/pipanel.ui:1112
+msgid "Set Defaults"
+msgstr "Appliquer les réglages de base"
+
+#: data/pipanel.ui:1032
+msgid "Set to default values for high-resolution displays"
+msgstr "Appliquer les réglages de base adaptés aux écrans de haute résolution"
+
+#: data/pipanel.ui:1059
+msgid "For medium screens:"
+msgstr "Pour écrans moyens :"
+
+#: data/pipanel.ui:1074
+msgid "Set to default values for medium-resolution displays"
+msgstr "Appliquer les réglages de base adaptés aux écrans de moyenne résolution"
+
+#: data/pipanel.ui:1101
+msgid "For small screens:"
+msgstr "Pour petits écrans :"
+
+#: data/pipanel.ui:1116
+msgid "Set to default values for low-resolution displays"
+msgstr "Appliquer les réglages de base adaptés aux écrans de basse résolution"
+
+#: data/pipanel.ui:1143
+msgid "Defaults"
+msgstr "Réglages de base"
+
+#: data/pipanel.ui:1165 data/pipanel.ui:1316
+msgid "_Cancel"
+msgstr "_Annuler"
+
+#: data/pipanel.ui:1179 data/pipanel.ui:1330
+msgid "_OK"
+msgstr "_OK"
+
+#: data/pipanel.desktop.in:4
+msgid "Configure the appearance of the desktop and windows"
+msgstr "Configurer l’apparence du bureau et des fenêtres"
