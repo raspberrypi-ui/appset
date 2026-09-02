@@ -1,3 +1,9 @@
+pipanel (1:2.17) trixie; urgency=medium
+
+  * Version bump for build
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 02 Sep 2026 13:21:50 +0100
+
 pipanel (1:2.16) trixie; urgency=medium
 
   * Hide dock option under X; set GNOME color-scheme for dark mode
