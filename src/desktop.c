@@ -253,11 +253,35 @@ static void load_pcman_g_settings (void)
         val = g_key_file_get_integer (kf, "ui", "use_swaybg", &err);
         if (err == NULL && val >= 0 && val <= 1) cur_conf.passive_desktop = val;
         else DEFAULT (passive_desktop);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.folder_size = val;
+        else DEFAULT (folder_size);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "thumbnail_size", &err);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.thumb_size = val;
+        else DEFAULT (thumb_size);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "pane_icon_size", &err);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.pane_size = val;
+        else DEFAULT (pane_size);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "ui", "small_icon_size", &err);
+        if (err == NULL && val >= 0 && val <= 1) cur_conf.sicon_size = val;
+        else DEFAULT (sicon_size);
     }
     else
     {
         DEFAULT (common_bg);
         DEFAULT (passive_desktop);
+        DEFAULT (folder_size);
+        DEFAULT (thumb_size);
+        DEFAULT (pane_size);
+        DEFAULT (sicon_size);
     }
     g_key_file_free (kf);
     g_free (user_config_file);
