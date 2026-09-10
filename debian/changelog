@@ -1,3 +1,9 @@
+pipanel (1:2.19) trixie; urgency=medium
+
+  * Reload widget list when setting defaults
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 10 Sep 2026 16:43:59 +0100
+
 pipanel (1:2.18) trixie; urgency=medium
 
   * Ensure default pcman icon sizes are set
