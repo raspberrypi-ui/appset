@@ -72,16 +72,6 @@ int ndesks;
 /* Is new theme available? */
 gboolean trix_theme = FALSE;
 
-#ifndef PLUGIN_NAME
-static gulong draw_id;
-
-/* Starting tab value read from command line */
-static char *st_tab;
-
-/* Original theme in use */
-static int orig_darkmode;
-#endif
-
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
@@ -90,18 +80,6 @@ static void update_greeter (void);
 static int n_desktops (void);
 static gboolean ok_clicked (GtkButton *button, gpointer data);
 static void init_config (void);
-#ifndef PLUGIN_NAME
-static void backup_file (char *filepath);
-static void backup_config_files (void);
-static int restore_file (char *filepath);
-static int restore_config_files (void);
-static gpointer restore_thread (gpointer ptr);
-static gboolean ok_main (GtkButton *button, gpointer data);
-static gboolean cancel_main (GtkButton *button, gpointer data);
-static gboolean close_prog (GtkWidget *widget, GdkEvent *event, gpointer data);
-static gboolean init_window (gpointer data);
-static gboolean draw (GtkWidget *wid, cairo_t *cr, gpointer data);
-#endif
 
 /*----------------------------------------------------------------------------*/
 /* Function definitions                                                       */
