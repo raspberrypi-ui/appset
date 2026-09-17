@@ -1,3 +1,9 @@
+pipanel (1:2.20) trixie; urgency=medium
+
+  * Ensure valid value for geany font size
+
+ -- Simon Long <simon@raspberrypi.com>  Thu, 17 Sep 2026 16:39:44 +0100
+
 pipanel (1:2.19) trixie; urgency=medium
 
   * Reload widget list when setting defaults
