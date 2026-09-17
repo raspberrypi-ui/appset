@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pipanel 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-02 21:16+0900\n"
-"PO-Revision-Date: 2025-10-02 21:43+0900\n"
+"POT-Creation-Date: 2026-09-17 00:48+0900\n"
+"PO-Revision-Date: 2026-09-17 22:28+0900\n"
 "Last-Translator: Akira Ouchi <akkiesoft@marokun.net>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
@@ -13,31 +13,36 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.6\n"
 
-#: src/pipanel.c:349
+#: src/pipanel.c:355
 msgctxt "tab"
 msgid "Desktop"
 msgstr "デスクトップ"
 
-#: src/pipanel.c:350
+#: src/pipanel.c:356
 msgctxt "tab"
 msgid "Taskbar"
 msgstr "タスクバー"
 
-#: src/pipanel.c:351
+#: src/pipanel.c:357
 msgctxt "tab"
 msgid "Theme"
 msgstr "テーマ"
 
-#: src/pipanel.c:352
+#: src/pipanel.c:358
 msgctxt "tab"
 msgid "Defaults"
 msgstr "デフォルト"
 
-#: src/pipanel.c:353
+#: src/pipanel.c:359
+msgctxt "tab"
+msgid "Dock"
+msgstr "Dock"
+
+#: src/pipanel.c:360
 msgid "No such tab"
 msgstr "そのようなタブはありません"
 
-#: src/pipanel.c:613 src/defaults.c:612 src/system.c:1287
+#: src/pipanel.c:625 src/defaults.c:746 src/system.c:1289
 msgid ""
 "The theme for Geany cannot be changed while it is open.\n"
 "Please close it and try again."
@@ -45,7 +50,7 @@ msgstr ""
 "Geany は、起動している間はテーマが変更できません。\n"
 "閉じてからもう一度試してください。"
 
-#: src/pipanel.c:619 src/defaults.c:618 src/system.c:1297
+#: src/pipanel.c:631 src/defaults.c:752 src/system.c:1299
 msgid ""
 "The theme for Calculator cannot be changed while it is open.\n"
 "Please close it and try again."
@@ -53,309 +58,423 @@ msgstr ""
 "Calculator は、起動している間はテーマが変更できません。\r\n"
 "閉じてからもう一度試してください。"
 
-#: src/pipanel.c:623
+#: src/pipanel.c:635
 msgid "Restoring configuration - please wait..."
 msgstr "構成を復元しています。少々お待ちください。"
 
-#: src/pipanel.c:701
+#: src/pipanel.c:709
 msgid "Loading configuration - please wait..."
 msgstr "構成を読み込んでいます。少々お待ちください。"
 
-#: data/pipanel.ui:9 data/pipanel.ui:1319 data/pipanel.desktop.in:3
+#: src/desktop.c:433 src/desktop.c:434 src/desktop.c:435 src/desktop.c:436
+#: src/desktop.c:437
+msgid "Only available in active desktop"
+msgstr "アクティブデスクトップを使用中のみ利用可能です"
+
+#: src/desktop.c:433 data/pipanel.ui:288
+msgid "Choose the colour of the text used for desktop icon labels"
+msgstr "デスクトップアイコンのラベルに使用する文字の色を選択します"
+
+#: src/desktop.c:434 data/pipanel.ui:376
+msgid "Show the current user's home folder on the desktop"
+msgstr "現在のユーザーのホームフォルダーをデスクトップ上に表示します"
+
+#: src/desktop.c:435 data/pipanel.ui:428
+msgid "Show the wastebasket on the desktop"
+msgstr "ゴミ箱をデスクトップ上に表示します"
+
+#: src/desktop.c:436 data/pipanel.ui:480
+msgid "Show mounted disks on the desktop"
+msgstr "マウントされたディスクをデスクトップ上に表示します"
+
+#: src/desktop.c:437 data/pipanel.ui:330
+msgid "Choose the folder containing files to be shown on the second desktop"
+msgstr ""
+"セカンドデスクトップに表示するファイルが含まれるフォルダーを選択します"
+
+#: data/pipanel.ui:8 data/pipanel.ui:1947 data/pipanel.desktop.in:3
 msgid "Appearance Settings"
 msgstr "外観の設定"
 
-#: data/pipanel.ui:38
+#: data/pipanel.ui:36
+msgid "Active Desktop"
+msgstr "アクティブデスクトップ"
+
+#: data/pipanel.ui:54
+msgid "Display icons on the desktop"
+msgstr "アイコンをデスクトップ上に表示します"
+
+#: data/pipanel.ui:88
 msgid "Desktop Number"
 msgstr "デスクトップ番号"
 
-#: data/pipanel.ui:51
+#: data/pipanel.ui:101
 msgid "Choose the desktop to configure"
 msgstr "構成したいデスクトップを選択してください"
 
-#: data/pipanel.ui:65
+#: data/pipanel.ui:115
 msgid "Show identical desktop on second monitor"
 msgstr "セカンドモニターに同じデスクトップを表示"
 
-#: data/pipanel.ui:69
+#: data/pipanel.ui:119
 msgid ""
 "Check this box to show the same desktop image and icons on both monitors"
 msgstr ""
 "ボックスにチェックすると、両方のモニターに同じデスクトップ画像とアイコンを"
 "表示します"
 
-#: data/pipanel.ui:95
+#: data/pipanel.ui:145
 msgid "Layout"
 msgstr "レイアウト"
 
-#: data/pipanel.ui:108
+#: data/pipanel.ui:158
 msgid "Set how the wallpaper should be fitted to the screen"
 msgstr "壁紙をどのように画面に合わせるか設定します"
 
-#: data/pipanel.ui:110
+#: data/pipanel.ui:160
 msgid "No image"
 msgstr "画像なし"
 
-#: data/pipanel.ui:111
+#: data/pipanel.ui:161
 msgid "Centre image on screen"
 msgstr "画像を画面の中央に配置"
 
-#: data/pipanel.ui:112
+#: data/pipanel.ui:162
 msgid "Fit image onto screen"
 msgstr "画像を画面に合わせる"
 
-#: data/pipanel.ui:113
+#: data/pipanel.ui:163
 msgid "Fill screen with image"
 msgstr "画像を画面いっぱいに埋める"
 
-#: data/pipanel.ui:114
+#: data/pipanel.ui:164
 msgid "Stretch to cover screen"
 msgstr "画面をカバーするように伸ばす"
 
-#: data/pipanel.ui:115
+#: data/pipanel.ui:165
 msgid "Tile image"
 msgstr "タイル状に並べる"
 
-#: data/pipanel.ui:144
+#: data/pipanel.ui:194
 msgid "Picture"
 msgstr "画像"
 
-#: data/pipanel.ui:157
+#: data/pipanel.ui:207
 msgid "Choose image file to use as wallpaper"
 msgstr "壁紙に使用したい画像を選択します"
 
-#: data/pipanel.ui:181 data/pipanel.ui:554
+#: data/pipanel.ui:231 data/pipanel.ui:646 data/pipanel.ui:1510
 msgid "Colour"
 msgstr "色"
 
-#: data/pipanel.ui:195
+#: data/pipanel.ui:245
 msgid "Choose the colour of the desktop background"
 msgstr "デスクトップの背景色を選択します"
 
-#: data/pipanel.ui:222 data/pipanel.ui:595
+#: data/pipanel.ui:246
+msgid "Desktop Colour"
+msgstr "デスクトップの色"
+
+#: data/pipanel.ui:274 data/pipanel.ui:690 data/pipanel.ui:1554
 msgid "Text Colour"
 msgstr "文字色"
 
-#: data/pipanel.ui:236
-msgid "Choose the colour of the text used for desktop icon labels"
-msgstr "デスクトップアイコンのラベルに使用する文字の色を選択します"
+#: data/pipanel.ui:289
+msgid "Desktop Text Colour"
+msgstr "デスクトップの文字色"
 
-#: data/pipanel.ui:263
+#: data/pipanel.ui:317
 msgid "Desktop Folder"
 msgstr "デスクトップフォルダー"
 
-#: data/pipanel.ui:276
-msgid "Choose the folder containing files to be shown on the second desktop"
-msgstr ""
-"セカンドデスクトップに表示するファイルが含まれるフォルダーを選択します"
+#: data/pipanel.ui:358
+msgid "Show Home Folder"
+msgstr "ホームフォルダーを表示"
 
-#: data/pipanel.ui:304
-msgid "Show Documents"
-msgstr "ドキュメントを表示"
-
-#: data/pipanel.ui:317
-msgid "Show the documents folder on the desktop"
-msgstr "ドキュメントフォルダをデスクトップ上に表示します"
-
-#: data/pipanel.ui:344
+#: data/pipanel.ui:410
 msgid "Show Wastebasket"
 msgstr "ゴミ箱を表示"
 
-#: data/pipanel.ui:357
-msgid "Show the wastebasket on the desktop"
-msgstr "ゴミ箱をデスクトップ上に表示します"
-
-#: data/pipanel.ui:384
+#: data/pipanel.ui:462
 msgid "Show Mounted Disks"
 msgstr "マウントされたディスクを表示"
 
-#: data/pipanel.ui:397
-msgid "Show mounted disks on the desktop"
-msgstr "マウントされたディスクをデスクトップ上に表示します"
-
-#: data/pipanel.ui:421
+#: data/pipanel.ui:511
 msgid "Desktop"
 msgstr "デスクトップ"
 
-#: data/pipanel.ui:443
+#: data/pipanel.ui:533 data/pipanel.ui:1397
 msgid "Size"
 msgstr "サイズ"
 
-#: data/pipanel.ui:456
+#: data/pipanel.ui:546
 msgid "Set the size of icons used on the toolbar and menu"
 msgstr "ツールバーとメニューで使用されるアイコンのサイズを設定します"
 
-#: data/pipanel.ui:458
-msgid "Very large (48x48)"
-msgstr "特大 (48x48)"
-
-#: data/pipanel.ui:459
-msgid "Large (32x32)"
-msgstr "大 (32x32)"
-
-#: data/pipanel.ui:460
-msgid "Medium (24x24)"
-msgstr "中 (24x24)"
-
-#: data/pipanel.ui:461
-msgid "Small (16x16)"
-msgstr "小 (16x16)"
-
-#: data/pipanel.ui:490
+#: data/pipanel.ui:582 data/pipanel.ui:1446
 msgid "Position"
 msgstr "位置"
 
-#: data/pipanel.ui:501
+#: data/pipanel.ui:593 data/pipanel.ui:1457
 msgid "Top"
 msgstr "上"
 
-#: data/pipanel.ui:505
+#: data/pipanel.ui:597
 msgid "Show the taskbar at the top of the screen"
 msgstr "タスクバーを画面の上部に表示します"
 
-#: data/pipanel.ui:520
+#: data/pipanel.ui:612 data/pipanel.ui:1476
 msgid "Bottom"
 msgstr "下"
 
-#: data/pipanel.ui:524
+#: data/pipanel.ui:616
 msgid "Show the taskbar at the bottom of the screen"
 msgstr "タスクバーを画面の下部に表示します"
 
-#: data/pipanel.ui:568
+#: data/pipanel.ui:660
 msgid "Choose the colour of the taskbar background"
 msgstr "タスクバーの背景色を選択します"
 
-#: data/pipanel.ui:609
+#: data/pipanel.ui:662 data/pipanel.ui:1526
+msgid "Taskbar Colour"
+msgstr "タスクバーの色"
+
+#: data/pipanel.ui:704
 msgid "Choose the colour of text used on the taskbar"
 msgstr "タスクバーの文字色を選択します"
 
-#: data/pipanel.ui:636
+#: data/pipanel.ui:706 data/pipanel.ui:1570
+msgid "Taskbar Text Colour"
+msgstr "タスクバーの文字色"
+
+#: data/pipanel.ui:734 data/pipanel.ui:1598
 msgid "Location"
 msgstr "場所"
 
-#: data/pipanel.ui:649
+#: data/pipanel.ui:747
 msgid "Choose the screen where the taskbar is shown"
 msgstr "タスクバーを表示する画面を選択します"
 
-#: data/pipanel.ui:676
+#: data/pipanel.ui:773 data/pipanel.ui:1637
+msgid "Autohide"
+msgstr "自動的に非表示にする"
+
+#: data/pipanel.ui:786
+msgid "Automatically show and hide the taskbar"
+msgstr "タスクバーを自動的に表示・非表示します"
+
+#: data/pipanel.ui:812 data/pipanel.ui:1676
+msgid "Exclusive"
+msgstr "重なり防止"
+
+#: data/pipanel.ui:825
+msgid "Prevent maximised windows overlapping the taskbar"
+msgstr "最大化したウィンドウがタスクバーと重なるのを防ぎます"
+
+#: data/pipanel.ui:852
 msgid "Menu Bar"
 msgstr "タスクバー"
 
-#: data/pipanel.ui:699
+#: data/pipanel.ui:875
 msgid "Font"
 msgstr "フォント"
 
-#: data/pipanel.ui:713
+#: data/pipanel.ui:889
 msgid "Choose the font used for labels and menus"
 msgstr "ラベルやメニューで使用するフォントを選択します"
 
-#: data/pipanel.ui:741
+#: data/pipanel.ui:917
 msgid "Highlight Colour"
 msgstr "ハイライト色"
 
-#: data/pipanel.ui:755
+#: data/pipanel.ui:931
 msgid "Choose the colour used to highlight active elements"
 msgstr "アクティブな要素をハイライトするときに使用する色を選択します"
 
-#: data/pipanel.ui:782
+#: data/pipanel.ui:932
+msgid "Theme Colour"
+msgstr "テーマカラー"
+
+#: data/pipanel.ui:960
 msgid "Highlight Text Colour"
 msgstr "ハイライト文字色"
 
-#: data/pipanel.ui:796
+#: data/pipanel.ui:974
 msgid "Choose the colour used for text on active elements"
 msgstr "アクティブな要素をハイライトするときに使用する文字の色を選択します"
 
-#: data/pipanel.ui:823
+#: data/pipanel.ui:975
+msgid "Theme Text Colour"
+msgstr "テーマの文字色"
+
+#: data/pipanel.ui:1003
 msgid "Mouse Cursor"
 msgstr "マウスカーソル"
 
-#: data/pipanel.ui:836
+#: data/pipanel.ui:1016
 msgid "Set the size of the mouse cursor"
 msgstr "マウスカーソルの大きさを設定します"
 
-#: data/pipanel.ui:838
+#: data/pipanel.ui:1018
 msgid "Large"
 msgstr "大"
 
-#: data/pipanel.ui:839
+#: data/pipanel.ui:1019
 msgid "Medium"
 msgstr "中"
 
-#: data/pipanel.ui:840
+#: data/pipanel.ui:1020
 msgid "Small"
 msgstr "小"
 
-#: data/pipanel.ui:869
+#: data/pipanel.ui:1049
 msgid "Theme"
 msgstr "テーマ"
 
-#: data/pipanel.ui:880
+#: data/pipanel.ui:1060
 msgid "Light"
 msgstr "ライト"
 
-#: data/pipanel.ui:884
+#: data/pipanel.ui:1064
 msgid "Set the desktop to use light colours"
 msgstr "明るい色を使うようにデスクトップを設定します"
 
-#: data/pipanel.ui:899
+#: data/pipanel.ui:1079
 msgid "Dark"
 msgstr "ダーク"
 
-#: data/pipanel.ui:903
+#: data/pipanel.ui:1083
 msgid "Set the desktop to use dark colours"
 msgstr "暗い色を使うようにデスクトップを設定します"
 
-#: data/pipanel.ui:933
+#: data/pipanel.ui:1113
 msgid "New mouse cursor size will take effect at reboot"
 msgstr "新しいマウスカーソルの大きさは再起動後に適用されます"
 
-#: data/pipanel.ui:958
+#: data/pipanel.ui:1138
 msgid "System"
 msgstr "システム"
 
-#: data/pipanel.ui:981
-msgid "For large screens:"
-msgstr "大きな画面向け:"
+#: data/pipanel.ui:1161
+msgid "Style:"
+msgstr "スタイル:"
 
-#: data/pipanel.ui:992 data/pipanel.ui:1034 data/pipanel.ui:1076
+#: data/pipanel.ui:1174
+msgid "Select a taskbar- or dock-based style for the desktop"
+msgstr ""
+"デスクトップで、タスクバーもしくはDockどちらのスタイルにするか選択します"
+
+#: data/pipanel.ui:1179
+msgid "Taskbar"
+msgstr "タスクバー"
+
+#: data/pipanel.ui:1180
+msgid "Taskbar / Dock"
+msgstr "タスクバー / Dock"
+
+#: data/pipanel.ui:1181 data/pipanel.ui:1716
+msgid "Dock"
+msgstr "Dock"
+
+#: data/pipanel.ui:1206
+msgid "For very large screens:"
+msgstr "非常に大きな画面向け:"
+
+#: data/pipanel.ui:1217 data/pipanel.ui:1259 data/pipanel.ui:1301
+#: data/pipanel.ui:1343
 msgid "Set Defaults"
 msgstr "デフォルト設定にする"
 
-#: data/pipanel.ui:996
+#: data/pipanel.ui:1221
+msgid "Set to default values for very high-resolution displays"
+msgstr "超高解像度の画面向けのデフォルト値に設定します"
+
+#: data/pipanel.ui:1248
+msgid "For large screens:"
+msgstr "大きな画面向け:"
+
+#: data/pipanel.ui:1263
 msgid "Set to default values for high-resolution displays"
 msgstr "高解像度の画面向けのデフォルト値に設定します"
 
-#: data/pipanel.ui:1023
+#: data/pipanel.ui:1290
 msgid "For medium screens:"
 msgstr "普通の画面向け:"
 
-#: data/pipanel.ui:1038
+#: data/pipanel.ui:1305
 msgid "Set to default values for medium-resolution displays"
 msgstr "中解像度の画面向けのデフォルト値に設定します"
 
-#: data/pipanel.ui:1065
+#: data/pipanel.ui:1332
 msgid "For small screens:"
 msgstr "小さな画面向け:"
 
-#: data/pipanel.ui:1080
+#: data/pipanel.ui:1347
 msgid "Set to default values for low-resolution displays"
 msgstr "低解像度の画面向けのデフォルト値に設定します"
 
-#: data/pipanel.ui:1107
+#: data/pipanel.ui:1374
 msgid "Defaults"
 msgstr "デフォルト"
 
-#: data/pipanel.ui:1129 data/pipanel.ui:1280
+#: data/pipanel.ui:1410
+msgid "Set the size of icons used on the dock"
+msgstr "Dockで使用されるアイコンのサイズを設定します"
+
+#: data/pipanel.ui:1461
+msgid "Show the dock at the top of the screen"
+msgstr "Dockを画面の上部に表示します"
+
+#: data/pipanel.ui:1480
+msgid "Show the dock at the bottom of the screen"
+msgstr "Dockを画面の下部に表示します"
+
+#: data/pipanel.ui:1524
+msgid "Choose the colour of the dock background"
+msgstr "Dockの背景色を選択します"
+
+#: data/pipanel.ui:1568
+msgid "Choose the colour of text used on the dock"
+msgstr "Dockの文字色を選択します"
+
+#: data/pipanel.ui:1611
+msgid "Choose the screen where the dock is shown"
+msgstr "Dockを表示する画面を選択します"
+
+#: data/pipanel.ui:1650
+msgid "Automatically show and hide the dock"
+msgstr "Dockを自動的に表示・非表示します"
+
+#: data/pipanel.ui:1689
+msgid "Prevent maximised windows overlapping the dock"
+msgstr "最大化したウィンドウがDockと重なるのを防ぎます"
+
+#: data/pipanel.ui:1738 data/pipanel.ui:1908
 msgid "_Cancel"
 msgstr "キャンセル(_C)"
 
-#: data/pipanel.ui:1143 data/pipanel.ui:1294
+#: data/pipanel.ui:1752 data/pipanel.ui:1922
 msgid "_OK"
 msgstr "_OK"
 
 #: data/pipanel.desktop.in:4
 msgid "Configure the appearance of the desktop and windows"
 msgstr "デスクトップやウィンドウの外観を設定します"
+
+#~ msgid "Show Documents"
+#~ msgstr "ドキュメントを表示"
+
+#~ msgid "Very large (48x48)"
+#~ msgstr "特大 (48x48)"
+
+#~ msgid "Large (32x32)"
+#~ msgstr "大 (32x32)"
+
+#~ msgid "Medium (24x24)"
+#~ msgstr "中 (24x24)"
+
+#~ msgid "Small (16x16)"
+#~ msgstr "小 (16x16)"
 
 #, c-format
 #~ msgid "Desktop 1"
