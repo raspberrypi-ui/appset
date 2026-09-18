@@ -1109,7 +1109,7 @@ void save_app_settings (void)
     set_config_param (config_file, "geany", "color_scheme", cur_conf.darkmode ? "pixnoir.conf" : "");
 
     set_config_param (config_file, "geany", "editor_font", cur_conf.terminal_font);
-    sscanf (cur_conf.terminal_font, "Monospace %d", &val);
+    if (sscanf (cur_conf.terminal_font, "Monospace %d", &val) != 1) val = 10;
 
     str = g_strdup_printf ("Sans %d", val - 1);
     set_config_param (config_file, "geany", "tagbar_font", str);
