@@ -389,6 +389,7 @@ GtkWidget *get_tab (int tab)
             break;
         default :
             plugin = NULL;
+            window = NULL;
     }
 
     gtk_container_remove (GTK_CONTAINER (window), plugin);
