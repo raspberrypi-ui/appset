@@ -804,7 +804,6 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     reload_panel ();
     reload_desktop ();
     reload_theme (FALSE);
-    system ("rpcc none reload_widget_lists &");
 }
 
 static void enable_dock (int style)
@@ -904,6 +903,8 @@ static void enable_dock (int style)
     set_theme (theme_name (TEMP));
     save_gtk3_settings ();
     reload_theme (FALSE);
+
+    system ("rpcc none reload_widget_lists &");
 }
 
 static void on_switch_dock (GtkComboBox *, gpointer)
