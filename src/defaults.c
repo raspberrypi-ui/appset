@@ -813,25 +813,45 @@ static void enable_dock (int style)
     GKeyFile *kf;
     gsize len;
 
-    if (!style) return;
-
     // set up the dock in wf-panel-pi.ini
     user_config_file = wfpanel_file (FALSE);
     check_directory (user_config_file);
 
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
-    g_key_file_set_string (kf, "panel", "widgets_left", "");
-    g_key_file_set_string (kf, "nmenu", "overlay_text_col", "rgb(255,255,255)");
-    if (style == 1)
-        g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
-    else
+
+    switch (style)
     {
-        g_key_file_set_string (kf, "panel", "widgets_right", "");
-        g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist spacing0 clock spacing0");
-        g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter power tray bluetooth connect");
-        g_key_file_set_string (kf, "clock", "analogue", "1");
+        case 0 :
+            g_key_file_remove_key (kf, "panel", "widgets_left", NULL);
+            g_key_file_remove_key (kf, "panel", "widgets_right", NULL);
+            g_key_file_remove_key (kf, "dock", "widgets_left", NULL);
+            g_key_file_remove_key (kf, "dock", "widgets_right", NULL);
+            g_key_file_remove_key (kf, "nmenu", "overlay_text_col", NULL);
+            g_key_file_remove_key (kf, "clock", "analogue", NULL);
+            break;
+
+        case 1 :
+            g_key_file_set_string (kf, "panel", "widgets_left", "");
+            g_key_file_remove_key (kf, "panel", "widgets_right", NULL);
+            g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist");
+            g_key_file_remove_key (kf, "dock", "widgets_right", NULL);
+            g_key_file_set_string (kf, "nmenu", "overlay_text_col", "rgb(255,255,255)");
+            g_key_file_remove_key (kf, "clock", "analogue", NULL);
+            break;
+
+        case 2 :
+            g_key_file_set_string (kf, "panel", "widgets_left", "");
+            g_key_file_set_string (kf, "panel", "widgets_right", "");
+            g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist spacing0 clock spacing0");
+            g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter power tray bluetooth connect");
+            g_key_file_set_string (kf, "nmenu", "overlay_text_col", "rgb(255,255,255)");
+            g_key_file_set_string (kf, "clock", "analogue", "1");
+            break;
+
+        default : break;
     }
+
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
     g_free (str);
@@ -840,15 +860,22 @@ static void enable_dock (int style)
     g_free (user_config_file);
 
     // set the desktop
-    cur_conf.passive_desktop = TRUE;
-    save_pcman_g_settings ();
-
-    // add wastebasket to places
     user_config_file = pcmanfm_g_file (FALSE);
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 
-    g_key_file_set_integer (kf, "places", "places_trash", 1);
+    if (style)
+    {
+        g_key_file_set_integer (kf, "places", "places_trash", 1);
+        g_key_file_set_integer (kf, "ui", "use_swaybg", TRUE);
+        cur_conf.passive_desktop = TRUE;
+    }
+    else
+    {
+        g_key_file_remove_key (kf, "places", "places_trash", NULL);
+        g_key_file_remove_key (kf, "ui", "use_swaybg", NULL);
+        cur_conf.passive_desktop = FALSE;
+    }
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);
@@ -860,10 +887,20 @@ static void enable_dock (int style)
     restart_desktop ();
 
     // set the theme colours
-    gdk_rgba_parse (&cur_conf.bar_colour[0], "rgba(0,0,0,0)");
-    gdk_rgba_parse (&cur_conf.bar_colour[1], "rgba(0,0,0,0)");
-    gdk_rgba_parse (&cur_conf.bartext_colour[0], "rgb(255,255,255)");
-    gdk_rgba_parse (&cur_conf.bartext_colour[1], "rgb(255,255,255)");
+    if (style)
+    {
+        gdk_rgba_parse (&cur_conf.bar_colour[0], "rgba(0,0,0,0)");
+        gdk_rgba_parse (&cur_conf.bar_colour[1], "rgba(0,0,0,0)");
+        gdk_rgba_parse (&cur_conf.bartext_colour[0], "rgb(255,255,255)");
+        gdk_rgba_parse (&cur_conf.bartext_colour[1], "rgb(255,255,255)");
+    }
+    else
+    {
+        cur_conf.bar_colour[0] = def_med.bar_colour[0];
+        cur_conf.bar_colour[1] = def_med.bar_colour[1];
+        cur_conf.bartext_colour[0] = def_med.bartext_colour[0];
+        cur_conf.bartext_colour[1] = def_med.bartext_colour[1];
+    }
     set_theme (theme_name (TEMP));
     save_gtk3_settings ();
     reload_theme (FALSE);
@@ -871,17 +908,8 @@ static void enable_dock (int style)
 
 static void on_switch_dock (GtkComboBox *, gpointer)
 {
-    switch (cur_conf.icon_size)
-    {
-        case 20 :   on_set_defaults (NULL, (void *) 1);
-                    break;
-        case 52 :   on_set_defaults (NULL, (void *) 3);
-                    break;
-        case 68 :   on_set_defaults (NULL, (void *) 4);
-                    break;
-        default :   on_set_defaults (NULL, (void *) 2);
-                    break;
-    }
+    cur_conf.dock = gtk_combo_box_get_active (GTK_COMBO_BOX (combo_style));
+    enable_dock (cur_conf.dock);
 }
 
 /*----------------------------------------------------------------------------*/
