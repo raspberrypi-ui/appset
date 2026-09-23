@@ -860,6 +860,8 @@ static void enable_dock (int style)
 
     // set the desktop
     user_config_file = pcmanfm_g_file (FALSE);
+    check_directory (user_config_file);
+
     kf = g_key_file_new ();
     g_key_file_load_from_file (kf, user_config_file, G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, NULL);
 

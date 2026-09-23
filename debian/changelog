@@ -1,3 +1,9 @@
+pipanel (1:2.23) trixie; urgency=medium
+
+  * Ensure pcmanfm desktop exists when switching dock mode
+
+ -- Simon Long <simon@raspberrypi.com>  Wed, 23 Sep 2026 11:40:32 +0100
+
 pipanel (1:2.22) trixie; urgency=medium
 
   * Make switching dock modes independent of changing defaults
