@@ -843,7 +843,7 @@ static void enable_dock (int style)
             g_key_file_set_string (kf, "panel", "widgets_left", "");
             g_key_file_set_string (kf, "panel", "widgets_right", "");
             g_key_file_set_string (kf, "dock", "widgets_left", "nmenu spacing0 tlist spacing0 clock spacing0");
-            g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter power tray bluetooth connect");
+            g_key_file_set_string (kf, "dock", "widgets_right", "netman volumepulse updater ejecter squeek split bluetooth connect power tray batt");
             g_key_file_set_string (kf, "nmenu", "overlay_text_col", "rgb(255,255,255)");
             g_key_file_set_string (kf, "clock", "analogue", "1");
             break;
