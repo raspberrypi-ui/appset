@@ -804,6 +804,8 @@ static void on_set_defaults (GtkButton *btn, gpointer ptr)
     reload_panel ();
     reload_desktop ();
     reload_theme (FALSE);
+
+    system ("rpcc none reload_shortcuts &");
 }
 
 static void enable_dock (int style)
