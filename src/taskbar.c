@@ -598,7 +598,8 @@ static void on_bar_size_set (GtkComboBox *btn, gpointer ptr)
     }
 
     save_panel_settings ();
-    if (wm != WM_OPENBOX) reload_desktop ();
+    set_desktop_margins ();
+    reload_desktop ();
     reload_panel ();
 }
 
@@ -608,7 +609,8 @@ static void on_bar_pos_set (GtkRadioButton *btn, gpointer ptr)
     else cur_conf.barpos = 1;
 
     save_panel_settings ();
-    if (wm != WM_OPENBOX) reload_desktop ();
+    set_desktop_margins ();
+    reload_desktop ();
     reload_panel ();
 }
 
@@ -620,7 +622,8 @@ static void on_bar_loc_set (GtkComboBox *cb, gpointer ptr)
     gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &cur_conf.monitor, -1);
 
     save_panel_settings ();
-    if (wm != WM_OPENBOX) reload_desktop ();
+    set_desktop_margins ();
+    reload_desktop ();
     reload_panel ();
 }
 
@@ -660,6 +663,8 @@ static void on_dock_size_set (GtkComboBox *btn, gpointer ptr)
     }
 
     save_panel_settings ();
+    set_desktop_margins ();
+    reload_desktop ();
     reload_panel ();
 }
 
@@ -685,7 +690,8 @@ static void on_dock_pos_set (GtkRadioButton *btn, gpointer ptr)
     else cur_conf.dockpos = 1;
 
     save_panel_settings ();
-    if (wm != WM_OPENBOX) reload_desktop ();
+    set_desktop_margins ();
+    reload_desktop ();
     reload_panel ();
 }
 
@@ -697,7 +703,8 @@ static void on_dock_loc_set (GtkComboBox *cb, gpointer ptr)
     gtk_tree_model_get (GTK_TREE_MODEL (sortmons), &iter, 0, &cur_conf.dmonitor, -1);
 
     save_panel_settings ();
-    if (wm != WM_OPENBOX) reload_desktop ();
+    set_desktop_margins ();
+    reload_desktop ();
     reload_panel ();
 }
 

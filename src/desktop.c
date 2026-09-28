@@ -37,6 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Typedefs and macros                                                        */
 /*----------------------------------------------------------------------------*/
 
+#define DESK_MARGIN 5
+
 /*----------------------------------------------------------------------------*/
 /* Global data                                                                */
 /*----------------------------------------------------------------------------*/
@@ -106,6 +108,33 @@ static void atk_label (GtkWidget *widget, GtkLabel *label)
     relation = atk_relation_new (targets, 1, ATK_RELATION_LABELLED_BY);
     atk_relation_set_add (relation_set, relation);
     g_object_unref (G_OBJECT (relation));
+}
+
+void set_desktop_margins (void)
+{
+    int desk;
+
+    for (desk = 0; desk < ndesks; desk++)
+    {
+        // set defaults
+        cur_conf.desktops[desk].tmargin = DESK_MARGIN;
+        cur_conf.desktops[desk].bmargin = DESK_MARGIN;
+
+        // override if needed
+        if (desk == cur_conf.monitor)
+        {
+            if (cur_conf.barpos) cur_conf.desktops[desk].bmargin += cur_conf.icon_size;
+            else cur_conf.desktops[desk].tmargin += cur_conf.icon_size;
+        }
+
+        if (desk == cur_conf.dmonitor)
+        {
+            if (cur_conf.dockpos) cur_conf.desktops[desk].bmargin += cur_conf.dock_icon_size ;
+            else cur_conf.desktops[desk].tmargin += cur_conf.dock_icon_size;
+        }
+
+        save_pcman_settings (desk);
+    }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -316,6 +345,8 @@ void save_pcman_settings (int desktop)
     g_key_file_set_integer (kf, "*", "show_trash", cur_conf.desktops[desktop].show_trash);
     g_key_file_set_integer (kf, "*", "show_mounts", cur_conf.desktops[desktop].show_mnts);
     g_key_file_set_string (kf, "*", "folder", cur_conf.desktops[desktop].desktop_folder);
+    g_key_file_set_integer (kf, "*", "tmargin", cur_conf.desktops[desktop].tmargin);
+    g_key_file_set_integer (kf, "*", "bmargin", cur_conf.desktops[desktop].bmargin);
 
     str = g_key_file_to_data (kf, &len, NULL);
     g_file_set_contents (user_config_file, str, len, NULL);

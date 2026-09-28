@@ -53,6 +53,8 @@ typedef struct {
     int show_home;
     int show_trash;
     int show_mnts;
+    int tmargin;
+    int bmargin;
 } DesktopConfig;
 
 typedef struct {

@@ -43,6 +43,7 @@ extern char *pcmanfm_g_file (gboolean global);
 extern void save_pcman_settings (int desktop);
 extern void save_pcman_g_settings (void);
 extern void set_desktop_controls (void);
+extern void set_desktop_margins (void);
 extern void load_desktop_tab (GtkBuilder *builder);
 
 /* End of file */
