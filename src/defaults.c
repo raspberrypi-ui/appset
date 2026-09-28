@@ -911,6 +911,8 @@ static void enable_dock (int style)
     save_gtk3_settings ();
     reload_theme (FALSE);
 
+    set_desktop_controls ();
+    set_taskbar_controls ();
     system ("rpcc none reload_widget_lists &");
 }
 
