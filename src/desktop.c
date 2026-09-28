@@ -115,7 +115,7 @@ void set_desktop_margins (void)
 {
     int desk;
 
-    for (desk = 0; desk < ndesks; desk++)
+    for (desk = 0; desk < cur_conf.common_bg ? 0 : ndesks; desk++)
     {
         // set defaults
         cur_conf.desktops[desk].tmargin = DESK_MARGIN;
