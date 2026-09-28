@@ -258,6 +258,16 @@ static void load_pcman_settings (int desktop)
         if (err == NULL && ret) cur_conf.desktops[desktop].desktop_folder = g_strdup (ret);
         else DEFAULT (desktops[desktop].desktop_folder);
         g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "tmargin", &err);
+        if (err == NULL && val >= 0) cur_conf.desktops[desktop].tmargin = val;
+        else DEFAULT (desktops[desktop].tmargin);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "bmargin", &err);
+        if (err == NULL && val >= 0) cur_conf.desktops[desktop].bmargin = val;
+        else DEFAULT (desktops[desktop].bmargin);
     }
     else
     {
@@ -269,6 +279,8 @@ static void load_pcman_settings (int desktop)
         DEFAULT (desktops[desktop].show_trash);
         DEFAULT (desktops[desktop].show_mnts);
         DEFAULT (desktops[desktop].desktop_folder);
+        DEFAULT (desktops[desktop].tmargin);
+        DEFAULT (desktops[desktop].bmargin);
     }
     g_key_file_free (kf);
     g_free (user_config_file);

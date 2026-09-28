@@ -362,6 +362,16 @@ static void defaults_pcman (int desktop)
         if (err == NULL && ret) def_med.desktops[desktop].desktop_folder = g_strdup (ret);
         else def_med.desktops[desktop].desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);
         g_free (ret);
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "tmargin", &err);
+        if (err == NULL && val >= 0) def_med.desktops[desktop].tmargin = val;
+        else def_med.desktops[desktop].tmargin = 41;
+
+        err = NULL;
+        val = g_key_file_get_integer (kf, "*", "bmargin", &err);
+        if (err == NULL && val >= 0) def_med.desktops[desktop].bmargin = val;
+        else def_med.desktops[desktop].bmargin = 5;
     }
     else
     {
@@ -373,6 +383,8 @@ static void defaults_pcman (int desktop)
         def_med.desktops[desktop].show_trash = 0;
         def_med.desktops[desktop].show_mnts = 0;
         def_med.desktops[desktop].desktop_folder = g_build_filename (g_get_home_dir (), "Desktop", NULL);
+        def_med.desktops[desktop].tmargin = 41;
+        def_med.desktops[desktop].bmargin = 5;
     }
     g_key_file_free (kf);
     g_free (user_config_file);
