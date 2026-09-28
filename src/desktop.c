@@ -144,6 +144,13 @@ void set_desktop_margins (void)
     }
 }
 
+void reset_desktop_margins (void)
+{
+    load_wfpanel_settings ();
+    set_desktop_margins ();
+    reload_desktop ();
+}
+
 /*----------------------------------------------------------------------------*/
 /* Load / save data                                                           */
 /*----------------------------------------------------------------------------*/
