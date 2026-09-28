@@ -54,12 +54,13 @@ static GtkWidget *sw_bar_ahide, *sw_bar_excl, *sw_dock_ahide, *sw_dock_excl;
 /* Handler IDs */
 static gulong id_size, id_pos, id_monitor, id_dsize, id_dpos, id_dmonitor, id_bara, id_bare, id_doca, id_doce;
 
+gboolean bar_vis, doc_vis;
+
 /*----------------------------------------------------------------------------*/
 /* Prototypes                                                                 */
 /*----------------------------------------------------------------------------*/
 
 static void load_lxpanel_settings (void);
-static void load_wfpanel_settings (void);
 static void save_lxpanel_settings (void);
 static void save_wfpanel_settings (void);
 static void on_bar_size_set (GtkComboBox *btn, gpointer ptr);
@@ -144,13 +145,13 @@ static void load_lxpanel_settings (void)
     g_free (user_config_file);
 }
 
-static void load_wfpanel_settings (void)
+void load_wfpanel_settings (void)
 {
     char *user_config_file, *ret;
     GKeyFile *kf;
     GError *err;
     gint val;
-    int panl = 0, panr = 0, docl = 0, docr = 0;
+    gboolean panl = FALSE, panr = FALSE, docl = FALSE, docr = FALSE;
 
     // read in data from file to a key file
     user_config_file = wfpanel_file (TRUE);
@@ -243,33 +244,37 @@ static void load_wfpanel_settings (void)
 
         err = NULL;
         ret = g_key_file_get_string (kf, "panel", "widgets_left", &err);
-        if (err == NULL && ret && strlen (ret)) panl = 1;
+        if (err == NULL && ret && strlen (ret)) panl = TRUE;
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "panel", "widgets_right", &err);
-        if (err == NULL && ret && strlen (ret)) panr = 1;
+        if (err == NULL && ret && strlen (ret)) panr = TRUE;
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
-        if (err == NULL && ret && strlen (ret)) docl = 1;
+        if (err == NULL && ret && strlen (ret)) docl = TRUE;
         g_free (ret);
 
         err = NULL;
         ret = g_key_file_get_string (kf, "dock", "widgets_right", &err);
-        if (err == NULL && ret && strlen (ret)) docr = 1;
+        if (err == NULL && ret && strlen (ret)) docr = TRUE;
         g_free (ret);
     }
     else
     {
         DEFAULT (barpos);
-        DEFAULT (icon_size);
-        DEFAULT (task_width);
-        DEFAULT (monitor);
         DEFAULT (dockpos);
+        DEFAULT (icon_size);
+        DEFAULT (dock_icon_size);
+        DEFAULT (monitor);
         DEFAULT (dmonitor);
-        DEFAULT (dock);
+        DEFAULT (task_width);
+        panl = TRUE;
+        panr = TRUE;
+        docl = FALSE;
+        docr = FALSE;
     }
     g_key_file_free (kf);
     g_free (user_config_file);
@@ -379,27 +384,32 @@ static void load_wfpanel_settings (void)
 
         err = NULL;
         ret = g_key_file_get_string (kf, "panel", "widgets_left", &err);
-        if (err == NULL && ret) panl = strlen (ret) ? 1 : 0;
+        if (err == NULL && ret) panl = strlen (ret) ? TRUE : FALSE;
         g_free (ret);
         err = NULL;
         ret = g_key_file_get_string (kf, "panel", "widgets_right", &err);
-        if (err == NULL && ret) panr = strlen (ret) ? 1 : 0;
+        if (err == NULL && ret) panr = strlen (ret) ? TRUE : FALSE;
         g_free (ret);
         err = NULL;
         ret = g_key_file_get_string (kf, "dock", "widgets_left", &err);
-        if (err == NULL && ret) docl = strlen (ret) ? 1 : 0;
+        if (err == NULL && ret) docl = strlen (ret) ? TRUE : FALSE;
         g_free (ret);
         err = NULL;
         ret = g_key_file_get_string (kf, "dock", "widgets_right", &err);
-        if (err == NULL && ret) docr = strlen (ret) ? 1 : 0;
+        if (err == NULL && ret) docr = strlen (ret) ? TRUE : FALSE;
         g_free (ret);
-
-        cur_conf.dock = 0;
-        if (docl || docr) cur_conf.dock++;
-        if (!panl && !panr) cur_conf.dock++;
     }
     g_key_file_free (kf);
     g_free (user_config_file);
+
+    cur_conf.dock = 0;
+    if (docl || docr) cur_conf.dock++;
+    if (!panl && !panr) cur_conf.dock++;
+
+    if (panl || panr) bar_vis = TRUE;
+    else bar_vis = FALSE;
+    if (docl || docr) doc_vis = TRUE;
+    else doc_vis = FALSE;
 }
 
 static void save_lxpanel_settings (void)

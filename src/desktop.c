@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <glib/gi18n.h>
 
 #include "pipanel.h"
+#include "taskbar.h"
 #include "defaults.h"
 
 #include "desktop.h"
@@ -123,14 +124,20 @@ void set_desktop_margins (void)
         // override if needed
         if (desk == cur_conf.monitor)
         {
-            if (cur_conf.barpos) cur_conf.desktops[desk].bmargin += cur_conf.icon_size;
-            else cur_conf.desktops[desk].tmargin += cur_conf.icon_size;
+            if (wm != WM_LABWC || bar_vis)
+            {
+                if (cur_conf.barpos) cur_conf.desktops[desk].bmargin += cur_conf.icon_size;
+                else cur_conf.desktops[desk].tmargin += cur_conf.icon_size;
+            }
         }
 
         if (desk == cur_conf.dmonitor)
         {
-            if (cur_conf.dockpos) cur_conf.desktops[desk].bmargin += cur_conf.dock_icon_size ;
-            else cur_conf.desktops[desk].tmargin += cur_conf.dock_icon_size;
+            if (wm == WM_LABWC && doc_vis)
+            {
+                if (cur_conf.dockpos) cur_conf.desktops[desk].bmargin += cur_conf.dock_icon_size ;
+                else cur_conf.desktops[desk].tmargin += cur_conf.dock_icon_size;
+            }
         }
 
         save_pcman_settings (desk);

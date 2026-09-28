@@ -888,6 +888,8 @@ static void enable_dock (int style)
     g_key_file_free (kf);
     g_free (user_config_file);
 
+    load_wfpanel_settings ();
+    set_desktop_margins ();
     restart_desktop ();
 
     // set the theme colours
