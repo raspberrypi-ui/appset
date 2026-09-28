@@ -113,9 +113,12 @@ static void atk_label (GtkWidget *widget, GtkLabel *label)
 
 void set_desktop_margins (void)
 {
-    int desk;
+    int desk, desks;
 
-    for (desk = 0; desk < cur_conf.common_bg ? 0 : ndesks; desk++)
+    if (cur_conf.common_bg) desks = 1;
+    else desks = ndesks;
+
+    for (desk = 0; desk < desks; desk++)
     {
         // set defaults
         cur_conf.desktops[desk].tmargin = DESK_MARGIN;
