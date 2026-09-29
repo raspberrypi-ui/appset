@@ -120,67 +120,47 @@ void set_desktop_margins (void)
         // calculate the max margin on any screen and use that for the common case
         cur_conf.desktops[0].tmargin = 0;
         cur_conf.desktops[0].bmargin = 0;
-        for (desk = 0; desk < ndesks; desk++)
+    }
+
+    for (desk = 0; desk < ndesks; desk++)
+    {
+        // set defaults
+        t = DESK_MARGIN;
+        b = DESK_MARGIN;
+
+        // override if needed
+        if (desk == cur_conf.monitor)
         {
-            // set defaults
-            t = DESK_MARGIN;
-            b = DESK_MARGIN;
-
-            // override if needed
-            if (desk == cur_conf.monitor)
+            if (wm != WM_LABWC || bar_vis)
             {
-                if (wm != WM_LABWC || bar_vis)
-                {
-                    if (cur_conf.barpos) b += cur_conf.icon_size;
-                    else t += cur_conf.icon_size;
-                }
+                if (cur_conf.barpos) b += cur_conf.icon_size;
+                else t += cur_conf.icon_size;
             }
+        }
 
-            if (desk == cur_conf.dmonitor)
+        if (desk == cur_conf.dmonitor)
+        {
+            if (wm == WM_LABWC && doc_vis)
             {
-                if (wm == WM_LABWC && doc_vis)
-                {
-                    if (cur_conf.dockpos) b += cur_conf.dock_icon_size ;
-                    else t += cur_conf.dock_icon_size;
-                }
+                if (cur_conf.dockpos) b += cur_conf.dock_icon_size ;
+                else t += cur_conf.dock_icon_size;
             }
+        }
 
+        if (cur_conf.common_bg)
+        {
             if (t > cur_conf.desktops[0].tmargin) cur_conf.desktops[0].tmargin = t;
             if (b > cur_conf.desktops[0].bmargin) cur_conf.desktops[0].bmargin = b;
         }
-
-        save_pcman_settings (0);
-    }
-    else
-    {
-        for (desk = 0; desk < ndesks; desk++)
+        else
         {
-            // set defaults
-            cur_conf.desktops[desk].tmargin = DESK_MARGIN;
-            cur_conf.desktops[desk].bmargin = DESK_MARGIN;
-
-            // override if needed
-            if (desk == cur_conf.monitor)
-            {
-                if (wm != WM_LABWC || bar_vis)
-                {
-                    if (cur_conf.barpos) cur_conf.desktops[desk].bmargin += cur_conf.icon_size;
-                    else cur_conf.desktops[desk].tmargin += cur_conf.icon_size;
-                }
-            }
-
-            if (desk == cur_conf.dmonitor)
-            {
-                if (wm == WM_LABWC && doc_vis)
-                {
-                    if (cur_conf.dockpos) cur_conf.desktops[desk].bmargin += cur_conf.dock_icon_size ;
-                    else cur_conf.desktops[desk].tmargin += cur_conf.dock_icon_size;
-                }
-            }
-
+            cur_conf.desktops[desk].tmargin = t;
+            cur_conf.desktops[desk].bmargin = b;
             save_pcman_settings (desk);
         }
     }
+
+    if (cur_conf.common_bg) save_pcman_settings (0);
 }
 
 void reset_desktop_margins (void)
@@ -577,6 +557,7 @@ static void on_desktop_same (GtkCheckButton *btn, gpointer ptr)
         for (i = 0; i < ndesks; i++) load_pcman_settings (i);
     }
     set_desktop_controls ();
+    set_desktop_margins ();
     save_pcman_g_settings ();
     save_pcman_settings (0);
     reload_desktop ();
