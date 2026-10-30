@@ -1,3 +1,9 @@
+pipanel (1:2.26) trixie; urgency=medium
+
+  * Fix crash when switching dark theme under X due to missing terminal font
+
+ -- Simon Long <simon@raspberrypi.com>  Fri, 30 Oct 2026 14:40:23 +0000
+
 pipanel (1:2.25) trixie; urgency=medium
 
   * Set desktop margins

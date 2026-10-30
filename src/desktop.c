@@ -330,22 +330,22 @@ static void load_pcman_g_settings (void)
 
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "big_icon_size", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.folder_size = val;
+        if (err == NULL && val >= 8 && val <= 256) cur_conf.folder_size = val;
         else DEFAULT (folder_size);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "thumbnail_size", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.thumb_size = val;
+        if (err == NULL && val >= 8 && val <= 256) cur_conf.thumb_size = val;
         else DEFAULT (thumb_size);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "pane_icon_size", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.pane_size = val;
+        if (err == NULL && val >= 8 && val <= 256) cur_conf.pane_size = val;
         else DEFAULT (pane_size);
 
         err = NULL;
         val = g_key_file_get_integer (kf, "ui", "small_icon_size", &err);
-        if (err == NULL && val >= 0 && val <= 1) cur_conf.sicon_size = val;
+        if (err == NULL && val >= 8 && val <= 256) cur_conf.sicon_size = val;
         else DEFAULT (sicon_size);
     }
     else

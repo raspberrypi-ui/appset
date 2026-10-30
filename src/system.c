@@ -261,6 +261,7 @@ static void load_lxsession_settings (void)
         g_key_file_free (kf);
         g_free (user_config_file);
         DEFAULT (desktop_font);
+        DEFAULT (terminal_font);
         DEFAULT (tb_icon_size);
         DEFAULT (cursor_size);
         return;
@@ -284,6 +285,19 @@ static void load_lxsession_settings (void)
         }
     }
     g_free (ret);
+
+    // set the terminal font based on desktop icon size - also set only as part of defaults
+    switch (cur_conf.sicon_size)
+    {
+        case 16:    cur_conf.terminal_font = g_strdup ("Monospace 8");
+                    break;
+        case 32:    cur_conf.terminal_font = g_strdup ("Monospace 15");
+                    break;
+        case 48:    cur_conf.terminal_font = g_strdup ("Monospace 20");
+                    break;
+        default:    cur_conf.terminal_font = g_strdup ("Monospace 10");
+                    break;
+    }
 
     err = NULL;
     val = g_key_file_get_integer (kf, "GTK", "iGtk/CursorThemeSize", &err);
