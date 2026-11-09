@@ -1141,6 +1141,9 @@ void save_app_settings (void)
     set_config_param (config_file, "general", "display_result_color", cur_conf.darkmode ? "rgb(246,245,244)" : "black");
     set_config_param (config_file, "general", "display_stack_color", cur_conf.darkmode ? "rgb(246,245,244)" : "black");
     g_free (config_file);
+
+    // mousepad
+    vsystem ("gsettings set org.xfce.mousepad.preferences.view color-scheme %s", cur_conf.darkmode ? "oblivion" : "classic");
 }
 
 /*----------------------------------------------------------------------------*/
