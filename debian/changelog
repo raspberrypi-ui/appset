@@ -1,3 +1,9 @@
+pipanel (1:2.27) trixie; urgency=medium
+
+  * Switch mousepad theme with dark mode
+
+ -- Simon Long <simon@raspberrypi.com>  Tue, 10 Nov 2026 07:15:14 +0000
+
 pipanel (1:2.26) trixie; urgency=medium
 
   * Fix crash when switching dark theme under X due to missing terminal font
